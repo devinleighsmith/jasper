@@ -1,0 +1,35 @@
+{
+  "name": "JASPER",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {},
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "./docker/manage build",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "rangav.vscode-thunder-client",
+        "vue.volar",
+        "christian-kohler.path-intellisense",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "amazonwebservices.aws-toolkit-vscode"
+      ],
+      "settings": {
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "remoteUser": "root"
+}
