@@ -53,6 +53,9 @@ services:
     ports:
       - 5000:5000
     volumes:
+      - ../api/:/opt/app-root/src/api
+      - scv-api-dev-bin:/opt/app-root/src/api/bin
+      - scv-api-dev-obj:/opt/app-root/src/api/obj
       - ./seed:/opt/app-root/data
     depends_on:
       - db
@@ -60,7 +63,7 @@ services:
       /bin/bash -c "
         echo Waiting for the database service to start up ...;
         sleep 10;
-        /usr/libexec/s2i/run;"
+        dotnet watch run --project /opt/app-root/src/api/api.csproj --urls=http://+:5000" --verbose;"
 
   db:
     image: centos/postgresql-12-centos8
@@ -73,3 +76,7 @@ services:
       - 5432:5432
     volumes:
       - ./tmp:/tmp2
+
+volumes:
+  scv-api-dev-bin:
+  scv-api-dev-obj:
