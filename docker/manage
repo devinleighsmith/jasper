@@ -52,7 +52,10 @@ usage() {
 EOF
 exit 1
 }
-
+# -----------------------------------------------------------------------------------------------------------------
+# Default Settings:
+# -----------------------------------------------------------------------------------------------------------------
+DEFAULT_CONTAINERS="db api web"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
@@ -130,9 +133,11 @@ build-web-dev() {
   echo -e "Building the scv-web-dev image using s2i ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   ${S2I_EXE} build \
+    --copy \
     -e "DEV_MODE=true" \
+    -e WEB_BASE_HREF=${WEB_BASE_HREF} \
     '../web' \
-    'quay.io/centos7/nodejs-12-centos7' \
+    'centos/nodejs-12-centos7' \
     'scv-web-dev'
   echo -e "===================================================================================================="
 }
@@ -165,20 +170,23 @@ configureEnvironment () {
 
 getStartupParams() {
   CONTAINERS=""
-
-  ARGS=""
+  ARGS="--force-recreate"
 
   for arg in $@; do
     case "$arg" in
       *=*)
         # Skip it
-        ;;
+        ;;  
      -*)
         ARGS+=" $arg";;
       *)
         CONTAINERS+=" $arg";;
     esac
   done
+
+  if [ -z "$CONTAINERS" ]; then
+    CONTAINERS="$DEFAULT_CONTAINERS"
+  fi
 
   echo ${ARGS} ${CONTAINERS}
 }

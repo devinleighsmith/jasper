@@ -10,9 +10,14 @@ module.exports = {
 	configureWebpack: {
 		devServer: {
 			historyApiFallback: true,
-			host: 'localhost',
+			host: '0.0.0.0',
 			port: 1339,
 			https: true,
+			watchOptions: {
+				ignored: /node_modules/,
+				aggregateTimeout: 300,
+				poll: 1000,
+			},
 			proxy: {
 				//This is for WEB_BASE_HREF = '/' specifically. 
 				//If having problems connecting, try adding: netsh http add iplisten 127.0.0.1
