@@ -22,11 +22,11 @@ module.exports = {
 				//This is for WEB_BASE_HREF = '/' specifically. 
 				//If having problems connecting, try adding: netsh http add iplisten 127.0.0.1
 				'^/api': {
-					target: "https://localhost:44369",
+					target: "http://host.docker.internal:5000",
 					headers: {
 						Connection: 'keep-alive',
 						'X-Forwarded-Host': 'localhost',
-						'X-Forwarded-Port': '1339',
+						'X-Forwarded-Port': '8080',
 						'X-Base-Href': '/'
 					},
 					changeOrigin: true
