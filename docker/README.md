@@ -1,5 +1,7 @@
 # Running the Application on DevContainer for Local Development
 
+Hot reloading is configured in both frontend and backend so developers can see the effects of the code changes almost instantly without having to completely restart the application. This significantly speeds up the development process.
+
 ## Pre-requisite
 
 Ensure `Docker` and `Dev Containers` extenion (`ms-vscode-remote.remote-containers`) is installed in your machine.
@@ -8,68 +10,32 @@ Ensure `Docker` and `Dev Containers` extenion (`ms-vscode-remote.remote-containe
 
 1. Launch code in VSCode.
 2. Hit `Ctrl + Shift + P`, select `Dev Containers: Open Folder in Container...` and wait for it to completely load.
-3. [Start](#starting-the-project) the project.
-
-## Enabling Hot Reloading and Debugging
-
-Hot reloading is a feature that lets you see the effects of your code changes almost instantly without having to completely restart the application. This significantly speeds up the development process.
-
-### Frontend
-
-1. Go to `./manage` file.
-2. Find the `DEFAULT_CONTAINERS` and replace `web` with `web-dev`.
+3. Building the project.
 
 ```
-DEFAULT_CONTAINERS="db api web-dev"
+./manage build-debug
 ```
 
-3. Find the `build-all` function and replace with the code below.
+4. Starting the project.
 
 ```
-build-all() {
- build-web-dev
- build-api
-}
-```
-
-4. [Rebuild](#building-the-images) the images.
-5. [Start](#starting-the-project) the project.
-
-### Backend
-
-- The backend is automatically utilizing hot reloading.
-- Add the code below to the `launch.json` to enable remote debugging.
-
-```
-{
-  "configurations": [
-    {
-      "name": ".NET Core Docker Attach",
-      "type": "coreclr",
-      "request": "attach",
-      "processId": "${command:pickRemoteProcess}",
-      "pipeTransport": {
-        "pipeProgram": "docker",
-        "pipeArgs": ["exec", "-i", "scv-api-1"],
-        "debuggerPath": "/vsdbg/vsdbg",
-        "pipeCwd": "${workspaceRoot}",
-        "quoteArgs": false
-      },
-      "sourceFileMap": {
-        "/opt/app-root/src": "${workspaceRoot}/"
-      }
-    }
-  ]
-}
+./manage start-debug
 ```
 
 ## Notes
 
-- When the error below occurs, go to `manage` file and change the _Select End Line of Sequence_ (lower right hand side of VSCode) from **CRLF** to **LF**.
+- DevContainer will fail to build/rebuild when connected to the BC Gov's VPN.
+- You may find this command handy when wiping all unused containers, volumes, networks and images.
 
 ```
-bash: ./manage: /bin/bash^M: bad interpreter: No such file or directory
+docker system prune -a --volumes
 ```
+
+## Using the Application
+
+- By default, the main developer UI is exposed at; https://localhost:8080/
+- The Swagger API and documentation is available at; https://localhost:8080/api/
+- Which is also exposed directly at; http://localhost:5000/api/
 
 # Running the Application on Docker
 
