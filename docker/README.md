@@ -85,6 +85,6 @@ Since the services are started interactively, you will have to issue this comman
 
 ## Using the Application
 
-- By default, the main developer UI is exposed at; https://localhost:8080/scjscv/
-- The Swagger API and documentation is available at; https://localhost:8080/scjscv/api/
+- By default, the main developer UI is exposed at; https://localhost:8080/jasper/
+- The Swagger API and documentation is available at; https://localhost:8080/jasper/api/
 - Which is also exposed directly at; http://localhost:5000/api/

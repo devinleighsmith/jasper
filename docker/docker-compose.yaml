@@ -2,7 +2,7 @@ version: "3.4"
 services:
 
   web:
-    image: scv-web
+    image: "${COMPOSE_PROJECT_NAME}-web"
     environment:
       - API_URL=${API_URL}
       - USE_SELF_SIGNED_SSL=${USE_SELF_SIGNED_SSL}
@@ -16,7 +16,7 @@ services:
       - api
 
   web-dev:
-    image: "scv-web-dev"
+    image: "${COMPOSE_PROJECT_NAME}-web-dev"
     environment:
       - API_URL=${API_URL}
       - WEB_BASE_HREF=${WEB_BASE_HREF}
@@ -33,8 +33,8 @@ services:
       - api
 
   api:
-    image: scv-api
-    environment: 
+    image: "${COMPOSE_PROJECT_NAME}-api"
+    environment:
       - ASPNETCORE_URLS=${ASPNETCORE_URLS}
       - FileServicesClient__Username=${FileServicesClientUsername}
       - FileServicesClient__Password=${FileServicesClientPassword}
@@ -73,8 +73,8 @@ services:
       - ../api/:/opt/app-root/src/api
       - ../db/:/opt/app-root/src/db
       - ../jc-interface-client/:/opt/app-root/src/jc-interface-client
-      - scv-api-dev-bin:/opt/app-root/src/api/bin
-      - scv-api-dev-obj:/opt/app-root/src/api/obj
+      - api-dev-bin:/opt/app-root/src/api/bin
+      - api-dev-obj:/opt/app-root/src/api/obj
       - ./seed:/opt/app-root/data
     depends_on:
       - db
@@ -97,5 +97,5 @@ services:
       - ./tmp:/tmp2
 
 volumes:
-  scv-api-dev-bin:
-  scv-api-dev-obj:
+  api-dev-bin:
+  api-dev-obj:

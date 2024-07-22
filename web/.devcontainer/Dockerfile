@@ -3,7 +3,7 @@ FROM nginx:stable
 
 ENV STI_SCRIPTS_PATH=/usr/libexec/s2i
 ENV USE_SELF_SIGNED_SSL='usss'
-ENV WEB_BASE_HREF='/scjscv/'
+ENV WEB_BASE_HREF='/jasper/'
 ENV API_URL='http://host.docker.internal:5000/api/'
 ENV RealIpFrom='172.17.0.1'
 ENV NODE_ENV='development'
@@ -35,7 +35,7 @@ COPY nginx.conf.template /tmp/
 # - The application artifacts live in /tmp
 # ---------------------------------------------------------------------------------
 RUN chmod -R g+rwx $STI_SCRIPTS_PATH
-RUN chmod og+rw /var/cache/nginx \ 
+RUN chmod og+rw /var/cache/nginx \
     /var/run \
     /etc/nginx/nginx.conf \
     /tmp

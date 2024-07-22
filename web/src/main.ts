@@ -21,7 +21,7 @@ Vue.component('loading-spinner', LoadingSpinner);
 
 Vue.http.interceptors.push(function () {
 	return function (response) {
-		if (response.status == 401) { 
+		if (response.status == 401) {
 			location.replace(`${process.env.BASE_URL}api/auth/login?redirectUri=${window.location}`);
 		}
 	};
@@ -29,7 +29,7 @@ Vue.http.interceptors.push(function () {
 
 Vue.http.options.root = process.env.BASE_URL;
 
-//Redirect from / to /scjscv/
+// Redirect from / to /jasper/
 if (location.pathname == "/")
 	history.pushState({ page: "home" }, "", process.env.BASE_URL);
 
@@ -42,5 +42,5 @@ const router = new VueRouter({
 new Vue({
 	router,
 	store,
-	render: h => h(App)	
+	render: h => h(App)
 }).$mount('#app');

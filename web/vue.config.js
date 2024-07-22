@@ -2,8 +2,8 @@ const path = require("path");
 const vueSrc = "src";
 
 //I noticed when we don't have publicPath set to /, it becomes problematic using vue-cli-tools - it doesn't seem to respect history paths.
-//EX. scjscv/civil-files/5555 wont work when you navigate directly to it with vue-cli-tools versus NGINX it works fine. 
-//When deployed over NGINX this problem seems to go away. So I've left it as / for now in local development environments. 
+//EX. jasper/civil-files/5555 wont work when you navigate directly to it with vue-cli-tools versus NGINX it works fine.
+//When deployed over NGINX this problem seems to go away. So I've left it as / for now in local development environments.
 module.exports = {
 	publicPath:  process.env.NODE_ENV == 'production' ? '/S2I_INJECT_PUBLIC_PATH/' : '/',
 	//chainWebpack: config => config.optimization.minimize(false), Disable minification.
@@ -19,7 +19,7 @@ module.exports = {
 				poll: 1000,
 			},
 			proxy: {
-				//This is for WEB_BASE_HREF = '/' specifically. 
+				//This is for WEB_BASE_HREF = '/' specifically.
 				//If having problems connecting, try adding: netsh http add iplisten 127.0.0.1
 				'^/api': {
 					target: "http://host.docker.internal:5000",
