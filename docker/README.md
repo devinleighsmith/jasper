@@ -13,23 +13,23 @@ Ensure `Docker` and `Dev Containers` extenion (`ms-vscode-remote.remote-containe
 3. Building the project.
 
 ```
-./manage build-debug
+./manage build
 ```
 
 4. Starting the project.
 
 ```
-./manage start-debug
+./manage debug
 ```
 
 ## Notes
 
 - DevContainer will fail to build/rebuild when connected to the BC Gov's VPN.
-- You may find this command handy when wiping all unused containers, volumes, networks and images.
 
-```
-docker system prune -a --volumes
-```
+- You may find this command handy when wiping all unused containers, volumes, networks and images.
+    ```
+    docker system prune -a --volumes
+    ```
 
 ## Using the Application
 
