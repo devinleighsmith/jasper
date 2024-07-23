@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -32,8 +31,6 @@ namespace Scv.Api.Controllers
         {
             var locations = await _locationService.GetLocations();
 
-            Console.WriteLine("123");
-
             var locationList = locations.Select(location => new Location
             {
                 Name = location.LongDesc,
@@ -47,7 +44,7 @@ namespace Scv.Api.Controllers
             foreach (var location in locationList)
             {
                 location.CourtRooms = courtRooms.Where(cr => cr.Flex == location.LocationId && (cr.ShortDesc == "CRT" || cr.ShortDesc == "HGR"))
-                    .Select(cr => new CourtRoom { LocationId = cr.Flex, Room = cr.Code, Type = cr.ShortDesc }).ToList();
+                    .Select(cr => new CourtRoom {LocationId = cr.Flex, Room = cr.Code, Type = cr.ShortDesc}).ToList();
             }
 
             return Ok(locationList);
