@@ -70,9 +70,9 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ../api/:/opt/app-root/src/api
-      - ../db/:/opt/app-root/src/db
-      - ../jc-interface-client/:/opt/app-root/src/jc-interface-client
+      - ${LOCAL_WORKSPACE_FOLDER-..}/api/:/opt/app-root/src/api
+      - ${LOCAL_WORKSPACE_FOLDER-..}/db/:/opt/app-root/src/db
+      - ${LOCAL_WORKSPACE_FOLDER-..}/jc-interface-client/:/opt/app-root/src/jc-interface-client
       - api-dev-bin:/opt/app-root/src/api/bin
       - api-dev-obj:/opt/app-root/src/api/obj
       - ./seed:/opt/app-root/data

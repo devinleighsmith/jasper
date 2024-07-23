@@ -22,7 +22,7 @@ module.exports = {
 				//This is for WEB_BASE_HREF = '/' specifically.
 				//If having problems connecting, try adding: netsh http add iplisten 127.0.0.1
 				'^/api': {
-					target: "http://host.docker.internal:5000",
+					target: "http://api:5000",
 					headers: {
 						Connection: 'keep-alive',
 						'X-Forwarded-Host': 'localhost',
