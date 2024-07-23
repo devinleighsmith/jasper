@@ -11,7 +11,7 @@ if [ -z "$(type -P "$S2I_EXE")" ]; then
 fi
 
 SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
-export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME-scv}"
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME-jasper}"
 
 # =================================================================================================================
 # Usage:
@@ -19,7 +19,7 @@ export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME-scv}"
 usage() {
   cat <<-EOF
 
-  Usage: $0 {start|stop|build}
+  Usage: $0 {start|debug|stop|build}
 
   Options:
 
@@ -36,6 +36,7 @@ usage() {
 
           Containers:
             - web
+            - web-dev
             - api
 
   start - Creates the application containers from the built images
@@ -43,22 +44,31 @@ usage() {
           Example:
             $0 start
 
+  debug - Used for local development that enables hot reloading for FE and BE.
+                Creates the application containers from the built images
+                and starts the services based on the docker-compose.yaml file.
+                Example:
+                  $0 debug
+
   stop - Stops the services.  This is a non-destructive process.  The containers
          are not deleted so they will be reused the next time you run start.
 
-  down - Brings down the services and removes the volumes (storage) and containers.
-  rm - Same as down
-
+  dowm | rm - Brings down the services and removes the volumes (storage) and containers. Destructive.
 EOF
 exit 1
 }
-
+# -----------------------------------------------------------------------------------------------------------------
+# Default Settings:
+# -----------------------------------------------------------------------------------------------------------------
+RUNTIME_CONTAINERS="db api web"
+DEBUG_CONTAINERS="db api web-dev"
 # -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
 build-all() {
- build-web
- build-api
+  build-web
+  build-web-dev
+  build-api
 }
 
 build-api() {
@@ -69,7 +79,7 @@ build-api() {
   echo -e "Building api image using docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   docker build \
-    -t 'scv-api' \
+    -t "${COMPOSE_PROJECT_NAME}-api" \
     -f './api//Dockerfile.dev' '..'
 
   echo -e "===================================================================================================="
@@ -80,14 +90,14 @@ build-web() {
   # web
   #
   # The web-runtime image is used for the final runtime image.
-  # The scv-app image is used to build the artifacts for the vue distribution.
+  # The artifacts image is used to build the artifacts for the vue distribution.
   # The vue-on-nginx image is copy of the nginx-runtime image complete with a copy of the build artifacts.
   #
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web-runtime (nginx-runtime) image using Docker ..."
+  echo -e "Building the ${COMPOSE_PROJECT_NAME}-web-runtime (nginx-runtime) image using Docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   docker build \
-    -t 'scv-web-runtime' \
+    -t "${COMPOSE_PROJECT_NAME}-web-runtime" \
     -f './nginx-runtime/Dockerfile' './nginx-runtime/'
   echo -e "===================================================================================================="
 
@@ -95,20 +105,20 @@ build-web() {
   # I tried using __webpack_public_path__, but the CSS file path and JS file path weren't correctly updated.
   # Also note we don't load in environment variables from the arguments here.
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web-artifacts image using s2i ..."
+  echo -e "Building the ${COMPOSE_PROJECT_NAME}-web-artifacts image using s2i ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   ${S2I_EXE} build \
     --copy \
     '../web' \
     'quay.io/centos7/nodejs-12-centos7:master' \
-    'scv-web-artifacts'
+    "${COMPOSE_PROJECT_NAME}-web-artifacts"
   echo -e "===================================================================================================="
 
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web image using Docker ..."
+  echo -e "Building the ${COMPOSE_PROJECT_NAME}-web image using Docker ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   docker build \
-    -t 'scv-web' \
+    -t "${COMPOSE_PROJECT_NAME}-web" \
     --build-arg IMAGE_PREFIX=${COMPOSE_PROJECT_NAME}- \
     -f './vue-on-nginx/Dockerfile' './vue-on-nginx/'
   echo -e "===================================================================================================="
@@ -119,21 +129,15 @@ build-web-dev() {
   # web-dev
   #
   echo -e "\n\n===================================================================================================="
-  echo -e "Building the nginx-runtime image using Docker ..."
-  echo -e "----------------------------------------------------------------------------------------------------"
-  docker build \
-    -t 'nginx-runtime' \
-    -f './nginx-runtime/Dockerfile' './nginx-runtime/'
-  echo -e "===================================================================================================="
-
-  echo -e "\n\n===================================================================================================="
-  echo -e "Building the scv-web-dev image using s2i ..."
+  echo -e "Building the ${COMPOSE_PROJECT_NAME}-web-dev image using s2i ..."
   echo -e "----------------------------------------------------------------------------------------------------"
   ${S2I_EXE} build \
+    --copy \
     -e "DEV_MODE=true" \
+    -e WEB_BASE_HREF=${WEB_BASE_HREF} \
     '../web' \
-    'quay.io/centos7/nodejs-12-centos7' \
-    'scv-web-dev'
+    'centos/nodejs-12-centos7' \
+    "${COMPOSE_PROJECT_NAME}-web-dev"
   echo -e "===================================================================================================="
 }
 
@@ -152,21 +156,20 @@ configureEnvironment () {
     esac
   done
 
-  # scv-db
+  # Default database startup parameters
   export POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE:-appdb}
-  export POSTGRESQL_USER=${POSTGRESQL_USER:-scv}
+  export POSTGRESQL_USER=${POSTGRESQL_USER:-${COMPOSE_PROJECT_NAME}}
   export POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD:-jeKEumGzuRVY4EJyfcUk}
   export POSTGRESQL_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD:-yM%J]7RZgY@!zb=*#4kB}
 
-  # scv-web
+  # Default web startup parameters
   export API_URL=${API_URL-http://api:5000/api/}
-  export WEB_BASE_HREF=${WEB_BASE_HREF-/scjscv/}
+  export WEB_BASE_HREF=${WEB_BASE_HREF-/jasper/}
 }
 
 getStartupParams() {
   CONTAINERS=""
-
-  ARGS=""
+  ARGS="--force-recreate"
 
   for arg in $@; do
     case "$arg" in
@@ -179,6 +182,14 @@ getStartupParams() {
         CONTAINERS+=" $arg";;
     esac
   done
+
+  if [ -z "$CONTAINERS" ]; then
+      if [ -z "$DEBUG_MODE" ]; then
+        CONTAINERS="$RUNTIME_CONTAINERS"
+      else
+        CONTAINERS="$DEBUG_CONTAINERS"
+      fi
+  fi
 
   echo ${ARGS} ${CONTAINERS}
 }
@@ -228,8 +239,11 @@ case "$COMMAND" in
     configureEnvironment $@
     docker-compose up ${_startupParams}
     ;;
-  web-dev)
-    # todo
+  debug)
+    export DEBUG_MODE=1
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment $@
+    docker-compose up ${_startupParams}
     ;;
   stop)
     docker-compose stop

@@ -21,7 +21,7 @@ The OpenShift build and deployment configurations for the project can be found h
 
 For high level View API documentation refer to the diagram above.  For details, refer to the [router](./web/src/router/index.ts) and [view components](./web/src/components/) source code.
 
-For backend API documentation refer to the Swagger API documentation page available at the `api/` endpoint of the running application.  For example, if you are running the application locally in docker, the Swagger page can be found at https://localhost:8080/scjscv/api/.  Refer to [Running in Docker](#running-in-docker) section for details.
+For backend API documentation refer to the Swagger API documentation page available at the `api/` endpoint of the running application.  For example, if you are running the application locally in docker, the Swagger page can be found at https://localhost:8080/jasper/api/.  Refer to [Running in Docker](#running-in-docker) section for details.
 
 ## Getting Help or Reporting an Issue
 
