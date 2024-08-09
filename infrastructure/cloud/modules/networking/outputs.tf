@@ -6,6 +6,10 @@ output "lb_tg_arn" {
   value = aws_lb_target_group.lb_target_group.arn
 }
 
-output "subnet_ids" {
-  value = data.aws_subnets.default_public.ids
+output "ecs_sg_id" {
+  value = aws_security_group.ecs_sg.id
+}
+
+output "web_subnets_ids" {
+  value = local.web_subnets
 }

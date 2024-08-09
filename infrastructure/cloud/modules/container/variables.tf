@@ -19,7 +19,7 @@ variable "ecs_execution_role_arn" {
 }
 
 variable "subnet_ids" {
-  description = "Public Subnet IDs"
+  description = "Subnet IDs in which ECS will deploy the tasks"
   type        = list(string)
 }
 
@@ -33,7 +33,7 @@ variable "lb_tg_arn" {
   type        = string
 }
 
-variable "ecs_web_log_group_name" {
-  description = "ECS Web Log Group Name in CloudWatch"
+variable "ecs_web_td_log_group_name" {
+  description = "ECS Web Task Definition Log Group Name in CloudWatch"
   type        = string
 }
