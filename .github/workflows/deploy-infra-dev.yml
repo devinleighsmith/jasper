@@ -1,14 +1,32 @@
-name: Deploy AWS Infra to Dev
+name: Publish Infra
 
 on:
+  # PR targeting master is created or new commits are pushed
+  push:
+    branches:
+      - master
+    paths:
+      - "infrastructure/**"
+
+  # Manual trigger via GH Actions UI
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select target environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
 
 jobs:
-  infrastructure_deploy_dev:
+  deploy:
     uses: ./.github/workflows/aws-template-terraform.yml
     with:
-      CONTEXT_FOLDER: ./infrastructure/cloud/environments/dev
-      CHANGE_FOLDER_NAME: environments/dev
-      ENVIRONMENT_NAME: dev
+      CONTEXT_FOLDER: "./infrastructure/cloud/environments/${{ inputs.environment }}"
+      CHANGE_FOLDER_NAME: environments/${{ inputs.environment }}
+      ENVIRONMENT_NAME: ${{ inputs.environment }}
       TEST_BUCKET_NAME: jasper-test-bucket
     secrets: inherit
