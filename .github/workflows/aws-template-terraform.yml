@@ -54,7 +54,7 @@ jobs:
 
   scan:
     name: Scan TF Code
-    uses: ./.github/workflows/actions/scan-infra
+    uses: ./actions/scan-infra
     with:
       working_directory: ${{ inputs.CONTEXT_FOLDER }}
       environment: ${{ inputs.ENVIRONMENT_NAME }}
