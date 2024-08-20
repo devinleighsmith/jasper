@@ -1,4 +1,4 @@
-name: AWS Bootstrap Workflow
+name: AWS Template Workflow
 
 on:
   workflow_call:
@@ -52,6 +52,18 @@ jobs:
           done < files.txt
           echo "infra_changed=$infra_changed" >> "$GITHUB_OUTPUT"
 
+  scan:
+    name: Scan TF Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action
+        with:
+          working_directory: ${{ inputs.CONTEXT_FOLDER }}
+    needs: [check_changes]
+
   deploy_infra:
     name: Deploy Infra
     runs-on: ubuntu-latest
@@ -62,7 +74,7 @@ jobs:
       TF_VAR_environment: ${{ vars.ENVIRONMENT_NAME }}
       TF_VAR_kms_key_name: ${{ vars.KMS_KEY_NAME }}
       TF_VAR_vpc_id: ${{ vars.VPC_ID }}
-    needs: [check_changes]
+    needs: [scan]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
