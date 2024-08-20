@@ -58,10 +58,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      # - name: Run tfsec
-      #   uses: aquasecurity/tfsec-action
-      #   with:
-      #     working_directory: ${{ inputs.CONTEXT_FOLDER }}
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: ${{ inputs.CONTEXT_FOLDER }}
     needs: [check_changes]
 
   deploy_infra:
