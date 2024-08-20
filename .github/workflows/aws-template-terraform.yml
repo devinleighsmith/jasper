@@ -62,16 +62,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-sarif-action@21ded20e8ca120cd9d3d6ab04ef746477542a608
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: ${{ inputs.CONTEXT_FOLDER }}
-          sarif_file: tfsec.sarif
-          tfsec_args: "--tfvars-file=${{ inputs.CONTEXT_FOLDER }}/${{ inputs.ENVIRONMENT_NAME }}.tfvars --soft-fail=false"
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: tfsec.sarif
+          soft_fail: false
     needs: [check_changes]
 
   deploy_infra:
