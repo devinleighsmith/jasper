@@ -25,8 +25,12 @@ jobs:
   deploy:
     uses: ./.github/workflows/aws-template-terraform.yml
     with:
-      CONTEXT_FOLDER: "./infrastructure/cloud/environments/${{ inputs.environment }}"
-      CHANGE_FOLDER_NAME: environments/${{ inputs.environment }}
-      ENVIRONMENT_NAME: ${{ inputs.environment }}
+      # CONTEXT_FOLDER: "./infrastructure/cloud/environments/${{ inputs.environment }}"
+      # CHANGE_FOLDER_NAME: environments/${{ inputs.environment }}
+      # ENVIRONMENT_NAME: ${{ inputs.environment }}
+      # TEST_BUCKET_NAME: jasper-test-bucket
+      CONTEXT_FOLDER: "./infrastructure/cloud/environments/dev"
+      CHANGE_FOLDER_NAME: environments/dev
+      ENVIRONMENT_NAME: dev
       TEST_BUCKET_NAME: jasper-test-bucket
     secrets: inherit
