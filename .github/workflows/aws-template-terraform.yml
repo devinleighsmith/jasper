@@ -54,19 +54,10 @@ jobs:
 
   scan:
     name: Scan TF Code
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: ${{ inputs.CONTEXT_FOLDER }}
-          soft_fail: false
+    uses: ./.github/workflows/actions/scan-infra
+    with:
+      working_directory: ${{ inputs.CONTEXT_FOLDER }}
+      environment: ${{ inputs.ENVIRONMENT_NAME }}
     needs: [check_changes]
 
   deploy_infra:

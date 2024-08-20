@@ -1,0 +1,24 @@
+name: Scan Infra
+
+inputs:
+  working_directory:
+    description: "Folder location where the TF scripts lives"
+    required: true
+  environment:
+    description: "Environment name"
+    required: true
+
+jobs:
+  tfsec:
+    name: Scan Terraform Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: ${{ inputs.working_directory }}
+          additional_args: "--tfvars-file=${{ inputs.working_directory }}/${{ inputs.environment }}.tfvars"
+          soft_fail: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
