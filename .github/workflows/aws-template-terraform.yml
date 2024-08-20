@@ -67,7 +67,7 @@ jobs:
         with:
           working_directory: ${{ inputs.CONTEXT_FOLDER }}
           sarif_file: tfsec.sarif
-          tfsec_args: "--tfvars-file=${{ inputs.ENVIRONMENT_NAME }}.tfvars"
+          tfsec_args: "--tfvars-file=${{ inputs.CONTEXT_FOLDER }}/${{ inputs.ENVIRONMENT_NAME }}.tfvars"
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
