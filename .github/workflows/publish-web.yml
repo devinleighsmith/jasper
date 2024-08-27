@@ -1,0 +1,153 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "web/**"
+
+  workflow_dispatch:
+
+env:
+  WORKING_DIRECTORY: ./web
+  IMAGE_NAME: web
+  GITHUB_IMAGE_REPO: ghcr.io/bcgov/jasper/
+  WEB_BASE_HREF: /
+
+jobs:
+  build:
+    name: Build, Create and Push Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_digest: ${{ steps.docker_push.outputs.digest }}
+
+    strategy:
+      matrix:
+        node-major-version: [12]
+        node-minor-version: [x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Building Web codebase
+        uses: ./.github/workflows/actions/build-web
+        with:
+          working_directory: ${{ env.WORKING_DIRECTORY }}
+          node_version: ${{ matrix.node-major-version }}.${{ matrix.node-minor-version }}
+
+      - name: Log in to the GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get short SHA
+        id: short_sha
+        run: |
+          echo "::set-output name=SHORT_SHA::$(git rev-parse --short HEAD)"
+          echo "Short SHA: $SHORT_SHA"
+
+      - name: Build Docker Image
+        working-directory: ${{env.WORKING_DIRECTORY}}/../
+        run: |
+          docker build --tag web-runtime -f docker/nginx-runtime/Dockerfile ./docker/nginx-runtime/
+          docker build --tag web-artifacts --build-arg node_version=${{ matrix.node-major-version }} --build-arg WEB_BASE_HREF=${{ env.WEB_BASE_HREF }} -f docker/web/Dockerfile . 
+          docker build --tag ${{ env.IMAGE_NAME }} -f docker/vue-on-nginx/Dockerfile ./docker/vue-on-nginx/
+          docker tag ${{ env.IMAGE_NAME }} ${{ env.GITHUB_IMAGE_REPO }}${{ env.IMAGE_NAME }}:${{ steps.short_sha.outputs.SHORT_SHA }}
+
+      - name: Push Image to GCHR
+        id: docker_push
+        run: |
+          output=$(docker push ${{ env.GITHUB_IMAGE_REPO }}${{ env.IMAGE_NAME }}:${{ steps.short_sha.outputs.SHORT_SHA }})
+          echo $output
+          digest=$(echo "$output" | grep "digest: sha256" | awk '{ print $3 }')
+          echo "digest=$digest" >> $GITHUB_OUTPUT
+
+  deploy2dev:
+    name: Deploy to DEV
+    needs: build
+    env:
+      ENVIRONMENT: dev
+    permissions:
+      id-token: write
+      packages: write
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to ${{ env.ENVIRONMENT }}
+        uses: ./.github/workflows/actions/deploy-to-aws
+        with:
+          environment: ${{ env.ENVIRONMENT }}
+          aws_account: ${{ vars.AWS_ACCOUNT }}
+          region: ${{ vars.AWS_REGION }}
+          app_name: ${{ vars.APP_NAME }}
+          aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
+          ghcr_token: ${{ secrets.GITHUB_TOKEN }}
+          github_image_repo: ${{ env.GITHUB_IMAGE_REPO }}
+          image_name: ${{ env.IMAGE_NAME  }}
+          image_digest: ${{ needs.build.outputs.image_digest }}
+
+  deploy2test:
+    name: Deploy to TEST
+    needs: [build, deploy2dev]
+    env:
+      ENVIRONMENT: test
+    permissions:
+      id-token: write
+      packages: write
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Uncomment when infra in AWS in TEST environment has been configured
+      # - name: Deploy to ${{ env.ENVIRONMENT }}
+      #   uses: ./.github/workflows/actions/deploy-to-aws
+      #   with:
+      #     environment: ${{ env.ENVIRONMENT }}
+      #     aws_account: ${{ vars.AWS_ACCOUNT }}
+      #     region: ${{ vars.AWS_REGION }}
+      #     app_name: ${{ vars.APP_NAME }}
+      #     aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
+      #     ghcr_token: ${{ secrets.GITHUB_TOKEN }}
+      #     github_image_repo: ${{ env.GITHUB_IMAGE_REPO }}
+      #     image_name: ${{ env.IMAGE_NAME  }}
+      #     image_digest: ${{ needs.build.outputs.image_digest }}
+
+  deploy2prod:
+    name: Deploy to PROD
+    needs: [build, deploy2dev, deploy2test]
+    env:
+      ENVIRONMENT: prod
+    permissions:
+      id-token: write
+      packages: write
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Uncomment when infra in AWS in PROD environment has been configured
+      # - name: Deploy to ${{ env.ENVIRONMENT }}
+      #   uses: ./.github/workflows/actions/deploy-to-aws
+      #   with:
+      #     environment: ${{ env.ENVIRONMENT }}
+      #     aws_account: ${{ vars.AWS_ACCOUNT }}
+      #     region: ${{ vars.AWS_REGION }}
+      #     app_name: ${{ vars.APP_NAME }}
+      #     aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
+      #     ghcr_token: ${{ secrets.GITHUB_TOKEN }}
+      #     github_image_repo: ${{ env.GITHUB_IMAGE_REPO }}
+      #     image_name: ${{ env.IMAGE_NAME  }}
+      #     image_digest: ${{ needs.build.outputs.image_digest }}
