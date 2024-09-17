@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Scv.Api.Helpers;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Models.archive;
+using Scv.Api.Models.Search;
 
 namespace Scv.Api.Controllers
 {
@@ -97,7 +98,7 @@ namespace Scv.Api.Controllers
             if (civilFileDetailResponse?.PhysicalFileId == null)
                 throw new NotFoundException("Couldn't find civil file with this id.");
 
-            if (User.IsVcUser() && civilFileDetailResponse.SealedYN != "N") 
+            if (User.IsVcUser() && civilFileDetailResponse.SealedYN != "N")
                 return Forbid();
 
             if (User.IsSupremeUser() && civilFileDetailResponse.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.S)
@@ -118,7 +119,7 @@ namespace Scv.Api.Controllers
         {
             if (User.IsVcUser())
             {
-                if(!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
+                if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
                     return Forbid();
 
                 var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
@@ -126,7 +127,7 @@ namespace Scv.Api.Controllers
                     throw new NotFoundException("Couldn't find civil file with this id.");
                 if (civilFileDetailResponse.SealedYN != "N")
                     return Forbid();
-            } 
+            }
 
             var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceAsync(fileId, appearanceId, User.IsVcUser());
             if (civilAppearanceDetail == null)
@@ -171,6 +172,20 @@ namespace Scv.Api.Controllers
                 throw new NotFoundException("Couldn't find CSR with this appearance id.");
 
             return BuildPdfFileResponse(justinReportResponse.ReportContent);
+        }
+
+        /// <summary>
+        /// Search Civil Court Files
+        /// </summary>
+        /// <param name="query">The search query.</param>
+        /// <returns>Civil Court Files</returns>
+        [HttpGet]
+        [Route("civil/search")]
+        public async Task<ActionResult> SearchCivilFiles([FromQuery] FilesCivilQuery query)
+        {
+            var civilFiles = await _civilFilesService.SearchAsync(query);
+
+            return Ok(civilFiles);
         }
 
         #endregion Civil Only
@@ -257,6 +272,19 @@ namespace Scv.Api.Controllers
             return BuildPdfFileResponse(recordsOfProceeding.B64Content);
         }
 
+        /// <summary>
+        /// Search Criminal Court Files
+        /// </summary>
+        /// <param name="query">The search query.</param>
+        /// <returns>Criminal Court Files</returns>
+        [HttpGet]
+        [Route("criminal/search")]
+        public async Task<ActionResult> SearchCriminalFiles([FromQuery] FilesCriminalQuery query)
+        {
+            var criminalFiles = await _criminalFilesService.SearchAsync(query);
+
+            return Ok(criminalFiles);
+        }
 
         #endregion Criminal Only
 
@@ -347,7 +375,7 @@ namespace Scv.Api.Controllers
 
             var maximumArchiveDocumentCount = _configuration.GetNonEmptyValue("MaximumArchiveDocumentCount");
             if (string.IsNullOrEmpty(archiveRequest.ZipName)) return BadRequest($"Missing {nameof(archiveRequest.ZipName)}.");
-            if (archiveRequest.TotalDocuments >= int.Parse(maximumArchiveDocumentCount))   return BadRequest($"Only can support up to {maximumArchiveDocumentCount} documents.");
+            if (archiveRequest.TotalDocuments >= int.Parse(maximumArchiveDocumentCount)) return BadRequest($"Only can support up to {maximumArchiveDocumentCount} documents.");
 
             var courtSummaryRequests = archiveRequest.CsrRequests;
             var documentRequest = archiveRequest.DocumentRequests;
@@ -373,14 +401,14 @@ namespace Scv.Api.Controllers
             if (rops.Any(d => d.ResultCd == "0")) return BadRequest("One of the ROPs didn't return correctly.");
 
             var pdfDocuments = courtSummaryReports.SelectToList(d => new PdfDocument
-                { Content = d.ReportContent, FileName = courtSummaryRequests[courtSummaryReports.IndexOf(d)].PdfFileName });
+            { Content = d.ReportContent, FileName = courtSummaryRequests[courtSummaryReports.IndexOf(d)].PdfFileName });
 
             //TODO documents coming back are streams. this is disabled for now. 
             /*pdfDocuments.AddRange(documents.SelectToList(d => new PdfDocument
                 { Content = d.B64Content, FileName = documentRequest[documents.IndexOf(d)].PdfFileName}));*/
 
             pdfDocuments.AddRange(rops.Select(d => new PdfDocument
-                { Content = d.B64Content, FileName = ropRequests[rops.IndexOf(d)].PdfFileName }));
+            { Content = d.B64Content, FileName = ropRequests[rops.IndexOf(d)].PdfFileName }));
 
             return await BuildArchiveWithPdfFiles(pdfDocuments, archiveRequest.ZipName);
         }
