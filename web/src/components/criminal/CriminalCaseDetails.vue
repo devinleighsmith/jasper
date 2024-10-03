@@ -1,5 +1,5 @@
 <template>
-  <div style="overflow:hidden">
+  <div class="main-container" style="overflow:hidden">
     <b-card bg-variant="light" v-if="!isMounted && !isDataReady">
       <b-overlay :show="true">
         <b-card style="min-height: 100px;" />
@@ -14,8 +14,9 @@
 
     <b-card bg-variant="light" v-if="isMounted && !isDataReady">
       <b-card style="min-height: 100px;">
-        <span v-if="errorCode == 404"
-          >This <b>File-Number '{{ this.criminalFileInformation.fileNumber }}'</b> doesn't exist in the
+        <span v-if="errorCode == 404">This <b>File-Number '{{ this.criminalFileInformation.fileNumber }}'</b> doesn't
+          exist
+          in the
           <b>criminal</b> records.
         </span>
         <span v-else-if="errorCode == 200 || errorCode == 204">
@@ -35,10 +36,12 @@
     </b-card>
 
     <b-row cols="2">
-      <b-col md="2" cols="2" style="overflow: auto;">
+      <b-col md="3" cols="3" style="overflow: auto;">
+        <court-files-selector v-if="isDataReady && selectedFiles.length > 0" :files="selectedFiles"
+          @reload-case-details="reloadCaseDetails" targetCaseDetails="CriminalCaseDetails" />
         <criminal-side-panel v-if="isDataReady" />
       </b-col>
-      <b-col col md="10" cols="10" style="overflow: auto;">
+      <b-col col md="9" cols="9" class="px-0" style="overflow: auto;">
         <criminal-header-top v-if="isDataReady" />
         <criminal-header v-if="isDataReady" />
 
@@ -46,18 +49,10 @@
           <h2 style="white-space: pre" v-if="isDataReady">
             {{ selectedSideBar }}
           </h2>
-          <custom-overlay
-            v-if="isDataReady"
-            :show="!downloadCompleted"
-            style="padding: 0 1rem; margin-left:auto; margin-right:2rem;"
-          >
-            <b-button
-              v-if="enableArchive"
-              @click="downloadDocuments()"
-              size="md"
-              variant="info"
-              style="padding: 0 1rem; margin-left:auto; margin-right:2rem;"
-            >
+          <custom-overlay v-if="isDataReady" :show="!downloadCompleted"
+            style="padding: 0 1rem; margin-left:auto; margin-right:2rem;">
+            <b-button v-if="enableArchive" @click="downloadDocuments()" size="md" variant="info"
+              style="padding: 0 1rem; margin-left:auto; margin-right:2rem;">
               Download All Documents
             </b-button>
           </custom-overlay>
@@ -105,6 +100,7 @@ import CriminalFutureAppearances from "@components/criminal/CriminalFutureAppear
 import CriminalCrownNotes from "@components/criminal/CriminalCrownNotes.vue";
 import CriminalWitnesses from "@components/criminal/CriminalWitnesses.vue";
 import CriminalSentence from "@components/criminal/CriminalSentence.vue";
+import CourtFilesSelector from "@components/shared/CourtFilesSelector.vue";
 import CustomOverlay from "../CustomOverlay.vue";
 import {
   bansInfoType,
@@ -118,6 +114,7 @@ import {
   AdjudicatorRestrictionsInfoType,
   DocumentRequestsInfoType,
   ArchiveInfoType,
+  KeyValueInfo,
 } from "@/types/common";
 import "@store/modules/CriminalFileInformation";
 import "@store/modules/CommonInformation";
@@ -127,6 +124,7 @@ import { CourtDocumentType, DocumentData } from "@/types/shared";
 import { criminalHearingRestrictionType, criminalParticipantType } from "@/types/criminal/jsonTypes";
 const criminalState = namespace("CriminalFileInformation");
 const commonState = namespace("CommonInformation");
+const courtFileSearchState = namespace('CourtFileSearchInformation');
 
 enum DecodeCourtLevel {
   "P" = 0,
@@ -156,6 +154,7 @@ enum DecodeCourtClass {
 
 @Component({
   components: {
+    CourtFilesSelector,
     CriminalDocumentsView,
     CriminalSidePanel,
     CriminalHeaderTop,
@@ -168,7 +167,7 @@ enum DecodeCourtClass {
     CriminalCrownNotes,
     CriminalWitnesses,
     CriminalSentence,
-    CustomOverlay,
+    CustomOverlay
   },
 })
 export default class CriminalCaseDetails extends Vue {
@@ -189,6 +188,9 @@ export default class CriminalCaseDetails extends Vue {
 
   @commonState.Action
   public UpdateDisplayName!: (newInputNames: InputNamesType) => void;
+
+  @courtFileSearchState.Getter('selectedFiles')
+  public selectedFiles!: KeyValueInfo[];
 
   participantList: participantListInfoType[] = [];
   adjudicatorRestrictionsInfo: AdjudicatorRestrictionsInfoType[] = [];
@@ -472,6 +474,17 @@ export default class CriminalCaseDetails extends Vue {
 
   public navigateToLandingPage() {
     this.$router.push({ name: "Home" });
+  }
+
+  private reloadCaseDetails(): void {
+    // Reset the properties to load new case details.
+    this.criminalFileInformation.fileNumber = this.$route.params.fileNumber;
+    this.participantList.length = 0;
+    this.bans.length = 0;
+    this.adjudicatorRestrictionsInfo.length = 0;
+    this.isMounted = false;
+    this.isDataReady = false;
+    this.getFileDetails();
   }
 }
 </script>
