@@ -1,0 +1,71 @@
+name: Publish Openshift Images
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "docker/openshift/**"
+      - "openshift/**"
+
+env:
+  GITHUB_IMAGE_REPO: ghcr.io/bcgov/jasper
+  SRC_PATH: ../../docker/openshift
+
+permissions:
+  id-token: write
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Images
+    strategy:
+      matrix:
+        dockerfile-image:
+          - Dockerfile=./docker/openshift/Dockerfile.sync-secrets,image=sync-secrets
+          - Dockerfile=./docker/openshift/Dockerfile.update-aws-creds,image=update-aws-creds
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
+
+      - name: Parse Dockerfile and Image Name
+        id: parse
+        run: |
+          echo "Dockerfile: ${{ matrix.dockerfile-image }}"
+          DOCKERFILE=$(echo "${{ matrix.dockerfile-image }}" | cut -d',' -f1 | cut -d'=' -f2)
+          IMAGE=$(echo "${{ matrix.dockerfile-image }}" | cut -d',' -f2 | cut -d'=' -f2)
+          echo "DOCKERFILE=$DOCKERFILE" >> $GITHUB_ENV
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      - name: Setup Image Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.GITHUB_IMAGE_REPO }}/${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest
+
+      - name: Build and Push Image to ghcr.io
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: .
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: ${{ env.DOCKERFILE }}
+          build-args: |
+            SRC=${{ env.SRC_PATH }}

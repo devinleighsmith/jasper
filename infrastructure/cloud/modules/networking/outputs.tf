@@ -9,3 +9,7 @@ output "ecs_sg_id" {
 output "web_subnets_ids" {
   value = local.web_subnets
 }
+
+output "lb_dns_name" {
+  value = aws_lb.lb.dns_name
+}

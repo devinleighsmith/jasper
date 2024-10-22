@@ -42,3 +42,13 @@ variable "data_subnet_names" {
   description = "List of Subnets for Data"
   type        = list(string)
 }
+
+variable "openshift_iam_user" {
+  description = "Openshift IAM Username"
+  type        = string
+}
+
+variable "iam_user_table_name" {
+  description = "The BCGOV DynamoDb IAM user table"
+  type        = string
+}
