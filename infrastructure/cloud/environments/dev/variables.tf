@@ -52,3 +52,19 @@ variable "iam_user_table_name" {
   description = "The BCGOV DynamoDb IAM user table"
   type        = string
 }
+
+variable "lb_name" {
+  description = "The BCGOV provisioned Load Balancer name"
+  type        = string
+}
+
+variable "rds_db_ca_cert" {
+  description = "The Certifiate Authority identifier used in RDS"
+  type        = string
+}
+
+variable "cert_domain_name" {
+  description = "The BCGov provisioned certificate domain name"
+  type        = string
+}
+

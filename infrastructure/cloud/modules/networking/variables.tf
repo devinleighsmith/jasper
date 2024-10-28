@@ -32,3 +32,13 @@ variable "data_subnet_names" {
   description = "List of Subnets for Data"
   type        = list(string)
 }
+
+variable "lb_name" {
+  description = "The BCGOV provisioned Load Balancer name"
+  type        = string
+}
+
+variable "default_lb_cert_arn" {
+  description = "The default Load Balancer certificate ARN"
+  type        = string
+}
