@@ -40,8 +40,8 @@ namespace Scv.Api.Infrastructure
 
         public static IServiceCollection AddHttpClientsAndScvServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var apigwKey = configuration.GetNonEmptyValue("AWS_API_GATEWAY_API_KEY");
-            var authorizerKey = configuration.GetNonEmptyValue("AuthorizerKey");
+            // var apigwKey = configuration.GetNonEmptyValue("AWS_API_GATEWAY_API_KEY");
+            // var authorizerKey = configuration.GetNonEmptyValue("AuthorizerKey");
 
             services.AddTransient<TimingHandler>();
             services.AddHttpClient<FileServicesClient>(client =>
