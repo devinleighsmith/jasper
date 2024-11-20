@@ -63,12 +63,12 @@ namespace Scv.Api.Infrastructure
 
             services.AddHttpClient<LocationServicesClient>(client =>
             {
-                // client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(
-                //     configuration.GetNonEmptyValue("LocationServicesClient:Username"),
-                //     configuration.GetNonEmptyValue("LocationServicesClient:Password"));
+                client.DefaultRequestHeaders.Authorization = new BasicAuthenticationHeaderValue(
+                    configuration.GetNonEmptyValue("LocationServicesClient:Username"),
+                    configuration.GetNonEmptyValue("LocationServicesClient:Password"));
                 client.BaseAddress = new Uri(configuration.GetNonEmptyValue("LocationServicesClient:Url").EnsureEndingForwardSlash());
-                client.DefaultRequestHeaders.Add(X_APIGW_KEY_HEADER, apigwKey);
-                client.DefaultRequestHeaders.Add(X_ORIGIN_VERIFY_HEADER, authorizerKey);
+                // client.DefaultRequestHeaders.Add(X_APIGW_KEY_HEADER, apigwKey);
+                // client.DefaultRequestHeaders.Add(X_ORIGIN_VERIFY_HEADER, authorizerKey);
             }).AddHttpMessageHandler<TimingHandler>();
 
             services.AddHttpClient<UserServiceClient>(client =>
