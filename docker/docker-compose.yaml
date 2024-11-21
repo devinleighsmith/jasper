@@ -1,6 +1,5 @@
 version: "3.4"
 services:
-
   web:
     image: "${COMPOSE_PROJECT_NAME}-web"
     environment:
@@ -67,8 +66,9 @@ services:
       - SplunkCollectorUrl=${SplunkCollectorUrl}
       - SplunkCollectorId=${SplunkCollectorId}
       - SplunkToken=${SplunkToken}
-      - AWS_API_GATEWAY_URL=${AWS_API_GATEWAY_URL}
-      - AWS_API_GATEWAY_API_KEY=${AWS_API_GATEWAY_API_KEY}
+      # - AWS_API_GATEWAY_URL=${AWS_API_GATEWAY_URL}
+      # - AWS_API_GATEWAY_API_KEY=${AWS_API_GATEWAY_API_KEY}
+      # - AuthorizerKey=${AuthorizerKey}
     ports:
       - 5000:5000
     volumes:
