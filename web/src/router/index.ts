@@ -1,13 +1,10 @@
-// import CivilFileSearchResultsView from "@/components/civil/CivilFileSearchResultsView.vue"
-// import CourtList from "@/components/courtlist/CourtList.vue"
-// import CriminalFileSearchResultsView from "@/components/criminal/CriminalFileSearchResultsView.vue"
-// import Dashboard from "@/components/dashboard/Dashboard.vue"
 import CivilCaseDetails from '@/components/civil/CivilCaseDetails.vue';
 import CivilFileSearchResultsView from '@/components/civil/CivilFileSearchResultsView.vue';
-import CourtFileSearchView from '@/components/CourtFileSearch/CourtFileSearchView.vue';
+import CourtFileSearchView from '@/components/courtFileSearch/CourtFileSearchView.vue';
 import CourtList from '@/components/courtlist/CourtList.vue';
 import CriminalCaseDetails from '@/components/criminal/CriminalCaseDetails.vue';
 import CriminalFileSearchResultsView from '@/components/criminal/CriminalFileSearchResultsView.vue';
+import Dashboard from '@/components/dashboard/Dashboard.vue';
 import { SessionManager } from '@/utils/utils';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
@@ -64,12 +61,12 @@ const routes: RouteRecordRaw[] = [
     component: CriminalFileSearchResultsView,
     props: true,
   },
-  // {
-  //   path: "/dashboard",
-  //   name: "DashboardView",
-  //   component: Dashboard,
-  //   props: true
-  // },
+  {
+    path: '/dashboard',
+    name: 'DashboardView',
+    component: Dashboard,
+    props: true,
+  },
   {
     path: '/court-file-search',
     name: 'CourtFileSearchView',

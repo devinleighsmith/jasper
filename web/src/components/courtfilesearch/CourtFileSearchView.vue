@@ -232,7 +232,7 @@
   </b-card>
 </template>
 <script lang="ts">
-  import CourtFileSearchResult from '@/components/CourtFileSearch/CourtFileSearchResult.vue';
+  import CourtFileSearchResult from '@/components/courtFileSearch/CourtFileSearchResult.vue';
   import { FilesService } from '@/services/FilesService';
   import { LocationService } from '@/services/LocationService';
   import { LookupService } from '@/services/LookupService';

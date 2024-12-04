@@ -1,44 +1,40 @@
 <script>
-  import dayGridPlugin from "@fullcalendar/daygrid"
-  import interactionPlugin from "@fullcalendar/interaction"
-  import FullCalendar from "@fullcalendar/vue"
+  import dayGridPlugin from '@fullcalendar/daygrid';
+  import interactionPlugin from '@fullcalendar/interaction';
+  import FullCalendar from '@fullcalendar/vue3';
   // import { MonthPicker } from 'vue-month-picker';
   export default {
     components: {
-      FullCalendar
-      //MonthPicker
+      FullCalendar,
+      // MonthPicker,
     },
 
     props: {
       events: { type: Array, required: false },
       sizeChange: { type: Number, requred: false },
-      isMySchedule: { type: Boolean, requred: false }
+      isMySchedule: { type: Boolean, requred: false },
     },
     methods: {
       changeMonth(date) {
-        this.date = date
-        this.$refs.calendar.getApi().gotoDate(date.from)
-        this.$refs.jumpMonthModal.hide()
-        this.calendarOptions.customButtons[
-          "customJumpToDate"
-        ].text = `Schedule for ${date.month} ${date.year}`
+        this.date = date;
+        this.$refs.calendar.getApi().gotoDate(date.from);
+        this.$refs.jumpMonthModal.hide();
+        this.calendarOptions.customButtons['customJumpToDate'].text =
+          `Schedule for ${date.month} ${date.year}`;
 
-        this.$refs.calendar.getApi().render()
-        this.currentSelectedMonth = new Date(date.from).getMonth() + 1
-        this.currentSelectedYear = date.year
+        this.$refs.calendar.getApi().render();
+        this.currentSelectedMonth = new Date(date.from).getMonth() + 1;
+        this.currentSelectedYear = date.year;
       },
       handleMonthChange(info) {
-        const calendarApi = this.$refs.calendar.getApi()
-        this.$emit("monthChange", calendarApi.getDate())
-        const today = new Date()
+        const calendarApi = this.$refs.calendar.getApi();
+        this.$emit('monthChange', calendarApi.getDate());
+        const today = new Date();
         if (today >= info.start && today < info.end) {
-          this.calendarOptions.customButtons[
-            "customJumpToDate"
-          ].text = `Schedule for ${new Date()
-            .toLocaleDateString("en-US", { year: "numeric", month: "long" })
-            .replace(",", "")}`
-          this.currentSelectedMonth = new Date().getMonth() + 1
-          this.currentSelectedYear = new Date().getFullYear()
+          this.calendarOptions.customButtons['customJumpToDate'].text =
+            `Schedule for ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).replace(',', '')}`;
+          this.currentSelectedMonth = new Date().getMonth() + 1;
+          this.currentSelectedYear = new Date().getFullYear();
         }
       },
       customEventContent(arg) {
@@ -47,122 +43,39 @@
             return {
               html: `
                         <div class="custom-events-container">
-                        ${"<div class='city'>" +
-                          arg.event.extendedProps.assignment.locationName +
-                          (arg.event.extendedProps.assignment.isVideo
-                            ? "<span class='camera'></span>"
-                            : "") +
-                          "</div>"}
-                        <div class="eventTitle" style="margin-top: 10px;">${
-                          arg.event.extendedProps.showAM
-                            ? "<span class='daytime'>AM</span>"
-                            : ""
-                        }${
-                arg.event.extendedProps.assignment.activityAm
-                  .activityDescription
-              }<span  class="loc">${
-                arg.event.extendedProps.assignment.activityAm.courtRoomCode
-                  ? "(" +
-                    arg.event.extendedProps.assignment.activityAm
-                      .courtRoomCode +
-                    ")"
-                  : ""
-              }</span></div>
-                        ${
-                          arg.event.extendedProps.showPMLocation
-                            ? "<div class='city' style='margin-top: 20px;'>" +
-                              arg.event.extendedProps.assignment.activityPm
-                                .locationName +
-                              (arg.event.extendedProps.assignment.isVideo
-                                ? "<span class='camera'></span>"
-                                : "") +
-                              "</div>"
-                            : ""
-                        }
-                        ${
-                          arg.event.extendedProps.showPM
-                            ? "<div class='eventTitle' style='margin-top: 10px;'><span class='daytime'>PM</span>" +
-                              arg.event.extendedProps.assignment.activityPm
-                                .activityDescription +
-                              "<span  class='loc'>" +
-                              (arg.event.extendedProps.assignment.activityPm
-                                .courtRoomCode
-                                ? "(" +
-                                  arg.event.extendedProps.assignment.activityPm
-                                    .courtRoomCode +
-                                  ")"
-                                : "") +
-                              "</span></div>"
-                            : ""
-                        }
+                        ${"<div class='city'>" + arg.event.extendedProps.assignment.locationName + (arg.event.extendedProps.assignment.isVideo ? "<span class='camera'></span>" : '') + '</div>'}
+                        <div class="eventTitle" style="margin-top: 10px;">${arg.event.extendedProps.showAM ? "<span class='daytime'>AM</span>" : ''}${arg.event.extendedProps.assignment.activityAm.activityDescription}<span  class="loc">${arg.event.extendedProps.assignment.activityAm.courtRoomCode ? '(' + arg.event.extendedProps.assignment.activityAm.courtRoomCode + ')' : ''}</span></div>
+                        ${arg.event.extendedProps.showPMLocation ? "<div class='city' style='margin-top: 20px;'>" + arg.event.extendedProps.assignment.activityPm.locationName + (arg.event.extendedProps.assignment.isVideo ? "<span class='camera'></span>" : '') + '</div>' : ''}
+                        ${arg.event.extendedProps.showPM ? "<div class='eventTitle' style='margin-top: 10px;'><span class='daytime'>PM</span>" + arg.event.extendedProps.assignment.activityPm.activityDescription + "<span  class='loc'>" + (arg.event.extendedProps.assignment.activityPm.courtRoomCode ? '(' + arg.event.extendedProps.assignment.activityPm.courtRoomCode + ')' : '') + '</span></div>' : ''}
                         </div>
-                        `
-            }
+                        `,
+            };
           }
           return {
             html: `
                         <div class="custom-events-container">
-                        ${"<div class='city'>" +
-                          arg.event.extendedProps.rotaInitials +
-                          " - " +
-                          arg.event.extendedProps.assignment.locationName +
-                          "</div>"}
-                        <div class="eventTitle">${
-                          arg.event.extendedProps.showAM
-                            ? "<span class='daytime'>AM</span>"
-                            : ""
-                        }${
-              arg.event.extendedProps.assignment.activityAm.activityDescription
-            }<span  class="loc">${
-              arg.event.extendedProps.assignment.activityAm.courtRoomCode
-                ? "(" +
-                  arg.event.extendedProps.assignment.activityAm.courtRoomCode +
-                  ")"
-                : ""
-            }</span></div>
-                        ${
-                          arg.event.extendedProps.showPMLocation
-                            ? "<div class='city'>" +
-                              arg.event.extendedProps.assignment.activityPm
-                                .locationName +
-                              "</div>"
-                            : ""
-                        }
-                        ${
-                          arg.event.extendedProps.showPM
-                            ? "<div class='eventTitle'><span class='daytime'>PM</span>" +
-                              arg.event.extendedProps.assignment.activityPm
-                                .activityDescription +
-                              "<span  class='loc'>" +
-                              (arg.event.extendedProps.assignment.activityPm
-                                .courtRoomCode
-                                ? "(" +
-                                  arg.event.extendedProps.assignment.activityPm
-                                    .courtRoomCode +
-                                  ")"
-                                : "") +
-                              "</span></div>"
-                            : ""
-                        }
+                        ${"<div class='city'>" + arg.event.extendedProps.rotaInitials + ' - ' + arg.event.extendedProps.assignment.locationName + '</div>'}
+                        <div class="eventTitle">${arg.event.extendedProps.showAM ? "<span class='daytime'>AM</span>" : ''}${arg.event.extendedProps.assignment.activityAm.activityDescription}<span  class="loc">${arg.event.extendedProps.assignment.activityAm.courtRoomCode ? '(' + arg.event.extendedProps.assignment.activityAm.courtRoomCode + ')' : ''}</span></div>
+                        ${arg.event.extendedProps.showPMLocation ? "<div class='city'>" + arg.event.extendedProps.assignment.activityPm.locationName + '</div>' : ''}
+                        ${arg.event.extendedProps.showPM ? "<div class='eventTitle'><span class='daytime'>PM</span>" + arg.event.extendedProps.assignment.activityPm.activityDescription + "<span  class='loc'>" + (arg.event.extendedProps.assignment.activityPm.courtRoomCode ? '(' + arg.event.extendedProps.assignment.activityPm.courtRoomCode + ')' : '') + '</span></div>' : ''}
                         </div>
-                        `
-          }
+                        `,
+          };
         }
       },
 
       customizeDayCell(info) {
-        const dayEl = info.el
-        const linkDate = new Date(info.date.toString())
-        const link = `<a href="${linkDate.getDate()}/${linkDate.getFullYear()}/${linkDate.getMonth() +
-          1}" class="custom-day"></a>`
+        const dayEl = info.el;
+        const linkDate = new Date(info.date.toString());
+        const link = `<a href="${linkDate.getDate()}/${linkDate.getFullYear()}/${linkDate.getMonth() + 1}" class="custom-day"></a>`;
         dayEl.innerHTML =
           new Date().setHours(0, 0, 0, 1) <=
             new Date(info.date.toString()).setHours(23, 59, 0, 1) &&
           new Date(info.date.toString()) <=
             new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
             ? link
-            : ""
-        dayEl.classList.add("custom-day-class")
+            : '';
+        dayEl.classList.add('custom-day-class');
       },
 
       handleDateClick(info) {
@@ -178,39 +91,39 @@
         //  popover.style.display = 'block';
       },
       closePopover() {
-        this.popoverEvent = null
+        this.popoverEvent = null;
         if (this.popperInstance) {
-          this.popperInstance.destroy()
-          this.popperInstance = null
+          this.popperInstance.destroy();
+          this.popperInstance = null;
         }
       },
       handleEventClick(info) {
-        console.log(info)
+        console.log(info);
 
         //       this.showSelectedEventModal = true;
         //       this.selectedEvent = {...info.event._def, date: info.event.start? info.event.start : null};
-      }
+      },
     },
     watch: {
-      events: function(newValue) {
-        this.calendarOptions.events = [...newValue]
+      events: function (newValue) {
+        this.calendarOptions.events = [...newValue];
       },
-      sizeChange: function() {
-        this.$refs.calendar.getApi().updateSize()
+      sizeChange: function () {
+        this.$refs.calendar.getApi().updateSize();
       },
-      deep: true
+      deep: true,
     },
-    data: function() {
+    data: function () {
       return {
         calendarConfig: {
           year: new Date().getFullYear(),
-          month: new Date().getMonth() + 1
+          month: new Date().getMonth() + 1,
         },
         date: {
           from: null,
           to: null,
           month: null,
-          year: null
+          year: null,
         },
         showJumpToDateModal: false,
         currentSelectedMonth: new Date().getMonth() + 1,
@@ -222,9 +135,9 @@
         selectedEvent: null,
         showSelectedEventModal: false,
         calendarOptions: {
-          height: "auto",
+          height: 'auto',
           plugins: [dayGridPlugin, interactionPlugin],
-          initialView: "dayGridMonth",
+          initialView: 'dayGridMonth',
           weekends: true,
           datesSet: this.handleMonthChange,
           events: this.events,
@@ -232,39 +145,36 @@
           dayCellDidMount: this.customizeDayCell,
           customButtons: {
             customJumpToDate: {
-              text: `Schedule for ${new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long"
-              })}`,
+              text: `Schedule for ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}`,
               click: () => {
                 // Define what happens when the button is clicked
-                this.showJumpToDateModal = true
-              }
+                this.showJumpToDateModal = true;
+              },
             },
             customIntervalSelector: {
-              text: "Month",
+              text: 'Month',
               click: () => {
                 // Define what happens when the button is clicked
-                console.log("IntervalSelector")
-              }
-            }
+                console.log('IntervalSelector');
+              },
+            },
           },
           headerToolbar: {
-            left: "", // exclude 'today' button
-            center: "customJumpToDate today customIntervalSelector",
-            right: ""
+            left: '', // exclude 'today' button
+            center: 'customJumpToDate today customIntervalSelector',
+            right: '',
           },
           titleFormat: {
             // customize the title format
-            month: "long", // full month name
-            year: "numeric" // full year
+            month: 'long', // full month name
+            year: 'numeric', // full year
           },
           eventClick: this.handleEventClick,
-          dateClick: this.handleDateClick
-        }
-      }
-    }
-  }
+          dateClick: this.handleDateClick,
+        },
+      };
+    },
+  };
 </script>
 <style>
   .camera {
@@ -275,7 +185,7 @@
     top: 5px;
     display: block;
     border: 0 !important;
-    background-image: url("../../assets/video.svg");
+    background-image: url('../../assets/video.svg');
     background-position: center;
     background-size: contain;
   }
@@ -309,7 +219,7 @@
     right: 5px;
     width: 15px;
     height: 10px;
-    background-image: url("../../assets/today-list.svg");
+    background-image: url('../../assets/today-list.svg');
     background-repeat: no-repeat;
     background-position: center;
     z-index: 10;
@@ -330,17 +240,17 @@
     outline: none;
     position: relative;
     font-size: 16px;
-    font-family: "Work Sans", sans-serif;
+    font-family: 'Work Sans', sans-serif;
     margin-right: 10px;
     box-shadow: none !important;
   }
 
   .fc .fc-customJumpToDate-button:after {
-    content: "";
+    content: '';
     position: absolute;
     right: 0;
     bottom: 8px;
-    background-image: url("../../assets/arrow-down.svg");
+    background-image: url('../../assets/arrow-down.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 20px 20px;
@@ -361,16 +271,16 @@
     outline: none !important;
     position: relative;
     font-size: 16px;
-    font-family: "Work Sans", sans-serif;
+    font-family: 'Work Sans', sans-serif;
     box-shadow: none !important;
   }
 
   .fc .fc-customIntervalSelector-button:before {
     position: absolute;
     left: 0;
-    content: "";
+    content: '';
     bottom: 10px;
-    background-image: url("../../assets/calendar-select.svg");
+    background-image: url('../../assets/calendar-select.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 15px 15px;
@@ -382,9 +292,9 @@
   .fc .fc-customIntervalSelector-button:after {
     position: absolute;
     right: 0;
-    content: "";
+    content: '';
     bottom: 10px;
-    background-image: url("../../assets/arrow-down.svg");
+    background-image: url('../../assets/arrow-down.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 15px 15px;
@@ -399,7 +309,7 @@
     border-right: 0 !important;
     border-top: 0 !important;
 
-    font-family: WorkSans-Medium, "Work Sans Medium", "Work Sans", sans-serif;
+    font-family: WorkSans-Medium, 'Work Sans Medium', 'Work Sans', sans-serif;
     text-transform: capitalize;
     text-decoration: none;
     color: #494949;
@@ -420,7 +330,7 @@
   .fc .fc-daygrid-day-top,
   .fc .fc-daygrid-day-top a {
     flex-direction: row;
-    font-family: WorkSans-Medium, "Work Sans Medium", "Work Sans", sans-serif;
+    font-family: WorkSans-Medium, 'Work Sans Medium', 'Work Sans', sans-serif;
     font-weight: bold;
     text-decoration: none;
     color: #494949;
@@ -432,7 +342,7 @@
   }
 
   .fc-toolbar-title:before {
-    content: "Schedule for ";
+    content: 'Schedule for ';
     font-size: 17px;
   }
 
@@ -491,12 +401,12 @@
 
   .eventTitle {
     color: blue;
-    font-family: WorkSans-Bold, "Work Sans Bold", "Work Sans", sans-serif;
+    font-family: WorkSans-Bold, 'Work Sans Bold', 'Work Sans', sans-serif;
     font-weight: 700;
   }
 
   .city {
-    font-family: WorkSans-Medium, "Work Sans Medium", "Work Sans", sans-serif;
+    font-family: WorkSans-Medium, 'Work Sans Medium', 'Work Sans', sans-serif;
     font-weight: 500;
     color: rgb(49, 49, 50);
   }
@@ -504,13 +414,13 @@
   .loc {
     float: right;
     margin-left: 10px;
-    font-family: WorkSans-Regular, "Work Sans", sans-serif;
+    font-family: WorkSans-Regular, 'Work Sans', sans-serif;
     font-weight: 400;
     color: rgb(49, 49, 50);
   }
 
   .title {
-    font-family: WorkSans-Bold, "Work Sans Bold", "Work Sans", sans-serif;
+    font-family: WorkSans-Bold, 'Work Sans Bold', 'Work Sans', sans-serif;
     font-weight: 700;
     color: rgb(30, 152, 215);
   }
@@ -573,8 +483,8 @@
   }
 
   .event-modal-body .city-title:before {
-    content: "";
-    background-image: url("../../assets/video.svg");
+    content: '';
+    background-image: url('../../assets/video.svg');
     width: 15px;
     height: 10px;
     margin-right: 10px;
@@ -590,7 +500,7 @@
   .event-modal-body .city .icon-block {
     width: 15px;
     height: 10px;
-    background-image: url("../../assets/video.svg");
+    background-image: url('../../assets/video.svg');
   }
 
   .event-modal-body .city {
@@ -637,11 +547,11 @@
       hide-header
     >
       <div>
-        <month-picker
+        <!-- <month-picker
           @input="changeMonth"
           :default-month="currentSelectedMonth"
           :default-year="currentSelectedYear"
-        ></month-picker>
+        ></month-picker> -->
       </div>
     </b-modal>
 
@@ -656,10 +566,10 @@
       <div v-if="selectedEvent" class="event-modal-body">
         <div class="date" v-if="selectedEvent && selectedEvent.date">
           {{
-            selectedEvent.date.toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "long",
-              year: "numeric"
+            selectedEvent.date.toLocaleDateString('en-US', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
             })
           }}
         </div>
