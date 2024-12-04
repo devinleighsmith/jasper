@@ -265,7 +265,7 @@
         isCriminal: true,
         isFamily: false,
         isSmallClaims: false,
-        searchBy: 'lastName',
+        searchBy: 'fileNumber',
         fileHomeAgencyId: commonStore.userInfo!.agencyCode,
       });
       const classOptions = ref<LookupCode[]>([]);
