@@ -1,26 +1,34 @@
-import Vue from "vue"
+import { AuthService } from '@/services/AuthService';
+import { useCommonStore } from '@/stores';
+import { inject } from 'vue';
 
 export const SessionManager = {
-  getSettings: async function(store) {
-    try {
-      if (!store.state.userInfo) {
-        const response = await Vue.http.get("api/auth/info")
-        store.commit(
-          "CommonInformation/setEnableArchive",
-          response.body.enableArchive
-        )
-        store.commit("CommonInformation/setUserInfo", response.body)
-      }
-      return true
-    } catch (error) {
-      console.log(error)
-      return false
+  getSettings: async function () {
+    const commonStore = useCommonStore();
+    const authService = inject<AuthService>('authService');
+
+    if (commonStore.userInfo) {
+      return true;
     }
-  }
-}
+
+    try {
+      const userInfo = await authService?.getUserInfo();
+      if (!userInfo) {
+        console.error('User info not available.');
+        return false;
+      }
+      commonStore.userInfo = userInfo;
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  },
+};
 
 export const splunkLog = (message) => {
-  console.log(message)
+  // TODO: This has to be refactored to use a better way to call Splunk via REST API
+  console.log(message);
   // const token = import.meta.env["SPLUNK_TOKEN"] || ""
   // const url = import.meta.env["SPLUNK_COLLECTOR_URL"] || ""
 
@@ -39,4 +47,8 @@ export const splunkLog = (message) => {
   //     console.log("Response from Splunk", body)
   //   })
   // }
-}
+};
+
+export const getSingleValue = (value: string | string[]): string => {
+  return Array.isArray(value) ? value[0] : value;
+};

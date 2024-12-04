@@ -115,8 +115,6 @@ build-web-dev() {
     --build-arg NODE_VERSION=18 \
     --build-arg VITE_PORT=1339 \
     --build-arg WEB_SRC='./web' \
-    --progress=plain \
-    --no-cache \
     -f './web/Dockerfile.local' '..'
   echo -e "===================================================================================================="
 }
