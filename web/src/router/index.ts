@@ -1,6 +1,6 @@
 import CivilCaseDetails from '@/components/civil/CivilCaseDetails.vue';
 import CivilFileSearchResultsView from '@/components/civil/CivilFileSearchResultsView.vue';
-import CourtFileSearchView from '@/components/courtFileSearch/CourtFileSearchView.vue';
+import CourtFileSearchView from '@/components/courtfilesearch/CourtFileSearchView.vue';
 import CourtList from '@/components/courtlist/CourtList.vue';
 import CriminalCaseDetails from '@/components/criminal/CriminalCaseDetails.vue';
 import CriminalFileSearchResultsView from '@/components/criminal/CriminalFileSearchResultsView.vue';
