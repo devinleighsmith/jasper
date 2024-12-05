@@ -1,10 +1,3 @@
-import CivilCaseDetails from '@/components/civil/CivilCaseDetails.vue';
-import CivilFileSearchResultsView from '@/components/civil/CivilFileSearchResultsView.vue';
-import CourtFileSearchView from '@/components/courtfilesearch/CourtFileSearchView.vue';
-import CourtList from '@/components/courtlist/CourtList.vue';
-import CriminalCaseDetails from '@/components/criminal/CriminalCaseDetails.vue';
-import CriminalFileSearchResultsView from '@/components/criminal/CriminalFileSearchResultsView.vue';
-import Dashboard from '@/components/dashboard/Dashboard.vue';
 import { SessionManager } from '@/utils/utils';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
@@ -15,24 +8,22 @@ async function authGuard(to: any, from: any, next: any) {
   }
 }
 
-const HomeView = () => import('../components/Home.vue');
-
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'HomeView',
-    component: HomeView,
+    component: () => import('@/components/Home.vue'),
   },
   {
     path: '/court-list',
     name: 'CourtList',
-    component: CourtList,
+    component: () => import('@/components/courtlist/CourtList.vue'),
     props: true,
     children: [
       {
         path: 'location/:location/room/:room/date/:date',
         name: 'CourtListResult',
-        component: CourtList,
+        component: () => import('@/components/courtlist/CourtList.vue'),
         props: true,
       },
     ],
@@ -40,37 +31,41 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/civil-file/:fileNumber/:section?',
     name: 'CivilCaseDetails',
-    component: CivilCaseDetails,
+    component: () => import('@/components/civil/CivilCaseDetails.vue'),
     props: true,
   },
   {
     path: '/criminal-file/:fileNumber',
     name: 'CriminalCaseDetails',
-    component: CriminalCaseDetails,
+    component: () => import('@/components/criminal/CriminalCaseDetails.vue'),
     props: true,
   },
   {
     path: '/civil-file-search',
     name: 'CivilFileSearchResultsView',
-    component: CivilFileSearchResultsView,
+    component: () =>
+      import('@/components/civil/CivilFileSearchResultsView.vue'),
     props: true,
   },
   {
     path: '/criminal-file-search',
     name: 'CriminalFileSearchResultsView',
-    component: CriminalFileSearchResultsView,
+    component: import(
+      '@/components/criminal/CriminalFileSearchResultsView.vue'
+    ),
     props: true,
   },
   {
     path: '/dashboard',
     name: 'DashboardView',
-    component: Dashboard,
+    component: () => import('@/components/dashboard/Dashboard.vue'),
     props: true,
   },
   {
     path: '/court-file-search',
     name: 'CourtFileSearchView',
-    component: CourtFileSearchView,
+    component: () =>
+      import('@/components/courtfilesearch/CourtFileSearchView.vue'),
   },
 ];
 

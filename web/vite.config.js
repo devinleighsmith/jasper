@@ -43,7 +43,7 @@ export default defineConfig({
     https: true,
     proxy: {
       '^/api': {
-        target: 'https://api:5000',
+        target: 'http://api:5000',
         changeOrigin: true,
         headers: {
           Connection: 'keep-alive',
