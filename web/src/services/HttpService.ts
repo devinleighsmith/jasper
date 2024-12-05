@@ -16,7 +16,7 @@ export interface IHttpService {
 }
 
 export class HttpService implements IHttpService {
-  private client: AxiosInstance;
+  readonly client: AxiosInstance;
 
   constructor(baseURL: string) {
     this.client = axios.create({
@@ -29,7 +29,7 @@ export class HttpService implements IHttpService {
 
     this.client.interceptors.request.use(
       (config) => this.handleAuthSuccess(config),
-      (error) => Promise.reject(error)
+      (error) => Promise.reject(new Error(error))
     );
 
     this.client.interceptors.response.use(
@@ -50,7 +50,7 @@ export class HttpService implements IHttpService {
     if (error.response && error.response.status === 401) {
       redirectHandlerService.handleUnauthorized(window.location.href);
     }
-    return Promise.reject(error);
+    return Promise.reject(new Error(error));
   }
 
   public async get<T>(

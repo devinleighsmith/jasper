@@ -19,7 +19,7 @@ export class LocationService {
     );
     const courtRooms: roomsInfoType[] = [];
 
-    courtRoomsJson.map((cr) => {
+    courtRoomsJson.forEach((cr) => {
       courtRooms.push({
         text: cr.name,
         value: cr.code,

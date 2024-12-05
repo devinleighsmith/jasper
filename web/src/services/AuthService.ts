@@ -2,7 +2,7 @@ import { UserInfo } from '@/types/common';
 import { HttpService } from './HttpService';
 
 export class AuthService {
-  private httpService: HttpService;
+  readonly httpService: HttpService;
 
   constructor(httpService: HttpService) {
     this.httpService = httpService;
