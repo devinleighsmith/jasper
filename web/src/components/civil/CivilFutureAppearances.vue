@@ -134,18 +134,12 @@
 
 <script lang="ts">
   import CivilAppearanceDetails from '@/components/civil/CivilAppearanceDetails.vue';
-  import { beautifyDate } from '@/filters';
   import { useCivilFileStore, useCommonStore } from '@/stores';
   import { civilAppearancesListType } from '@/types/civil';
   import { civilApprDetailType } from '@/types/civil/jsonTypes';
+  import { extractCivilAppearancesInfo } from '@/utils/utils';
   import * as _ from 'underscore';
   import { computed, defineComponent, onMounted, ref } from 'vue';
-
-  enum appearanceStatus {
-    UNCF = 'Unconfirmed',
-    CNCL = 'Canceled',
-    SCHD = 'Scheduled',
-  }
 
   export default defineComponent({
     components: {
@@ -159,102 +153,119 @@
       const isDataReady = ref(false);
 
       const futureAppearancesList = ref<civilAppearancesListType[]>([]);
-      const futureAppearancesJson = ref<civilApprDetailType[]>([]);
+      let futureAppearancesJson: civilApprDetailType[] = [];
       const sortBy = ref('date');
       const sortDesc = ref(true);
 
-      const fields = [
-        {
-          key: 'date',
-          label: 'Date',
-          sortable: true,
+      const getTableFieldSettings = () => {
+        const commonStyles = {
           tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellClass: 'text-info mt-2 d-inline-flex',
-          cellStyle: 'display: inline-flex; font-size: 14px;',
-        },
-        {
-          key: 'reason',
-          label: 'Reason',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellClass: 'badge badge-secondary mt-2',
-          cellStyle: 'font-size: 14px; text-align:left;',
-        },
-        {
-          key: 'documentType',
-          label: 'Document Type',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellClass: 'text',
-          cellStyle: 'font-weight: normal;font-size: 14px; padding-top:12px',
-        },
-        {
-          key: 'result',
-          label: 'Result',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellClass: 'badge badge-secondary mt-2',
           cellStyle: 'font-size: 14px;',
-        },
-        {
-          key: 'time',
-          label: 'Time',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellClass: 'text',
-          cellStyle: 'font-weight: normal; font-size: 14px; padding-top:12px',
-        },
-        {
-          key: 'duration',
-          label: 'Duration',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellClass: 'text',
-          cellStyle: 'font-weight: normal; font-size: 14px; padding-top:12px',
-        },
-        {
-          key: 'location',
-          label: 'Location',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellClass: 'text',
-          cellStyle: 'font-weight: normal; font-size: 14px; padding-top:12px',
-        },
-        {
-          key: 'room',
-          label: 'Room',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellClass: 'text',
-          cellStyle: 'font-weight: normal; font-size: 14px; padding-top:12px',
-        },
-        {
-          key: 'presider',
-          label: 'Presider',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellClass: 'badge badge-secondary mt-2',
-          cellStyle: 'font-size: 14px;',
-        },
-        {
-          key: 'status',
-          label: 'Status',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellClass: 'badge',
-          cellStyle: 'font-size: 14px;',
-        },
-      ];
+        };
+
+        const headerStyles = {
+          textPrimary: 'text-primary',
+          text: 'text',
+        };
+
+        const cellClasses = {
+          badge: 'badge badge-secondary mt-2',
+          text: 'text',
+          inlineText: 'text-info mt-2 d-inline-flex',
+        };
+
+        return [
+          {
+            key: 'date',
+            label: 'Date',
+            sortable: true,
+            ...commonStyles,
+            headerStyle: headerStyles.textPrimary,
+            cellClass: cellClasses.inlineText,
+            cellStyle: `${commonStyles.cellStyle} display: inline-flex;`,
+          },
+          {
+            key: 'reason',
+            label: 'Reason',
+            sortable: true,
+            ...commonStyles,
+            headerStyle: headerStyles.textPrimary,
+            cellClass: cellClasses.badge,
+            cellStyle: `${commonStyles.cellStyle} text-align:left;`,
+          },
+          {
+            key: 'documentType',
+            label: 'Document Type',
+            sortable: false,
+            ...commonStyles,
+            headerStyle: headerStyles.text,
+            cellClass: cellClasses.text,
+            cellStyle: `${commonStyles.cellStyle} font-weight: normal; padding-top:12px;`,
+          },
+          {
+            key: 'result',
+            label: 'Result',
+            sortable: true,
+            ...commonStyles,
+            headerStyle: headerStyles.textPrimary,
+            cellClass: cellClasses.badge,
+          },
+          {
+            key: 'time',
+            label: 'Time',
+            sortable: false,
+            ...commonStyles,
+            headerStyle: headerStyles.text,
+            cellClass: cellClasses.text,
+            cellStyle: `${commonStyles.cellStyle} font-weight: normal; padding-top:12px;`,
+          },
+          {
+            key: 'duration',
+            label: 'Duration',
+            sortable: false,
+            ...commonStyles,
+            headerStyle: headerStyles.text,
+            cellClass: cellClasses.text,
+            cellStyle: `${commonStyles.cellStyle} font-weight: normal; padding-top:12px;`,
+          },
+          {
+            key: 'location',
+            label: 'Location',
+            sortable: true,
+            ...commonStyles,
+            headerStyle: headerStyles.textPrimary,
+            cellClass: cellClasses.text,
+            cellStyle: `${commonStyles.cellStyle} font-weight: normal; padding-top:12px;`,
+          },
+          {
+            key: 'room',
+            label: 'Room',
+            sortable: false,
+            ...commonStyles,
+            headerStyle: headerStyles.text,
+            cellClass: cellClasses.text,
+            cellStyle: `${commonStyles.cellStyle} font-weight: normal; padding-top:12px;`,
+          },
+          {
+            key: 'presider',
+            label: 'Presider',
+            sortable: true,
+            ...commonStyles,
+            headerStyle: headerStyles.textPrimary,
+            cellClass: cellClasses.badge,
+          },
+          {
+            key: 'status',
+            label: 'Status',
+            sortable: true,
+            ...commonStyles,
+            headerStyle: headerStyles.textPrimary,
+            cellClass: cellClasses.badge,
+          },
+        ];
+      };
+
+      const fields = ref(getTableFieldSettings());
 
       onMounted(() => {
         getFutureAppearances();
@@ -262,7 +273,7 @@
 
       const getFutureAppearances = () => {
         const data = civilFileStore.civilFileInformation.detailsData;
-        futureAppearancesJson.value = data.appearances.apprDetail;
+        futureAppearancesJson = [...data.appearances.apprDetail];
         ExtractFutureAppearancesInfo();
         if (futureAppearancesList.value.length) {
           isDataReady.value = true;
@@ -273,45 +284,20 @@
 
       const ExtractFutureAppearancesInfo = () => {
         const currentDate = new Date();
-        for (const appIndex in futureAppearancesJson.value) {
-          const appInfo = {} as civilAppearancesListType;
-          const jApp = futureAppearancesJson.value[appIndex];
+        futureAppearancesJson.forEach(
+          (jApp: civilApprDetailType, index: number) => {
+            const appearanceDate = jApp.appearanceDt.split(' ')[0];
+            if (new Date(appearanceDate) < currentDate) return;
 
-          appInfo.index = appIndex;
-          appInfo.date = jApp.appearanceDt.split(' ')[0];
-          if (new Date(appInfo.date) < currentDate) continue;
-          appInfo.formattedDate = beautifyDate(appInfo.date);
-          appInfo.documentType = jApp.documentTypeDsc
-            ? jApp.documentTypeDsc
-            : '';
-          appInfo.result = jApp.appearanceResultCd;
-          appInfo.resultDescription = jApp.appearanceResultDsc
-            ? jApp.appearanceResultDsc
-            : '';
-          appInfo.time = getTime(jApp.appearanceTm.split(' ')[1].substr(0, 5));
-          appInfo.reason = jApp.appearanceReasonCd;
-          appInfo.reasonDescription = jApp.appearanceReasonDsc
-            ? jApp.appearanceReasonDsc
-            : '';
-          appInfo.duration = getDuration(
-            jApp.estimatedTimeHour,
-            jApp.estimatedTimeMin
-          );
-          appInfo.location = jApp.courtLocation ? jApp.courtLocation : '';
-          appInfo.room = jApp.courtRoomCd;
-          appInfo.status = jApp.appearanceStatusCd
-            ? appearanceStatus[jApp.appearanceStatusCd]
-            : '';
-          appInfo.statusStyle = getStatusStyle(appInfo.status);
-          appInfo.presider = jApp.judgeInitials ? jApp.judgeInitials : '';
-          appInfo.judgeFullName = jApp.judgeInitials ? jApp.judgeFullNm : '';
-          appInfo.appearanceId = jApp.appearanceId;
-          appInfo.supplementalEquipment = jApp.supplementalEquipmentTxt;
-          appInfo.securityRestriction = jApp.securityRestrictionTxt;
-          appInfo.outOfTownJudge = jApp.outOfTownJudgeTxt;
+            const appInfo = extractCivilAppearancesInfo(
+              jApp,
+              index,
+              commonStore
+            );
 
-          futureAppearancesList.value.push(appInfo);
-        }
+            futureAppearancesList.value.push(appInfo);
+          }
+        );
       };
 
       const getStatusStyle = (status) => {

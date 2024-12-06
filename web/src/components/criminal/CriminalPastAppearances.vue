@@ -26,113 +26,22 @@
       </b-overlay>
     </b-card>
 
-    <b-card
-      bg-variant="white"
+    <criminal-past-appearances-table
       v-if="isDataReady"
-      no-body
-      class="mx-3 mb-5"
-      style="overflow: auto"
-    >
-      <b-table
-        :items="SortedPastAppearances"
-        :fields="fields"
-        :sort-by.sync="sortBy"
-        :sort-desc.sync="sortDesc"
-        :no-sort-reset="true"
-        sort-icon-left
-        borderless
-        @sort-changed="sortChanged"
-        small
-        responsive="sm"
-      >
-        <template
-          v-for="(field, index) in fields"
-          v-slot:[`head(${field.key})`]="data"
-        >
-          <b v-bind:key="index" :class="field.headerStyle"> {{ data.label }}</b>
-        </template>
-
-        <template v-slot:cell()="data">
-          <b-badge :style="data.field.cellStyle" variant="white">
-            {{ data.value }}
-          </b-badge>
-        </template>
-
-        <template v-slot:cell(date)="data">
-          <span :class="data.field.cellClass" style="display: inline-flex">
-            <b-button
-              :style="data.field.cellStyle"
-              size="sm"
-              @click="
-                OpenDetails(data);
-                data.toggleDetails();
-              "
-              variant="outline-primary border-white text-info"
-              class="mr-2 mt-1"
-            >
-              <b-icon-caret-right-fill
-                v-if="!data.item['_showDetails']"
-              ></b-icon-caret-right-fill>
-              <b-icon-caret-down-fill
-                v-if="data.item['_showDetails']"
-              ></b-icon-caret-down-fill>
-              {{ data.item.formattedDate }}
-            </b-button>
-          </span>
-        </template>
-        <template v-slot:row-details>
-          <b-card>
-            <criminal-appearance-details />
-          </b-card>
-        </template>
-
-        <template v-slot:cell(reason)="data">
-          <b-badge
-            variant="secondary"
-            v-b-tooltip.hover.right
-            :title="data.item.reasonDescription"
-            :style="data.field.cellStyle"
-          >
-            {{ data.value }}
-          </b-badge>
-        </template>
-
-        <template v-slot:cell(presider)="data">
-          <b-badge
-            variant="secondary"
-            v-if="data.value"
-            v-b-tooltip.hover.left
-            :title="data.item.judgeFullName"
-            :style="data.field.cellStyle"
-          >
-            {{ data.value }}
-          </b-badge>
-        </template>
-
-        <template v-slot:cell(accused)="data">
-          <b-badge variant="white" :style="data.field.cellStyle" class="mt-2">
-            {{ data.value }}
-          </b-badge>
-        </template>
-
-        <template v-slot:cell(status)="data">
-          <b :class="data.item.statusStyle" :style="data.field.cellStyle">
-            {{ data.value }}
-          </b>
-        </template>
-      </b-table>
-    </b-card>
+      :SortedPastAppearances="SortedPastAppearances"
+    />
   </b-card>
 </template>
 
 <script lang="ts">
   import CriminalAppearanceDetails from '@/components/criminal/CriminalAppearanceDetails.vue';
-  import { beautifyDate } from '@/filters';
   import { useCommonStore, useCriminalFileStore } from '@/stores';
   import { criminalAppearancesListType } from '@/types/criminal';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
+  import { extractCriminalAppearanceInfo } from '@/utils/utils';
   import * as _ from 'underscore';
   import { computed, defineComponent, onMounted, ref } from 'vue';
+  import CriminalPastAppearancesTable from './CriminalPastAppearancesTable.vue';
 
   enum appearanceStatus {
     UNCF = 'Unconfirmed',
@@ -143,94 +52,17 @@
   export default defineComponent({
     components: {
       CriminalAppearanceDetails,
+      CriminalPastAppearancesTable,
     },
     setup() {
-      const commonStore = useCommonStore();
       const criminalFileStore = useCriminalFileStore();
+      const commonStore = useCommonStore();
 
       const pastAppearancesList = ref<criminalAppearancesListType[]>([]);
       let pastAppearancesJson: criminalApprDetailType[] = [];
 
-      const sortBy = 'dateref';
-      const sortDesc = ref(true);
       const isMounted = ref(false);
       const isDataReady = ref(false);
-
-      const fields = [
-        {
-          key: 'date',
-          label: 'Date',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellStyle: 'transform: translate(0,-7px); font-size:16px',
-          cellClass: 'text-info mt-2 d-inline-flex',
-        },
-        {
-          key: 'reason',
-          label: 'Reason',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellStyle: 'margin-top: 10px; font-size: 14px;',
-        },
-        {
-          key: 'time',
-          label: 'Time',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellStyle: 'font-weight: normal; font-size: 16px; padding-top:12px',
-        },
-        {
-          key: 'duration',
-          label: 'Duration',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellStyle: 'font-weight: normal; font-size: 16px; padding-top:12px',
-        },
-        {
-          key: 'location',
-          label: 'Location',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellStyle: 'font-weight: normal; font-size: 16px; padding-top:12px',
-        },
-        {
-          key: 'room',
-          label: 'Room',
-          sortable: false,
-          tdClass: 'border-top',
-          headerStyle: 'text',
-          cellStyle: 'font-weight: normal; font-size: 16px; padding-top:12px',
-        },
-        {
-          key: 'presider',
-          label: 'Presider',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellStyle: 'margin-top: 10px; font-size: 14px;',
-        },
-        {
-          key: 'accused',
-          label: 'Accused',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellStyle: 'font-size: 16px;',
-        },
-        {
-          key: 'status',
-          label: 'Status',
-          sortable: true,
-          tdClass: 'border-top',
-          headerStyle: 'text-primary',
-          cellStyle: 'font-weight: normal; font-size: 16px; width:110px',
-        },
-      ];
 
       onMounted(() => {
         getPastAppearances();
@@ -248,105 +80,22 @@
 
       const ExtractPastAppearancesInfo = () => {
         const currentDate = new Date();
-        for (const appIndex in pastAppearancesJson) {
-          const appInfo = {} as criminalAppearancesListType;
-          const jApp = pastAppearancesJson[appIndex];
 
-          appInfo.index = appIndex;
-          appInfo.date = jApp.appearanceDt.split(' ')[0];
-          if (new Date(appInfo.date) >= currentDate) continue;
-          appInfo.formattedDate = beautifyDate(appInfo.date);
-          appInfo.time = getTime(jApp.appearanceTm.split(' ')[1].substr(0, 5));
-          appInfo.reason = jApp.appearanceReasonCd;
-          appInfo.reasonDescription = jApp.appearanceReasonDsc
-            ? jApp.appearanceReasonDsc
-            : '';
+        pastAppearancesJson.forEach(
+          (jApp: criminalApprDetailType, index: number) => {
+            const appearanceDate = jApp.appearanceDt.split(' ')[0];
+            if (new Date(appearanceDate) >= currentDate) return;
 
-          appInfo.duration = getDuration(
-            jApp.estimatedTimeHour,
-            jApp.estimatedTimeMin
-          );
-          appInfo.location = jApp.courtLocation ? jApp.courtLocation : '';
-          appInfo.room = jApp.courtRoomCd;
+            const appInfo = extractCriminalAppearanceInfo(
+              jApp,
+              index,
+              appearanceDate,
+              commonStore
+            );
 
-          appInfo.firstName = jApp.givenNm ? jApp.givenNm : '';
-          appInfo.lastName = jApp.lastNm ? jApp.lastNm : jApp.orgNm;
-          appInfo.accused = getNameOfParticipant(
-            appInfo.lastName,
-            appInfo.firstName
-          );
-          appInfo.status = jApp.appearanceStatusCd
-            ? appearanceStatus[jApp.appearanceStatusCd]
-            : '';
-          appInfo.statusStyle = getStatusStyle(appInfo.status);
-          appInfo.presider = jApp.judgeInitials ? jApp.judgeInitials : '';
-          appInfo.judgeFullName = jApp.judgeInitials ? jApp.judgeFullNm : '';
-
-          appInfo.appearanceId = jApp.appearanceId;
-          appInfo.partId = jApp.partId;
-          appInfo.supplementalEquipment = jApp.supplementalEquipmentTxt;
-          appInfo.securityRestriction = jApp.securityRestrictionTxt;
-          appInfo.outOfTownJudge = jApp.outOfTownJudgeTxt;
-          appInfo.profSeqNo = jApp.profSeqNo;
-
-          pastAppearancesList.value.push(appInfo);
-        }
-      };
-
-      const getStatusStyle = (status) => {
-        commonStore.updateStatusStyle(status);
-        return commonStore.statusStyle;
-      };
-
-      const getNameOfParticipant = (lastName, givenName) => {
-        commonStore.updateDisplayName({
-          lastName: lastName,
-          givenName: givenName,
-        });
-        return commonStore.displayName;
-      };
-
-      const getTime = (time) => {
-        commonStore.updateTime(time);
-        return commonStore.time;
-      };
-
-      const getDuration = (hr, min) => {
-        commonStore.updateDuration({ hr: hr, min: min });
-        return commonStore.duration;
-      };
-
-      const OpenDetails = (data) => {
-        if (!data.detailsShowing) {
-          criminalFileStore.criminalAppearanceInfo.fileNo =
-            criminalFileStore.criminalFileInformation.fileNumber;
-          criminalFileStore.criminalAppearanceInfo.courtLevel =
-            criminalFileStore.criminalFileInformation.courtLevel;
-          criminalFileStore.criminalAppearanceInfo.courtClass =
-            criminalFileStore.criminalFileInformation.courtClass;
-          criminalFileStore.criminalAppearanceInfo.date =
-            data.item.formattedDate;
-          criminalFileStore.criminalAppearanceInfo.appearanceId =
-            data.item.appearanceId;
-          criminalFileStore.criminalAppearanceInfo.partId = data.item.partId;
-          criminalFileStore.criminalAppearanceInfo.supplementalEquipmentTxt =
-            data.item.supplementalEquipment;
-          criminalFileStore.criminalAppearanceInfo.securityRestrictionTxt =
-            data.item.securityRestriction;
-          criminalFileStore.criminalAppearanceInfo.outOfTownJudgeTxt =
-            data.item.outOfTownJudge;
-          criminalFileStore.criminalAppearanceInfo.profSeqNo =
-            data.item.profSeqNo;
-          criminalFileStore.updateCriminalAppearanceInfo(
-            criminalFileStore.criminalAppearanceInfo
-          );
-        }
-      };
-
-      const sortChanged = () => {
-        SortedPastAppearances.value.forEach((item) => {
-          item['_showDetails'] = false;
-        });
+            pastAppearancesList.value.push(appInfo);
+          }
+        );
       };
 
       const SortedPastAppearances = computed(
@@ -365,12 +114,7 @@
         showSections: criminalFileStore.showSections,
         isDataReady,
         isMounted,
-        fields,
-        sortBy,
-        sortDesc,
         SortedPastAppearances,
-        OpenDetails,
-        sortChanged,
       };
     },
   });

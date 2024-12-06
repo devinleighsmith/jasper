@@ -134,3 +134,5 @@ export const useCommonStore = defineStore('CommonStore', {
     },
   },
 });
+
+export type CommonStore = ReturnType<typeof useCommonStore>;

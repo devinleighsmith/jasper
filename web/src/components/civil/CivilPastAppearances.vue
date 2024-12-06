@@ -165,16 +165,11 @@
   import { civilAppearancesListType } from '@/types/civil';
   import { civilApprDetailType } from '@/types/civil/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { extractCivilAppearancesInfo } from '@/utils/utils';
   import * as _ from 'underscore';
   import { computed, defineComponent, inject, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router';
   import shared from '../shared';
-
-  enum appearanceStatus {
-    UNCF = 'Unconfirmed',
-    CNCL = 'Canceled',
-    SCHD = 'Scheduled',
-  }
 
   export default defineComponent({
     components: {
@@ -194,7 +189,7 @@
 
       const isMounted = ref(false);
       const isDataReady = ref(false);
-      const pastAppearancesJson = ref<civilApprDetailType[]>([]);
+      let pastAppearancesJson: civilApprDetailType[] = [];
       const sortBy = ref('date');
       const sortDesc = ref(true);
       const fromA2a = ref(false);
@@ -300,7 +295,7 @@
 
       const getPastAppearances = () => {
         const data = civilFileStore.civilFileInformation.detailsData;
-        pastAppearancesJson.value = data.appearances.apprDetail;
+        pastAppearancesJson = [...data.appearances.apprDetail];
         ExtractPastAppearancesInfo();
         if (pastAppearancesList.value.length) {
           isDataReady.value = true;
@@ -310,48 +305,20 @@
 
       const ExtractPastAppearancesInfo = () => {
         const currentDate = new Date();
-        for (const appIndex in pastAppearancesJson.value) {
-          const appInfo = {} as civilAppearancesListType;
-          const jApp = pastAppearancesJson.value[appIndex];
+        pastAppearancesJson.forEach(
+          (jApp: civilApprDetailType, index: number) => {
+            const appearanceDate = jApp.appearanceDt.split(' ')[0];
+            if (new Date(appearanceDate) >= currentDate) return;
 
-          appInfo.index = appIndex;
-          appInfo.date = jApp.appearanceDt.split(' ')[0];
-          if (new Date(appInfo.date) >= currentDate) continue;
-          appInfo.formattedDate = beautifyDate(appInfo.date);
-          appInfo.documentType = jApp.documentTypeDsc
-            ? jApp.documentTypeDsc
-            : '';
-          appInfo.result = jApp.appearanceResultCd;
-          appInfo.resultDescription = jApp.appearanceResultDsc
-            ? jApp.appearanceResultDsc
-            : '';
-          appInfo.time = getTime(
-            jApp.appearanceTm.split(' ')[1].substring(0, 5)
-          );
-          appInfo.reason = jApp.appearanceReasonCd;
-          appInfo.reasonDescription = jApp.appearanceReasonDsc
-            ? jApp.appearanceReasonDsc
-            : '';
-          appInfo.duration = getDuration(
-            jApp.estimatedTimeHour,
-            jApp.estimatedTimeMin
-          );
-          appInfo.location = jApp.courtLocation ? jApp.courtLocation : '';
-          appInfo.room = jApp.courtRoomCd;
-          appInfo.status = jApp.appearanceStatusCd
-            ? appearanceStatus[jApp.appearanceStatusCd]
-            : '';
-          appInfo.statusStyle = getStatusStyle(appInfo.status);
-          appInfo.presider = jApp.judgeInitials ? jApp.judgeInitials : '';
-          appInfo.judgeFullName = jApp.judgeInitials ? jApp.judgeFullNm : '';
+            const appInfo = extractCivilAppearancesInfo(
+              jApp,
+              index,
+              commonStore
+            );
 
-          appInfo.appearanceId = jApp.appearanceId;
-          appInfo.supplementalEquipment = jApp.supplementalEquipmentTxt;
-          appInfo.securityRestriction = jApp.securityRestrictionTxt;
-          appInfo.outOfTownJudge = jApp.outOfTownJudgeTxt;
-
-          pastAppearancesList.value.push(appInfo);
-        }
+            pastAppearancesList.value.push(appInfo);
+          }
+        );
       };
 
       const getStatusStyle = (status) => {
@@ -415,7 +382,7 @@
               appearanceId
           )
           .then(
-            (Response) => Response.json(),
+            (Response) => Response,
             (err) => {
               //    this.$bvToast.toast(`Error - ${err.url} - ${err.status} - ${err.statusText}`, {
               //        title: "An error has occured.",
