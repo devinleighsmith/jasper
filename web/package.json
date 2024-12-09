@@ -28,11 +28,10 @@
     "@fullcalendar/vue3": "^6.1.15",
     "@types/underscore": "^1.13.0",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
-    "@vue/compat": "^3.5.13",
     "axios": "^1.7.9",
     "base64url": "^3.0.1",
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.23.0",
+    "bootstrap-vue-next": "^0.26.8",
     "cross-env": "^7.0.3",
     "intersection-observer": "^0.12.2",
     "jquery": "^3.7.1",
@@ -62,6 +61,7 @@
     "ts-loader": "^9.5.1",
     "tslib": "^2.8.1",
     "typescript": "^5.7.2",
+    "unplugin-vue-components": "^0.27.5",
     "vite": "^6.0.2"
   },
   "eslintConfig": {

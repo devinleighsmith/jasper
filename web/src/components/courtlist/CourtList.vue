@@ -90,7 +90,7 @@
           >
 
           <b-input-group class="mb-3">
-            <b-form-input
+            <!-- <b-form-input
               id="datepicker"
               v-model="selectedDate"
               type="text"
@@ -98,8 +98,36 @@
               placeholder="YYYY-MM-DD"
               autocomplete="off"
               :state="selectedDateState ? null : false"
-            ></b-form-input>
-            <b-input-group-append>
+            ></b-form-input> -->
+            <!-- <input
+              id="datepickerform"
+              name="datepickerform"
+              v-model="selectedDate"
+              width="250"
+              type="date"
+              required
+              :disabled="!searchAllowed"
+              placeholder="YYYY-MM-DD"
+              autocomplete="off"
+              :state="selectedDateState ? null : false"
+            /> -->
+            <input
+              id="datepickerform"
+              name="datepickerform"
+              v-model="selectedDate"
+              width="250"
+              type="date"
+              placeholder="YYYY-MM-DD"
+              required
+              :state="selectedDateState ? null : false"
+              @change="
+                onCalenderContext({
+                  selectedYMD: selectedDate,
+                  selectedFormatted: selectedDate,
+                })
+              "
+            />
+            <!-- <b-input-group-append>
               <b-form-datepicker
                 v-model="selectedDate"
                 button-only
@@ -108,7 +136,7 @@
                 locale="en-US"
                 @context="onCalenderContext"
               ></b-form-datepicker>
-            </b-input-group-append>
+            </b-input-group-append> -->
           </b-input-group>
         </b-col>
         <b-col md="2">
@@ -290,7 +318,7 @@
       const selectedDateState = ref(true);
       const selectedCourtRoom = ref('null');
       const selectedCourtRoomState = ref(true);
-      let selectedCourtLocation = reactive({} as locationInfoType);
+      const selectedCourtLocation = ref({} as locationInfoType);
       const selectedCourtLocationState = ref(true);
       const courtListLocation = ref('Vancouver');
       const courtListLocationID = ref('4801');
@@ -459,7 +487,7 @@
         ];
 
         Object.assign(
-          selectedCourtLocation,
+          selectedCourtLocation.value,
           courtRoomsAndLocations.value[0].value
         );
       };
@@ -480,7 +508,7 @@
         if (route.params.location && route.params.room && route.params.date) {
           const location = getCourtNameById(route.params.location)[0];
           if (location) {
-            Object.assign(selectedCourtLocation, location.value);
+            Object.assign(selectedCourtLocation.value, location.value);
             selectedCourtLocationState.value = true;
             selectedDate.value = getSingleValue(route.params.date);
             validSelectedDate = selectedDate.value;
@@ -498,7 +526,7 @@
             }
           } else {
             Object.assign(
-              selectedCourtLocation,
+              selectedCourtLocation.value,
               courtRoomsAndLocations.value[0].value
             );
             selectedCourtLocationState.value = false;
@@ -597,16 +625,19 @@
       };
 
       const searchForCourtList = () => {
-        if (!selectedCourtLocation.Location) {
+        if (!selectedCourtLocation.value.Location) {
           selectedCourtLocationState.value = false;
           searchAllowed.value = true;
         } else {
           if (checkDateInValid()) {
             searchAllowed.value = true;
           } else {
-            Object.assign(courtListLocation, selectedCourtLocation.Location);
-            courtListLocationID.value = selectedCourtLocation.LocationID;
+            Object.assign(
+              courtListLocation,
+              selectedCourtLocation.value.Location
+            );
 
+            courtListLocationID.value = selectedCourtLocation.value.LocationID;
             if (
               selectedCourtRoom.value == 'null' ||
               selectedCourtRoom.value == undefined

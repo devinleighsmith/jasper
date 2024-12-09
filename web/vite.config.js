@@ -1,5 +1,7 @@
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import vue from '@vitejs/plugin-vue';
+import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
+import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
 
 const path = require('path');
@@ -9,20 +11,37 @@ export default defineConfig({
   base:
     process.env.NODE_ENV === 'production' ? '/S2I_INJECT_PUBLIC_PATH/' : '/',
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          compatConfig: {
-            MODE: 3,
+    vue(),
+    Components({
+      resolvers: [
+        BootstrapVueNextResolver({
+          aliases: {
+            BInput: 'b-input',
+            BCard: 'b-card',
+            BCardTitle: 'b-card-title',
+            BRow: 'b-row',
+            BFormInput: 'b-form-input',
+            BCardText: 'b-card-text',
+            BFormSelect: 'b-form-select',
+            BButton: 'b-button',
+            BCol: 'b-col',
+            BModal: 'b-modal',
+            BOverlay: 'b-overlay',
+            BNavbarNav: 'b-navbar-nav',
+            BNavbar: 'b-navbar',
+            BFormGroup: 'b-form-group',
+            BInputGroup: 'b-input-group',
+            BNavText: 'b-nav-text',
+            BTableSimple: 'b-table-simple',
+            BTable: 'b-table',
           },
-        },
-      },
+        }),
+      ],
     }),
     basicSsl(),
   ],
   resolve: {
     alias: {
-      vue: '@vue/compat',
       '@': path.resolve(__dirname, vueSrc),
       '@assets': path.resolve(__dirname, vueSrc.concat('/assets')),
       '@components': path.resolve(__dirname, vueSrc.concat('/components')),
@@ -32,7 +51,10 @@ export default defineConfig({
       '@styles': path.resolve(__dirname, vueSrc.concat('/styles')),
       '~@bcgov': path.resolve(__dirname, 'node_modules/@bcgov'),
       '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
-      '~bootstrap-vue': path.resolve(__dirname, 'node_modules/bootstrap-vue'),
+      '~bootstrap-vue-next': path.resolve(
+        __dirname,
+        'node_modules/bootstrap-vue-next'
+      ),
     },
     extensions: ['.ts', '.vue', '.json', '.scss', '.svg', '.png', '.jpg'],
   },
