@@ -99,6 +99,7 @@
               placeholder="YYYY-MM-DD"
               required
               :state="selectedDateState ? null : false"
+              :disabled="!searchAllowed"
               @change="
                 onCalenderContext({
                   selectedYMD: selectedDate,
