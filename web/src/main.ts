@@ -1,8 +1,10 @@
 import LoadingSpinner from '@components/LoadingSpinner.vue';
 import '@styles/index.scss';
-import { createApp } from '@vue/compat';
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
+import { createBootstrap } from 'bootstrap-vue-next';
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import 'intersection-observer';
+import { createApp } from 'vue';
 import App from './App.vue';
 import './filters';
 import router from './router/index';
@@ -13,8 +15,7 @@ const app = createApp(App);
 
 registerPinia(app);
 app.use(router);
-app.use(BootstrapVue);
-app.use(BootstrapVueIcons);
+app.use(createBootstrap());
 //Vue.config.productionTip = true
 app.component('loading-spinner', LoadingSpinner);
 

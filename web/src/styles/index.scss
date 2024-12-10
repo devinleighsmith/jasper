@@ -1,13 +1,8 @@
-@import "common";
+@import 'common';
 /* You can add global styles to this file, and also import other style files */
-$bcgov-font-path: "../../node_modules/@bcgov/bootstrap-theme/dist/fonts/";
-@import "~@bcgov/bootstrap-theme/dist/scss/bootstrap-theme";
-
-@import "../assets/_custom.scss";
-@import "~bootstrap/scss/bootstrap.scss";
-@import '~bootstrap-vue/dist/bootstrap-vue.css';
-
-@import "~bootstrap-vue/src/index.scss";
+@import '~@bcgov/bootstrap-theme/dist/scss/bootstrap-theme';
+@import '../assets/_custom.scss';
+@import '~bootstrap/scss/bootstrap.scss';
 
 .max-width-300 {
   max-width: 300px;
@@ -114,7 +109,7 @@ $indicator-thickness: 0.2em;
     top: (-$indicator-thickness);
     left: (-$indicator-thickness);
     border: $indicator-thickness solid transparentize($indicator-color, 0.8);
-    content: " ";
+    content: ' ';
   }
 }
 
@@ -255,8 +250,7 @@ $indicator-thickness: 0.2em;
 
 html,
 body,
-.custom-select
-.b-form-input {
+.custom-select .b-form-input {
   font-size: $base-font-size;
 }
 

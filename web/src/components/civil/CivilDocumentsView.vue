@@ -53,9 +53,9 @@
           <b-table
             :items="FilteredDocuments"
             :fields="fields[fieldsTab]"
-            :sort-by="sortBy"
-            :sort-desc.sync="sortDesc"
             :no-sort-reset="true"
+            v-model:sort-by="sortBy"
+            :sort-desc.sync="sortDesc"
             sort-icon-left
             small
             striped
@@ -202,6 +202,7 @@
   import { ArchiveInfoType, DocumentRequestsInfoType } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import base64url from 'base64url';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import {
     computed,
     defineComponent,
@@ -249,6 +250,7 @@
       let selectedDocuments = reactive({} as ArchiveInfoType);
       const downloadCompleted = ref(true);
       const allDocumentsChecked = ref(false);
+      const sortBy = ref<BTableSortBy[]>([]);
 
       const commonStyles = {
         cellStyle: 'font-size: 14px;',
@@ -736,13 +738,13 @@
         }
       });
 
-      const sortBy = computed(() => {
-        if (activetab.value == 'COURT SUMMARY') {
-          return 'appearanceDate';
-        } else if (activetab.value == 'ORDERS') {
-          return 'seq';
+      watch(activetab, (newValue) => {
+        if (newValue == 'COURT SUMMARY') {
+          sortBy.value.push({ key: 'appearanceDate', order: 'asc' });
+        } else if (newValue == 'ORDERS') {
+          sortBy.value.push({ key: 'seq', order: 'asc' });
         } else {
-          return 'dateFiled';
+          sortBy.value.push({ key: 'dateFiled', order: 'asc' });
         }
       });
 

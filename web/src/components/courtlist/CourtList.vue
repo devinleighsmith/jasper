@@ -90,25 +90,23 @@
           >
 
           <b-input-group class="mb-3">
-            <b-form-input
-              id="datepicker"
+            <input
+              id="datepickerform"
+              name="datepickerform"
               v-model="selectedDate"
-              type="text"
-              :disabled="!searchAllowed"
+              width="250"
+              type="date"
               placeholder="YYYY-MM-DD"
-              autocomplete="off"
+              required
               :state="selectedDateState ? null : false"
-            ></b-form-input>
-            <b-input-group-append>
-              <b-form-datepicker
-                v-model="selectedDate"
-                button-only
-                :disabled="!searchAllowed"
-                right
-                locale="en-US"
-                @context="onCalenderContext"
-              ></b-form-datepicker>
-            </b-input-group-append>
+              :disabled="!searchAllowed"
+              @change="
+                onCalenderContext({
+                  selectedYMD: selectedDate,
+                  selectedFormatted: selectedDate,
+                })
+              "
+            />
           </b-input-group>
         </b-col>
         <b-col md="2">
@@ -251,7 +249,6 @@
   } from '@/types/courtlist';
   import { courtListType } from '@/types/courtlist/jsonTypes';
   import { getSingleValue } from '@/utils/utils';
-  import { reactive } from 'vue';
   import CourtListLayout from './CourtListLayout.vue';
 
   export default defineComponent({
@@ -290,7 +287,7 @@
       const selectedDateState = ref(true);
       const selectedCourtRoom = ref('null');
       const selectedCourtRoomState = ref(true);
-      let selectedCourtLocation = reactive({} as locationInfoType);
+      const selectedCourtLocation = ref({} as locationInfoType);
       const selectedCourtLocationState = ref(true);
       const courtListLocation = ref('Vancouver');
       const courtListLocationID = ref('4801');
@@ -459,7 +456,7 @@
         ];
 
         Object.assign(
-          selectedCourtLocation,
+          selectedCourtLocation.value,
           courtRoomsAndLocations.value[0].value
         );
       };
@@ -480,7 +477,7 @@
         if (route.params.location && route.params.room && route.params.date) {
           const location = getCourtNameById(route.params.location)[0];
           if (location) {
-            Object.assign(selectedCourtLocation, location.value);
+            Object.assign(selectedCourtLocation.value, location.value);
             selectedCourtLocationState.value = true;
             selectedDate.value = getSingleValue(route.params.date);
             validSelectedDate = selectedDate.value;
@@ -498,7 +495,7 @@
             }
           } else {
             Object.assign(
-              selectedCourtLocation,
+              selectedCourtLocation.value,
               courtRoomsAndLocations.value[0].value
             );
             selectedCourtLocationState.value = false;
@@ -597,16 +594,19 @@
       };
 
       const searchForCourtList = () => {
-        if (!selectedCourtLocation.Location) {
+        if (!selectedCourtLocation.value.Location) {
           selectedCourtLocationState.value = false;
           searchAllowed.value = true;
         } else {
           if (checkDateInValid()) {
             searchAllowed.value = true;
           } else {
-            Object.assign(courtListLocation, selectedCourtLocation.Location);
-            courtListLocationID.value = selectedCourtLocation.LocationID;
+            Object.assign(
+              courtListLocation,
+              selectedCourtLocation.value.Location
+            );
 
+            courtListLocationID.value = selectedCourtLocation.value.LocationID;
             if (
               selectedCourtRoom.value == 'null' ||
               selectedCourtRoom.value == undefined

@@ -20,8 +20,9 @@
       style="overflow: auto"
     >
       <b-table
-        :items="SortedCourtList"
+        :items="courtList"
         :fields="fields"
+        :sort-by="[{ key: 'time', order: 'asc' }]"
         borderless
         small
         responsive="sm"
@@ -341,6 +342,8 @@
 </template>
 
 <script lang="ts">
+  import { beautifyDate, convertTime } from '@/filters';
+  import { HttpService } from '@/services/HttpService';
   import {
     useCivilFileStore,
     useCommonStore,
@@ -351,11 +354,7 @@
   import { civilListInfoType, courtListInfoType } from '@/types/courtlist';
   import { criminalFileInformationType } from '@/types/criminal';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import * as _ from 'underscore';
   import { defineComponent, inject, onMounted, ref } from 'vue';
-
-  import { beautifyDate, convertTime } from '@/filters';
-  import { HttpService } from '@/services/HttpService';
   import { useRouter } from 'vue-router';
 
   import {
@@ -1012,10 +1011,6 @@
         return '<b style="white-space: pre-line;">' + counselDesc + '</b>';
       };
 
-      const SortedCourtList = () => {
-        // TODO: sort by appearance time
-        return _.sortBy(courtList.value, 'time');
-      };
       // Return the reactive variables to the template
       return {
         civilCourtListJson,
@@ -1029,7 +1024,6 @@
         notes,
         physicalIds,
         referenceDocs,
-        SortedCourtList,
         getFullCounsel,
         OpenCivilFilePage,
         downloadProvidedDocument,
