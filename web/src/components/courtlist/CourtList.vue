@@ -248,7 +248,6 @@
   } from '@/types/courtlist';
   import { courtListType } from '@/types/courtlist/jsonTypes';
   import { getSingleValue } from '@/utils/utils';
-  import { reactive } from 'vue';
   import CourtListLayout from './CourtListLayout.vue';
 
   export default defineComponent({

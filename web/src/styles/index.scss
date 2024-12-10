@@ -1,13 +1,8 @@
 @import 'common';
 /* You can add global styles to this file, and also import other style files */
-// $bcgov-font-path: "../../node_modules/@bcgov/bootstrap-theme/dist/fonts/";
 @import '~@bcgov/bootstrap-theme/dist/scss/bootstrap-theme';
-
 @import '../assets/_custom.scss';
 @import '~bootstrap/scss/bootstrap.scss';
-// @import '~bootstrap-vue-next/dist/bootstrap-vue-next.css';
-
-// @import '~bootstrap-vue-next/src/index.scss';
 
 .max-width-300 {
   max-width: 300px;

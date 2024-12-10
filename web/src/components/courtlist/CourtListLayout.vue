@@ -342,6 +342,8 @@
 </template>
 
 <script lang="ts">
+  import { beautifyDate, convertTime } from '@/filters';
+  import { HttpService } from '@/services/HttpService';
   import {
     useCivilFileStore,
     useCommonStore,
@@ -352,11 +354,7 @@
   import { civilListInfoType, courtListInfoType } from '@/types/courtlist';
   import { criminalFileInformationType } from '@/types/criminal';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import * as _ from 'underscore';
   import { defineComponent, inject, onMounted, ref } from 'vue';
-
-  import { beautifyDate, convertTime } from '@/filters';
-  import { HttpService } from '@/services/HttpService';
   import { useRouter } from 'vue-router';
 
   import {
