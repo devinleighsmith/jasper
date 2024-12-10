@@ -90,27 +90,6 @@
           >
 
           <b-input-group class="mb-3">
-            <!-- <b-form-input
-              id="datepicker"
-              v-model="selectedDate"
-              type="text"
-              :disabled="!searchAllowed"
-              placeholder="YYYY-MM-DD"
-              autocomplete="off"
-              :state="selectedDateState ? null : false"
-            ></b-form-input> -->
-            <!-- <input
-              id="datepickerform"
-              name="datepickerform"
-              v-model="selectedDate"
-              width="250"
-              type="date"
-              required
-              :disabled="!searchAllowed"
-              placeholder="YYYY-MM-DD"
-              autocomplete="off"
-              :state="selectedDateState ? null : false"
-            /> -->
             <input
               id="datepickerform"
               name="datepickerform"
@@ -127,16 +106,6 @@
                 })
               "
             />
-            <!-- <b-input-group-append>
-              <b-form-datepicker
-                v-model="selectedDate"
-                button-only
-                :disabled="!searchAllowed"
-                right
-                locale="en-US"
-                @context="onCalenderContext"
-              ></b-form-datepicker>
-            </b-input-group-append> -->
           </b-input-group>
         </b-col>
         <b-col md="2">

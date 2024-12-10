@@ -18,14 +18,6 @@ app.use(router);
 app.use(createBootstrap());
 //Vue.config.productionTip = true
 app.component('loading-spinner', LoadingSpinner);
-app.component(
-  // the registered name
-  'MyComponent',
-  // the implementation
-  {
-    LoadingSpinner,
-  }
-);
 
 registerRouter(app);
 
