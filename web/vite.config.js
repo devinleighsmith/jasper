@@ -49,7 +49,6 @@ export default defineConfig({
       '@services': path.resolve(__dirname, vueSrc.concat('/services')),
       '@store': path.resolve(__dirname, vueSrc.concat('/store')),
       '@styles': path.resolve(__dirname, vueSrc.concat('/styles')),
-      '~@bcgov': path.resolve(__dirname, 'node_modules/@bcgov'),
       '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
       '~bootstrap-vue-next': path.resolve(
         __dirname,
