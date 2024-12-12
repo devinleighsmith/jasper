@@ -386,26 +386,24 @@
 </script>
 
 <style scoped lang="scss">
-  @import '../../assets/_custom.scss';
-
   .card {
     border: white;
   }
 
   .text-blue {
-    color: $blue-100;
+    color: #007bff;
   }
 
   .text-green {
-    color: $green;
+    color: #28a745;
   }
 
   .text-purple {
-    color: $purple;
+    color: #6f42c1;
   }
 
   table thead tr th {
-    color: $green;
+    color: #28a745;
   }
 
   .no-wrap {
@@ -416,7 +414,7 @@
   .remove:hover,
   .remove:focus {
     text-decoration: none !important;
-    color: $danger !important;
+    color: #dc3545 !important;
     box-shadow: none;
   }
 </style>

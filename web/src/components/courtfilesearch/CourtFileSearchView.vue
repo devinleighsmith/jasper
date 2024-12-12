@@ -588,14 +588,12 @@
 </script>
 
 <style scoped lang="scss">
-  @import '../../assets/_custom.scss';
-
   .card {
     border: white;
   }
 
   .btn-group.active {
-    color: $blue;
+    color: #1b4f86;
   }
 
   .transparent {
@@ -606,7 +604,7 @@
   .reset:hover,
   .reset:focus {
     text-decoration: none !important;
-    color: $primary !important;
+    color: #1b4f86 !important;
     box-shadow: none;
   }
 

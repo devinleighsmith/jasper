@@ -97,10 +97,6 @@
     <Content Include="src\components\LoadingSpinner.vue" />
     <Content Include="src\components\NavigationFooter.vue" />
     <Content Include="src\components\NavigationTopbar.vue" />
-    <Content Include="src\styles\index.scss" />
-    <Content Include="src\styles\_common.scss" />
-    <Content Include="src\styles\_survey.scss" />
-    <Content Include="src\styles\_variables.scss" />
     <Content Include="tsconfig.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />

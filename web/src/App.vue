@@ -19,3 +19,12 @@
     },
   });
 </script>
+
+<style>
+/* todo: remove */
+  select {
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    border-style: solid !important;
+  }
+</style>
