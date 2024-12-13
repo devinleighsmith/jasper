@@ -545,9 +545,9 @@
 </style>
 <script lang="ts">
   import { HttpService } from '@/services/HttpService';
-  import NavigationTopbar from '@components/NavigationTopbar.vue';
-  import Calendar from '@components/calendar/Calendar.vue';
-  import { defineComponent, inject, onMounted, reactive, ref } from 'vue';
+import NavigationTopbar from '@components/NavigationTopbar.vue';
+import Calendar from '@components/calendar/Calendar.vue';
+import { defineComponent, inject, onMounted, reactive, ref } from 'vue';
 
   export default defineComponent({
     components: {
@@ -612,8 +612,6 @@
             if (data) {
               //   ar = JSON.parse(JSON.stringify(data, null, 2));
               locations = [...data];
-            } else {
-              window.alert('bad data!');
             }
           });
       };
@@ -729,8 +727,6 @@
               //   arEvents = [...ar];
               //   loadActivities(data.activities);
               //   loadPresiders(data.presiders);
-            } else {
-              window.alert('bad data!');
             }
           });
       };

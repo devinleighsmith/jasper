@@ -1,0 +1,9 @@
+a:hover {
+  color: inherit !important;
+}
+
+select {
+  -webkit-appearance: auto !important;
+  appearance: auto !important;
+  border-style: solid !important;
+}

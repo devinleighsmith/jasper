@@ -11,8 +11,8 @@ async function authGuard(to: any, from: any, next: any) {
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    redirect: '/dashboard',
     name: 'HomeView',
-    component: () => import('@/components/Home.vue'),
   },
   {
     path: '/court-list',

@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'WorkSans-Regular';
+  font-style: normal;
+  src: url('WorkSans-Regular.ttf') format('truetype');
+}
+
+html {
+  font-family: 'WorkSans-Regular';
+}
