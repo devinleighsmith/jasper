@@ -75,4 +75,7 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    exclude: ['bootstrap-vue-next'],
+  },
 });

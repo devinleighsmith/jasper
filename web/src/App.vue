@@ -1,30 +1,35 @@
 <template>
-  <div class="app-outer fill-body" id="app">
-    <navigation-topbar />
-    <router-view />
-    <navigation-footer id="footer" />
-  </div>
+  <v-app>
+    <v-app-bar app>
+      <v-app-bar-title>
+        <router-link to="/"> JASPER </router-link>
+      </v-app-bar-title>
+      <v-tabs align-tabs="start">
+        <v-tab to="/dashboard">Dashboard</v-tab>
+        <v-tab to="/court-list">Court list</v-tab>
+        <v-tab to="/court-file-search">Court file search</v-tab>
+      </v-tabs>
+    </v-app-bar>
+    <v-main>
+      <router-view />
+    </v-main>
+  </v-app>
 </template>
 
 <script lang="ts">
-  import NavigationFooter from '@components/NavigationFooter.vue';
-  import NavigationTopbar from '@components/NavigationTopbar.vue';
   import { defineComponent } from 'vue';
 
   export default defineComponent({
     name: 'App',
-    components: {
-      NavigationTopbar,
-      NavigationFooter,
-    },
   });
 </script>
 
 <style>
-/* todo: remove */
-  select {
-    -webkit-appearance: auto !important;
-    appearance: auto !important;
-    border-style: solid !important;
+  .v-tabs {
+    flex: 10;
+  }
+  .v-app-bar-title a {
+    text-decoration: none;
+    color: inherit;
   }
 </style>
