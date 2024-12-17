@@ -68,3 +68,7 @@ variable "cert_domain_name" {
   type        = string
 }
 
+variable "lambda_memory_size" {
+  description = "The Lambda Function default Memory Size"
+  type        = number
+}

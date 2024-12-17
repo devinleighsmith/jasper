@@ -1,20 +1,26 @@
 # This "initial" stack is deployed first to avoid circular dependency to other resources
-data "aws_caller_identity" "current" {}
+
+# Create Openshift User
+module "dynamo_db" {
+  source              = "../DynamoDb"
+  iam_user_table_name = var.iam_user_table_name
+  openshift_iam_user  = var.openshift_iam_user
+}
 
 # Custom KMS Key
 module "kms" {
-  source             = "../../modules/KMS"
+  source             = "../KMS"
   environment        = var.environment
   app_name           = var.app_name
   region             = var.region
   kms_key_name       = var.kms_key_name
   openshift_iam_user = var.openshift_iam_user
-  account_id         = data.aws_caller_identity.current.account_id
+  depends_on         = [module.dynamo_db]
 }
 
 # UI and API ECR repository
 module "app_ecr" {
-  source      = "../../modules/ECR"
+  source      = "../ECR"
   environment = var.environment
   app_name    = var.app_name
   region      = var.region
@@ -24,7 +30,7 @@ module "app_ecr" {
 
 # Lambda functions ECR repository
 module "lambda_ecr" {
-  source      = "../../modules/ECR"
+  source      = "../ECR"
   environment = var.environment
   app_name    = var.app_name
   region      = var.region
