@@ -25,7 +25,6 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/timegrid": "^6.1.15",
     "@fullcalendar/vue3": "^6.1.15",
-    "@mdi/font": "^7.4.47",
     "@types/underscore": "^1.13.0",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "axios": "^1.7.9",
@@ -48,6 +47,8 @@
     "vuetify": "^3.7.5"
   },
   "devDependencies": {
+    "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "@vitejs/plugin-vue": "^5.2.1",
