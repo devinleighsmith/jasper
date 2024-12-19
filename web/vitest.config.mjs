@@ -15,13 +15,6 @@ export default defineConfig({
             { find: 'SRC', replacement: resolve(basePath, './src') },
             { find: 'CMP', replacement: resolve(basePath, './src/components') }
         ],
-        server: {
-            deps: {
-                inline: [
-                    'client-zip'
-                ]
-            }
-        },
         css: true,
         environment: 'happy-dom',
         globals: true,
