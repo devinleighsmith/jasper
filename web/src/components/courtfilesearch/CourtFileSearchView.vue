@@ -178,12 +178,12 @@
 
 <script setup lang="ts">
   import CourtFileSearchResult from '@/components/courtfilesearch/CourtFileSearchResult.vue';
+  import ActionButtons from '@/components/shared/Form/ActionButtons.vue';
   import { FilesService } from '@/services/FilesService';
   import { LocationService } from '@/services/LocationService';
   import { LookupService } from '@/services/LookupService';
   import { useCommonStore, useCourtFileSearchStore } from '@/stores';
   import { KeyValueInfo, LookupCode } from '@/types/common';
-  import ActionButtons from '@/components/shared/Form/ActionButtons.vue';
   import {
     CourtClassEnum,
     CourtFileSearchCriteria,
@@ -472,7 +472,9 @@
     selectedFiles.value = [];
     courtFileSearchStore.clearSelectedFiles();
   };
+
   const selectedDivision = ref('isCriminal');
+
   const showClassDropdown = computed(() => {
     return selectedDivision.value === 'isCriminal';
   });
