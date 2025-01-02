@@ -1,9 +1,14 @@
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useThemeStore } from 'SRC/stores/ThemeStore';
 import ProfileOffCanvas from 'CMP/shared/ProfileOffCanvas.vue';
 
-vi.mock('SRC/stores/ThemeStore');
+vi.mock('SRC/stores/ThemeStore', () => ({
+  useThemeStore: () => ({
+    theme: 'light',
+    setTheme: vi.fn(),
+    changeState: vi.fn(),
+  }),
+}));
 
 describe('ProfileOffCanvas.vue', () => {
   let wrapper;
@@ -15,7 +20,6 @@ describe('ProfileOffCanvas.vue', () => {
       setTheme: vi.fn(),
       changeState: vi.fn(),
     };
-    useThemeStore.mockReturnValue(themeStore);
 
     wrapper = mount(ProfileOffCanvas);
   });
@@ -25,6 +29,7 @@ describe('ProfileOffCanvas.vue', () => {
   });
 
   // Unable to dive deeper into slotted append/prepend components
+  // todo: find a way to test the slotted components
   // it('calls close when close button clicked', async () => {
   //   await wrapper.find('v-button').trigger('click');
 

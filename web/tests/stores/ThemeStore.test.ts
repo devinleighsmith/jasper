@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { useThemeStore } from 'SRC/stores/ThemeStore';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { useThemeStore } from '@/stores/ThemeStore';
 
-describe('ThemeStore.js', () => {
-  let themeStore;
+describe('ThemeStore', () => {
+  let themeStore: ReturnType<typeof useThemeStore>;
 
   beforeEach(() => {
     themeStore = useThemeStore();
   });
 
   afterEach(() => {
-    localStorage.clear()
-  })
+    localStorage.clear();
+  });
 
   it('should initialize with light theme by default', () => {
     expect(themeStore.state.value).toBe('light');
