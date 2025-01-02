@@ -12,15 +12,8 @@ vi.mock('SRC/stores/ThemeStore', () => ({
 
 describe('ProfileOffCanvas.vue', () => {
   let wrapper;
-  let themeStore;
 
   beforeEach(() => {
-    themeStore = {
-      theme: 'light',
-      setTheme: vi.fn(),
-      changeState: vi.fn(),
-    };
-
     wrapper = mount(ProfileOffCanvas);
   });
 
