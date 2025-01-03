@@ -15,7 +15,7 @@
       v-model="selectedFiles"
       :group-by="groupBy"
       :items="searchResults"
-      :headers="headers"
+      :headers="filteredHeaders"
       item-value="fileNumberTxt"
       items-per-page="100"
       hover
@@ -115,26 +115,9 @@
           </div>
         </template> -->
     </v-data-table>
-    <div v-if="selectedFiles.length > 0">
-      <!-- Here we put out actionbar -->
+    <action-bar :selected="selectedFiles" />
 
-      <v-app-bar
-        :elevation="2"
-        location="bottom"
-        color="#183a4a"
-        rounded
-        style="
-          max-width: 50%;
-          margin: 0 auto;
-          left: 50%;
-          transform: translateX(-50%);
-          margin-bottom: 2.5rem;
-        "
-      >
-        <v-app-bar-title>Application Bar</v-app-bar-title>
-      </v-app-bar>
-
-      <!-- <v-toolbar dense floating style="position: fixed">
+    <!-- <v-toolbar dense floating style="position: fixed">
         <v-text-field
           prepend-icon="mdi-magnify"
           hide-details
@@ -150,7 +133,7 @@
         </v-btn>
       </v-toolbar> -->
 
-      <!-- <h3 class="mt-3">Files to View</h3>
+    <!-- <h3 class="mt-3">Files to View</h3>
       <b-table
         :fields="filteredFields"
         :items="selectedFiles"
@@ -222,330 +205,165 @@
           >
         </div> 
       </div>-->
-    </div>
   </div>
 </template>
-<script lang="ts">
+
+<script setup lang="ts">
+  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { beautifyDate } from '@/filters';
   import { KeyValueInfo, LookupCode } from '@/types/common';
-  import { CourtClassEnum, FileDetail } from '@/types/courtFileSearch';
+  import { FileDetail } from '@/types/courtFileSearch';
   import { roomsInfoType } from '@/types/courtlist';
-  import { defineComponent, PropType } from 'vue';
+  import { computed, defineEmits, defineProps, onMounted, ref } from 'vue';
 
-  export default defineComponent({
-    data() {
-      return {
-        beautifyDate,
-        groupBy: [
-          {
-            key: 'courtClassCd',
-            order: 'asc' as const,
-          },
-        ],
-        idSelector: '',
-        selected: [],
-        selectedFiles: [],
-        allFields: [
-          {
-            key: 'location',
-            label: 'Location',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              return this.getLocation(item.fileHomeAgencyId);
-            },
-          },
-          {
-            key: 'courtClassCd',
-            label: 'Class',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-          },
-          {
-            key: 'fileNumberTxt',
-            label: 'File number',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              return this.getFormattedFileNumber(item);
-            },
-          },
-          {
-            key: 'participant',
-            label: 'Participants',
-            tdClass: 'border-top max-width-300',
-            thClass: 'text-primary',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              return [...new Set(item.participant.map((p) => p.fullNm))].join(
-                '; '
-              );
-            },
-          },
-          {
-            key: 'charges',
-            label: 'Charges',
-            tdClass: 'border-top max-width-300',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              const uniqueCharges = [
-                ...new Set(
-                  item.participant
-                    .flatMap((p) => p.charge)
-                    .map((c) => c.sectionTxt)
-                ),
-              ];
-              const firstCharge =
-                uniqueCharges.length > 0 ? uniqueCharges[0] : '';
-              return uniqueCharges.length > 1
-                ? `${firstCharge} + [${uniqueCharges.length - 1}]`
-                : firstCharge;
-            },
-          },
-          {
-            key: 'warrantyYN',
-            label: 'OW',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-          },
-          {
-            key: 'inCustodyYN',
-            label: 'IC',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-          },
-          {
-            key: 'nextApprDt',
-            label: 'Next appearance',
-            tdClass: 'border-top',
-            sortable: true,
-            formatter: (value, key, item) => {
-              return beautifyDate(item.nextApprDt);
-            },
-          },
-          {
-            key: 'sealStatusCd',
-            label: '',
-            tdClass: 'border-top',
-          },
-          {
-            key: 'action',
-            label: '',
-            tdClass: 'border-top',
-          },
-        ],
-        headers: [
-          { key: 'data-table-group' },
-          {
-            title: 'File #',
-            key: 'fileNumberTxt',
-            width: '15%',
-            value: (item: FileDetail) => `${this.getFormattedFileNumber(item)}`,
-          },
-          {
-            title: 'Accused / Parties',
-            key: 'participant',
-            width: '15%',
-            value: (item: FileDetail) =>
-              `${[...new Set(item.participant.map((p) => p.fullNm))].join('; ')}`,
-          },
-          {
-            title: 'Class',
-            key: 'courtClassCd',
-            width: '15%',
-            value: (item: FileDetail) => `${this.getClass(item.courtClassCd)}`,
-          },
-          {
-            title: 'Location',
-            key: 'location',
-            width: '15%',
-            value: (item: FileDetail) =>
-              `${this.getLocation(item.fileHomeAgencyId)}`,
-          },
-          {
-            title: 'Charges',
-            key: 'charges',
-            width: '15%',
-            value: (item: FileDetail) => {
-              const uniqueCharges = [
-                ...new Set(
-                  item.participant
-                    .flatMap((p) => p.charge)
-                    .map((c) => c.sectionTxt)
-                ),
-              ];
-              const firstCharge =
-                uniqueCharges.length > 0 ? uniqueCharges[0] : '';
-              return uniqueCharges.length > 1
-                ? `${firstCharge} + [${uniqueCharges.length - 1}]`
-                : firstCharge;
-            },
-          },
-          {
-            title: 'Next appearance',
-            key: 'nextApprDt',
-            width: '15%',
-            value: (item: FileDetail) => `${beautifyDate(item.nextApprDt)}`,
-          },
-          { title: 'OW', key: 'warrantyYN', width: '5%' },
-          { title: 'IC', key: 'inCustodyYN', width: '5%' },
-        ],
-      };
+  const props = defineProps<{
+    courtRooms: roomsInfoType[];
+    searchResults: FileDetail[];
+    classes: LookupCode[];
+    isSearching: boolean;
+    isCriminal: boolean;
+    selectedFiles: FileDetail[];
+    isSearchResultsOver: boolean;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'add-selected', file: FileDetail): void;
+    (e: 'remove-selected', idSelector: string, id: string): void;
+    (e: 'clear-selected'): void;
+    (e: 'files-viewed', files: KeyValueInfo[]): void;
+  }>();
+
+  const groupBy = ref([
+    {
+      key: 'courtClassCd',
+      order: 'asc' as const,
     },
-    computed: {
-      filteredFields() {
-        return this.isCriminal
-          ? this.allFields
-          : this.allFields.filter(
-              (f) => !['charges', 'warrantyYN', 'inCustodyYN'].includes(f.key)
-            );
+  ]);
+
+  const idSelector = ref('');
+  const selectedFiles = ref<FileDetail[]>([]);
+  const headers = ref([
+    { key: 'data-table-group' },
+    {
+      title: 'File #',
+      key: 'fileNumberTxt',
+      value: (item: FileDetail) => `${getFormattedFileNumber(item)}`,
+    },
+    {
+      title: 'Accused / Parties',
+      key: 'participant',
+      value: (item: FileDetail) =>
+        `${[...new Set(item.participant.map((p) => p.fullNm))].join('; ')}`,
+    },
+    {
+      title: 'Class',
+      key: 'courtClassCd',
+      value: (item: FileDetail) => `${getClass(item.courtClassCd)}`,
+    },
+    {
+      title: 'Location',
+      key: 'location',
+      width: '15%',
+      value: (item: FileDetail) => `${getLocation(item.fileHomeAgencyId)}`,
+    },
+    {
+      title: 'Charges',
+      key: 'charges',
+      value: (item: FileDetail) => {
+        const uniqueCharges = [
+          ...new Set(
+            item.participant.flatMap((p) => p.charge).map((c) => c.sectionTxt)
+          ),
+        ];
+        const firstCharge = uniqueCharges.length > 0 ? uniqueCharges[0] : '';
+        return uniqueCharges.length > 1
+          ? `${firstCharge} + [${uniqueCharges.length - 1}]`
+          : firstCharge;
       },
     },
-    mounted() {
-      this.idSelector = this.isCriminal ? 'mdocJustinNo' : 'physicalFileId';
+    {
+      title: 'Next appearance',
+      key: 'nextApprDt',
+      value: (item: FileDetail) => `${beautifyDate(item.nextApprDt)}`,
     },
-    methods: {
-      getFormattedFileNumber(detail: FileDetail) {
-        return `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
-      },
-      getLocation(fileHomeAgencyId: string) {
-        return (
-          this.courtRooms.find((r) => r.value === fileHomeAgencyId)?.text || ''
+    { title: 'OW', key: 'warrantyYN' },
+    { title: 'IC', key: 'inCustodyYN' },
+  ]);
+
+  const filteredHeaders = computed(() => {
+    return props.isCriminal
+      ? headers.value
+      : headers.value.filter(
+          (f) => !['charges', 'warrantyYN', 'inCustodyYN'].includes(f.key)
         );
-      },
-      getClass(courtClassCd: string) {
-        return (
-          this.classes.find((l) => l.code === courtClassCd)?.shortDesc || ''
-        );
-      },
-      getClassColor(courtClassCd: string) {
-        const classValue = CourtClassEnum[courtClassCd];
-
-        switch (classValue) {
-          case CourtClassEnum.A:
-          case CourtClassEnum.Y:
-            return 'text-blue';
-
-          case CourtClassEnum.F:
-            return 'text-green';
-
-          case CourtClassEnum.C:
-            return 'text-purple';
-          default:
-            return '';
-        }
-      },
-      handleCaseClick(id: string) {
-        const isExist = this.selectedFiles.find(
-          (c) => c[this.idSelector] === id
-        );
-        if (isExist) {
-          return;
-        }
-
-        const file = this.searchResults.find((c) => c[this.idSelector] === id);
-        if (file) {
-          this.$emit('add-selected', file);
-        }
-      },
-      handleAddFileAndViewClick(id: string) {
-        const isExist = this.selectedFiles.find(
-          (c) => c[this.idSelector] === id
-        );
-        if (!isExist) {
-          const file = this.searchResults.find(
-            (c) => c[this.idSelector] === id
-          );
-          if (file) {
-            this.$emit('add-selected', file);
-          }
-        }
-
-        this.handleViewFilesClick();
-      },
-      handleDeleteClick(id: string) {
-        this.$emit('remove-selected', this.idSelector, id);
-      },
-      handleDeleteAllClick() {
-        this.$emit('clear-selected');
-      },
-      handleViewFilesClick() {
-        const files = this.selectedFiles.map(
-          (c) =>
-            ({
-              key: c[this.idSelector],
-              value: this.getFormattedFileNumber(c),
-            }) as KeyValueInfo
-        );
-
-        this.$emit('files-viewed', files);
-      },
-    },
-    props: {
-      courtRooms: {
-        type: Array as PropType<roomsInfoType[]>,
-        default: () => [],
-      },
-      searchResults: {
-        type: Array as PropType<FileDetail[]>,
-        default: () => [],
-      },
-      classes: { type: Array as PropType<LookupCode[]>, default: () => [] },
-      isSearching: { type: Boolean, default: () => false },
-      isCriminal: { type: Boolean, default: () => true },
-      selectedFiles: {
-        type: Array as PropType<FileDetail[]>,
-        default: () => [],
-      },
-      isSearchResultsOver: { type: Boolean, default: () => false },
-    },
   });
+
+  onMounted(() => {
+    idSelector.value = props.isCriminal ? 'mdocJustinNo' : 'physicalFileId';
+  });
+
+  function getFormattedFileNumber(detail: FileDetail) {
+    return `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${
+      detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''
+    }${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
+  }
+
+  function getLocation(fileHomeAgencyId: string) {
+    return (
+      props.courtRooms.find((r) => r.value === fileHomeAgencyId)?.text || ''
+    );
+  }
+
+  function getClass(courtClassCd: string) {
+    return props.classes.find((l) => l.code === courtClassCd)?.shortDesc || '';
+  }
+
+  function handleCaseClick(id: string) {
+    const isExist = props.selectedFiles.find((c) => c[idSelector.value] === id);
+    if (isExist) {
+      return;
+    }
+
+    const file = props.searchResults.find((c) => c[idSelector.value] === id);
+    if (file) {
+      emit('add-selected', file);
+    }
+  }
+
+  function handleAddFileAndViewClick(id: string) {
+    const isExist = props.selectedFiles.find((c) => c[idSelector.value] === id);
+    if (!isExist) {
+      const file = props.searchResults.find((c) => c[idSelector.value] === id);
+      if (file) {
+        emit('add-selected', file);
+      }
+    }
+
+    handleViewFilesClick();
+  }
+
+  function handleDeleteClick(id: string) {
+    emit('remove-selected', idSelector.value, id);
+  }
+
+  function handleDeleteAllClick() {
+    emit('clear-selected');
+  }
+
+  function handleViewFilesClick() {
+    const files = props.selectedFiles.map(
+      (c) =>
+        ({
+          key: c[idSelector.value],
+          value: getFormattedFileNumber(c),
+        }) as KeyValueInfo
+    );
+
+    emit('files-viewed', files);
+  }
 </script>
 
-<style scoped lang="scss">
-  .card {
-    border: white;
-  }
-
-  .text-blue {
-    color: #007bff;
-  }
-
-  .text-green {
-    color: #28a745;
-  }
-
-  .text-purple {
-    color: #6f42c1;
-  }
-
-  table thead tr th {
-    color: #28a745;
-  }
-
-  .no-wrap {
-    white-space: nowrap;
-  }
-
-  .remove,
-  .remove:hover,
-  .remove:focus {
-    text-decoration: none !important;
-    color: #dc3545 !important;
-    box-shadow: none;
-  }
-  .v-toolbar--rounded {
-    border-radius: 70px;
-  }
+<style scoped>
   .courtRowBanner {
     background-color: #3095b0;
     color: white;
