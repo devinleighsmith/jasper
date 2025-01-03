@@ -16,7 +16,7 @@
       :group-by="groupBy"
       :items="searchResults"
       :headers="filteredHeaders"
-      item-value="fileNumberTxt"
+      item-value="physicalFileId"
       items-per-page="100"
       hover
       show-select
@@ -44,172 +44,13 @@
           </td>
         </tr>
       </template>
-      <!-- return this.getLocation(item.fileHomeAgencyId); -->
-
-      <!-- <template v-slot:item.participant="{ data }">
-          {{[...new Set(item.participant.map((p) => p.fullNm))].join('; ')}}
-      </template> -->
-      <!-- <template v-slot:cell(participant)="{ data }">
-          <span>{{
-            [...new Set(data.map((p) => p.fullNm))].join('; ')
-          }}</span>
-        </template> -->
-      <!-- formatter: (value, key, item) => {
-              return [...new Set(item.participant.map((p) => p.fullNm))].join(
-                '; '
-              );
-            }, -->
-      <!-- <template #head(nextApprDt)="data">
-          <span class="text-danger no-wrap">{{ data.label }}</span>
-        </template>
-        <template v-slot:cell(sealStatusCd)="data">
-          <span v-if="data.item.sealStatusCd === 'SD'" class="text-danger"
-            >(Sealed)</span
-          >
-        </template>
-        <template v-slot:cell(courtClassCd)="data">
-          <span :class="getClassColor(data.item.courtClassCd)">
-            {{ getClass(data.item.courtClassCd) }}
-          </span>
-        </template>
-        <template v-slot:cell(warrantYN)="data">
-          <b-badge
-            v-if="data.item.warrantYN === 'Y'"
-            variant="primary text-light"
-            :style="data.field.cellStyle"
-            v-b-tooltip.hover
-            title="Outstanding warrant"
-          > -->
-      <!-- <span>W</span>
-          </b-badge>
-        </template> -->
-      <!-- <template v-slot:cell(inCustodyYN)="data">
-          <b-badge
-            v-if="data.item.inCustodyYN === 'Y'"
-            variant="primary text-light"
-            :style="data.field.cellStyle"
-            v-b-tooltip.hover
-            title="In custody"
-          >
-            IC
-          </b-badge>
-        </template>
-        <template v-slot:cell(nextApprDt)="data">
-          <span>
-            {{ beautifyDate(data.item.nextApprDt) }}
-          </span>
-        </template>
-        <template v-slot:cell(action)="data">
-          <div class="d-flex justify-content-end no-wrap">
-            <b-button
-              variant="outline-primary"
-              class="mr-3"
-              @click="() => handleCaseClick(data.item[idSelector])"
-              >Add File</b-button
-            >
-            <b-button
-              variant="primary"
-              @click="() => handleAddFileAndViewClick(data.item[idSelector])"
-              >Add File and View</b-button
-            >
-          </div>
-        </template> -->
     </v-data-table>
-    <action-bar :selected="selectedFiles" />
-
-    <!-- <v-toolbar dense floating style="position: fixed">
-        <v-text-field
-          prepend-icon="mdi-magnify"
-          hide-details
-          single-line
-        ></v-text-field>
-
-        <v-btn icon>
-          <v-icon>mdi-crosshairs-gps</v-icon>
-        </v-btn>
-
-        <v-btn icon>
-          <v-icon>mdi-dots-vertical</v-icon>
-        </v-btn>
-      </v-toolbar> -->
-
-    <!-- <h3 class="mt-3">Files to View</h3>
-      <b-table
-        :fields="filteredFields"
-        :items="selectedFiles"
-        borderless
-        small
-        responsive="md"
-        sort-icon-left
-        striped
-      >
-        <template #head(nextApprDt)="data">
-          <span class="text-danger no-wrap">{{ data.label }}</span>
-        </template>
-        <template v-slot:cell(sealStatusCd)="data">
-          <span v-if="data.item.sealStatusCd === 'SD'" class="text-danger"
-            >(Sealed)</span
-          >
-        </template>
-        <template v-slot:cell(courtClassCd)="data">
-          <span :class="getClassColor(data.item.courtClassCd)">
-            {{ getClass(data.item.courtClassCd) }}
-          </span>
-        </template>
-        <template v-slot:cell(warrantYN)="data">
-          <b-badge
-            v-if="data.item.warrantYN === 'Y'"
-            variant="primary text-light"
-            :style="data.field.cellStyle"
-            v-b-tooltip.hover
-            title="Outstanding warrant"
-          >
-            <span>W</span>
-          </b-badge>
-        </template>
-        <template v-slot:cell(inCustodyYN)="data">
-          <b-badge
-            v-if="data.item.inCustodyYN === 'Y'"
-            variant="primary text-light"
-            :style="data.field.cellStyle"
-            v-b-tooltip.hover
-            title="In custody"
-          >
-            IC
-          </b-badge>
-        </template>
-        <template v-slot:cell(nextApprDt)="data">
-          <span>
-            {{ beautifyDate(data.item.nextApprDt) }}
-          </span>
-        </template>
-        <template v-slot:cell(action)="data">
-          <div class="d-flex justify-content-end no-wrap">
-            <b-button
-              variant="link"
-              class="remove"
-              @click="() => handleDeleteClick(data.item[idSelector])"
-            >
-              <b-icon icon="trash"></b-icon> Remove
-            </b-button>
-          </div>
-        </template>
-      </b-table>
-      <div class="my-3 bg-light p-3">
-        <div class="d-flex">
-          <b-button variant="primary" class="mr-3" @click="handleViewFilesClick"
-            >View File(s)</b-button
-          >
-          <b-button variant="outline-primary" @click="handleDeleteAllClick"
-            >Remove All Files and Start Over</b-button
-          >
-        </div> 
-      </div>-->
+    <!-- <action-bar :selected="selectedFiles" /> -->
   </div>
 </template>
 
 <script setup lang="ts">
-  import ActionBar from '@/components/shared/table/ActionBar.vue';
+  //import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { beautifyDate } from '@/filters';
   import { KeyValueInfo, LookupCode } from '@/types/common';
   import { FileDetail } from '@/types/courtFileSearch';
