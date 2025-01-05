@@ -21,7 +21,6 @@ namespace Scv.Api.Services
         #region Variables
 
         private readonly IAppCache _cache;
-        private readonly IConfiguration _configuration;
         private readonly LocationServicesClient _locationClient;
         private readonly PCSSLocationServices.LocationServicesClient _pcssLocationServiceClient;
 
@@ -40,11 +39,10 @@ namespace Scv.Api.Services
             IAppCache cache
         )
         {
-            _configuration = configuration;
             _locationClient = locationServicesClient;
             _pcssLocationServiceClient = pcssLocationServiceClient;
             _cache = cache;
-            _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(_configuration.GetNonEmptyValue("Caching:LocationExpiryMinutes")) * 60;
+            _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(configuration.GetNonEmptyValue("Caching:LocationExpiryMinutes")) * 60;
             SetupLocationServicesClient();
         }
 
@@ -103,9 +101,9 @@ namespace Scv.Api.Services
             return await _cache.GetOrAddAsync(key, async () => await fetchFunction.Invoke());
         }
 
-        private string FindLongDescriptionFromCode(ICollection<CodeValue> lookupCodes, string code) => lookupCodes.FirstOrDefault(lookupCode => lookupCode.Code == code)?.LongDesc;
+        private static string FindLongDescriptionFromCode(ICollection<CodeValue> lookupCodes, string code) => lookupCodes.FirstOrDefault(lookupCode => lookupCode.Code == code)?.LongDesc;
 
-        private string FindShortDescriptionFromCode(ICollection<CodeValue> lookupCodes, string code) => lookupCodes.FirstOrDefault(lookupCode => lookupCode.Code == code)?.ShortDesc;
+        private static string FindShortDescriptionFromCode(ICollection<CodeValue> lookupCodes, string code) => lookupCodes.FirstOrDefault(lookupCode => lookupCode.Code == code)?.ShortDesc;
 
         private void SetupLocationServicesClient()
         {

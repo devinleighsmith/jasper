@@ -19,8 +19,6 @@ namespace Scv.Api.Services
     {
         #region Variables
 
-        private readonly IAppCache _cache;
-        private readonly IConfiguration _configuration;
         private JudicialCalendarServicesClient _judicialCalendarsClient { get; }
 
         #endregion Variables
@@ -34,10 +32,8 @@ namespace Scv.Api.Services
         public JudicialCalendarService(IConfiguration configuration, JudicialCalendarServicesClient judicialCalendarClient,
             IAppCache cache)
         {
-            _configuration = configuration;
             _judicialCalendarsClient = judicialCalendarClient;
-            _cache = cache;
-            _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(_configuration.GetNonEmptyValue("Caching:LocationExpiryMinutes")) * 60;
+            cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(configuration.GetNonEmptyValue("Caching:LocationExpiryMinutes")) * 60;
             SetupLocationServicesClient();
         }
 
