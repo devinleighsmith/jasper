@@ -65,7 +65,7 @@ public class JudicialCalendar
 public class JudicialCalendarDay
 {
     private JudicialCalendarAssignment _assignment;
-    private List<AdjudicatorRestriction> _restrictions = new List<AdjudicatorRestriction>();
+    private readonly List<AdjudicatorRestriction> _restrictions = [];
     public int JudgeId { get; set; }
     public string Date { get; set; }
 
