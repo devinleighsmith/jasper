@@ -52,5 +52,10 @@ export default createVuetify({
       dense: true,
       variant: 'outlined',
     },
+    VDataTable: {
+      hover: true,
+      showSelect: true,
+      returnObject: true,
+    }
   },
 });
