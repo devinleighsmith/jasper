@@ -3,42 +3,6 @@
     <v-banner bg-color="#efedf5">
       <h3 class="px-2 py-2">Search Results</h3>
     </v-banner>
-    <!-- <data-table
-      :items="searchResults"
-      :groupBy="groupBy"
-      :headers="filteredHeaders"
-      itemKey="physicalFileId"
-    >
-      <template v-slot:test="{ item }">
-        {{
-          isCriminal
-            ? 'Criminal - ' + getClass(item?.value)
-            : getClass(item?.value)
-        }}
-      </template> -->
-    <!-- <template
-        v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }"
-      >
-        <tr>
-          <td class="pa-0" :colspan="columns?.length">
-            <v-banner
-              class="courtRowBanner"
-              :ref="
-                () => {
-                  if (!isGroupOpen(item)) toggleGroup(item);
-                }
-              "
-            >
-              {{
-                isCriminal
-                  ? 'Criminal - ' + getClass(item?.value)
-                  : getClass(item?.value)
-              }}
-            </v-banner>
-          </td>
-        </tr>
-      </template> -->
-    <!-- </data-table> -->
     <v-skeleton-loader type="table" :loading="isSearching">
       <v-data-table
         v-model="selectedFiles"
@@ -72,12 +36,11 @@
         </template>
       </v-data-table>
     </v-skeleton-loader>
-    <!-- <action-bar :selected="selectedFiles" /> -->
+    <!-- todo: action-bar goes here -->
   </div>
 </template>
 
 <script setup lang="ts">
-  //import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { beautifyDate } from '@/filters';
   import { LookupCode } from '@/types/common';
   import { FileDetail } from '@/types/courtFileSearch';
@@ -95,7 +58,7 @@
   }>();
 
   // The reason we use 103 instead of 100 is due to the ability to have up to 3 group headers in the table
-  const itemsPerPage = ref(103);
+  const itemsPerPage = 103;
   const selectedFiles = ref<FileDetail[]>([]);
   const idSelector = computed(() =>
     props.isCriminal ? 'mdocJustinNo' : 'physicalFileId'
@@ -176,59 +139,6 @@
   const getClass = (courtClassCd: string) =>
     props.classes.find((lookup) => lookup.code === courtClassCd)?.shortDesc ||
     '';
-
-  // These methods are commented out until we have the action bar component fully in place to utilize them
-  //
-  // const emit = defineEmits<{
-  //   (e: 'add-selected', file: FileDetail): void;
-  //   (e: 'remove-selected', idSelector: string, id: string): void;
-  //   (e: 'clear-selected'): void;
-  //   (e: 'files-viewed', files: KeyValueInfo[]): void;
-  // }>();
-
-  // function handleCaseClick(id: string) {
-  //   const isExist = props.selectedFiles.find((c) => c[idSelector.value] === id);
-  //   if (isExist) {
-  //     return;
-  //   }
-
-  //   const file = props.searchResults.find((c) => c[idSelector.value] === id);
-  //   if (file) {
-  //     emit('add-selected', file);
-  //   }
-  // }
-
-  // function handleAddFileAndViewClick(id: string) {
-  //   const isExist = props.selectedFiles.find((c) => c[idSelector.value] === id);
-  //   if (!isExist) {
-  //     const file = props.searchResults.find((c) => c[idSelector.value] === id);
-  //     if (file) {
-  //       emit('add-selected', file);
-  //     }
-  //   }
-
-  //   handleViewFilesClick();
-  // }
-
-  // function handleDeleteClick(id: string) {
-  //   emit('remove-selected', idSelector.value, id);
-  // }
-
-  // function handleDeleteAllClick() {
-  //   emit('clear-selected');
-  // }
-
-  // function handleViewFilesClick() {
-  //   const files = props.selectedFiles.map(
-  //     (c) =>
-  //       ({
-  //         key: c[idSelector.value],
-  //         value: getFormattedFileNumber(c),
-  //       }) as KeyValueInfo
-  //   );
-
-  //   emit('files-viewed', files);
-  // }
 </script>
 
 <style scoped>
