@@ -7,9 +7,10 @@
       color="#183a4a"
       rounded
     >
-      <v-app-bar-title class="px-5"
-        >{{ selected.length }} selected</v-app-bar-title
-      >
+      <v-app-bar-title class="px-5">
+        {{ selected.length }} selected
+      </v-app-bar-title>
+      <slot></slot>
     </v-app-bar>
   </div>
 </template>

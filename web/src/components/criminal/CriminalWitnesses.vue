@@ -103,6 +103,7 @@
   import { witnessCountInfoType, witnessListInfoType } from '@/types/criminal';
   import { witnessType } from '@/types/criminal/jsonTypes';
   import { computed, defineComponent, onMounted, ref } from 'vue';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
 
   export default defineComponent({
     setup() {
@@ -119,7 +120,7 @@
       let numberOfPersonnelWitnesses = 0;
       let numberOfCivilianWitnesses = 0;
       let numberOfExpertWitnesses = 0;
-      const sortBy = ref('name');
+      const sortBy = ref<BTableSortBy[]>(['name']);
       const sortDesc = ref(false);
       const selectedType = ref('Required Only');
 

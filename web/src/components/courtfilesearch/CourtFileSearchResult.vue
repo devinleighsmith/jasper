@@ -5,7 +5,7 @@
     </v-banner>
     <v-skeleton-loader type="table" :loading="isSearching">
       <v-data-table
-        v-model="selectedFiles"
+        v-model="selectedItems"
         :group-by
         :items-per-page
         :headers
@@ -36,15 +36,36 @@
         </template>
       </v-data-table>
     </v-skeleton-loader>
-    <!-- todo: action-bar goes here -->
+    <action-bar :selected="selectedItems" @clicked="handleViewFilesClick">
+      <!-- todo Implement document bundle navigation -->
+      <!-- <v-btn
+        :prepend-icon="mdiFileDocumentMultipleOutline"
+        style="letter-spacing: 0.001rem"
+        @click="handleViewFilesClick"
+      >
+        View document bundle
+      </v-btn> -->
+      <v-btn
+        :prepend-icon="mdiFileDocumentOutline"
+        style="letter-spacing: 0.001rem"
+        @click="handleViewFilesClick"
+      >
+        View case details
+      </v-btn>
+    </action-bar>
   </div>
 </template>
 
 <script setup lang="ts">
+  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { beautifyDate } from '@/filters';
-  import { LookupCode } from '@/types/common';
+  import { KeyValueInfo, LookupCode } from '@/types/common';
   import { FileDetail } from '@/types/courtFileSearch';
   import { roomsInfoType } from '@/types/courtlist';
+  import {
+    mdiFileDocumentMultipleOutline,
+    mdiFileDocumentOutline,
+  } from '@mdi/js';
   import { computed, defineProps, ref } from 'vue';
 
   const props = defineProps<{
@@ -57,9 +78,16 @@
     isSearchResultsOver: boolean;
   }>();
 
+  const emit = defineEmits<{
+    (e: 'add-selected', file: FileDetail): void;
+    (e: 'remove-selected', idSelector: string, id: string): void;
+    (e: 'clear-selected'): void;
+    (e: 'files-viewed', files: KeyValueInfo[]): void;
+  }>();
+
   // The reason we use 103 instead of 100 is due to the ability to have up to 3 group headers in the table
   const itemsPerPage = 103;
-  const selectedFiles = ref<FileDetail[]>([]);
+  const selectedItems = ref<FileDetail[]>([]);
   const idSelector = computed(() =>
     props.isCriminal ? 'mdocJustinNo' : 'physicalFileId'
   );
@@ -126,10 +154,7 @@
   });
 
   function getFormattedFileNumber(detail: FileDetail) {
-    return `${detail.ticketSeriesTxt ?? ''}
-      ${detail.fileNumberTxt}
-      ${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}
-      ${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
+    return `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
   }
 
   const getLocation = (fileHomeAgencyId: string) =>
@@ -139,6 +164,18 @@
   const getClass = (courtClassCd: string) =>
     props.classes.find((lookup) => lookup.code === courtClassCd)?.shortDesc ||
     '';
+
+  function handleViewFilesClick() {
+    const files = selectedItems.value.map(
+      (c) =>
+        ({
+          key: c[idSelector.value],
+          value: getFormattedFileNumber(c),
+        }) as KeyValueInfo
+    );
+
+    emit('files-viewed', files);
+  }
 </script>
 
 <style scoped>
