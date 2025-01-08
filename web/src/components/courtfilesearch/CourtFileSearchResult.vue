@@ -37,15 +37,9 @@
       </v-data-table>
     </v-skeleton-loader>
     <action-bar :selected="selectedItems" @clicked="handleViewFilesClick">
-      <!-- todo Implement document bundle navigation -->
-      <!-- <v-btn
-        :prepend-icon="mdiFileDocumentMultipleOutline"
-        style="letter-spacing: 0.001rem"
-        @click="handleViewFilesClick"
-      >
-        View document bundle
-      </v-btn> -->
       <v-btn
+        size="large"
+        class="mx-2"
         :prepend-icon="mdiFileDocumentOutline"
         style="letter-spacing: 0.001rem"
         @click="handleViewFilesClick"
@@ -62,10 +56,7 @@
   import { KeyValueInfo, LookupCode } from '@/types/common';
   import { FileDetail } from '@/types/courtFileSearch';
   import { roomsInfoType } from '@/types/courtlist';
-  import {
-    mdiFileDocumentMultipleOutline,
-    mdiFileDocumentOutline,
-  } from '@mdi/js';
+  import { mdiFileDocumentOutline } from '@mdi/js';
   import { computed, defineProps, ref } from 'vue';
 
   const props = defineProps<{
