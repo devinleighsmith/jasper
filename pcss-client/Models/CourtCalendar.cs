@@ -1,18 +1,15 @@
-﻿using Newtonsoft.Json;
-using PCSS.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Globalization;
-using System.Linq;
-using System.Web;
+﻿using System.Globalization;
+using Newtonsoft.Json;
+using PCSSCommon.Common;
 
-namespace PCSS.Models.REST.CourtCalendar
+#pragma warning disable 8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable 8603 // Disable "CS8603 Possible null reference return"
+#pragma warning disable 8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+namespace PCSSCommon.Models
 {
-
     public class CourtCalendarLocation
     {
-
         public int Id { get; set; }
         public string Name { get; set; }
 
@@ -31,23 +28,23 @@ namespace PCSS.Models.REST.CourtCalendar
 
         public CourtCalendarLocation()
         {
-            this.Days = new List<CourtCalendarDay>();
+            Days = new List<CourtCalendarDay>();
         }
 
         public DateTime GetStartDate()
         {
-            return DateTime.ParseExact(this.Days[0].Date, Constants.DATE_FORMAT, CultureInfo.CurrentCulture);
+            return DateTime.ParseExact(Days[0].Date, Constants.DATE_FORMAT, CultureInfo.CurrentCulture);
         }
         public DateTime GetEndDate()
         {
-            return DateTime.ParseExact(this.Days[this.Days.Count - 1].Date, Constants.DATE_FORMAT, CultureInfo.CurrentCulture);
+            return DateTime.ParseExact(Days[Days.Count - 1].Date, Constants.DATE_FORMAT, CultureInfo.CurrentCulture);
         }
 
         public int CourtRoomConflictDayCount
         {
             get
             {
-                return this.Days.Where(x => x.CourtRoomConflicts.Count > 0).Count();
+                return Days.Count(x => x.CourtRoomConflicts.Count > 0);
             }
         }
 
@@ -55,7 +52,7 @@ namespace PCSS.Models.REST.CourtCalendar
         {
             get
             {
-                return this.Days.Where(x => x.HasActivityImbalance).Count();
+                return Days.Count(x => x.HasActivityImbalance);
             }
         }
 
@@ -63,7 +60,7 @@ namespace PCSS.Models.REST.CourtCalendar
         {
             get
             {
-                return this.Days.Where(x => x.HasJudicialImbalance).Count();
+                return Days.Count(x => x.HasJudicialImbalance);
             }
         }
 
@@ -71,22 +68,22 @@ namespace PCSS.Models.REST.CourtCalendar
         {
             get
             {
-                return this.Days.Where(x => x.HasAdjudicatorRestrictionIssues).Count();
+                return Days.Count(x => x.HasAdjudicatorRestrictionIssues);
             }
         }
 
         public void AddDay(CourtCalendarDay item)
         {
-            item.LocationId = this.Id;
-            this.Days.Add(item);
+            item.LocationId = Id;
+            Days.Add(item);
         }
 
         public CourtCalendarDay GetDay(DateTime date)
         {
-            CourtCalendarDay item = this.Days.Find(d => d.Date.Equals(date.ToString(Constants.DATE_FORMAT), StringComparison.OrdinalIgnoreCase));
+            CourtCalendarDay item = Days.Find(d => d.Date.Equals(date.ToString(Constants.DATE_FORMAT), StringComparison.OrdinalIgnoreCase));
             if (item == null)
             {
-                item = new CourtCalendarDay(this.Id, date);
+                item = new CourtCalendarDay(Id, date);
                 AddDay(item);
             }
             return item;
@@ -96,50 +93,57 @@ namespace PCSS.Models.REST.CourtCalendar
         {
             // flatten out days/sittings/rooms and activities...
             List<CourtCalendarConflict> items = new List<CourtCalendarConflict>();
-            foreach (CourtCalendarDay day in this.Days)
+            foreach (CourtCalendarDay day in Days)
             {
                 foreach (CourtCalendarActivity activity in day.Activities)
                 {
-                    foreach (CourtCalendarSlot slot in activity.Slots.Where(x => x.IsAssignmentListRoom == false))
+                    foreach (CourtCalendarSlot slot in activity.Slots.Where(x => !x.IsAssignmentListRoom))
                     {
-                        CourtCalendarConflict item = items.Find(x => (x.LocationId == this.Id) && (x.Date == day.Date) && (x.CourtSittingCode == activity.CourtSittingCode) && (x.CourtRoomCode == slot.CourtRoomCode));
-                        if (item == null)
-                        {
-                            item = new CourtCalendarConflict()
-                            {
-                                LocationId = this.Id,
-                                Name = this.Name,
-                                Date = day.Date,
-                                CourtSittingCode = activity.CourtSittingCode,
-                                CourtRoomCode = slot.CourtRoomCode
-                            };
-                            items.Add(item);
-                        }
-                        if (!item.ActivityCodes.Contains(activity.ActivityCode))
-                        {
-                            item.ActivityCodes.Add(activity.ActivityCode);
-                        }
+                        this.AddOrUpdateConflict(items, day, activity, slot);
                     }
                 }
             }
             //
             // ok, now for each day update set the conflicts and mark the location flag (if any conflicts)...
             //
-            foreach (CourtCalendarDay day in this.Days)
+            foreach (CourtCalendarDay day in Days)
             {
-                day.CourtRoomConflicts = items.Where(x => (x.ActivityCodes.Count > 1) && (x.Date == day.Date)).ToList();
+                day.CourtRoomConflicts = items.Where(x => x.ActivityCodes.Count > 1 && x.Date == day.Date).ToList();
             }
         }
 
-   
+        private void AddOrUpdateConflict(List<CourtCalendarConflict> conflicts, CourtCalendarDay day, CourtCalendarActivity activity, CourtCalendarSlot slot)
+        {
+            CourtCalendarConflict item = conflicts
+                .Find(x => x.LocationId == Id
+                    && x.Date == day.Date
+                    && x.CourtSittingCode == activity.CourtSittingCode
+                    && x.CourtRoomCode == slot.CourtRoomCode);
+
+            if (item == null)
+            {
+                item = new CourtCalendarConflict()
+                {
+                    LocationId = Id,
+                    Name = Name,
+                    Date = day.Date,
+                    CourtSittingCode = activity.CourtSittingCode,
+                    CourtRoomCode = slot.CourtRoomCode
+                };
+                conflicts.Add(item);
+            }
+            if (!item.ActivityCodes.Contains(activity.ActivityCode))
+            {
+                item.ActivityCodes.Add(activity.ActivityCode);
+            }
+        }
     }
 
     public class CourtCalendarDay
     {
         private CourtCalendarActivityImbalance _activityImbalance;
         private CourtCalendarJudicialImbalance _judicialImbalance;
-        private List<CourtCalendarActivity> _activities = new List<CourtCalendarActivity>();
-        private List<CourtCalendarConflict> _conflicts = new List<CourtCalendarConflict>();
+        private readonly List<CourtCalendarActivity> _activities = [];
 
         public int LocationId { get; set; }
         public string Date { get; set; }
@@ -149,18 +153,19 @@ namespace PCSS.Models.REST.CourtCalendar
         public int PcjMinimum { get; set; }
         public int PcjMaximum { get; set; }
 
-        public CourtCalendarDay() {
-            this._activityImbalance = new CourtCalendarActivityImbalance();
-            this._judicialImbalance = new CourtCalendarJudicialImbalance();
+        public CourtCalendarDay()
+        {
+            _activityImbalance = new CourtCalendarActivityImbalance();
+            _judicialImbalance = new CourtCalendarJudicialImbalance();
             TrialTrackingMissingCount = 0;
         }
 
         public CourtCalendarDay(int locationId, DateTime date)
         {
-            this.LocationId = locationId;
-            this.Date = date.ToString(Constants.DATE_FORMAT);
-            this._activityImbalance = new CourtCalendarActivityImbalance() { LocationId = this.LocationId, Date = this.Date };
-            this._judicialImbalance = new CourtCalendarJudicialImbalance() { LocationId = this.LocationId, Date = this.Date };
+            LocationId = locationId;
+            Date = date.ToString(Constants.DATE_FORMAT);
+            _activityImbalance = new CourtCalendarActivityImbalance() { LocationId = LocationId, Date = Date };
+            _judicialImbalance = new CourtCalendarJudicialImbalance() { LocationId = LocationId, Date = Date };
             TrialTrackingMissingCount = 0;
         }
 
@@ -171,16 +176,16 @@ namespace PCSS.Models.REST.CourtCalendar
 
         public List<CourtCalendarActivity> Activities { get { return _activities; } }
 
-        public List<CourtCalendarConflict> CourtRoomConflicts { get { return _conflicts; } set { _conflicts = value; } }
+        public List<CourtCalendarConflict> CourtRoomConflicts { get; set; }
         public CourtCalendarActivityImbalance ActivityImbalance
         {
-            get { return (_activityImbalance.IsBalanced) ? null : _activityImbalance; }
-            set { if (value != null) this._activityImbalance = value; }
+            get { return _activityImbalance.IsBalanced ? null : _activityImbalance; }
+            set { if (value != null) _activityImbalance = value; }
         }
         public CourtCalendarJudicialImbalance JudicialImbalance
         {
-            get { return (_judicialImbalance.IsBalanced) ? null : _judicialImbalance; }
-            set { if (value != null) this._judicialImbalance = value; }
+            get { return _judicialImbalance.IsBalanced ? null : _judicialImbalance; }
+            set { if (value != null) _judicialImbalance = value; }
         }
         public bool HasActivityImbalance { get { return !_activityImbalance.IsBalanced; } }
         public bool HasJudicialImbalance { get { return !_judicialImbalance.IsBalanced; } }
@@ -189,8 +194,8 @@ namespace PCSS.Models.REST.CourtCalendar
 
         public void AddActivity(CourtCalendarActivity item)
         {
-            item.Date = this.Date;
-            item.LocationId = this.LocationId;
+            item.Date = Date;
+            item.LocationId = LocationId;
             _activities.Add(item);
         }
 
@@ -217,9 +222,9 @@ namespace PCSS.Models.REST.CourtCalendar
 
     public class CourtCalendarActivity
     {
-        private List<CourtCalendarSlot> _slots = new List<CourtCalendarSlot>();
-        private List<CourtCalendarCapacity> _capacitySettings = new List<CourtCalendarCapacity>();
-        private List<AdjudicatorRestriction> _restrictions = new List<AdjudicatorRestriction>();
+        private readonly List<CourtCalendarSlot> _slots = [];
+        private readonly List<CourtCalendarCapacity> _capacitySettings = [];
+        private readonly List<AdjudicatorRestriction> _restrictions = [];
         public int? Id { get; set; }
         public int LocationId { get; set; }
         public string Date { get; set; }
@@ -237,15 +242,15 @@ namespace PCSS.Models.REST.CourtCalendar
         public string JudiciaryTypeCode { get; set; }
 
         [JsonProperty(PropertyName = "IsJj")]
-        public bool IsJJ { get { return "JJ" == this.JudiciaryTypeCode; } }
+        public bool IsJJ { get { return "JJ" == JudiciaryTypeCode; } }
         [JsonProperty(PropertyName = "IsPcj")]
-        public bool IsPCJ { get { return "PCJ" == this.JudiciaryTypeCode; } }
+        public bool IsPCJ { get { return "PCJ" == JudiciaryTypeCode; } }
         [JsonProperty(PropertyName = "IsJp")]
-        public bool IsJP { get { return "JP" == this.JudiciaryTypeCode; } }
+        public bool IsJP { get { return "JP" == JudiciaryTypeCode; } }
         [JsonProperty(PropertyName = "IsOther")]
         public bool IsOther { get { return !(IsJJ || IsPCJ || IsJP || IsIAR); } }
         [JsonProperty(PropertyName = "IsIar")]
-        public bool IsIAR { get { return !(IsJJ || IsPCJ || IsJP) && "IA" == this.ActivityCode; } }
+        public bool IsIAR { get { return !(IsJJ || IsPCJ || IsJP) && "IA" == ActivityCode; } }
         public bool IsHearingStartSameTime { get; set; }
         public bool IsPreCourtActivity { get; set; }
 
@@ -264,30 +269,30 @@ namespace PCSS.Models.REST.CourtCalendar
         public double? NumberOfHours { get; set; }
         public List<ActivityClassUsage> ActivityClassUsages { get; set; }
 
-        public List<AdjudicatorRestriction> Restrictions { get{ return _restrictions; } }
+        public List<AdjudicatorRestriction> Restrictions { get { return _restrictions; } }
         public bool HasRestrictions { get { return Restrictions.Count > 0; } }
-        public bool HasAdjudicatorIssues { get { return Restrictions.Exists(x => x.HasIssue); } }
+        public bool HasAdjudicatorIssues { get { return Restrictions.Exists(x => x.HasIssue.GetValueOrDefault()); } }
 
         public List<NeedJudgeResponse> NeedJudgeDetails { get; set; }
 
-        public CourtCalendarActivity() { this.NeedJudgeDetails = new List<NeedJudgeResponse>(); }
+        public CourtCalendarActivity() { NeedJudgeDetails = new List<NeedJudgeResponse>(); }
         public CourtCalendarActivity(int locationId, DateTime date, string activityCode, string activityDesc, string activityClassCode, string activityClassDesc)
         {
-            this.LocationId = locationId;
-            this.Date = date.ToString(Constants.DATE_FORMAT);
-            this.ActivityCode = activityCode;
-            this.ActivityDescription = activityDesc;
-            this.ActivityClassCode = activityClassCode;
-            this.ActivityClassDescription = activityClassDesc;
-            this.NeedJudgeDetails = new List<NeedJudgeResponse>();
+            LocationId = locationId;
+            Date = date.ToString(Constants.DATE_FORMAT);
+            ActivityCode = activityCode;
+            ActivityDescription = activityDesc;
+            ActivityClassCode = activityClassCode;
+            ActivityClassDescription = activityClassDesc;
+            NeedJudgeDetails = new List<NeedJudgeResponse>();
         }
 
         public List<CourtCalendarSlot> Slots { get { return _slots; } }
 
         public void AddSlot(CourtCalendarSlot item)
         {
-            item.CourtCalendarActivityId = this.Id;
-            item.LocationId = this.LocationId;
+            item.CourtCalendarActivityId = Id;
+            item.LocationId = LocationId;
             // only add a slot once...
             if (_slots.Find(x => x.CourtRoomCode == item.CourtRoomCode && x.IsAssignmentListRoom == item.IsAssignmentListRoom && x.StartTime == item.StartTime) == null)
             {
@@ -305,7 +310,7 @@ namespace PCSS.Models.REST.CourtCalendar
 
         public void AddCapacity(CourtCalendarCapacity item)
         {
-            item.CourtCalendarActivityId = this.Id;
+            item.CourtCalendarActivityId = Id;
             _capacitySettings.Add(item);
         }
 
@@ -347,7 +352,7 @@ namespace PCSS.Models.REST.CourtCalendar
         public string CourtSittingCode { get; set; }
         public List<string> ActivityCodes { get; set; }
 
-        public CourtCalendarConflict() { this.ActivityCodes = new List<string>(); }
+        public CourtCalendarConflict() { ActivityCodes = new List<string>(); }
     }
 
     public class CourtCalendarActivityImbalance
@@ -364,12 +369,12 @@ namespace PCSS.Models.REST.CourtCalendar
         public int PcjMinimum { get; set; }
         public int PcjMaximum { get; set; }
 
-        public bool IsAboveRange { get { return this.ActivityCount > this.PcjMaximum; } }
-        public bool IsBelowRange { get { return this.ActivityCount < this.PcjMinimum; } }
-        public bool IsBalanced { get { return !IsAboveRange && !IsBelowRange;} }
+        public bool IsAboveRange { get { return ActivityCount > PcjMaximum; } }
+        public bool IsBelowRange { get { return ActivityCount < PcjMinimum; } }
+        public bool IsBalanced { get { return !IsAboveRange && !IsBelowRange; } }
 
 
-        public CourtCalendarActivityImbalance() { this.PcjActivityCodes = new List<string>(); }
+        public CourtCalendarActivityImbalance() { PcjActivityCodes = new List<string>(); }
     }
 
     public class CourtCalendarJudicialImbalance
@@ -386,11 +391,11 @@ namespace PCSS.Models.REST.CourtCalendar
         public int PcjMinimum { get; set; }
         public int PcjMaximum { get; set; }
 
-        public bool IsAboveRange { get { return this.PcjSitting > this.PcjMaximum; } }
-        public bool IsBelowRange { get { return this.PcjSitting < this.PcjMinimum; } }
-        public bool IsBalanced { get { return !IsAboveRange && !IsBelowRange;} }
+        public bool IsAboveRange { get { return PcjSitting > PcjMaximum; } }
+        public bool IsBelowRange { get { return PcjSitting < PcjMinimum; } }
+        public bool IsBalanced { get { return !IsAboveRange && !IsBelowRange; } }
 
-        public CourtCalendarJudicialImbalance() { this.SittingActivityCodes = new List<string>(); }
+        public CourtCalendarJudicialImbalance() { SittingActivityCodes = new List<string>(); }
     }
 
     public class PresiderQuantityRange
@@ -415,7 +420,7 @@ namespace PCSS.Models.REST.CourtCalendar
         public string UpdName { get; set; }
     }
 
-    public class Utils
+    public static class Utils
     {
 
         public static int DayOfCourtCalendarWeek(DateTime dt)
@@ -444,11 +449,8 @@ namespace PCSS.Models.REST.CourtCalendar
 
     }
 
-
-
     public class NeedJudgeResponse
     {
-   
         public int? NeedJudgeId { get; set; }
         public int? LocationId { get; set; }
         public int? CourtActivityId { get; set; }
@@ -463,3 +465,7 @@ namespace PCSS.Models.REST.CourtCalendar
         public virtual string NeedJudgeTypeDsc { get; set; }
     }
 }
+
+#pragma warning restore 8600
+#pragma warning restore 8603
+#pragma warning restore 8618
