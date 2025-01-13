@@ -1,5 +1,5 @@
 import { setActivePinia, createPinia } from 'pinia'
-import { useSnackbarStore } from '@/stores/SnackBarStore';
+import { useSnackbarStore } from '@/stores/SnackbarStore';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('SnackBarStore', () => {
