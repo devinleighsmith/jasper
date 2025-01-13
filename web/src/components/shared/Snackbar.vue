@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-  import { useSnackbarStore } from '@/stores/SnackBarStore';
+  import { useSnackbarStore } from '@/stores/SnackbarStore';
   import { mdiCloseCircle } from '@mdi/js';
   const snackbarStore = useSnackbarStore();
   const close = () => {

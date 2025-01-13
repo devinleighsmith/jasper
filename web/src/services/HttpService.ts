@@ -1,10 +1,10 @@
+import { useSnackbarStore } from '@/stores/SnackbarStore';
 import axios, {
   AxiosInstance,
   AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from 'axios';
 import redirectHandlerService from './RedirectHandlerService';
-import { useSnackbarStore } from '@/stores/SnackBarStore';
 
 export interface IHttpService {
   get<T>(resource: string, queryParams?: Record<string, any>): Promise<T>;
