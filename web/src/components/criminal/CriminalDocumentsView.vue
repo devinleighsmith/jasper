@@ -156,6 +156,7 @@
   import { useCommonStore, useCriminalFileStore } from '@/stores';
   import { ArchiveInfoType, DocumentRequestsInfoType } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import {
     computed,
     defineComponent,
@@ -197,7 +198,7 @@
       const loadingPdf = ref(false);
       const activetab = ref('ALL');
       //      const tabIndex = ref(0);
-      const sortBy = ref('date');
+      const sortBy = ref<BTableSortBy[]>(['date']);
       const sortDesc = ref(true);
       //      const hoverRow = ref(-1);
       //      const hoverCol = ref(0);

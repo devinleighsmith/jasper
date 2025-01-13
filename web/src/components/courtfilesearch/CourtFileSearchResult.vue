@@ -1,420 +1,178 @@
 <template>
   <div>
-    <b-card class="mt-3" bg-variant="light" v-if="isSearching">
-      <b-overlay :show="true">
-        <b-card style="min-height: 100px" />
-        <template v-slot:overlay>
-          <div>
-            <loading-spinner />
-            <p id="loading-label">Loading ...</p>
-          </div>
-        </template>
-      </b-overlay>
-    </b-card>
-    <div v-if="!isSearching">
-      <div class="my-3 bg-warning p-2" v-if="isSearchResultsOver">
-        <span
-          >More than 100 records match the search criteria, only the first 100
-          are returned.</span
-        >
-      </div>
-      <h3 class="mt-3">Search Results</h3>
-      <b-table
-        :fields="filteredFields"
+    <v-banner bg-color="#efedf5">
+      <h3 class="px-2 py-2">Search Results</h3>
+    </v-banner>
+    <v-skeleton-loader type="table" :loading="isSearching">
+      <v-data-table
+        v-model="selectedItems"
+        :group-by
+        :items-per-page
+        :headers
         :items="searchResults"
-        borderless
-        small
-        responsive="md"
-        sort-icon-left
-        empty-text="No cases matching the filter criteria were found. Please check to ensure the search criteria is correct."
-        show-empty
-        striped
+        :item-value="idSelector"
       >
-        <template #head(nextApprDt)="data">
-          <span class="text-danger no-wrap">{{ data.label }}</span>
-        </template>
-        <template v-slot:cell(sealStatusCd)="data">
-          <span v-if="data.item.sealStatusCd === 'SD'" class="text-danger"
-            >(Sealed)</span
-          >
-        </template>
-        <template v-slot:cell(courtClassCd)="data">
-          <span :class="getClassColor(data.item.courtClassCd)">
-            {{ getClass(data.item.courtClassCd) }}
-          </span>
-        </template>
-        <template v-slot:cell(warrantYN)="data">
-          <b-badge
-            v-if="data.item.warrantYN === 'Y'"
-            variant="primary text-light"
-            :style="data.field.cellStyle"
-            v-b-tooltip.hover
-            title="Outstanding warrant"
-          >
-            <span>W</span>
-          </b-badge>
-        </template>
-        <template v-slot:cell(inCustodyYN)="data">
-          <b-badge
-            v-if="data.item.inCustodyYN === 'Y'"
-            variant="primary text-light"
-            :style="data.field.cellStyle"
-            v-b-tooltip.hover
-            title="In custody"
-          >
-            IC
-          </b-badge>
-        </template>
-        <template v-slot:cell(nextApprDt)="data">
-          <span>
-            {{ beautifyDate(data.item.nextApprDt) }}
-          </span>
-        </template>
-        <template v-slot:cell(action)="data">
-          <div class="d-flex justify-content-end no-wrap">
-            <b-button
-              variant="outline-primary"
-              class="mr-3"
-              @click="() => handleCaseClick(data.item[idSelector])"
-              >Add File</b-button
-            >
-            <b-button
-              variant="primary"
-              @click="() => handleAddFileAndViewClick(data.item[idSelector])"
-              >Add File and View</b-button
-            >
-          </div>
-        </template>
-      </b-table>
-      <div v-if="selectedFiles.length > 0">
-        <h3 class="mt-3">Files to View</h3>
-        <b-table
-          :fields="filteredFields"
-          :items="selectedFiles"
-          borderless
-          small
-          responsive="md"
-          sort-icon-left
-          striped
+        <template
+          v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }"
         >
-          <template #head(nextApprDt)="data">
-            <span class="text-danger no-wrap">{{ data.label }}</span>
-          </template>
-          <template v-slot:cell(sealStatusCd)="data">
-            <span v-if="data.item.sealStatusCd === 'SD'" class="text-danger"
-              >(Sealed)</span
-            >
-          </template>
-          <template v-slot:cell(courtClassCd)="data">
-            <span :class="getClassColor(data.item.courtClassCd)">
-              {{ getClass(data.item.courtClassCd) }}
-            </span>
-          </template>
-          <template v-slot:cell(warrantYN)="data">
-            <b-badge
-              v-if="data.item.warrantYN === 'Y'"
-              variant="primary text-light"
-              :style="data.field.cellStyle"
-              v-b-tooltip.hover
-              title="Outstanding warrant"
-            >
-              <span>W</span>
-            </b-badge>
-          </template>
-          <template v-slot:cell(inCustodyYN)="data">
-            <b-badge
-              v-if="data.item.inCustodyYN === 'Y'"
-              variant="primary text-light"
-              :style="data.field.cellStyle"
-              v-b-tooltip.hover
-              title="In custody"
-            >
-              IC
-            </b-badge>
-          </template>
-          <template v-slot:cell(nextApprDt)="data">
-            <span>
-              {{ beautifyDate(data.item.nextApprDt) }}
-            </span>
-          </template>
-          <template v-slot:cell(action)="data">
-            <div class="d-flex justify-content-end no-wrap">
-              <b-button
-                variant="link"
-                class="remove"
-                @click="() => handleDeleteClick(data.item[idSelector])"
+          <tr>
+            <td class="pa-0" :colspan="columns.length">
+              <v-banner
+                class="courtRowBanner"
+                :ref="
+                  () => {
+                    if (!isGroupOpen(item)) toggleGroup(item);
+                  }
+                "
               >
-                <b-icon icon="trash"></b-icon> Remove
-              </b-button>
-            </div>
-          </template>
-        </b-table>
-        <div class="my-3 bg-light p-3">
-          <div class="d-flex">
-            <b-button
-              variant="primary"
-              class="mr-3"
-              @click="handleViewFilesClick"
-              >View File(s)</b-button
-            >
-            <b-button variant="outline-primary" @click="handleDeleteAllClick"
-              >Remove All Files and Start Over</b-button
-            >
-          </div>
-        </div>
-      </div>
-    </div>
+                {{
+                  isCriminal
+                    ? 'Criminal - ' + getClass(item.value)
+                    : getClass(item.value)
+                }}
+              </v-banner>
+            </td>
+          </tr>
+        </template>
+      </v-data-table>
+    </v-skeleton-loader>
+    <action-bar :selected="selectedItems" @clicked="handleViewFilesClick">
+      <v-btn
+        size="large"
+        class="mx-2"
+        :prepend-icon="mdiFileDocumentOutline"
+        style="letter-spacing: 0.001rem"
+        @click="handleViewFilesClick"
+      >
+        View case details
+      </v-btn>
+    </action-bar>
   </div>
 </template>
-<script lang="ts">
+
+<script setup lang="ts">
+  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { beautifyDate } from '@/filters';
   import { KeyValueInfo, LookupCode } from '@/types/common';
-  import { CourtClassEnum, FileDetail } from '@/types/courtFileSearch';
+  import { FileDetail } from '@/types/courtFileSearch';
   import { roomsInfoType } from '@/types/courtlist';
-  import { defineComponent, PropType } from 'vue';
+  import { mdiFileDocumentOutline } from '@mdi/js';
+  import { computed, defineProps, ref } from 'vue';
 
-  export default defineComponent({
-    data() {
-      return {
-        beautifyDate,
-        idSelector: '',
-        allFields: [
-          {
-            key: 'location',
-            label: 'Location',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              return this.getLocation(item.fileHomeAgencyId);
-            },
-          },
-          {
-            key: 'courtClassCd',
-            label: 'Class',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-          },
-          {
-            key: 'fileNumberTxt',
-            label: 'File number',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              return this.getFormattedFileNumber(item);
-            },
-          },
-          {
-            key: 'participant',
-            label: 'Participants',
-            tdClass: 'border-top max-width-300',
-            thClass: 'text-primary',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              return [...new Set(item.participant.map((p) => p.fullNm))].join(
-                '; '
-              );
-            },
-          },
-          {
-            key: 'charges',
-            label: 'Charges',
-            tdClass: 'border-top max-width-300',
-            sortable: true,
-            sortByFormatted: true,
-            formatter: (value, key, item) => {
-              const uniqueCharges = [
-                ...new Set(
-                  item.participant
-                    .flatMap((p) => p.charge)
-                    .map((c) => c.sectionTxt)
-                ),
-              ];
-              const firstCharge =
-                uniqueCharges.length > 0 ? uniqueCharges[0] : '';
-              return uniqueCharges.length > 1
-                ? `${firstCharge} + [${uniqueCharges.length - 1}]`
-                : firstCharge;
-            },
-          },
-          {
-            key: 'warrantyYN',
-            label: 'OW',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-          },
-          {
-            key: 'inCustodyYN',
-            label: 'IC',
-            tdClass: 'border-top',
-            thClass: 'text-primary',
-            sortable: true,
-          },
-          {
-            key: 'nextApprDt',
-            label: 'Next appearance',
-            tdClass: 'border-top',
-            sortable: true,
-          },
-          {
-            key: 'sealStatusCd',
-            label: '',
-            tdClass: 'border-top',
-          },
-          {
-            key: 'action',
-            label: '',
-            tdClass: 'border-top',
-          },
-        ],
-      };
+  const props = defineProps<{
+    courtRooms: roomsInfoType[];
+    searchResults: FileDetail[];
+    classes: LookupCode[];
+    isSearching: boolean;
+    isCriminal: boolean;
+    selectedFiles: FileDetail[];
+    isSearchResultsOver: boolean;
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'add-selected', file: FileDetail): void;
+    (e: 'remove-selected', idSelector: string, id: string): void;
+    (e: 'clear-selected'): void;
+    (e: 'files-viewed', files: KeyValueInfo[]): void;
+  }>();
+
+  // The reason we use 103 instead of 100 is due to the ability to have up to 3 group headers in the table
+  const itemsPerPage = 103;
+  const selectedItems = ref<FileDetail[]>([]);
+  const idSelector = computed(() =>
+    props.isCriminal ? 'mdocJustinNo' : 'physicalFileId'
+  );
+  const groupBy = ref([
+    {
+      key: 'courtClassCd',
+      order: 'asc' as const,
     },
-    computed: {
-      filteredFields() {
-        return this.isCriminal
-          ? this.allFields
-          : this.allFields.filter(
-              (f) => !['charges', 'warrantyYN', 'inCustodyYN'].includes(f.key)
-            );
+  ]);
+  const fullHeaders = ref([
+    { key: 'data-table-group' },
+    {
+      title: 'File #',
+      key: 'fileNumberTxt',
+      value: (item: FileDetail) => `${getFormattedFileNumber(item)}`,
+    },
+    {
+      title: 'Accused / Parties',
+      key: 'participant',
+      value: (item: FileDetail) =>
+        `${[...new Set(item.participant.map((p) => p.fullNm))].join('; ')}`,
+    },
+    {
+      title: 'Class',
+      key: 'courtClassCd',
+      value: (item: FileDetail) => `${getClass(item.courtClassCd)}`,
+    },
+    {
+      title: 'Location',
+      key: 'location',
+      width: '15%',
+      value: (item: FileDetail) => `${getLocation(item.fileHomeAgencyId)}`,
+    },
+    {
+      title: 'Charges',
+      key: 'charges',
+      value: (item: FileDetail) => {
+        const uniqueCharges = [
+          ...new Set(
+            item.participant.flatMap((p) => p.charge).map((c) => c.sectionTxt)
+          ),
+        ];
+        const firstCharge = uniqueCharges.length > 0 ? uniqueCharges[0] : '';
+        return uniqueCharges.length > 1
+          ? `${firstCharge} + [${uniqueCharges.length - 1}]`
+          : firstCharge;
       },
     },
-    mounted() {
-      this.idSelector = this.isCriminal ? 'mdocJustinNo' : 'physicalFileId';
+    {
+      title: 'Next appearance',
+      key: 'nextApprDt',
+      value: (item: FileDetail) => `${beautifyDate(item.nextApprDt)}`,
     },
-    methods: {
-      getFormattedFileNumber(detail: FileDetail) {
-        return `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
-      },
-      getLocation(fileHomeAgencyId: string) {
-        return (
-          this.courtRooms.find((r) => r.value === fileHomeAgencyId)?.text || ''
+    { title: 'OW', key: 'warrantyYN' },
+    { title: 'IC', key: 'inCustodyYN' },
+  ]);
+
+  const headers = computed(() => {
+    return props.isCriminal
+      ? fullHeaders.value
+      : fullHeaders.value.filter(
+          (hdr) => !['charges', 'warrantyYN', 'inCustodyYN'].includes(hdr.key)
         );
-      },
-      getClass(courtClassCd: string) {
-        return (
-          this.classes.find((l) => l.code === courtClassCd)?.shortDesc || ''
-        );
-      },
-      getClassColor(courtClassCd: string) {
-        const classValue = CourtClassEnum[courtClassCd];
-
-        switch (classValue) {
-          case CourtClassEnum.A:
-          case CourtClassEnum.Y:
-            return 'text-blue';
-
-          case CourtClassEnum.F:
-            return 'text-green';
-
-          case CourtClassEnum.C:
-            return 'text-purple';
-          default:
-            return '';
-        }
-      },
-      handleCaseClick(id: string) {
-        const isExist = this.selectedFiles.find(
-          (c) => c[this.idSelector] === id
-        );
-        if (isExist) {
-          return;
-        }
-
-        const file = this.searchResults.find((c) => c[this.idSelector] === id);
-        if (file) {
-          this.$emit('add-selected', file);
-        }
-      },
-      handleAddFileAndViewClick(id: string) {
-        const isExist = this.selectedFiles.find(
-          (c) => c[this.idSelector] === id
-        );
-        if (!isExist) {
-          const file = this.searchResults.find(
-            (c) => c[this.idSelector] === id
-          );
-          if (file) {
-            this.$emit('add-selected', file);
-          }
-        }
-
-        this.handleViewFilesClick();
-      },
-      handleDeleteClick(id: string) {
-        this.$emit('remove-selected', this.idSelector, id);
-      },
-      handleDeleteAllClick() {
-        this.$emit('clear-selected');
-      },
-      handleViewFilesClick() {
-        const files = this.selectedFiles.map(
-          (c) =>
-            ({
-              key: c[this.idSelector],
-              value: this.getFormattedFileNumber(c),
-            }) as KeyValueInfo
-        );
-
-        this.$emit('files-viewed', files);
-      },
-    },
-    props: {
-      courtRooms: {
-        type: Array as PropType<roomsInfoType[]>,
-        default: () => [],
-      },
-      searchResults: {
-        type: Array as PropType<FileDetail[]>,
-        default: () => [],
-      },
-      classes: { type: Array as PropType<LookupCode[]>, default: () => [] },
-      isSearching: { type: Boolean, default: () => false },
-      isCriminal: { type: Boolean, default: () => true },
-      selectedFiles: {
-        type: Array as PropType<FileDetail[]>,
-        default: () => [],
-      },
-      isSearchResultsOver: { type: Boolean, default: () => false },
-    },
   });
+
+  function getFormattedFileNumber(detail: FileDetail) {
+    return `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
+  }
+
+  const getLocation = (fileHomeAgencyId: string) =>
+    props.courtRooms.find((room) => room.value === fileHomeAgencyId)?.text ||
+    '';
+
+  const getClass = (courtClassCd: string) =>
+    props.classes.find((lookup) => lookup.code === courtClassCd)?.shortDesc ||
+    '';
+
+  function handleViewFilesClick() {
+    const files = selectedItems.value.map(
+      (c) =>
+        ({
+          key: c[idSelector.value],
+          value: getFormattedFileNumber(c),
+        }) as KeyValueInfo
+    );
+
+    emit('files-viewed', files);
+  }
 </script>
 
-<style scoped lang="scss">
-  .card {
-    border: white;
-  }
-
-  .text-blue {
-    color: #007bff;
-  }
-
-  .text-green {
-    color: #28a745;
-  }
-
-  .text-purple {
-    color: #6f42c1;
-  }
-
-  table thead tr th {
-    color: #28a745;
-  }
-
-  .no-wrap {
-    white-space: nowrap;
-  }
-
-  .remove,
-  .remove:hover,
-  .remove:focus {
-    text-decoration: none !important;
-    color: #dc3545 !important;
-    box-shadow: none;
+<style scoped>
+  .courtRowBanner {
+    background-color: #3095b0;
+    color: white;
+    text-transform: uppercase;
   }
 </style>

@@ -101,6 +101,7 @@
 <script lang="ts">
   import { useCriminalFileStore } from '@/stores';
   import { participantListInfoType } from '@/types/criminal';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import { defineComponent, onMounted, ref } from 'vue';
 
   export default defineComponent({
@@ -111,7 +112,7 @@
 
       const isMounted = ref(false);
       const numberOfParticipants = ref(0);
-      const sortBy = ref('name');
+      const sortBy = ref<BTableSortBy[]>(['name']);
       const sortDesc = ref(false);
 
       const fields = [

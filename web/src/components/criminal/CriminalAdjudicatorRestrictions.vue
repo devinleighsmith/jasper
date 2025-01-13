@@ -44,6 +44,7 @@
 <script lang="ts">
   import { useCriminalFileStore } from '@/stores';
   import { AdjudicatorRestrictionsInfoType } from '@/types/common';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import { defineComponent, onMounted, ref } from 'vue';
 
   export default defineComponent({
@@ -54,7 +55,7 @@
         []
       );
 
-      const sortBy = ref('adjudicator');
+      const sortBy = ref<BTableSortBy[]>(['adjudicator']);
       const sortDesc = ref(false);
       const isMounted = ref(false);
 

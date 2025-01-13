@@ -84,6 +84,7 @@
 <script lang="ts">
   import { useCriminalFileStore } from '@/stores';
   import { criminalAppearancesListType } from '@/types/criminal';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import { defineComponent, PropType, ref } from 'vue';
   import CriminalAppearanceDetails from './CriminalAppearanceDetails.vue';
 
@@ -98,7 +99,7 @@
       },
     },
     setup(props) {
-      const sortBy = ref('date');
+      const sortBy = ref<BTableSortBy[]>(['date']);
       const sortDesc = ref(true);
       const criminalFileStore = useCriminalFileStore();
 
