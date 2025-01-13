@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { useSnackbarStore } from '@/stores/SnackBarStore';
+import { useSnackbarStore } from '@/stores/SnackbarStore';
 import { describe, it, expect, beforeEach } from 'vitest';
 import Snackbar from '@/components/shared/Snackbar.vue';
 import { setActivePinia, createPinia } from 'pinia'
