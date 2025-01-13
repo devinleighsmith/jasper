@@ -4,6 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import redirectHandlerService from './RedirectHandlerService';
+import { useSnackbarStore } from '@/stores/SnackBarStore';
 
 export interface IHttpService {
   get<T>(resource: string, queryParams?: Record<string, any>): Promise<T>;
@@ -17,6 +18,7 @@ export interface IHttpService {
 
 export class HttpService implements IHttpService {
   readonly client: AxiosInstance;
+  snackBarStore = useSnackbarStore();
 
   constructor(baseURL: string) {
     this.client = axios.create({
@@ -47,8 +49,16 @@ export class HttpService implements IHttpService {
   private handleAuthError(error: any) {
     console.error(error);
     console.log('User unauthenticated.');
+    // todo: check for a 403 and handle it
     if (error.response && error.response.status === 401) {
       redirectHandlerService.handleUnauthorized(window.location.href);
+    } else {
+      // The user should be notified about unhandled server exceptions.
+      this.snackBarStore.showSnackbar(
+        'Something went wrong, please contact your Administrator.',
+        '#b84157',
+        'Error'
+      );
     }
     return Promise.reject(new Error(error));
   }
