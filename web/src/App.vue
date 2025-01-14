@@ -1,7 +1,7 @@
 <template>
   <v-theme-provider :theme="theme">
     <v-app>
-      <profile-off-canvas v-model="profile" @close="profile = false" />
+      <profile-off-canvas v-model="profile" />
       <v-app-bar app>
         <v-app-bar-title>
           <router-link to="/"> JASPER </router-link>

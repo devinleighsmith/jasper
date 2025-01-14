@@ -1,12 +1,12 @@
 <template>
-  <v-navigation-drawer location="right" temporary>
+  <v-navigation-drawer v-model="model" location="right" temporary>
     <v-list-item subtitle="JSmith" color="primary" rounded="shaped">
       <template v-slot:prepend>
         <v-icon :icon="mdiAccountCircle" size="45" />
       </template>
       <v-list-item-title>John Smith</v-list-item-title>
       <template v-slot:append>
-        <v-btn :icon="mdiCloseCircle" @click="$emit('close')" />
+        <v-btn :icon="mdiCloseCircle" @click="model = false" />
       </template>
     </v-list-item>
 
@@ -29,6 +29,7 @@
   import { mdiAccountCircle, mdiCloseCircle, mdiWeatherNight } from '@mdi/js';
   import { ref } from 'vue';
 
+  const model = defineModel<boolean>();
   const themeStore = useThemeStore();
   const theme = ref(themeStore.state);
   const isDark = ref(theme.value === 'dark');
