@@ -19,15 +19,14 @@
   } from '@/stores';
   import { IconInfoType } from '@/types/common';
   import { civilListInfoType, courtListInfoType } from '@/types/courtlist';
-  import { criminalFileInformationType } from '@/types/criminal';
-  import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import { inject, onMounted, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-
   import {
     civilCourtListType,
     criminalCourtListType,
   } from '@/types/courtlist/jsonTypes';
+  import { criminalFileInformationType } from '@/types/criminal';
+  import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { inject, onMounted, ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import shared from '../shared';
 
   enum HearingType {

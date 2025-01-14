@@ -2,9 +2,9 @@
   <!-- todo: Extract this out to more generic location -->
   <v-overlay :opacity="0.333" v-model="isLoading" />
 
-  <b-card style="min-height: 40px" v-if="errorCode > 0 && errorCode == 403">
+  <v-card style="min-height: 40px" v-if="errorCode > 0 && errorCode == 403">
     <span> You are not authorized to access this page. </span>
-  </b-card>
+  </v-card>
   <!------------------------------------------------------->
   <v-banner style="background-color: #b4e6ff; color: #183a4a">
     <v-row class="my-3">
@@ -117,7 +117,7 @@
   import { useCommonStore, useCourtListStore } from '@/stores';
   import { CourtRoomsJsonInfoType } from '@/types/common';
   import * as _ from 'underscore';
-  import { computed, inject, nextTick, onMounted, ref } from 'vue';
+  import { computed, inject, onMounted, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
 
   import {
@@ -126,14 +126,8 @@
     roomsInfoType,
   } from '@/types/courtlist';
   import { courtListType } from '@/types/courtlist/jsonTypes';
-  import { getSingleValue } from '@/utils/utils';
   import CourtListLayout from './CourtListLayout.vue';
-
-  const props = defineProps<{
-    location: string;
-    room: string;
-    date: string;
-  }>();
+  
   const commonStore = useCommonStore();
   const courtListStore = useCourtListStore();
   // State variables
@@ -201,7 +195,6 @@
           ExtractCourtRoomsAndLocationsInfo();
           if (courtRoomsAndLocations.value.length > 0) {
             isLocationDataReady.value = true;
-            searchByRouterParams();
           }
         }
         isLocationDataMounted.value = true;
@@ -308,69 +301,6 @@
     );
   };
 
-  const getCourtNameById = (locationId) => {
-    return courtRoomsAndLocations.value.filter((location) => {
-      return location.value['LocationID'] == locationId;
-    });
-  };
-
-  const searchByRouterParams = () => {
-    if (route.params.location && route.params.room && route.params.date) {
-      const location = getCourtNameById(route.params.location)[0];
-      if (location) {
-        Object.assign(selectedCourtLocation.value, location.value);
-        selectedCourtLocationState.value = true;
-        const room = true; //getRoomInLocationByRoomNo(location, route.params.room)[0];
-        if (room) {
-          selectedCourtRoom.value = getSingleValue(route.params.room);
-          selectedCourtRoomState.value = true;
-          nextTick().then(() => {
-            searchForCourtList();
-          });
-        } else {
-          selectedCourtRoom.value = 'null';
-          selectedCourtRoomState.value = false;
-          searchAllowed.value = true;
-        }
-      } else {
-        Object.assign(
-          selectedCourtLocation.value,
-          courtRoomsAndLocations.value[0].value
-        );
-        selectedCourtLocationState.value = false;
-        searchAllowed.value = true;
-      }
-    }
-  };
-
-  const isValidDate = (dateString) => {
-    if (!/^\d{4}-\d{1,2}-\d{1,2}$/.test(dateString)) return false;
-
-    const seperatedDate = seperateIsoDate(dateString);
-    const day = seperatedDate.day;
-    const month = seperatedDate.month;
-    const year = seperatedDate.year;
-
-    if (year < 1800 || year > 3000 || month == 0 || month > 12) return false;
-
-    const monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-    // Adjust for leap years
-    if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
-      monthLength[1] = 29;
-
-    return day > 0 && day <= monthLength[month - 1];
-  };
-
-  const seperateIsoDate = (dateString) => {
-    const seperatedDate = { day: 0, month: 0, year: 0 };
-    const parts = dateString.split('-');
-    seperatedDate.day = parseInt(parts[2], 10);
-    seperatedDate.month = parseInt(parts[1], 10);
-    seperatedDate.year = parseInt(parts[0], 10);
-    return seperatedDate;
-  };
-
   const searchForCourtList = () => {
     if (!selectedCourtLocation.value.Location) {
       selectedCourtLocationState.value = false;
@@ -390,7 +320,8 @@
 
         if (
           route.params.location != courtListLocationID.value ||
-          route.params.room != courtListRoom.value
+          route.params.room != courtListRoom.value ||
+          route.params.date != shortHandDate.value
         ) {
           router.push({
             name: 'CourtListResult',
@@ -429,10 +360,6 @@
     totalMins.value += parseInt(mins);
     totalHours.value += Math.floor(totalMins.value / 60) + parseInt(hrs);
     totalMins.value %= 60;
-  };
-
-  const navigateToLandingPage = () => {
-    router.push({ name: 'Home' });
   };
 </script>
 
