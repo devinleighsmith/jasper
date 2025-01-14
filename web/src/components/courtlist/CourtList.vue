@@ -127,7 +127,7 @@
   } from '@/types/courtlist';
   import { courtListType } from '@/types/courtlist/jsonTypes';
   import CourtListLayout from './CourtListLayout.vue';
-  
+
   const commonStore = useCommonStore();
   const courtListStore = useCourtListStore();
   // State variables
@@ -151,7 +151,7 @@
   const totalTimeUnit = ref('Hours');
   const courtRoomsAndLocationsJson = ref<CourtRoomsJsonInfoType[]>([]);
   const courtRoomsAndLocations = ref<courtRoomsAndLocationsInfoType[]>([]);
-  const selectedDate = ref(new Date('May 10, 2023 00:00:00'));
+  const selectedDate = ref(new Date());
   const shortHandDate = computed(() =>
     selectedDate.value.toISOString().substring(0, 10)
   );
