@@ -63,5 +63,10 @@ export default createVuetify({
       label: 'Date',
       clearable: false,
     },
+    VDataTable: {
+      hover: true,
+      showSelect: true,
+      returnObject: true,
+    },
   },
 });
