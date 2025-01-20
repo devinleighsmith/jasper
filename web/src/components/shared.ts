@@ -5,10 +5,18 @@ import { v4 as uuidv4 } from 'uuid';
 export default {
   convertToBase64Url(inputText: string): string {
     const base64 = btoa(inputText);
-    return base64
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/((?=(=+))\2)+$/, '');
+    return base64.replace(/[+/=]/g, (char) => {
+      switch (char) {
+      case '+':
+        return '-';
+      case '/':
+        return '_';
+      case '=':
+        return '';
+      default:
+        return char;
+      }
+    });
   },
   openDocumentsPdf(
     documentType: CourtDocumentType,
