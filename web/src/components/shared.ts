@@ -1,22 +1,36 @@
-import { CourtDocumentType, DocumentData } from "@/types/shared"
-import { splunkLog } from "@/utils/utils"
-import base64url from "base64url"
-import { v4 as uuidv4 } from "uuid"
+import { CourtDocumentType, DocumentData } from '@/types/shared';
+import { splunkLog } from '@/utils/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
+  convertToBase64Url(inputText: string): string {
+    const base64 = btoa(inputText);
+    return base64.replace(/[+/=]/g, (char) => {
+      switch (char) {
+      case '+':
+        return '-';
+      case '/':
+        return '_';
+      case '=':
+        return '';
+      default:
+        return char;
+      }
+    });
+  },
   openDocumentsPdf(
     documentType: CourtDocumentType,
     documentData: DocumentData
   ): void {
     const fileName = this.generateFileName(documentType, documentData).replace(
       /\//g,
-      "_"
-    )
-    const isCriminal = documentType == CourtDocumentType.Criminal
+      '_'
+    );
+    const isCriminal = documentType == CourtDocumentType.Criminal;
     const documentId = documentData.documentId
-      ? base64url(documentData.documentId)
-      : documentData.documentId
-    const correlationId = uuidv4()
+      ? this.convertToBase64Url(documentData.documentId)
+      : documentData.documentId;
+    const correlationId = uuidv4();
 
     switch (documentType) {
       case CourtDocumentType.CSR:
@@ -26,8 +40,8 @@ export default {
           }/${encodeURIComponent(fileName)}?vcCivilFileId=${
             documentData.fileId
           }`
-        )
-        break
+        );
+        break;
       case CourtDocumentType.ROP:
         window.open(
           `${
@@ -39,8 +53,8 @@ export default {
           }&courtLevelCode=${documentData.courtLevel}&courtClassCode=${
             documentData.courtClass
           }`
-        )
-        break
+        );
+        break;
       default:
         this.openRequestedTab(
           `${
@@ -51,8 +65,8 @@ export default {
             documentData.fileId
           }&CorrelationId=${correlationId}`,
           correlationId
-        )
-        break
+        );
+        break;
     }
   },
 
@@ -62,53 +76,53 @@ export default {
   ): string {
     const locationAbbreviation = (
       documentData.location.match(/[A-Z]/g) || []
-    ).join("")
+    ).join('');
     switch (documentType) {
       case CourtDocumentType.Civil:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.dateFiled}-${documentData.documentId}.pdf`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.dateFiled}-${documentData.documentId}.pdf`;
       case CourtDocumentType.ProvidedCivil:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.appearanceDate}-${documentData.partyName}.pdf`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.appearanceDate}-${documentData.partyName}.pdf`;
       case CourtDocumentType.CSR:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.appearanceDate}.pdf`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.appearanceDate}.pdf`;
       case CourtDocumentType.Criminal:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.dateFiled}-${documentData.documentId}.pdf`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.dateFiled}-${documentData.documentId}.pdf`;
       case CourtDocumentType.ROP:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.partId}.pdf`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-${documentData.documentDescription}-${documentData.partId}.pdf`;
       case CourtDocumentType.CivilZip:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-documents.zip`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.fileNumberText}-documents.zip`;
       case CourtDocumentType.CriminalZip:
-        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-documents.zip`
+        return `${locationAbbreviation}-${documentData.courtLevel}-${documentData.courtClass}-${documentData.fileNumberText}-documents.zip`;
       default:
-        throw Error(`No file structure for type: ${documentType}`)
+        throw Error(`No file structure for type: ${documentType}`);
     }
   },
 
   openRequestedTab(url, correlationId) {
-    const start = new Date()
-    const startStr = start.toLocaleString("en-US", {
-      timeZone: "America/Vancouver"
-    })
-    const startMsg = `Request Tracking - Frontend request to API - CorrelationId: ${correlationId} Start time: ${startStr}`
+    const start = new Date();
+    const startStr = start.toLocaleString('en-US', {
+      timeZone: 'America/Vancouver',
+    });
+    const startMsg = `Request Tracking - Frontend request to API - CorrelationId: ${correlationId} Start time: ${startStr}`;
     //console.log(startMsg);
-    splunkLog(startMsg)
+    splunkLog(startMsg);
 
-    const windowObjectReference = window.open(url)
+    const windowObjectReference = window.open(url);
     if (windowObjectReference !== null) {
-      const end = new Date()
-      const endStr = start.toLocaleString("en-US", {
-        timeZone: "America/Vancouver"
-      })
+      const end = new Date();
+      const endStr = start.toLocaleString('en-US', {
+        timeZone: 'America/Vancouver',
+      });
 
-      const duration = (end.getTime() - start.getTime()) / 1000
-      const endMsg = `Request Tracking - API response received - CorrelationId: ${correlationId} End time: ${endStr} Duration: ${duration}s`
+      const duration = (end.getTime() - start.getTime()) / 1000;
+      const endMsg = `Request Tracking - API response received - CorrelationId: ${correlationId} End time: ${endStr} Duration: ${duration}s`;
 
       // eslint-disable-next-line
       windowObjectReference.onload = (event) => {
-        if (windowObjectReference.document.readyState === "complete") {
+        if (windowObjectReference.document.readyState === 'complete') {
           //console.log(endMsg);
-          splunkLog(endMsg)
+          splunkLog(endMsg);
         }
-      }
+      };
     }
-  }
-}
+  },
+};
