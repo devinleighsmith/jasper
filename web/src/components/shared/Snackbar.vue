@@ -1,7 +1,7 @@
 <template>
   <v-snackbar
     v-model="snackbarStore.isVisible"
-    :timeout="-1"
+    :timeout="15000"
     :color="snackbarStore.color"
     location="bottom right"
   >
