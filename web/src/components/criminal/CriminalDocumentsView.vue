@@ -377,8 +377,8 @@
 
       const getNameOfParticipant = (num) => {
         commonStore.updateDisplayName({
-          lastName: participantFiles[num].lastName,
-          givenName: participantFiles[num].firstName,
+          lastName: participantFiles[num]?.lastName || '',
+          givenName: participantFiles[num]?.firstName || '',
         });
         return commonStore.displayName;
       };
