@@ -1,5 +1,14 @@
 <template>
   <div>
+    <v-row>
+      <v-col>
+        <span>
+          <strong>
+            {{ searchResults.length ? resultsText : '&nbsp;' }}
+          </strong>
+        </span>
+      </v-col>
+    </v-row>
     <v-banner bg-color="#efedf5">
       <h3 class="px-2 py-2">Search Results</h3>
     </v-banner>
@@ -7,7 +16,7 @@
       <v-data-table
         v-model="selectedItems"
         :group-by
-        :items-per-page
+        :items-per-page="maxItemsPerPage"
         :headers
         :items="searchResults"
         :item-value="idSelector"
@@ -34,6 +43,7 @@
             </td>
           </tr>
         </template>
+        <template v-slot:bottom />
       </v-data-table>
     </v-skeleton-loader>
     <action-bar :selected="selectedItems" @clicked="handleViewFilesClick">
@@ -77,7 +87,13 @@
   }>();
 
   // The reason we use 103 instead of 100 is due to the ability to have up to 3 group headers in the table
-  const itemsPerPage = 103;
+  const maxItemsPerPage = 103;
+
+  const resultsText = computed(
+    () =>
+      `${props.searchResults.length ? props.searchResults.length + ' results' : ''}`
+  );
+
   const selectedItems = ref<FileDetail[]>([]);
   const idSelector = computed(() =>
     props.isCriminal ? 'mdocJustinNo' : 'physicalFileId'
