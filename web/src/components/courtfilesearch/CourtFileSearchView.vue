@@ -144,7 +144,7 @@
       </v-row>
     </v-form>
     <court-file-search-result
-      class="mb-5 mt-10"
+      class="mb-5 mt-2"
       :isLookupDataMounted="isLookupDataMounted"
       :isLookupDataReady="isLookupDataReady"
       :courtRooms="courtRooms"
