@@ -234,6 +234,8 @@
   }
 
   onMounted(async () => {
+    // We want to clear the data-table on page load
+    courtFileSearchStore.clearSelectedFiles();
     await loadData();
     isLoading.value = false;
   });
