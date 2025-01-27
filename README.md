@@ -15,7 +15,7 @@ The OpenShift build and deployment configurations for the project can be found h
 
 ## High Level Architecture
 
-![Court Viewer Application](./doc/diagrams/Court%20Viewer.drawio.svg)
+The architecture diagrams for JASPER can be found here; [JASPER - Architecture Diagrams](https://jag.gov.bc.ca/wiki/display/JASPER/Architecture+Diagrams)
 
 ### API Documentation
 
