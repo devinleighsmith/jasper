@@ -1,4 +1,3 @@
-
 <template>
   <!-- todo: Extract this out to more generic location -->
   <v-overlay :opacity="0.333" v-model="isLoading" />
@@ -70,6 +69,10 @@
             :items="courtRooms"
             item-title="text"
             label="Location"
+            :required="true"
+            :error-messages="
+              errors.isMissingLocation ? ['Location is required'] : []
+            "
           />
         </v-col>
         <v-col cols="2">
@@ -219,6 +222,7 @@
     isMissingFileNo: false,
     isMissingSurname: false,
     isMissingOrg: false,
+    isMissingLocation: false,
   });
 
   const locationService = inject<LocationService>('locationService');
@@ -230,6 +234,8 @@
   }
 
   onMounted(async () => {
+    // We want to clear the data-table on page load
+    courtFileSearchStore.clearSelectedFiles();
     await loadData();
     isLoading.value = false;
   });
@@ -276,6 +282,9 @@
 
     errors.isMissingFileNo =
       searchCriteria.searchBy === 'fileNumber' && !searchCriteria.fileNumberTxt;
+    errors.isMissingLocation =
+      searchCriteria.searchBy === 'fileNumber' &&
+      !searchCriteria.fileHomeAgencyId;
     errors.isMissingSurname =
       searchCriteria.searchBy === 'lastName' && !searchCriteria.lastName;
     errors.isMissingOrg =
@@ -351,6 +360,7 @@
     errors.isMissingFileNo = false;
     errors.isMissingSurname = false;
     errors.isMissingOrg = false;
+    errors.isMissingLocation = false;
   };
 
   const loadClasses = () => {
