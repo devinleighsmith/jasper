@@ -24,7 +24,8 @@
         "ms-dotnettools.vscode-dotnet-runtime",
         "amazonwebservices.aws-toolkit-vscode",
         "hashicorp.terraform",
-        "sonarsource.sonarlint-vscode"
+        "sonarsource.sonarlint-vscode",
+        "bierner.markdown-mermaid"
       ],
       "settings": {
         "editor.codeActionsOnSave": {
