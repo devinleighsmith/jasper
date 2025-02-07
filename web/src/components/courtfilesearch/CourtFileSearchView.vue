@@ -91,7 +91,7 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="2">
+        <v-col cols="2" v-if="searchCriteria.isCriminal">
           <v-select
             label="Class"
             :items="classOptions"
@@ -401,7 +401,11 @@
 
     if (searchCriteria.searchBy === 'fileNumber') {
       queryParams['searchMode'] = SearchModeEnum.FileNo;
-      queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
+      if (searchCriteria.isCriminal) {
+        queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
+      } else {
+        queryParams['fileNumber'] = searchCriteria.fileNumberTxt;
+      }
 
       if (searchCriteria.filePrefixTxt) {
         queryParams['filePrefixTxt'] = searchCriteria.filePrefixTxt;
