@@ -18,12 +18,12 @@ describe('Banner.vue', () => {
         const wrapper = mount(Banner, {
             props: {
                 title: 'Test Title',
-                color: 'white',
-                bgColor: 'blue',
+                color: 'orange',
+                bgColor: 'red',
             },
         });
         const banner = wrapper.find('v-banner');
-        expect(banner.attributes('style')).toContain('background-color: blue;');
-        expect(banner.attributes('style')).toContain('color: white;');
+        expect(banner.attributes('style')).toContain('background-color: red;');
+        expect(banner.attributes('style')).toContain('color: orange;');
     });
 });
