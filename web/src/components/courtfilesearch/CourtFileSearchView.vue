@@ -2,17 +2,11 @@
   <!-- todo: Extract this out to more generic location -->
   <v-overlay :opacity="0.333" v-model="isLoading" />
 
-  <b-card style="min-height: 40px" v-if="errorCode > 0 && errorCode == '403'">
+  <v-card style="min-height: 40px" v-if="errorCode > 0 && errorCode == '403'">
     <span> You are not authorized to access this page. </span>
-  </b-card>
+  </v-card>
   <!------------------------------------------------------->
-  <v-banner style="background-color: #62d3a4; color: #183a4a">
-    <v-row class="my-1">
-      <v-col>
-        <h3>Court file search</h3>
-      </v-col>
-    </v-row>
-  </v-banner>
+  <banner title="Court file search" color="#183a4a" bgColor="#62d3a4" />
   <v-container>
     <v-form
       class="search-form"
@@ -89,7 +83,7 @@
             "
           />
         </v-col>
-        <v-col>
+        <v-col :cols="searchCriteria.searchBy === 'orgName' ? 2 : ''">
           <v-select
             v-model="selectedDivision"
             label="Division"
@@ -152,6 +146,7 @@
   import { roomsInfoType } from '@/types/courtlist';
   import { computed, inject, onMounted, reactive, ref } from 'vue';
   import { useRouter } from 'vue-router';
+
   const CRIMINAL_CODE = 'R';
   const SMALL_CLAIMS_CODE = 'I';
   const SEARCH_RESULT_LIMIT = 100;
@@ -178,7 +173,6 @@
   const isSearching = ref(false);
   const isSearchResultsOver = ref(false);
   const isLoading = ref(true);
-  
 
   const divisions = [
     { value: 'isCriminal', text: 'Criminal' },
