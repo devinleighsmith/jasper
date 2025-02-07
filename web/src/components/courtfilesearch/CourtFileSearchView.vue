@@ -133,12 +133,7 @@
             @update:modelValue="handleDivisionChange"
           />
         </v-col>
-        <v-col>
-          <action-buttons @reset="handleReset(true)" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="2" v-if="searchCriteria.isCriminal">
+        <v-col v-if="searchCriteria.isCriminal">
           <v-select
             class="meow"
             label="Class"
@@ -149,7 +144,6 @@
           />
         </v-col>
       </v-row>
-      <v-row> </v-row>
       <v-row no-gutters>
         <v-col>
           <action-buttons @reset="handleReset(true)" />
@@ -454,12 +448,6 @@
       } else {
         queryParams['fileNumber'] = searchCriteria.fileNumberTxt;
       }
-      if (searchCriteria.isCriminal) {
-        queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
-      } else {
-        queryParams['fileNumber'] = searchCriteria.fileNumberTxt;
-      }
-
       if (searchCriteria.filePrefixTxt) {
         queryParams['filePrefixTxt'] = searchCriteria.filePrefixTxt;
       }
