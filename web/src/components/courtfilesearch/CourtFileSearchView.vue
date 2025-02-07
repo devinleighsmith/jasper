@@ -133,7 +133,12 @@
             @update:modelValue="handleDivisionChange"
           />
         </v-col>
-        <v-col v-if="searchCriteria.isCriminal">
+        <v-col>
+          <action-buttons @reset="handleReset(true)" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="2" v-if="searchCriteria.isCriminal">
           <v-select
             class="meow"
             label="Class"
@@ -444,6 +449,11 @@
 
     if (searchCriteria.searchBy === 'fileNumber') {
       queryParams['searchMode'] = SearchModeEnum.FileNo;
+      if (searchCriteria.isCriminal) {
+        queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
+      } else {
+        queryParams['fileNumber'] = searchCriteria.fileNumberTxt;
+      }
       if (searchCriteria.isCriminal) {
         queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
       } else {
