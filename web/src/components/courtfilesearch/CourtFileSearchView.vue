@@ -31,7 +31,6 @@
             label="Search by"
             item-title="text"
             item-value="value"
-            class="meow"
             :clearable="false"
           />
         </v-col>
@@ -42,36 +41,6 @@
             :placeholder="searchPlaceholder"
             :error-messages="searchErrorMessages"
           />
-          <!-- <v-text-field
-            :label="
-              searchCriteria.searchBy === 'fileNumber'
-                ? 'File number'
-                : searchCriteria.searchBy === 'lastName'
-                  ? 'Surname'
-                  : 'Organization'
-            "
-            :placeholder="
-              searchCriteria.searchBy === 'fileNumber'
-                ? 'i.e 256344-1'
-                : searchCriteria.searchBy === 'lastName'
-                  ? 'Smith'
-                  : 'i.e. Steele Trading'
-            "
-            v-model="searchByCriteria"
-            :error-messages="
-              searchCriteria.searchBy === 'fileNumber'
-                ? errors.isMissingFileNo
-                  ? ['File number is required']
-                  : []
-                : searchCriteria.searchBy === 'lastName'
-                  ? errors.isMissingSurname
-                    ? ['Surname is required']
-                    : []
-                  : errors.isMissingOrg
-                    ? ['Organization is required']
-                    : []
-            "
-          /> -->
         </v-col>
         <template v-if="searchCriteria.searchBy === 'fileNumber'">
           <v-col cols="1">
@@ -110,7 +79,6 @@
         </v-col>
         <v-col :cols="searchCriteria.searchBy === 'orgName' ? 3 : 2">
           <v-select
-            class="meow"
             v-model="searchCriteria.fileHomeAgencyId"
             :items="courtRooms"
             item-title="text"
@@ -123,7 +91,6 @@
         </v-col>
         <v-col>
           <v-select
-            class="meow"
             v-model="selectedDivision"
             label="Division"
             :items="divisions"
@@ -135,7 +102,6 @@
         </v-col>
         <v-col v-if="searchCriteria.isCriminal">
           <v-select
-            class="meow"
             label="Class"
             :items="classOptions"
             item-title="shortDesc"
@@ -206,11 +172,13 @@
   const searchResults = ref<FileDetail[]>([]);
   const classes = ref<LookupCode[]>([]);
   const courtRooms = ref<roomsInfoType[]>([]);
+  const selectedDivision = ref('isCriminal');
   const isLookupDataReady = ref(false);
   const isLookupDataMounted = ref(false);
   const isSearching = ref(false);
   const isSearchResultsOver = ref(false);
   const isLoading = ref(true);
+  
 
   const divisions = [
     { value: 'isCriminal', text: 'Criminal' },
@@ -218,8 +186,6 @@
     { value: 'isSmallClaims', text: 'Small Claims' },
   ];
   const errorCode = ref('');
-  const errorText = ref('');
-  const filtersEnabled = ref(false);
   const errors = reactive({
     isMissingFileNo: false,
     isMissingSurname: false,
@@ -514,21 +480,4 @@
     selectedFiles.value = [];
     courtFileSearchStore.clearSelectedFiles();
   };
-
-  const selectedDivision = ref('isCriminal');
-
-  const showClassDropdown = computed(() => {
-    return selectedDivision.value === 'isCriminal';
-  });
 </script>
-<style>
-  /* .v-select__selections input {
-    display: none;
-  } */
-  /* .meow {
-    width: max-content;
-  }
-  .meow::v-deep input {
-    width: 0;
-  } */
-</style>
