@@ -7,7 +7,7 @@
   </b-card>
   <!------------------------------------------------------->
   <v-banner style="background-color: #62d3a4; color: #183a4a">
-    <v-row class="my-3">
+    <v-row class="my-1">
       <v-col>
         <h3>Court file search</h3>
       </v-col>
@@ -20,7 +20,7 @@
       @submit.prevent="handleSubmit"
     >
       <v-row>
-        <v-col cols="2">
+        <v-col cols="2" style="padding-right: 0">
           <v-select
             v-model="searchCriteria.searchBy"
             :items="[
@@ -31,40 +31,86 @@
             label="Search by"
             item-title="text"
             item-value="value"
+            class="meow"
             :clearable="false"
           />
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-text-field
-            v-if="searchCriteria.searchBy === 'fileNumber'"
-            label="File number"
-            placeholder="i.e 256344-1"
-            v-model="searchCriteria.fileNumberTxt"
-            :error-messages="
-              errors.isMissingFileNo ? ['File number is required'] : []
-            "
+            v-model="searchByCriteria"
+            :label="searchLabel"
+            :placeholder="searchPlaceholder"
+            :error-messages="searchErrorMessages"
           />
-          <v-text-field
-            v-else-if="searchCriteria.searchBy === 'lastName'"
-            label="Surname"
-            placeholder="Smith"
-            v-model="searchCriteria.lastName"
-            :error-messages="
-              errors.isMissingSurname ? ['Surname is required'] : []
+          <!-- <v-text-field
+            :label="
+              searchCriteria.searchBy === 'fileNumber'
+                ? 'File number'
+                : searchCriteria.searchBy === 'lastName'
+                  ? 'Surname'
+                  : 'Organization'
             "
-          />
-          <v-text-field
-            v-else-if="searchCriteria.searchBy === 'orgName'"
-            label="Organization"
-            placeholder="i.e. Steele Trading"
-            v-model="searchCriteria.orgName"
-            :error-messages="
-              errors.isMissingOrg ? ['Organization is required'] : []
+            :placeholder="
+              searchCriteria.searchBy === 'fileNumber'
+                ? 'i.e 256344-1'
+                : searchCriteria.searchBy === 'lastName'
+                  ? 'Smith'
+                  : 'i.e. Steele Trading'
             "
+            v-model="searchByCriteria"
+            :error-messages="
+              searchCriteria.searchBy === 'fileNumber'
+                ? errors.isMissingFileNo
+                  ? ['File number is required']
+                  : []
+                : searchCriteria.searchBy === 'lastName'
+                  ? errors.isMissingSurname
+                    ? ['Surname is required']
+                    : []
+                  : errors.isMissingOrg
+                    ? ['Organization is required']
+                    : []
+            "
+          /> -->
+        </v-col>
+        <template v-if="searchCriteria.searchBy === 'fileNumber'">
+          <v-col cols="1">
+            <v-text-field
+              label="Prefix"
+              placeholder="AH"
+              :rounded="false"
+              v-model="searchCriteria.filePrefixTxt"
+            />
+          </v-col>
+          <v-col cols="1">
+            <v-text-field
+              label="Seq #"
+              placeholder="1"
+              :rounded="false"
+              v-model="searchCriteria.fileSuffixNo"
+            />
+          </v-col>
+          <v-col cols="1" style="margin-top: 0.1rem">
+            <v-text-field
+              label="Type Ref"
+              placeholder="8"
+              :rounded="false"
+              v-model="searchCriteria.mDocRefTypeCode"
+            />
+          </v-col>
+        </template>
+        <v-col v-else-if="searchCriteria.searchBy === 'lastName'">
+          <v-text-field
+            id="givenName"
+            label="Given Name"
+            placeholder="e.g. John"
+            :rounded="false"
+            v-model="searchCriteria.givenName"
           />
         </v-col>
-        <v-col cols="2">
+        <v-col :cols="searchCriteria.searchBy === 'orgName' ? 3 : 2">
           <v-select
+            class="meow"
             v-model="searchCriteria.fileHomeAgencyId"
             :items="courtRooms"
             item-title="text"
@@ -75,8 +121,9 @@
             "
           />
         </v-col>
-        <v-col cols="2">
+        <v-col>
           <v-select
+            class="meow"
             v-model="selectedDivision"
             label="Division"
             :items="divisions"
@@ -86,13 +133,9 @@
             @update:modelValue="handleDivisionChange"
           />
         </v-col>
-        <v-col>
-          <action-buttons @reset="handleReset(true)" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="2">
+        <v-col v-if="searchCriteria.isCriminal">
           <v-select
+            class="meow"
             label="Class"
             :items="classOptions"
             item-title="shortDesc"
@@ -100,50 +143,12 @@
             v-model="searchCriteria.class"
           />
         </v-col>
-        <v-col
-          cols="3"
-          v-if="showClassDropdown && searchCriteria.searchBy === 'lastName'"
-        >
-          <v-text-field
-            id="givenName"
-            label="Given Name"
-            placeholder="e.g. John"
-            v-model="searchCriteria.givenName"
-          />
+      </v-row>
+      <v-row> </v-row>
+      <v-row no-gutters>
+        <v-col>
+          <action-buttons @reset="handleReset(true)" />
         </v-col>
-        <template
-          v-else-if="
-            showClassDropdown && searchCriteria.searchBy === 'fileNumber'
-          "
-        >
-          <v-col cols="1">
-            <v-text-field
-              label="Prefix"
-              placeholder="AH"
-              density="comfortable"
-              :rounded="false"
-              v-model="searchCriteria.filePrefixTxt"
-            />
-          </v-col>
-          <v-col cols="1">
-            <v-text-field
-              label="Seq #"
-              placeholder="1"
-              density="comfortable"
-              :rounded="false"
-              v-model="searchCriteria.fileSuffixNo"
-            />
-          </v-col>
-          <v-col cols="1">
-            <v-text-field
-              label="Type Ref"
-              placeholder="8"
-              density="comfortable"
-              :rounded="false"
-              v-model="searchCriteria.mDocRefTypeCode"
-            />
-          </v-col>
-        </template>
       </v-row>
     </v-form>
     <court-file-search-result
@@ -168,7 +173,6 @@
 
 <script setup lang="ts">
   import CourtFileSearchResult from '@/components/courtfilesearch/CourtFileSearchResult.vue';
-  import ActionButtons from '@/components/shared/Form/ActionButtons.vue';
   import { FilesService } from '@/services/FilesService';
   import { LocationService } from '@/services/LocationService';
   import { LookupService } from '@/services/LookupService';
@@ -183,7 +187,6 @@
   import { roomsInfoType } from '@/types/courtlist';
   import { computed, inject, onMounted, reactive, ref } from 'vue';
   import { useRouter } from 'vue-router';
-
   const CRIMINAL_CODE = 'R';
   const SMALL_CLAIMS_CODE = 'I';
   const SEARCH_RESULT_LIMIT = 100;
@@ -191,13 +194,13 @@
   const courtFileSearchStore = useCourtFileSearchStore();
   const commonStore = useCommonStore();
   const router = useRouter();
-
+  const defaultLocation = '';
   let searchCriteria: CourtFileSearchCriteria = reactive({
     isCriminal: true,
     isFamily: false,
     isSmallClaims: false,
     searchBy: 'fileNumber',
-    fileHomeAgencyId: commonStore.userInfo!.agencyCode,
+    fileHomeAgencyId: defaultLocation,
   });
   const classOptions = ref<LookupCode[]>([]);
   const selectedFiles = ref<FileDetail[]>([]);
@@ -209,7 +212,7 @@
   const isSearching = ref(false);
   const isSearchResultsOver = ref(false);
   const isLoading = ref(true);
-  const defaultLocation = commonStore.userInfo!.agencyCode;
+
   const divisions = [
     { value: 'isCriminal', text: 'Criminal' },
     { value: 'isFamily', text: 'Family' },
@@ -240,9 +243,51 @@
     isLoading.value = false;
   });
 
-  const toggleFilters = () => {
-    filtersEnabled.value = !filtersEnabled.value;
-  };
+  const searchLabel = computed(
+    () =>
+      ({
+        fileNumber: 'File number',
+        lastName: 'Surname',
+        orgName: 'Organization',
+      })[searchCriteria.searchBy]
+  );
+
+  const searchPlaceholder = computed(
+    () =>
+      ({
+        fileNumber: 'i.e 256344-1',
+        lastName: 'Smith',
+        orgName: 'i.e. Steele Trading',
+      })[searchCriteria.searchBy]
+  );
+
+  const searchErrorMessages = computed(
+    () =>
+      ({
+        fileNumber: errors.isMissingFileNo ? ['File number is required'] : [],
+        lastName: errors.isMissingSurname ? ['Surname is required'] : [],
+        orgName: errors.isMissingOrg ? ['Organization is required'] : [],
+      })[searchCriteria.searchBy]
+  );
+
+  const searchByCriteria = computed({
+    get() {
+      return {
+        fileNumber: searchCriteria.fileNumberTxt,
+        lastName: searchCriteria.lastName,
+        orgName: searchCriteria.orgName,
+      }[searchCriteria.searchBy];
+    },
+    set(value) {
+      if (searchCriteria.searchBy === 'fileNumber') {
+        searchCriteria.fileNumberTxt = value;
+      } else if (searchCriteria.searchBy === 'lastName') {
+        searchCriteria.lastName = value;
+      } else {
+        searchCriteria.orgName = value;
+      }
+    },
+  });
 
   const loadData = async (): Promise<void> => {
     try {
@@ -270,8 +315,6 @@
       isSmallClaims: false,
       [selectedDivision.value]: true,
     });
-
-    handleReset();
   };
 
   const handleSubmit = async () => {
@@ -401,7 +444,11 @@
 
     if (searchCriteria.searchBy === 'fileNumber') {
       queryParams['searchMode'] = SearchModeEnum.FileNo;
-      queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
+      if (searchCriteria.isCriminal) {
+        queryParams['fileNumberTxt'] = searchCriteria.fileNumberTxt;
+      } else {
+        queryParams['fileNumber'] = searchCriteria.fileNumberTxt;
+      }
 
       if (searchCriteria.filePrefixTxt) {
         queryParams['filePrefixTxt'] = searchCriteria.filePrefixTxt;
@@ -476,3 +523,14 @@
     return selectedDivision.value === 'isCriminal';
   });
 </script>
+<style>
+  /* .v-select__selections input {
+    display: none;
+  } */
+  /* .meow {
+    width: max-content;
+  }
+  .meow::v-deep input {
+    width: 0;
+  } */
+</style>
