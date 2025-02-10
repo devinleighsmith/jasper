@@ -106,12 +106,13 @@
       </v-row>
       <v-row no-gutters>
         <v-col>
-          <action-buttons @reset="handleReset(true)" />
+          <action-buttons @reset="handleReset" />
         </v-col>
       </v-row>
     </v-form>
     <court-file-search-result
-      class="mb-5 mt-2"
+      v-model="selectedFiles"
+      class="mb-5 mt-5"
       :isLookupDataMounted="isLookupDataMounted"
       :isLookupDataReady="isLookupDataReady"
       :courtRooms="courtRooms"
@@ -120,7 +121,6 @@
       :searchResults="searchResults"
       :isSearching="isSearching"
       @files-viewed="viewFiles"
-      :selectedFiles="selectedFiles"
       @add-selected="addSelectedFile"
       @remove-selected="removeSelectedFile"
       @clear-selected="clearSelectedFiles"
@@ -132,28 +132,25 @@
 
 <script setup lang="ts">
   import CourtFileSearchResult from '@/components/courtfilesearch/CourtFileSearchResult.vue';
-import { FilesService } from '@/services/FilesService';
-import { LocationService } from '@/services/LocationService';
-import { LookupService } from '@/services/LookupService';
-import { useCommonStore, useCourtFileSearchStore } from '@/stores';
-import { KeyValueInfo, LookupCode } from '@/types/common';
-import {
-  CourtClassEnum,
-  CourtFileSearchCriteria,
-  FileDetail,
-  SearchModeEnum,
-} from '@/types/courtFileSearch';
-import { roomsInfoType } from '@/types/courtlist';
-import { computed, inject, onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+  import { FilesService } from '@/services/FilesService';
+  import { LocationService } from '@/services/LocationService';
+  import { LookupService } from '@/services/LookupService';
+  import { useCourtFileSearchStore } from '@/stores';
+  import { KeyValueInfo, LookupCode } from '@/types/common';
+  import {
+    CourtClassEnum,
+    CourtFileSearchCriteria,
+    FileDetail,
+    SearchModeEnum,
+  } from '@/types/courtFileSearch';
+  import { roomsInfoType } from '@/types/courtlist';
+  import { computed, inject, onMounted, reactive, ref } from 'vue';
 
   const CRIMINAL_CODE = 'R';
   const SMALL_CLAIMS_CODE = 'I';
   const SEARCH_RESULT_LIMIT = 100;
 
   const courtFileSearchStore = useCourtFileSearchStore();
-  const commonStore = useCommonStore();
-  const router = useRouter();
   const defaultLocation = '';
   let searchCriteria: CourtFileSearchCriteria = reactive({
     isCriminal: true,
@@ -277,8 +274,6 @@ import { useRouter } from 'vue-router';
   };
 
   const handleSubmit = async () => {
-    courtFileSearchStore.clearSelectedFiles();
-
     sanitizeTextInputs();
     resetErrors();
 
@@ -302,6 +297,8 @@ import { useRouter } from 'vue-router';
       isSearching.value = true;
       searchResults.value.length = 0;
       isSearchResultsOver.value = false;
+      courtFileSearchStore.clearSelectedFiles();
+      selectedFiles.value = [];
 
       const { recCount, fileDetail } = searchCriteria.isCriminal
         ? await filesService.searchCriminalFiles(buildQueryParams())
@@ -317,15 +314,13 @@ import { useRouter } from 'vue-router';
     }
   };
 
-  const handleReset = (resetDivision = false) => {
+  const handleReset = () => {
+    selectedDivision.value = 'isCriminal';
     courtFileSearchStore.clearSelectedFiles();
-    searchCriteria.isCriminal = resetDivision
-      ? true
-      : searchCriteria.isCriminal;
-    searchCriteria.isFamily = resetDivision ? false : searchCriteria.isFamily;
-    searchCriteria.isSmallClaims = resetDivision
-      ? false
-      : searchCriteria.isSmallClaims;
+    selectedFiles.value = [];
+    searchCriteria.isCriminal = true;
+    searchCriteria.isFamily = false;
+    searchCriteria.isSmallClaims = false;
     searchCriteria.fileHomeAgencyId = defaultLocation;
     searchCriteria.searchBy = 'fileNumber';
     searchCriteria.fileNumberTxt = undefined;
@@ -333,12 +328,9 @@ import { useRouter } from 'vue-router';
     searchCriteria.givenName = undefined;
     searchCriteria.orgName = undefined;
     searchCriteria.class = undefined;
-
-    if (searchCriteria.isCriminal) {
-      searchCriteria.filePrefixTxt = undefined;
-      searchCriteria.fileSuffixNo = undefined;
-      searchCriteria.mDocRefTypeCode = undefined;
-    }
+    searchCriteria.filePrefixTxt = undefined;
+    searchCriteria.fileSuffixNo = undefined;
+    searchCriteria.mDocRefTypeCode = undefined;
 
     loadClasses();
     resetErrors();

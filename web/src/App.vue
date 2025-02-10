@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
   import { mdiAccountCircle } from '@mdi/js';
-  import { ref, watchEffect } from 'vue';
+  import { ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
   import ProfileOffCanvas from './components/shared/ProfileOffCanvas.vue';
   import Snackbar from './components/shared/Snackbar.vue';
@@ -48,16 +48,19 @@
   const route = useRoute();
   const selectedTab = ref('/dashboard');
 
-  watchEffect(() => {
-    if (
-      route.path.startsWith('/court-file-search') ||
-      route.path.startsWith('/civil-file')
-    ) {
-      selectedTab.value = 'court-file-search';
-    } else {
-      selectedTab.value = route.path;
+  watch(
+    () => route.path,
+    (newPath) => {
+      if (
+        newPath.startsWith('/civil-file') ||
+        newPath.startsWith('/criminal-file')
+      ) {
+        selectedTab.value = 'court-file-search';
+      } else {
+        selectedTab.value = newPath;
+      }
     }
-  });
+  );
 </script>
 
 <style>

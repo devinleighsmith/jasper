@@ -44,13 +44,14 @@
 
 <script lang="ts">
   import { useCivilFileStore } from '@/stores';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import { AdjudicatorRestrictionsInfoType } from '@/types/common';
   import { defineComponent, onMounted, ref } from 'vue';
 
   export default defineComponent({
     setup() {
       // State variables
-      const sortBy = ref('adjudicator');
+      const sortBy = ref<BTableSortBy[]>(['adjudicator']);
       const sortDesc = ref(false);
       const isMounted = ref(false);
       const adjudicatorRestrictionsInfo = ref<
