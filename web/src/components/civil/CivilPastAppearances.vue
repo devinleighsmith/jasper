@@ -166,11 +166,11 @@
   import { civilApprDetailType } from '@/types/civil/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { extractCivilAppearancesInfo } from '@/utils/utils';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import * as _ from 'underscore';
   import { computed, defineComponent, inject, onMounted, ref } from 'vue';
   import { useRoute } from 'vue-router';
   import shared from '../shared';
-
   export default defineComponent({
     components: {
       CivilAppearanceDetails,
@@ -190,7 +190,7 @@
       const isMounted = ref(false);
       const isDataReady = ref(false);
       let pastAppearancesJson: civilApprDetailType[] = [];
-      const sortBy = ref('date');
+      const sortBy = ref<BTableSortBy[]>(['date']);
       const sortDesc = ref(true);
       const fromA2a = ref(false);
 

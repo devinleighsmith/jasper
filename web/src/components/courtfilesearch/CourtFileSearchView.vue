@@ -132,20 +132,20 @@
 
 <script setup lang="ts">
   import CourtFileSearchResult from '@/components/courtfilesearch/CourtFileSearchResult.vue';
-  import { FilesService } from '@/services/FilesService';
-  import { LocationService } from '@/services/LocationService';
-  import { LookupService } from '@/services/LookupService';
-  import { useCommonStore, useCourtFileSearchStore } from '@/stores';
-  import { KeyValueInfo, LookupCode } from '@/types/common';
-  import {
-    CourtClassEnum,
-    CourtFileSearchCriteria,
-    FileDetail,
-    SearchModeEnum,
-  } from '@/types/courtFileSearch';
-  import { roomsInfoType } from '@/types/courtlist';
-  import { computed, inject, onMounted, reactive, ref } from 'vue';
-  import { useRouter } from 'vue-router';
+import { FilesService } from '@/services/FilesService';
+import { LocationService } from '@/services/LocationService';
+import { LookupService } from '@/services/LookupService';
+import { useCommonStore, useCourtFileSearchStore } from '@/stores';
+import { KeyValueInfo, LookupCode } from '@/types/common';
+import {
+  CourtClassEnum,
+  CourtFileSearchCriteria,
+  FileDetail,
+  SearchModeEnum,
+} from '@/types/courtFileSearch';
+import { roomsInfoType } from '@/types/courtlist';
+import { computed, inject, onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
   const CRIMINAL_CODE = 'R';
   const SMALL_CLAIMS_CODE = 'I';
@@ -457,7 +457,8 @@
       files: selectedFiles,
     });
     const caseDetailUrl = `/${searchCriteria.isCriminal ? 'criminal-file' : 'civil-file'}/${selectedFiles[0].key}`;
-    router.push(caseDetailUrl);
+    window.open(caseDetailUrl, '_blank');
+    //router.push(caseDetailUrl);
   };
 
   const addSelectedFile = (file: FileDetail) => {
