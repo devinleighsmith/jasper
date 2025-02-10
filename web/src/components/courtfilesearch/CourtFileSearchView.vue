@@ -449,8 +449,7 @@
       files: selectedFiles,
     });
     const caseDetailUrl = `/${searchCriteria.isCriminal ? 'criminal-file' : 'civil-file'}/${selectedFiles[0].key}`;
-    window.open(caseDetailUrl, '_blank');
-    //router.push(caseDetailUrl);
+    window.open(caseDetailUrl);
   };
 
   const addSelectedFile = (file: FileDetail) => {
