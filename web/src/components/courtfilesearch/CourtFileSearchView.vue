@@ -106,12 +106,13 @@
       </v-row>
       <v-row no-gutters>
         <v-col>
-          <action-buttons @reset="handleReset(true)" />
+          <action-buttons @reset="handleReset" />
         </v-col>
       </v-row>
     </v-form>
     <court-file-search-result
-      class="mb-5 mt-2"
+      v-model="selectedFiles"
+      class="mb-5 mt-5"
       :isLookupDataMounted="isLookupDataMounted"
       :isLookupDataReady="isLookupDataReady"
       :courtRooms="courtRooms"
@@ -120,7 +121,6 @@
       :searchResults="searchResults"
       :isSearching="isSearching"
       @files-viewed="viewFiles"
-      :selectedFiles="selectedFiles"
       @add-selected="addSelectedFile"
       @remove-selected="removeSelectedFile"
       @clear-selected="clearSelectedFiles"
@@ -135,7 +135,7 @@
   import { FilesService } from '@/services/FilesService';
   import { LocationService } from '@/services/LocationService';
   import { LookupService } from '@/services/LookupService';
-  import { useCommonStore, useCourtFileSearchStore } from '@/stores';
+  import { useCourtFileSearchStore } from '@/stores';
   import { KeyValueInfo, LookupCode } from '@/types/common';
   import {
     CourtClassEnum,
@@ -145,15 +145,12 @@
   } from '@/types/courtFileSearch';
   import { roomsInfoType } from '@/types/courtlist';
   import { computed, inject, onMounted, reactive, ref } from 'vue';
-  import { useRouter } from 'vue-router';
 
   const CRIMINAL_CODE = 'R';
   const SMALL_CLAIMS_CODE = 'I';
   const SEARCH_RESULT_LIMIT = 100;
 
   const courtFileSearchStore = useCourtFileSearchStore();
-  const commonStore = useCommonStore();
-  const router = useRouter();
   const defaultLocation = '';
   let searchCriteria: CourtFileSearchCriteria = reactive({
     isCriminal: true,
@@ -277,8 +274,6 @@
   };
 
   const handleSubmit = async () => {
-    courtFileSearchStore.clearSelectedFiles();
-
     sanitizeTextInputs();
     resetErrors();
 
@@ -302,6 +297,8 @@
       isSearching.value = true;
       searchResults.value.length = 0;
       isSearchResultsOver.value = false;
+      courtFileSearchStore.clearSelectedFiles();
+      selectedFiles.value = [];
 
       const { recCount, fileDetail } = searchCriteria.isCriminal
         ? await filesService.searchCriminalFiles(buildQueryParams())
@@ -317,15 +314,13 @@
     }
   };
 
-  const handleReset = (resetDivision = false) => {
+  const handleReset = () => {
+    selectedDivision.value = 'isCriminal';
     courtFileSearchStore.clearSelectedFiles();
-    searchCriteria.isCriminal = resetDivision
-      ? true
-      : searchCriteria.isCriminal;
-    searchCriteria.isFamily = resetDivision ? false : searchCriteria.isFamily;
-    searchCriteria.isSmallClaims = resetDivision
-      ? false
-      : searchCriteria.isSmallClaims;
+    selectedFiles.value = [];
+    searchCriteria.isCriminal = true;
+    searchCriteria.isFamily = false;
+    searchCriteria.isSmallClaims = false;
     searchCriteria.fileHomeAgencyId = defaultLocation;
     searchCriteria.searchBy = 'fileNumber';
     searchCriteria.fileNumberTxt = undefined;
@@ -333,12 +328,9 @@
     searchCriteria.givenName = undefined;
     searchCriteria.orgName = undefined;
     searchCriteria.class = undefined;
-
-    if (searchCriteria.isCriminal) {
-      searchCriteria.filePrefixTxt = undefined;
-      searchCriteria.fileSuffixNo = undefined;
-      searchCriteria.mDocRefTypeCode = undefined;
-    }
+    searchCriteria.filePrefixTxt = undefined;
+    searchCriteria.fileSuffixNo = undefined;
+    searchCriteria.mDocRefTypeCode = undefined;
 
     loadClasses();
     resetErrors();
@@ -457,7 +449,7 @@
       files: selectedFiles,
     });
     const caseDetailUrl = `/${searchCriteria.isCriminal ? 'criminal-file' : 'civil-file'}/${selectedFiles[0].key}`;
-    router.push(caseDetailUrl);
+    window.open(caseDetailUrl);
   };
 
   const addSelectedFile = (file: FileDetail) => {

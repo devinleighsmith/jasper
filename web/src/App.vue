@@ -6,10 +6,12 @@
         <v-app-bar-title>
           <router-link to="/"> JASPER </router-link>
         </v-app-bar-title>
-        <v-tabs align-tabs="start">
-          <v-tab to="/dashboard">Dashboard</v-tab>
-          <v-tab to="/court-list">Court list</v-tab>
-          <v-tab to="/court-file-search">Court file search</v-tab>
+        <v-tabs align-tabs="start" v-model="selectedTab">
+          <v-tab value="dashboard" to="/dashboard">Dashboard</v-tab>
+          <v-tab value="court-list" to="/court-list">Court list</v-tab>
+          <v-tab value="court-file-search" to="/court-file-search"
+            >Court file search</v-tab
+          >
           <v-spacer></v-spacer>
           <div class="d-flex align-center">
             <v-btn
@@ -33,7 +35,8 @@
 
 <script setup lang="ts">
   import { mdiAccountCircle } from '@mdi/js';
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
+  import { useRoute } from 'vue-router';
   import ProfileOffCanvas from './components/shared/ProfileOffCanvas.vue';
   import Snackbar from './components/shared/Snackbar.vue';
   import { useThemeStore } from './stores/ThemeStore';
@@ -41,6 +44,23 @@
   const themeStore = useThemeStore();
   const theme = ref(themeStore.state);
   const profile = ref(false);
+
+  const route = useRoute();
+  const selectedTab = ref('/dashboard');
+
+  watch(
+    () => route.path,
+    (newPath) => {
+      if (
+        newPath.startsWith('/civil-file') ||
+        newPath.startsWith('/criminal-file')
+      ) {
+        selectedTab.value = 'court-file-search';
+      } else {
+        selectedTab.value = newPath;
+      }
+    }
+  );
 </script>
 
 <style>

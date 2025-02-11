@@ -75,7 +75,6 @@
     classes: LookupCode[];
     isSearching: boolean;
     isCriminal: boolean;
-    selectedFiles: FileDetail[];
     isSearchResultsOver: boolean;
   }>();
 
@@ -88,13 +87,12 @@
 
   // The reason we use 103 instead of 100 is due to the ability to have up to 3 group headers in the table
   const maxItemsPerPage = 103;
-
+  const selectedItems = defineModel<FileDetail[]>();
   const resultsText = computed(
     () =>
       `${props.searchResults.length ? props.searchResults.length + ' results' : ''}`
   );
 
-  const selectedItems = ref<FileDetail[]>([]);
   const idSelector = computed(() =>
     props.isCriminal ? 'mdocJustinNo' : 'physicalFileId'
   );
@@ -173,7 +171,7 @@
     '';
 
   function handleViewFilesClick() {
-    const files = selectedItems.value.map(
+    const files = (selectedItems.value ?? []).map(
       (c) =>
         ({
           key: c[idSelector.value],

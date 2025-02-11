@@ -3,6 +3,7 @@ import { CourtFileSearchCriteria, FileDetail } from '@/types/courtFileSearch';
 import { defineStore } from 'pinia';
 
 export const useCourtFileSearchStore = defineStore('CourtFileSearchStore', {
+  persist: true,
   state: () => ({
     filesForViewing: [] as KeyValueInfo[],
     currentViewedFileId: '',

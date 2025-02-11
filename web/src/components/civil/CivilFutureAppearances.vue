@@ -136,6 +136,7 @@
   import CivilAppearanceDetails from '@/components/civil/CivilAppearanceDetails.vue';
   import { useCivilFileStore, useCommonStore } from '@/stores';
   import { civilAppearancesListType } from '@/types/civil';
+  import { type BTableSortBy } from 'bootstrap-vue-next';
   import { civilApprDetailType } from '@/types/civil/jsonTypes';
   import { extractCivilAppearancesInfo } from '@/utils/utils';
   import * as _ from 'underscore';
@@ -154,7 +155,7 @@
 
       const futureAppearancesList = ref<civilAppearancesListType[]>([]);
       let futureAppearancesJson: civilApprDetailType[] = [];
-      const sortBy = ref('date');
+      const sortBy = ref<BTableSortBy[]>(['date']);
       const sortDesc = ref(true);
 
       const getTableFieldSettings = () => {
