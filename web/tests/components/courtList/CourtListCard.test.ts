@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import CourtListCard from 'CMP/courtList/CourtListCard.vue';
+import CourtListCard from 'CMP/courtlist/CourtListCard.vue';
 
 describe('CourtListCard.vue', () => {
   it('renders court list location', () => {
