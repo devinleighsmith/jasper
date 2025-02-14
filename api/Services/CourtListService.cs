@@ -86,7 +86,7 @@ namespace Scv.Api.Services
 
             var civilFileIds = civilCourtCalendarAppearances.SelectToList(ccl => ccl.PhysicalFileId);
             var criminalFileIds = criminalCourtCalendarAppearances.SelectToList(ccl => ccl.MdocJustinNo);
-            
+
             if (civilFileIds.Count == 0 && criminalFileIds.Count == 0)
                 return new Models.CourtList.CourtList();
 
@@ -373,7 +373,7 @@ namespace Scv.Api.Services
             return courtList;
         }
 
-        public async Task<SearchDateClient.ActivityAppearanceResultsCollection> GetCourtListAppearances(string locationId, int judgeId, string roomCode, DateTime date)
+        public async Task<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection> GetCourtListAppearances(string locationId, int judgeId, string roomCode, DateTime date)
         {
             var results = await _searchDateClient.GetCourtListAppearancesAsync(int.Parse(locationId), date.ToString("dd-MMM-yyyy"), judgeId, roomCode, null);
             return results;
