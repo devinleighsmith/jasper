@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Scv.Api.Helpers.Exceptions;
+using PCSSCommon.Clients.SearchDateServices;
 
 namespace Scv.Api.Services
 {
@@ -27,6 +28,7 @@ namespace Scv.Api.Services
         private readonly FileServicesClient _filesClient;
         private readonly LookupService _lookupService;
         private readonly LocationService _locationService;
+        private readonly SearchDateClient _searchDateClient;
         private readonly IAppCache _cache;
         private readonly IMapper _mapper;
         private readonly string _applicationCode;
@@ -37,7 +39,7 @@ namespace Scv.Api.Services
 
         #region Constructor
 
-        public CourtListService(IConfiguration configuration, ILogger<CourtListService> logger, FileServicesClient filesClient, IMapper mapper, LookupService lookupService, LocationService locationService, IAppCache cache, ClaimsPrincipal user)
+        public CourtListService(IConfiguration configuration, ILogger<CourtListService> logger, FileServicesClient filesClient, IMapper mapper, LookupService lookupService, LocationService locationService, SearchDateClient searchDateClient, IAppCache cache, ClaimsPrincipal user)
         {
             _logger = logger;
             _filesClient = filesClient;
@@ -48,6 +50,7 @@ namespace Scv.Api.Services
 
             _lookupService = lookupService;
             _locationService = locationService;
+            _searchDateClient = searchDateClient;
             _applicationCode = user.ApplicationCode();
             _requestAgencyIdentifierId = user.AgencyCode();
             _requestPartId = user.ParticipantId();
@@ -83,7 +86,7 @@ namespace Scv.Api.Services
 
             var civilFileIds = civilCourtCalendarAppearances.SelectToList(ccl => ccl.PhysicalFileId);
             var criminalFileIds = criminalCourtCalendarAppearances.SelectToList(ccl => ccl.MdocJustinNo);
-
+            
             if (civilFileIds.Count == 0 && criminalFileIds.Count == 0)
                 return new Models.CourtList.CourtList();
 
@@ -118,7 +121,7 @@ namespace Scv.Api.Services
 
             courtList.CivilCourtList = await PopulateCivilCourtListFromAppearances(courtList.CivilCourtList, civilAppearances);
             courtList.CriminalCourtList = await PopulateCriminalCourtListFromAppearances(courtList.CriminalCourtList, criminalAppearances);
-            
+
             courtList.CivilCourtList = PopulateCivilCourtListFromCourtCalendarDetails(courtList.CivilCourtList, civilCourtCalendarAppearances);
             courtList.CriminalCourtList = PopulateCriminalCourtListFromCourtCalendarDetails(courtList.CriminalCourtList, criminalCourtCalendarAppearances);
 
@@ -264,7 +267,7 @@ namespace Scv.Api.Services
             return documents;
         }
 
-   
+
         private ICollection<CivilCourtList> PopulateCivilCourtListFromCourtCalendarDetails(ICollection<CivilCourtList> courtList,
             ICollection<CourtCalendarDetailAppearance> courtCalendarDetailAppearances)
         {
@@ -368,6 +371,12 @@ namespace Scv.Api.Services
             }
 
             return courtList;
+        }
+
+        public async Task<SearchDateClient.ActivityAppearanceResultsCollection> GetCourtListAppearances(string locationId, int judgeId, string roomCode, DateTime date)
+        {
+            var results = await _searchDateClient.GetCourtListAppearancesAsync(int.Parse(locationId), date.ToString("dd-MMM-yyyy"), judgeId, roomCode, null);
+            return results;
         }
 
         #endregion Criminal
