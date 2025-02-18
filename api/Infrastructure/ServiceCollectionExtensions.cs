@@ -21,6 +21,7 @@ using BasicAuthenticationHeaderValue = JCCommon.Framework.BasicAuthenticationHea
 using PCSSCourtCalendarServices = PCSSCommon.Clients.CourtCalendarServices;
 using PCSSJudicialCalendarServices = PCSSCommon.Clients.JudicialCalendarServices;
 using PCSSLocationServices = PCSSCommon.Clients.LocationServices;
+using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
 
 namespace Scv.Api.Infrastructure
 {
@@ -72,6 +73,9 @@ namespace Scv.Api.Infrastructure
                 .AddHttpMessageHandler<TimingHandler>();
             services
                 .AddHttpClient<PCSSJudicialCalendarServices.JudicialCalendarServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+                .AddHttpMessageHandler<TimingHandler>();
+            services
+                .AddHttpClient<PCSSSearchDateServices.SearchDateClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
                 .AddHttpMessageHandler<TimingHandler>();
 
             services.AddHttpContextAccessor();
