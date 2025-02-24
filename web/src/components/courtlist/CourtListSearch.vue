@@ -11,7 +11,7 @@
                 @update:modelValue="selectedCourtRoom = ''"
                 :items="locationsAndCourtRooms"
                 return-object
-                item-title="locationNm"
+                item-title="name"
                 item-value="locationId"
                 label="Location"
                 :loading="!isLocationDataMounted"
@@ -32,8 +32,8 @@
                     : ['']
                 "
                 label="Room"
-                item-title="courtRoomCd"
-                item-value="courtRoomCd"
+                item-title="room"
+                item-value="room"
                 :error-messages="
                   errors.isMissingRoom ? ['Room is required'] : []
                 "
@@ -93,22 +93,24 @@
   import { LocationService } from '@/services';
   import { HttpService } from '@/services/HttpService';
   import { useCommonStore, useCourtListStore } from '@/stores';
-  import { PCSSLocationCourtRooms } from '@/types/courtlist';
+  import { LocationInfo } from '@/types/courtlist';
   import { courtListType } from '@/types/courtlist/jsonTypes';
   import { mdiClose } from '@mdi/js';
   import { computed, inject, onMounted, reactive, ref, watch } from 'vue';
 
+  // Component v-models
   const showDropdown = defineModel<boolean>('showDropdown');
   const isSearching = defineModel<boolean>('isSearching');
   const date = defineModel<Date>('date');
   const bannerDate = defineModel<Date | null>('bannerDate');
+
   watch(bannerDate, (newValue, oldValue) => {
     if (oldValue != null && newValue !== oldValue) {
       searchForCourtList();
     }
   });
-  const GREEN = '#62d3a4';
   const emit = defineEmits(['courtListSearched']);
+  const GREEN = '#62d3a4';
   const commonStore = useCommonStore();
   const courtListStore = useCourtListStore();
   // State variables
@@ -126,21 +128,23 @@
     isMissingRoom: false,
     isMissingLocation: false,
   });
-  const selectedCourtLocation = ref<PCSSLocationCourtRooms>();
+  const selectedCourtLocation = ref<LocationInfo>();
   const httpService = inject<HttpService>('httpService');
-  const locationsAndCourtRooms = ref<PCSSLocationCourtRooms[]>();
+  const locationsAndCourtRooms = ref<LocationInfo[]>();
   const locationsService = inject<LocationService>('locationService');
+
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
 
   onMounted(async () => {
-    getListOfAvailableCourts();
+    await getListOfAvailableCourts();
     isLoading.value = false;
   });
 
   const getListOfAvailableCourts = async () => {
-    locationsAndCourtRooms.value = await locationsService?.getPCSSCourtRooms();
+    locationsAndCourtRooms.value =
+      await locationsService?.getLocationsAndCourtRooms();
     commonStore.updateCourtRoomsAndLocations(locationsAndCourtRooms.value);
     isLocationDataMounted.value = true;
   };
@@ -166,8 +170,10 @@
       .then((Response) => Response)
       .then((data) => {
         if (data) {
+          courtListStore.courtListInformation.detailsData = data;
           isDataReady.value = true;
           isSearching.value = false;
+
           emit('courtListSearched', data);
         }
         isMounted.value = true;
