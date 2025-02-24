@@ -27,7 +27,7 @@ describe('CourtListSearch.vue', () => {
       },
     };
     locationService = {
-      getPCSSCourtRooms: vi
+      getLocationsAndCourtRooms: vi
         .fn()
         .mockResolvedValue([
           { locationId: 1, locationNm: 'Location 1', courtRooms: ['Room 1'] },
@@ -57,7 +57,7 @@ describe('CourtListSearch.vue', () => {
   });
 
   it('fetches court locations on mount', async () => {
-    expect(locationService.getPCSSCourtRooms).toHaveBeenCalled();
+    expect(locationService.getLocationsAndCourtRooms).toHaveBeenCalled();
     expect(commonStore.updateCourtRoomsAndLocations).toHaveBeenCalledWith([
       { locationId: 1, locationNm: 'Location 1', courtRooms: ['Room 1'] },
     ]);
