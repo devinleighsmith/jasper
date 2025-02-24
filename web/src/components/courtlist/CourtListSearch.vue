@@ -113,7 +113,6 @@
   const GREEN = '#62d3a4';
   const commonStore = useCommonStore();
   const courtListStore = useCourtListStore();
-  // State variables
   const isLoading = ref(false);
   const isDataReady = ref(false);
   const isMounted = ref(false);
