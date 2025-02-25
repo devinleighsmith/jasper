@@ -19,14 +19,6 @@
       </v-btn>
     </template>
   </banner>
-  <!-- <v-expand-transition>
-    <v-card
-      v-show="showDropdown"
-      class="mx-auto bg-secondary"
-      height="100"
-      width="100"
-    ></v-card>
-  </v-expand-transition> -->
 
   <v-expand-transition>
     <v-card v-show="showDropdown" height="100" elevation="16">
@@ -35,29 +27,26 @@
         v-model:isSearching="searchingRequest"
         v-model:showDropdown="showDropdown"
         v-model:bannerDate="bannerDate"
-        @courtListSearched="searchForCourtList"
+        @courtListSearch="PopulateCards"
       />
     </v-card>
   </v-expand-transition>
   <v-skeleton-loader type="table" :loading="searchingRequest">
-    <div></div>
+    <div />
   </v-skeleton-loader>
 </template>
 
 <script setup lang="ts">
   import { HttpService } from '@/services/HttpService';
-import { useCommonStore, useCourtListStore } from '@/stores';
-import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
-import { computed, inject, onMounted, ref } from 'vue';
+  import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
+  import { computed, inject, onMounted, ref } from 'vue';
 
-  const commonStore = useCommonStore();
-  const courtListStore = useCourtListStore();
-  // State variables
   const errorCode = ref(0);
   const searchingRequest = ref(false);
   const isLoading = ref(true);
   const selectedDate = ref(new Date());
   const bannerDate = ref<Date | null>(null);
+  const showDropdown = ref(false);
 
   const shortHandDate = computed(() =>
     bannerDate.value
@@ -71,56 +60,19 @@ import { computed, inject, onMounted, ref } from 'vue';
   );
 
   const httpService = inject<HttpService>('httpService');
-  const showDropdown = ref(true);
-
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
 
-  // Fetch data on mount
   onMounted(() => {
-    //getListOfAvailableCourts();
     isLoading.value = false;
   });
 
-  const searchForCourtList = (data) => {
-    console.log(data);
-    // map cards
-    //searchingRequest.value = false;
-    // if (!selectedCourtLocation.value.Location) {
-    //   selectedCourtLocationState.value = false;
-    //   searchAllowed.value = true;
-    // } else {
-    //   Object.assign(courtListLocation, selectedCourtLocation.value.Location);
-    //   courtListLocationID.value = selectedCourtLocation.value.LocationID;
-    //   if (
-    //     selectedCourtRoom.value == 'null' ||
-    //     selectedCourtRoom.value == undefined
-    //   ) {
-    //     selectedCourtRoomState.value = false;
-    //     searchAllowed.value = true;
-    //   } else {
-    //     courtListRoom.value = selectedCourtRoom.value;
-    //     if (
-    //       route.params.location != courtListLocationID.value ||
-    //       route.params.room != courtListRoom.value ||
-    //       route.params.date != shortHandDate.value
-    //     ) {
-    //       router.push({
-    //         name: 'CourtListResult',
-    //         params: {
-    //           location: courtListLocationID.value,
-    //           room: courtListRoom.value,
-    //           date: shortHandDate.value,
-    //         },
-    //       });
-    //     }
-    //     searchAllowed.value = false;
-    //     setTimeout(() => {
-    //       getCourtListDetails();
-    //     }, 50);
-    //   }
-    // }
+  const PopulateCards = (data: any) => {
+    if (!data) {
+      return;
+    }
+    // todo: map cards from retrieved data
   };
 
   const AddDay = (days: number) => {
@@ -132,9 +84,3 @@ import { computed, inject, onMounted, ref } from 'vue';
     }
   };
 </script>
-
-<style scoped>
-  .card {
-    border: white;
-  }
-</style>

@@ -172,9 +172,8 @@
       .then((data) => {
         if (data) {
           courtListStore.courtListInformation.detailsData = data;
-
-          emit('courtListSearched', data);
         }
+        emit('courtListSearched', data);
         isMounted.value = true;
         searchAllowed.value = true;
         isDataReady.value = true;
