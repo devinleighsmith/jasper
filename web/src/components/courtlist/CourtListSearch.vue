@@ -172,6 +172,8 @@
           courtListStore.courtListInformation.detailsData = data;
         }
         emit('courtListSearched', data);
+      })
+      .finally(() => {
         isMounted.value = true;
         searchAllowed.value = true;
         isDataReady.value = true;

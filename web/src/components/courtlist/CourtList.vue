@@ -39,11 +39,11 @@
 <script setup lang="ts">
   import { HttpService } from '@/services/HttpService';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
-  import { computed, inject, onMounted, ref } from 'vue';
+  import { computed, inject, ref } from 'vue';
 
   const errorCode = ref(0);
   const searchingRequest = ref(false);
-  const isLoading = ref(true);
+  const isLoading = ref(false);
   const selectedDate = ref(new Date());
   const bannerDate = ref<Date | null>(null);
   const showDropdown = ref(false);
@@ -63,10 +63,6 @@
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
-
-  onMounted(() => {
-    isLoading.value = false;
-  });
 
   const PopulateCards = (data: any) => {
     if (!data) {
