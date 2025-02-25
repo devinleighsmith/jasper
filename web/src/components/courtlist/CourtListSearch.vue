@@ -105,9 +105,7 @@
   const bannerDate = defineModel<Date | null>('bannerDate');
 
   watch(bannerDate, (newValue, oldValue) => {
-    //console.log('Update banner date' + newValue);
     if (oldValue != null && newValue !== oldValue) {
-      //console.log('enter');
       searchForCourtList();
     }
   });
