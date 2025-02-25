@@ -1,6 +1,6 @@
 import { Location } from '@/types';
 import { CourtRoomsJsonInfoType } from '../types/common';
-import { roomsInfoType } from '../types/courtlist';
+import { LocationInfo, roomsInfoType } from '../types/courtlist';
 import { HttpService } from './HttpService';
 
 export class LocationService {
@@ -32,5 +32,42 @@ export class LocationService {
 
   async getDashboardLocations(): Promise<Location[]> {
     return await this.httpService.get<Location[]>('api/location/pcss');
+  }
+
+  async getLocationsAndCourtRooms(): Promise<LocationInfo[]> {
+    // todo: replace this test data with actual api call
+    const testData = [
+      {
+        name: 'Test Court',
+        code: '1',
+        locationId: '1',
+        justinLocationName: 'Test Court',
+        justinLocationId: '2',
+        active: true,
+        courtRooms: [
+          {
+            room: '1',
+            locationId: '1',
+            type: 'Courtroom',
+          },
+          {
+            room: '2',
+            locationId: '1',
+            type: 'Courtroom',
+          },
+          {
+            room: '3',
+            locationId: '1',
+            type: 'Courtroom',
+          },
+          {
+            room: '4',
+            locationId: '1',
+            type: 'Courtroom',
+          },
+        ],
+      },
+    ] as LocationInfo[];
+    return testData;
   }
 }
