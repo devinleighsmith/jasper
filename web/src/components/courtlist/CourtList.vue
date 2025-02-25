@@ -10,7 +10,7 @@
     <template #left v-if="bannerDate"
       >:
       <v-icon :icon="mdiChevronLeft" @click="AddDay(-1)" />
-      {{ shortHandDate }}
+      <b>{{ shortHandDate }}</b>
       <v-icon :icon="mdiChevronRight" @click="AddDay(1)" />
     </template>
     <template #right>

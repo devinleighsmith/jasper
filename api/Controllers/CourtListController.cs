@@ -35,8 +35,8 @@ namespace Scv.Api.Controllers
         /// <summary>
         /// Gets a court list.
         /// </summary>
-        /// <param name="agencyId">Agency Identifier Code (Location Code); for example 4801 (Kelowna).</param>
-        /// <param name="roomCode">The room code; for example </param>
+        /// <param name="agencyId">Agency Identifier Code (Location Code)</param>
+        /// <param name="roomCode">The room code</param>
         /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
         /// <returns>CourtList</returns>
         [HttpGet]
