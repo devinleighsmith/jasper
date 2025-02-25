@@ -43,7 +43,10 @@ namespace Scv.Api.Controllers
         [Route("court-list")]
         public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(string agencyId, string roomCode, DateTime proceeding)
         {
-            var courtList = await _courtListService.GetCourtListAppearances(agencyId, 190, roomCode, proceeding);
+            const int TEST_JUDGE_ID = 190;
+
+            var courtList = await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);
+
             return Ok(courtList);
         }
     }
