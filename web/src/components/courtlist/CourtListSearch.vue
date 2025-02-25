@@ -105,7 +105,9 @@
   const bannerDate = defineModel<Date | null>('bannerDate');
 
   watch(bannerDate, (newValue, oldValue) => {
+    //console.log('Update banner date' + newValue);
     if (oldValue != null && newValue !== oldValue) {
+      //console.log('enter');
       searchForCourtList();
     }
   });
@@ -170,14 +172,13 @@
       .then((data) => {
         if (data) {
           courtListStore.courtListInformation.detailsData = data;
-          isDataReady.value = true;
-          isSearching.value = false;
 
           emit('courtListSearched', data);
         }
         isMounted.value = true;
         searchAllowed.value = true;
         isDataReady.value = true;
+        isSearching.value = false;
       });
   };
 
@@ -197,8 +198,9 @@
     }
     showDropdown.value = false;
     searchAllowed.value = false;
-    bannerDate.value = date.value;
-
+    if (!bannerDate.value) {
+      bannerDate.value = date.value;
+    }
     getCourtListDetails();
   };
 </script>

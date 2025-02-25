@@ -38,16 +38,12 @@ namespace Scv.Api.Controllers
         /// <param name="agencyId">Agency Identifier Code (Location Code); for example 4801 (Kelowna).</param>
         /// <param name="roomCode">The room code; for example </param>
         /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
-        /// <param name="divisionCode">The division code; CR, or CV.</param>
-        /// <param name="fileNumber">The full file number; for example 1500-3</param>
         /// <returns>CourtList</returns>
         [HttpGet]
         [Route("court-list")]
-        public async Task<ActionResult<CourtList>> GetCourtList(string agencyId, string roomCode, DateTime proceeding, string divisionCode, string fileNumber)
+        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(string agencyId, string roomCode, DateTime proceeding)
         {
-            var courtLevel = User.IsSupremeUser() ? "S" : "P";
-            var courtList = await _courtListService.CourtListAsync(agencyId, roomCode, proceeding, divisionCode,
-                fileNumber, courtLevel);
+            var courtList = await _courtListService.GetCourtListAppearances(agencyId, 190, roomCode, proceeding);
             return Ok(courtList);
         }
     }
