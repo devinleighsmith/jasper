@@ -22,44 +22,14 @@ namespace Scv.Api.Controllers
         }
 
         /// <summary>
-        /// Provides locations and their court rooms. 
+        /// Provides Locations from all source systems (JC and PCSS)
         /// </summary>
-        /// <returns>List{Location}</returns>
+        /// <param name="includeChildRecords">Flag whether court rooms will be included or not</param>
+        /// <returns>List of combined locations from JC and PCSS</returns>
         [HttpGet]
-        [Route("court-rooms")]
-        public async Task<ActionResult<List<Location>>> GetLocationsAndCourtRooms()
+        public async Task<ActionResult<List<Location>>> GetLocations(bool includeChildRecords = false)
         {
-            var locations = await _locationService.GetLocations();
-
-            var locationList = locations.Select(location => new Location
-            {
-                Name = location.LongDesc,
-                Active = location.Flex?.Equals("Y"),
-                LocationId = location.ShortDesc,
-                Code = location.Code
-            }).ToList();
-
-            var courtRooms = await _locationService.GetCourtRooms();
-
-            foreach (var location in locationList)
-            {
-                location.CourtRooms = courtRooms.Where(cr => cr.Flex == location.LocationId && (cr.ShortDesc == "CRT" || cr.ShortDesc == "HGR"))
-                    .Select(cr => new CourtRoom { LocationId = cr.Flex, Room = cr.Code, Type = cr.ShortDesc }).ToList();
-            }
-
-            return Ok(locationList);
-        }
-
-
-        /// <summary>
-        /// Returns the list of locations used in PCSS
-        /// </summary>
-        /// <returns>PCSS Locations</returns>
-        [HttpGet]
-        [Route("pcss")]
-        public async Task<ActionResult<List<Location>>> GetPCSSLocations()
-        {
-            var locations = await _locationService.GetPCSSLocations();
+            var locations = await _locationService.GetLocations(includeChildRecords);
 
             return Ok(locations);
         }

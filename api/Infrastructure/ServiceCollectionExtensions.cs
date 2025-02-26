@@ -22,6 +22,7 @@ using PCSSCourtCalendarServices = PCSSCommon.Clients.CourtCalendarServices;
 using PCSSJudicialCalendarServices = PCSSCommon.Clients.JudicialCalendarServices;
 using PCSSLocationServices = PCSSCommon.Clients.LocationServices;
 using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
+using PCSSLookupServices = PCSSCommon.Clients.LookupServices;
 
 namespace Scv.Api.Infrastructure
 {
@@ -40,6 +41,13 @@ namespace Scv.Api.Infrastructure
 
             services.AddSingleton(config);
             services.AddScoped<IMapper>(sp => new Mapper(sp.GetRequiredService<TypeAdapterConfig>()));
+
+            return services;
+        }
+
+        public static IServiceCollection AddAutoMapper(this IServiceCollection services)
+        {
+            services.AddAutoMapper(typeof(Startup));
 
             return services;
         }
@@ -76,6 +84,9 @@ namespace Scv.Api.Infrastructure
                 .AddHttpMessageHandler<TimingHandler>();
             services
                 .AddHttpClient<PCSSSearchDateServices.SearchDateClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+                .AddHttpMessageHandler<TimingHandler>();
+            services
+                .AddHttpClient<PCSSLookupServices.LookupServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
                 .AddHttpMessageHandler<TimingHandler>();
 
             services.AddHttpContextAccessor();
