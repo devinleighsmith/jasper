@@ -7,7 +7,7 @@
   </v-card>
   <!------------------------------------------------------->
   <banner title="Court list" color="#183a4a" bgColor="#b4e6ff">
-    <template #left v-if="bannerDate"
+    <template #left v-if="appliedDate"
       >:
       <v-icon :icon="mdiChevronLeft" @click="AddDay(-1)" />
       <b>{{ shortHandDate }}</b>
@@ -26,31 +26,40 @@
         v-model:date="selectedDate"
         v-model:isSearching="searchingRequest"
         v-model:showDropdown="showDropdown"
-        v-model:bannerDate="bannerDate"
-        @courtListSearch="PopulateCards"
+        v-model:appliedDate="appliedDate"
+        @courtListSearched="PopulateCards"
       />
     </v-card>
   </v-expand-transition>
-  <v-skeleton-loader type="table" :loading="searchingRequest">
-    <div />
-  </v-skeleton-loader>
+  <v-container>
+    <v-skeleton-loader class="my-1" type="table" :loading="searchingRequest">
+      <court-list-card
+        v-for="card in cards"
+        :key="card.courtListLocationID"
+        :cardInfo="card"
+      />
+    </v-skeleton-loader>
+  </v-container>
 </template>
 
 <script setup lang="ts">
+  import CourtListCard from '@/components/courtlist/CourtListCard.vue';
   import { HttpService } from '@/services/HttpService';
+  import { CourtListCardInfo } from '@/types/courtlist';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
   import { computed, inject, ref } from 'vue';
 
   const errorCode = ref(0);
   const searchingRequest = ref(false);
   const isLoading = ref(false);
+  //const selectedDate = ref(new Date(2025, 0, 27));
   const selectedDate = ref(new Date());
-  const bannerDate = ref<Date | null>(null);
+  const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
-
+  const cards = ref<CourtListCardInfo[]>([]);
   const shortHandDate = computed(() =>
-    bannerDate.value
-      ? bannerDate.value.toLocaleDateString('en-US', {
+    appliedDate.value
+      ? appliedDate.value.toLocaleDateString('en-US', {
           weekday: 'long',
           day: '2-digit',
           month: 'long',
@@ -63,20 +72,41 @@
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
-
   const PopulateCards = (data: any) => {
-    if (!data) {
+    cards.value = [];
+    if (!data?.items?.length) {
       return;
     }
-    // todo: map cards from retrieved data
+    console.log(data);
+
+    data.items.forEach((courtList) => {
+      // As of right now the cards will only ever have 1 location/room pairing.
+      // If there are multiple `items` then that means there is more than 1 judge
+      // in this location/room pairing on this given day.
+      //const courtList = data.items[0];
+      const courtRoomDetails = courtList.courtRoomDetails[0];
+      const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
+      let card = {} as CourtListCardInfo;
+      card.fileCount = courtList.casesTarget;
+      card.activity = courtList.activityDsc;
+      card.presider = adjudicatorDetails.adjudicatorNm;
+      card.courtListRoom = courtRoomDetails.courtRoomCd;
+      card.courtListLocationID = courtList.locationId;
+      card.courtListLocation = courtList.locationNm;
+
+      // This decides if the card will be am or pm. Maybe split this up?
+      // Dont need to since we have 1 location/room pairing in this workflow
+      card.amPM = adjudicatorDetails.amPm;
+      cards.value.push(card);
+    });
   };
 
   const AddDay = (days: number) => {
-    if (bannerDate.value) {
-      bannerDate.value = new Date(
-        bannerDate.value.setDate(bannerDate.value.getDate() + days)
+    if (appliedDate.value) {
+      appliedDate.value = new Date(
+        appliedDate.value.setDate(appliedDate.value.getDate() + days)
       );
-      selectedDate.value = bannerDate.value;
+      selectedDate.value = appliedDate.value;
     }
   };
 </script>
