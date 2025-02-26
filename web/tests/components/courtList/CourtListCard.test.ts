@@ -1,20 +1,30 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import CourtListCard from 'CMP/courtlist/CourtListCard.vue';
+import { CourtListCardInfo } from '@/types/courtlist';
 
-const createWrapper = (props = {}) => {
+const createWrapper = () => {
+    const card: CourtListCardInfo = {
+        courtListLocation: 'Court A',
+        courtListLocationID: 1,
+        courtListRoom: 'Room 101',
+        activity: 'Hearing',
+        amPM: 'AM',
+        fileCount: 5,
+        presider: 'Judge Smith',
+        courtClerk: 'John Doe',
+        email: 'court@example.com',
+        shortHandDate: '',
+        totalCases: 0,
+        totalTime: '',
+        totalTimeUnit: '',
+        criminalCases: 0,
+        familyCases: 0,
+        civilCases: 0
+    };
     return mount(CourtListCard, {
         props: {
-            courtListLocation: 'Court A',
-            courtListLocationID: '1',
-            courtListRoom: 'Room 101',
-            activity: 'Hearing',
-            amPM: 'AM',
-            fileCount: 5,
-            presider: 'Judge Smith',
-            courtClerk: 'John Doe',
-            email: 'court@example.com',
-            ...props,
+            cardInfo: card
         },
     });
 };
