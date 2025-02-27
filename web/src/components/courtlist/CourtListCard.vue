@@ -10,10 +10,13 @@
     <v-card-text>
       <v-row>
         <v-col>
-          <h5>Rooms: {{ cardInfo.courtListRoom }} ({{ cardInfo.amPM }})</h5>
+          <h5>
+            Rooms: {{ cardInfo.courtListRoom }}
+            {{ cardInfo.amPM ? `(${cardInfo.amPM})` : '' }}
+          </h5>
         </v-col>
         <v-col>
-          <h5>Presider: {{ cardInfo.presider }}</h5>
+          <h5>Presider: {{ cardInfo.presider ?? 'Unassigned' }}</h5>
         </v-col>
         <v-col>
           <h5>Court clerk: {{ cardInfo.courtClerk ?? 'Not scheduled' }}</h5>
@@ -51,42 +54,6 @@
     cardInfo: {
       type: Object as PropType<CourtListCardInfo>,
       required: true,
-    },
-    // courtListLocation: {
-    //   type: String,
-    //   required: true,
-    // },
-    // courtListLocationID: {
-    //   type: String,
-    //   required: true,
-    // },
-    // courtListRoom: {
-    //   type: String,
-    //   required: true,
-    // },
-    // activity: {
-    //   type: String,
-    //   required: true,
-    // },
-    // amPM: {
-    //   type: String,
-    //   required: true,
-    // },
-    // fileCount: {
-    //   type: Number,
-    //   required: true,
-    // },
-    // presider: {
-    //   type: String,
-    //   required: true,
-    // },
-    // courtClerk: {
-    //   type: String,
-    //   default: 'Not scheduled',
-    // },
-    // email: {
-    //   type: String,
-    //   default: '',
-    // },
+    }
   });
 </script>

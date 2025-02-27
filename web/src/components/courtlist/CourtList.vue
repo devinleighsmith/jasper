@@ -72,31 +72,26 @@
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
+
   const PopulateCards = (data: any) => {
     cards.value = [];
     if (!data?.items?.length) {
       return;
     }
-    console.log(data);
-
-    data.items.forEach((courtList) => {
-      // As of right now the cards will only ever have 1 location/room pairing.
-      // If there are multiple `items` then that means there is more than 1 judge
-      // in this location/room pairing on this given day.
-      //const courtList = data.items[0];
+    // As of right now the cards will only ever have 1 location/room pairing.
+    // If there are multiple `items` then that means there is more than 1 judge
+    // in this location/room pairing on this given day.
+    data.items.forEach((courtList: any) => {
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
       let card = {} as CourtListCardInfo;
       card.fileCount = courtList.casesTarget;
       card.activity = courtList.activityDsc;
-      card.presider = adjudicatorDetails.adjudicatorNm;
+      card.presider = adjudicatorDetails?.adjudicatorNm;
       card.courtListRoom = courtRoomDetails.courtRoomCd;
       card.courtListLocationID = courtList.locationId;
       card.courtListLocation = courtList.locationNm;
-
-      // This decides if the card will be am or pm. Maybe split this up?
-      // Dont need to since we have 1 location/room pairing in this workflow
-      card.amPM = adjudicatorDetails.amPm;
+      card.amPM = adjudicatorDetails?.amPm;
       cards.value.push(card);
     });
   };
