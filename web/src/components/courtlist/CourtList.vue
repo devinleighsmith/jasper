@@ -52,7 +52,6 @@
   const errorCode = ref(0);
   const searchingRequest = ref(false);
   const isLoading = ref(false);
-  //const selectedDate = ref(new Date(2025, 0, 27));
   const selectedDate = ref(new Date());
   const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
