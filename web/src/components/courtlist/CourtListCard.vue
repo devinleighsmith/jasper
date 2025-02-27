@@ -1,5 +1,5 @@
 <template>
-  <v-card color="#efedf5" class="w-100 my-2">
+  <v-card color="#efedf5" class="w-100 mb-2">
     <v-card-title>
       <v-row>
         <v-col>
@@ -54,6 +54,6 @@
     cardInfo: {
       type: Object as PropType<CourtListCardInfo>,
       required: true,
-    }
+    },
   });
 </script>
