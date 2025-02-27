@@ -83,7 +83,7 @@
     data.items.forEach((courtList: any) => {
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
-      let card = {} as CourtListCardInfo;
+      const card = {} as CourtListCardInfo;
       card.fileCount = courtList.casesTarget;
       card.activity = courtList.activityDsc;
       card.presider = adjudicatorDetails?.adjudicatorNm;
