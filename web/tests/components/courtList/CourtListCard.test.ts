@@ -13,14 +13,7 @@ const createWrapper = () => {
         fileCount: 5,
         presider: 'Judge Smith',
         courtClerk: 'John Doe',
-        email: 'court@example.com',
-        shortHandDate: '',
-        totalCases: 0,
-        totalTime: '',
-        totalTimeUnit: '',
-        criminalCases: 0,
-        familyCases: 0,
-        civilCases: 0
+        email: 'court@example.com'
     };
     return mount(CourtListCard, {
         props: {
