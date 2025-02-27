@@ -184,6 +184,7 @@
         searchAllowed.value = true;
         isDataReady.value = true;
         isSearching.value = false;
+        formSubmit.value = false;
       });
   };
 
