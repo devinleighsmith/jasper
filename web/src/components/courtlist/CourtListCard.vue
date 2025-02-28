@@ -16,10 +16,16 @@
           </h5>
         </v-col>
         <v-col>
-          <h5>Presider: {{ cardInfo.presider ?? 'Unassigned' }}</h5>
+          <h5>
+            {{ cardInfo.presider ? `Presider: ${cardInfo.presider}` : '' }}
+          </h5>
         </v-col>
         <v-col>
-          <h5>Court clerk: {{ cardInfo.courtClerk ?? 'Not scheduled' }}</h5>
+          <h5>
+            {{
+              cardInfo.courtClerk ? `Court clerk: ${cardInfo.courtClerk}` : ''
+            }}
+          </h5>
         </v-col>
         <v-col>
           <v-btn-secondary> View shared folder </v-btn-secondary>

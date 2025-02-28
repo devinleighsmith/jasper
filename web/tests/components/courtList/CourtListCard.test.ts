@@ -33,29 +33,4 @@ describe('CourtListCard.vue', () => {
         expect(wrapper.text()).toContain('Scheduled: 5 files');
         expect(wrapper.text()).toContain('court@example.com');
     });
-
-    it('renders default values when props are nullish', () => {
-        const wrapper = mount(CourtListCard, {
-          props: {
-            cardInfo: {
-              courtListLocation: 'Location B',
-              courtListRoom: 'Room 2',
-              amPM: null,
-              presider: null,
-              courtClerk: null,
-              activity: 'Activity B',
-              fileCount: 10,
-              email: 'email2@example.com',
-            },
-          },
-        });
-    
-        expect(wrapper.text()).toContain('Location B');
-        expect(wrapper.text()).toContain('Rooms: Room 2');
-        expect(wrapper.text()).toContain('Presider: Unassigned');
-        expect(wrapper.text()).toContain('Court clerk: Not scheduled');
-        expect(wrapper.text()).toContain('Activity: Activity B');
-        expect(wrapper.text()).toContain('Scheduled: 10 files');
-        expect(wrapper.text()).toContain('email2@example.com');
-      });
 });
