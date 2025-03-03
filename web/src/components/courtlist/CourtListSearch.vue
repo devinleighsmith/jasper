@@ -124,19 +124,12 @@
   const searchAllowed = ref(true);
   const selectedCourtRoom = ref();
   const formSubmit = ref(false);
-  // Timer stuff //////
-  let searchInterval;
-  let warningInterval;
   const TEN_MINUTES = 600000;
   const NINE_MINUTES = 540000;
   const ONE_MINUTE = 60000;
-  const THIRTY_SECONDS = 30000;
-  const TWENTY_SECONDS = 20000;
-  const TEN_SECONDS = 10000;
   const courtRefreshInterval = TEN_MINUTES;
   const warningRefreshInterval = NINE_MINUTES;
   const warningTime = ONE_MINUTE;
-  /////////////////////
   const schedule = ref('room_schedule');
   const shortHandDate = computed(() =>
     date.value ? date.value.toISOString().substring(0, 10) : ''
@@ -150,6 +143,8 @@
   const locationsAndCourtRooms = ref<LocationInfo[]>();
   const locationsService = inject<LocationService>('locationService');
   const snackBarStore = useSnackbarStore();
+  let searchInterval: NodeJS.Timeout;
+  let warningInterval: NodeJS.Timeout;
 
   watch(
     appliedDate,
