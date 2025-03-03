@@ -146,8 +146,6 @@ describe('CourtListSearch.vue', () => {
       name: 'Location 1',
       courtRooms: [{ room: 'Room 1' }],
     };
-    wrapper.vm.selectedCourtRoom = 'Room 1';
-    wrapper.vm.date = new Date('2023-01-01');
     wrapper.vm.schedule = 'my_schedule';
     wrapper.vm.appliedDate = new Date();
 
@@ -162,13 +160,31 @@ describe('CourtListSearch.vue', () => {
       name: 'Location 1',
       courtRooms: [{ room: 'Room 1' }],
     };
-    wrapper.vm.selectedCourtRoom = 'Room 1';
-    wrapper.vm.date = new Date('2023-01-01');
     wrapper.vm.schedule = 'my_schedule';
     wrapper.vm.appliedDate = new Date();
 
+    await vi.advanceTimersByTimeAsync(NINE_MINUTES);
+    expect(snackbarStore.isVisible).toBe(true);
+    await vi.advanceTimersByTimeAsync(ONE_MINUTE);
+    expect(snackbarStore.isVisible).toBe(false);
+  });
+
+
+  it(`searches for new court-list data after ${TEN_MINUTES} ms`, async () => {
+    wrapper.vm.selectedCourtLocation = {
+      locationId: 1,
+      name: 'Location 1',
+      courtRooms: [{ room: 'Room 1' }],
+    };
+    wrapper.vm.schedule = 'my_schedule';
+    wrapper.vm.appliedDate = new Date('2023-01-01');
+    wrapper.vm.date = new Date('2023-01-01');
+    wrapper.vm.selectedCourtRoom = 'Room 1';
+
     await vi.advanceTimersByTimeAsync(TEN_MINUTES);
 
-    expect(snackbarStore.isVisible).toBe(false);
+    expect(httpService.get).toHaveBeenCalledWith(
+      'api/courtlist/court-list?agencyId=1&roomCode=Room 1&proceeding=2023-01-01'
+    );
   });
 });
