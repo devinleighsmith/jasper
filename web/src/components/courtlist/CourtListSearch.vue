@@ -242,7 +242,7 @@
       }
     }, courtRefreshInterval);
     warningInterval = setInterval(() => {
-      if (appliedDate.value) {
+      if (appliedDate.value && !isSearching.value) {
         showWarning();
       }
     }, warningRefreshInterval);
