@@ -9,9 +9,9 @@
   <banner title="Court list" color="#183a4a" bgColor="#b4e6ff">
     <template #left v-if="appliedDate"
       >:
-      <v-icon :icon="mdiChevronLeft" @click="AddDay(-1)" />
+      <v-icon :icon="mdiChevronLeft" @click="addDay(-1)" />
       <b>{{ shortHandDate }}</b>
-      <v-icon :icon="mdiChevronRight" @click="AddDay(1)" />
+      <v-icon :icon="mdiChevronRight" @click="addDay(1)" />
     </template>
     <template #right>
       <v-btn @click="showDropdown = !showDropdown">
@@ -27,27 +27,45 @@
         v-model:isSearching="searchingRequest"
         v-model:showDropdown="showDropdown"
         v-model:appliedDate="appliedDate"
-        @courtListSearched="PopulateCards"
+        @courtListSearched="populateCardTablePairings"
       />
     </v-card>
   </v-expand-transition>
   <v-container>
     <v-skeleton-loader class="my-1" type="table" :loading="searchingRequest">
-      <court-list-card
-        v-for="card in cards"
-        :key="card.courtListLocationID"
-        :cardInfo="card"
+      <court-list-table-search
+        v-if="cardTablePairings.length"
+        v-model:filesFilter="selectedFilesFilter"
+        v-model:AMPMFilter="selectedAMPMFilter"
+        v-model:search="search"
       />
+      <template
+        v-for="pairing in filteredTablePairings"
+        :key="pairing.card.courtListLocationID"
+        class="w-100"
+      >
+        <court-list-card :cardInfo="pairing.card" />
+        <v-data-table
+          v-model="selectedItems"
+          :items="pairing.table"
+          :headers
+          :search="search"
+          item-value="courtFileNumber"
+          class="pb-5"
+        >
+          <template v-slot:bottom />
+        </v-data-table>
+      </template>
     </v-skeleton-loader>
   </v-container>
 </template>
 
 <script setup lang="ts">
-  import CourtListCard from '@/components/courtlist/CourtListCard.vue';
   import { HttpService } from '@/services/HttpService';
   import { CourtListCardInfo } from '@/types/courtlist';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
   import { computed, inject, ref } from 'vue';
+  import CourtListTableSearch from './CourtListTableSearch.vue';
 
   const errorCode = ref(0);
   const searchingRequest = ref(false);
@@ -55,7 +73,33 @@
   const selectedDate = ref(new Date());
   const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
-  const cards = ref<CourtListCardInfo[]>([]);
+  const search = ref();
+  const selectedFilesFilter = ref();
+  const selectedAMPMFilter = ref();
+  const selectedItems = ref();
+  const cardTablePairings = ref<{ card: CourtListCardInfo; table: any }[]>([]);
+  const filesFilterMap: { [key: string]: (appearance: any) => boolean } = {
+    Complete: (appearance: any) => appearance.isComplete,
+    Cancelled: (appearance: any) => appearance.appearanceStatusCd === 'CNCL',
+    'To be called': (appearance: any) =>
+      appearance.appearanceStatusCd === 'SCHD',
+  };
+
+  const filterByAMPM = (pairing: any) =>
+    !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
+
+  const filterByFiles = (table: any) => {
+    return selectedFilesFilter.value
+      ? table.filter(filesFilterMap[selectedFilesFilter.value])
+      : table;
+  };
+
+  const filteredTablePairings = computed(() => {
+    return cardTablePairings.value
+      .filter(filterByAMPM)
+      .map((pairing) => ({ ...pairing, table: filterByFiles(pairing.table) }));
+  });
+
   const shortHandDate = computed(() =>
     appliedDate.value
       ? appliedDate.value.toLocaleDateString('en-US', {
@@ -66,14 +110,18 @@
         })
       : ''
   );
+  const headers = ref([
+    { title: 'File Number', key: 'courtFileNumber' },
+    { title: 'Accused/Parties', key: 'accusedNm' },
+  ]);
 
   const httpService = inject<HttpService>('httpService');
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
 
-  const PopulateCards = (data: any) => {
-    cards.value = [];
+  const populateCardTablePairings = (data: any) => {
+    cardTablePairings.value = [];
     if (!data?.items?.length) {
       return;
     }
@@ -91,11 +139,11 @@
       card.courtListLocationID = courtList.locationId;
       card.courtListLocation = courtList.locationNm;
       card.amPM = adjudicatorDetails?.amPm;
-      cards.value.push(card);
+      cardTablePairings.value.push({ card, table: courtList.appearances });
     });
   };
 
-  const AddDay = (days: number) => {
+  const addDay = (days: number) => {
     if (appliedDate.value) {
       appliedDate.value = new Date(
         appliedDate.value.setDate(appliedDate.value.getDate() + days)
