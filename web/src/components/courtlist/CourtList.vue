@@ -21,7 +21,7 @@
   </banner>
 
   <v-expand-transition>
-    <v-card v-show="showDropdown" height="100" elevation="16">
+    <v-card v-show="showDropdown" height="100" elevation="7">
       <court-list-search
         v-model:date="selectedDate"
         v-model:isSearching="searchingRequest"
