@@ -45,7 +45,8 @@
         class="w-100"
       >
         <court-list-card :cardInfo="pairing.card" />
-        <v-data-table
+        <!-- Wait until we can get real data back before enabling data-table -->
+        <!-- <v-data-table
           v-model="selectedItems"
           :items="pairing.table"
           :headers
@@ -54,7 +55,7 @@
           class="pb-5"
         >
           <template v-slot:bottom />
-        </v-data-table>
+        </v-data-table> -->
       </template>
     </v-skeleton-loader>
   </v-container>
@@ -76,7 +77,6 @@
   const search = ref();
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
-  const selectedItems = ref();
   const cardTablePairings = ref<{ card: CourtListCardInfo; table: any }[]>([]);
   const filesFilterMap: { [key: string]: (appearance: any) => boolean } = {
     Complete: (appearance: any) => appearance.isComplete,
@@ -110,10 +110,6 @@
         })
       : ''
   );
-  const headers = ref([
-    { title: 'File Number', key: 'courtFileNumber' },
-    { title: 'Accused/Parties', key: 'accusedNm' },
-  ]);
 
   const httpService = inject<HttpService>('httpService');
   if (!httpService) {
