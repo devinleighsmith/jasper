@@ -1,6 +1,6 @@
 <template>
   <v-expand-transition>
-    <v-card v-show="showDropdown" class="mx-auto" height="100" elevation="15">
+    <v-card v-show="showDropdown" class="mx-auto" height="100">
       <v-container>
         <v-form @submit.prevent="searchForCourtList(true)">
           <v-row class="py-1">
