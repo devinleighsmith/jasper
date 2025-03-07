@@ -1,7 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import CourtListCard from 'CMP/courtlist/CourtListCard.vue';
 import { CourtListCardInfo } from '@/types/courtlist';
+import { useCommonStore } from '@/stores';
+import { setActivePinia, createPinia } from 'pinia'
+import { nextTick } from 'vue';
+
+beforeEach(() => {
+    setActivePinia(createPinia());
+});
 
 const createWrapper = () => {
     const card: CourtListCardInfo = {
@@ -13,7 +20,14 @@ const createWrapper = () => {
         fileCount: 5,
         presider: 'Judge Smith',
         courtClerk: 'John Doe',
-        email: 'court@example.com'
+        email: 'court@example.com',
+        shortHandDate: '',
+        totalCases: 0,
+        totalTime: '',
+        totalTimeUnit: '',
+        criminalCases: 0,
+        familyCases: 0,
+        civilCases: 0
     };
     return mount(CourtListCard, {
         props: {
@@ -32,5 +46,20 @@ describe('CourtListCard.vue', () => {
         expect(wrapper.text()).toContain('Activity: Hearing');
         expect(wrapper.text()).toContain('Scheduled: 5 files');
         expect(wrapper.text()).toContain('court@example.com');
+    });
+
+    it.each([
+        [2],
+        [null]
+    ])('should display the correct infoLink from store', async (id) => {
+        const wrapper = createWrapper();
+        const commonStore = useCommonStore();
+        commonStore.updateCourtRoomsAndLocations([
+            { locationId: 2, name: 'Court B', infoLink: 'link2' },
+            { locationId: id, name: 'Court A', infoLink: 'link' }
+        ]);
+        await nextTick();
+        
+        expect(wrapper.findAll('a')[1].attributes('href')).toBe('link');
     });
 });
