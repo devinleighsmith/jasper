@@ -56,6 +56,7 @@ export interface CourtRoomsJsonInfoType {
   locationId: string;
   active: boolean;
   courtRooms: CourtRoomsInfo[];
+  infoLink: string;
 }
 
 export interface CourtRoomsInfo {
