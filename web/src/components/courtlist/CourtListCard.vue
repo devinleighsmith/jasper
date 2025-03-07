@@ -59,9 +59,9 @@
 
 <script setup lang="ts">
   import { useCommonStore } from '@/stores';
-import { CourtListCardInfo } from '@/types/courtlist';
-import { mdiOpenInNew } from '@mdi/js';
-import { computed, PropType } from 'vue';
+  import { CourtListCardInfo } from '@/types/courtlist';
+  import { mdiOpenInNew } from '@mdi/js';
+  import { computed, PropType } from 'vue';
 
   const props = defineProps({
     cardInfo: {
