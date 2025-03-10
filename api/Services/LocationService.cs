@@ -151,14 +151,7 @@ namespace Scv.Api.Services
                 .Select(jc =>
                 {
                     var match = pcssLocations.SingleOrDefault(pcss => pcss.Code == jc.LocationId || pcss.Name == jc.Code);
-                    return new Location
-                    {
-                        Name = jc.Name,
-                        Code = jc.LocationId,
-                        Active = jc.Active,
-                        LocationId = match?.LocationId,
-                        CourtRooms = match != null ? match.CourtRooms : jc.CourtRooms
-                    };
+                    return Location.Create(jc.Name, jc.LocationId, match?.LocationId, jc.Active, match != null ? match.CourtRooms : jc.CourtRooms);
                 })
                 .Where(l => l.Active.GetValueOrDefault())
                 .OrderBy(l => l.Name)

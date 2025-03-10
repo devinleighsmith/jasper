@@ -9,7 +9,7 @@ public class LocationTest
     [Fact]
     public void InfoLink_ShouldReturnCorrectUri_WhenNameIsValid()
     {
-        var location = new LocationModel { Name = "Vancouver Law Courts" };
+        var location = LocationModel.Create("Vancouver Law Courts", default, default, default, default);
 
         var result = location.InfoLink;
 
@@ -19,7 +19,7 @@ public class LocationTest
     [Fact]
     public void InfoLink_ShouldReturnNull_WhenNameIsNull()
     {
-        var location = new LocationModel { Name = null };
+        var location = LocationModel.Create(null, default, default, default, default);
 
         var result = location.InfoLink;
 
@@ -29,7 +29,7 @@ public class LocationTest
     [Fact]
     public void InfoLink_ShouldReturnNull_WhenNameIsEmpty()
     {
-        var location = new LocationModel { Name = string.Empty };
+        var location = LocationModel.Create(string.Empty, default, default, default, default);
 
         var result = location.InfoLink;
 
@@ -39,7 +39,7 @@ public class LocationTest
     [Fact]
     public void InfoLink_ShouldFilterOutInvalidWords()
     {
-        var location = new LocationModel { Name = "Court Law British Columbia Provincial Courts" };
+        var location = LocationModel.Create("Court Law British Columbia Provincial Courts", default, default, default, default);
 
         var result = location.InfoLink;
 
@@ -49,7 +49,7 @@ public class LocationTest
     [Fact]
     public void InfoLink_ShouldHandleMixedCaseWords()
     {
-        var location = new LocationModel { Name = "BRITISH ColUmbia provincial COURT" };
+        var location = LocationModel.Create("BRITISH ColUmbia provincial COURT", default, default, default, default);
 
         var result = location.InfoLink;
 

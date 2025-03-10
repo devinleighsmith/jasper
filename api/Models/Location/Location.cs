@@ -16,6 +16,20 @@ public class Location
     public Uri InfoLink => ParseCourtLocationUrl(Name);
     public ICollection<CourtRoom> CourtRooms { get; set; }
 
+    private Location(string name, string code, string locationId, bool? active, ICollection<CourtRoom> courtRooms)
+    {
+        Name = name;
+        Code = code;
+        LocationId = locationId;
+        Active = active;
+        CourtRooms = courtRooms;
+    }
+
+    public static Location Create(string name, string code, string locationId, bool? active, ICollection<CourtRoom> courtRooms)
+    {
+        return new Location(name, code, locationId, active, courtRooms);
+    }
+
     private static Uri ParseCourtLocationUrl(string locationName)
     {
         if (string.IsNullOrEmpty(locationName))
@@ -27,6 +41,7 @@ public class Location
             .Where(word => !invalidWords.Contains(word, StringComparer.OrdinalIgnoreCase));
 
         locationName = string.Join("-", filteredWords);
+
         return new Uri(BASE_URL + locationName.ToLower());
     }
 }
