@@ -55,4 +55,35 @@ public class LocationTest
 
         Assert.Equal(new Uri("https://provincialcourt.bc.ca/court-locations/british-columbia"), result);
     }
+
+    [Fact]
+    public void Create_ShouldReturnLocation_WhenJcLocationAndPcssLocationAreValid()
+    {
+        var jcLocation = LocationModel.Create("Vancouver Law Courts", "123", "456", true, default);
+        var pcssLocation = LocationModel.Create("Vancouver Law Courts", "123", "789", true, default);
+
+        var result = LocationModel.Create(jcLocation, pcssLocation);
+
+        Assert.NotNull(result);
+        Assert.Equal("Vancouver Law Courts", result.Name);
+        Assert.Equal("456", result.Code);
+        Assert.Equal("789", result.LocationId);
+        Assert.True(result.Active);
+        Assert.Equal(pcssLocation.CourtRooms, result.CourtRooms);
+    }
+
+    [Fact]
+    public void Create_ShouldReturnLocation_WhenPcssLocationIsNull()
+    {
+        var jcLocation = LocationModel.Create("Vancouver Law Courts", "123", "456", true, default);
+
+        var result = LocationModel.Create(jcLocation, null);
+
+        Assert.NotNull(result);
+        Assert.Equal("Vancouver Law Courts", result.Name);
+        Assert.Equal("456", result.Code);
+        Assert.Null(result.LocationId);
+        Assert.True(result.Active);
+        Assert.Equal(jcLocation.CourtRooms, result.CourtRooms);
+    }
 }

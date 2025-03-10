@@ -18,6 +18,8 @@ namespace Scv.Api.Mappers
                     src.Code,
                     src.Flex == "Y",
                     new List<CourtRoom>()))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.ShortDesc))
+                .ForMember(dest => dest.LocationId, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.InfoLink, opt => opt.Ignore());
 
             CreateMap<JC.CodeValue, CourtRoom>()
