@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Scv.Api.Models.Location;
 
-public class Location
+public class Location 
 {
     private const string BASE_URL = "https://provincialcourt.bc.ca/court-locations/";
     private static readonly string[] invalidWords = ["Law", "Courts", "Court", "Provincial"];
@@ -28,6 +28,16 @@ public class Location
     public static Location Create(string name, string code, string locationId, bool? active, ICollection<CourtRoom> courtRooms)
     {
         return new Location(name, code, locationId, active, courtRooms);
+    }
+
+    public static Location Create(Location jcLocation, Location pcssLocation)
+    {
+        return new Location(
+            jcLocation.Name, 
+            jcLocation.LocationId, 
+            pcssLocation?.LocationId, 
+            jcLocation.Active, 
+            pcssLocation != null ? pcssLocation.CourtRooms : jcLocation.CourtRooms);
     }
 
     private static Uri ParseCourtLocationUrl(string locationName)

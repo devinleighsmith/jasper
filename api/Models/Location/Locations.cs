@@ -3,14 +3,49 @@ using System.Linq;
 
 namespace Scv.Api.Models.Location;
 
-public class Locations
+public class Locations : IList<Location>
 {
-    public List<Location> LocationList { get; private set; }
+    private readonly List<Location> _locations;
 
-    private Locations(List<Location> locations)
+    public Locations()
     {
-        LocationList = locations;
+        _locations = [];
     }
+
+    public Locations(IEnumerable<Location> locations)
+    {
+        _locations = [.. locations];
+    }
+
+    public Location this[int index]
+    {
+        get => _locations[index];
+        set => _locations[index] = value;
+    }
+
+    public int Count => _locations.Count;
+
+    public bool IsReadOnly => false;
+
+    public void Add(Location item) => _locations.Add(item);
+
+    public void Clear() => _locations.Clear();
+
+    public bool Contains(Location item) => _locations.Contains(item);
+
+    public void CopyTo(Location[] array, int arrayIndex) => _locations.CopyTo(array, arrayIndex);
+
+    public IEnumerator<Location> GetEnumerator() => _locations.GetEnumerator();
+
+    public int IndexOf(Location item) => _locations.IndexOf(item);
+
+    public void Insert(int index, Location item) => _locations.Insert(index, item);
+
+    public bool Remove(Location item) => _locations.Remove(item);
+
+    public void RemoveAt(int index) => _locations.RemoveAt(index);
+
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => _locations.GetEnumerator();
 
     /// <summary>
     /// Creates a new instance of <see cref="Locations"/> by merging two collections of <see cref="Location"/> objects.
@@ -27,12 +62,12 @@ public class Locations
             .Select(jc =>
             {
                 var match = pcssLocations.SingleOrDefault(pcss => pcss.Code == jc.LocationId || pcss.Name == jc.Code);
-                return Location.Create(jc.Name, jc.LocationId, match?.LocationId, jc.Active, match != null ? match.CourtRooms : jc.CourtRooms);
+                return Location.Create(jc, match);
             })
             .Where(loc => loc.Active.GetValueOrDefault())
             .OrderBy(loc => loc.Name)
             .ToList();
 
-        return new Locations(locations);
+        return [.. locations];
     }
 }

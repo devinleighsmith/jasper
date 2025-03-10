@@ -2,51 +2,81 @@ using System.Collections.Generic;
 using Xunit;
 using Scv.Api.Models.Location;
 using LocationModel = Scv.Api.Models.Location.Location;
+using LocationsModel = Scv.Api.Models.Location.Locations;
 
-namespace tests.api.Models.Location;
+namespace tests.api.Models.Locations;
 
 public class LocationsTest
 {
     [Fact]
-    public void Create_ShouldReturnLocationsWithActiveLocationsOnly()
+    public void Add_Location_ShouldIncreaseCount()
     {
-        var jcLocations = new List<LocationModel>
-        {
-            LocationModel.Create("Location1", "1", null, true, null),
-            LocationModel.Create("Location2", "2", null, false, null),
-            LocationModel.Create("Location3", "3", null, true, null)
-        };
+        var locations = new LocationsModel();
+        var location = LocationModel.Create("TestName", "TestCode", "TestLocationId", true, []);
 
-        var pcssLocations = new List<LocationModel>
-        {
-            LocationModel.Create("Location1", "1", "1", true, null),
-            LocationModel.Create("Location3", "3", "3", true, null)
-        };
+        locations.Add(location);
 
-        var result = Locations.Create(jcLocations, pcssLocations);
-
-        Assert.Equal(2, result.LocationList.Count);
-        Assert.Contains(result.LocationList, loc => loc.Name == "Location1");
-        Assert.Contains(result.LocationList, loc => loc.Name == "Location3");
+        Assert.Single(locations);
     }
 
     [Fact]
-    public void Create_ShouldReturnLocationsOrderedByName()
+    public void Remove_Location_ShouldDecreaseCount()
     {
-        var jcLocations = new List<LocationModel>
+        var location = LocationModel.Create("TestName", "TestCode", "TestLocationId", true, new List<CourtRoom>());
+        var locations = new LocationsModel([location]);
+
+        var result = locations.Remove(location);
+
+        Assert.True(result);
+        Assert.Empty(locations);
+    }
+
+    [Fact]
+    public void Contains_Location_ShouldReturnTrue()
+    {
+        var location = LocationModel.Create("TestName", "TestCode", "TestLocationId", true, []);
+        var locations = new LocationsModel([location]);
+
+        var result = locations.Contains(location);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void Indexer_Get_ShouldReturnCorrectLocation()
+    {
+        var location = LocationModel.Create("TestName", "TestCode", "TestLocationId", true, []);
+        var locations = new LocationsModel([location]);
+
+        var result = locations[0];
+
+        Assert.Equal(location, result);
+    }
+
+    [Fact]
+    public void Indexer_Set_ShouldUpdateLocation()
+    {
+        var location1 = LocationModel.Create("TestName1", "TestCode1", "TestLocationId1", true, []);
+        var location2 = LocationModel.Create("TestName2", "TestCode2", "TestLocationId2", true, []);
+        var locations = new LocationsModel([location1])
         {
-            LocationModel.Create("LocationB", "2", null, true, null),
-            LocationModel.Create("LocationA", "1", null, true, null),
-            LocationModel.Create("LocationC", "3", null, true, null)
+            [0] = location2
         };
 
-        var pcssLocations = new List<LocationModel>();
+        Assert.Equal(location2, locations[0]);
+    }
 
-        var result = Locations.Create(jcLocations, pcssLocations);
+    [Fact]
+    public void Create_ShouldMergeAndReturnActiveLocations()
+    {
+        var jcLocation = LocationModel.Create("JCName", "JCCode", "JCLocationId", true, []);
+        var pcssLocation = LocationModel.Create("PCSSName", "PCSSCode", "PCSSLocationId", true, []);
+        var jcLocations = new List<LocationModel> { jcLocation };
+        var pcssLocations = new List<LocationModel> { pcssLocation };
 
-        Assert.Equal(3, result.LocationList.Count);
-        Assert.Equal("LocationA", result.LocationList[0].Name);
-        Assert.Equal("LocationB", result.LocationList[1].Name);
-        Assert.Equal("LocationC", result.LocationList[2].Name);
+        var result = LocationsModel.Create(jcLocations, pcssLocations);
+
+        Assert.Single(result);
+        Assert.Equal("JCName", result[0].Name);
     }
 }

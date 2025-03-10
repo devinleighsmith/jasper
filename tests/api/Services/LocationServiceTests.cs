@@ -208,7 +208,7 @@ public class LocationServiceTests : ServiceTestBase
 
         var location = result.Single();
         Assert.Null(location.LocationId);
-        Assert.Null(location.CourtRooms);
+        Assert.Empty(location.CourtRooms);
     }
 
     [Fact]

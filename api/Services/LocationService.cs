@@ -65,7 +65,7 @@ namespace Scv.Api.Services
 
             await Task.WhenAll(getJCLocationsTask, getPCSSLocationsTask);
 
-            return Models.Location.Locations.Create(getJCLocationsTask.Result, getPCSSLocationsTask.Result).LocationList;
+            return Models.Location.Locations.Create(getJCLocationsTask.Result, getPCSSLocationsTask.Result);
         });
 
         #endregion Collection Methods
