@@ -8,7 +8,23 @@
         </v-col>
       </v-row>
       <v-tabs v-model="activeTab">
-        <template v-for="file in props.files" :key="file.key">
+        <template v-for="(tab, index) in tabs.items" :key="tab.key">
+          <v-tab
+            class="text-body-1 mb-0"
+            :class="{ 'bg-white': isActive(index) }"
+            rounded="t-lg"
+            :ripple="false"
+            :to="tab.key"
+            hide-slider
+            active-color="yellow"
+            base-color="white"
+            color="black"
+            @click="fileNumber = tab.key"
+            >{{ tab.value }}</v-tab
+          >
+          <v-divider class="ms-2" inset vertical thickness="2"></v-divider>
+        </template>
+        <!-- <template v-for="file in props.files" :key="file.key">
           <v-tab
             class="text-body-1 mb-0"
             :class="{ 'bg-white': activeTab === file.key }"
@@ -23,24 +39,38 @@
             >{{ file.value }}</v-tab
           >
           <v-divider class="ms-2" inset vertical thickness="2"></v-divider>
-        </template>
+        </template> -->
       </v-tabs>
     </v-container>
   </v-card>
 </template>
 <script setup lang="ts">
   import { KeyValueInfo } from '@/types/common';
-  import { defineProps, PropType, ref, watch } from 'vue';
+  import { defineProps, PropType, computed, ref, onMounted, watch } from 'vue';
 
   const fileNumber = defineModel<string>();
   const props = defineProps({
     files: { type: Array as PropType<KeyValueInfo[]>, default: () => [] },
   });
-  const activeTab = ref(fileNumber.value);
+  const activeTab = ref(() => fileNumber.value);
+  const tabs = ref({ items: [] });
 
-  watch(fileNumber, (newVal) => {
-    console.log(newVal);
-    activeTab.value = newVal;
+  const isActive = (id) => {
+    return activeTab.value === id;
+  };
+
+  const setActive = (activeTabIndex) => {
+    tabs.items[activeTabIndex].isActive = true;
+  };
+
+  onMounted(() => {
+    props.files.forEach((file, index) => {
+      tabs.value.items.push({
+        key: file.key,
+        value: file.value,
+        isActive: activeTab.value === file.key,
+      });
+    });
   });
 </script>
 
