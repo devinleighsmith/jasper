@@ -129,7 +129,7 @@
   import CivilPastAppearances from '@/components/civil/CivilPastAppearances.vue';
   import CivilProvidedDocumentsView from '@/components/civil/CivilProvidedDocumentsView.vue';
   import CivilSidePanel from '@/components/civil/CivilSidePanel.vue';
-  import CourtFilesSelector from '@/components/shared/CourtFilesSelector.vue';
+  import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
   import { beautifyDate } from '@/filters';
   import { HttpService } from '@/services/HttpService';
   import {

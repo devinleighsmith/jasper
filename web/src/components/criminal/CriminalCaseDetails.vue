@@ -28,14 +28,14 @@
     </b-card>
     <v-row>
       <v-col>
-        <court-files-selector
-          v-model="fileNumber"
-          v-if="selectedFiles.length > 0"
-          :files="selectedFiles"
-        />
+        <court-files-selector v-model="fileNumber" :files="selectedFiles" />
       </v-col>
     </v-row>
-    <v-skeleton-loader class="my-1" type="table" :loading="loading">
+    <v-skeleton-loader
+      class="my-1"
+      type="table"
+      :loading="loading || !isMounted"
+    >
       <b-row cols="2">
         <b-col md="3" cols="3" style="overflow: auto">
           <criminal-side-panel v-if="isDataReady" />
@@ -139,7 +139,7 @@
   import CriminalSentence from '@/components/criminal/CriminalSentence.vue';
   import CriminalSidePanel from '@/components/criminal/CriminalSidePanel.vue';
   import CriminalWitnesses from '@/components/criminal/CriminalWitnesses.vue';
-  import CourtFilesSelector from '@/components/shared/CourtFilesSelector.vue';
+  import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
   import base64url from 'base64url';
   import {
     computed,

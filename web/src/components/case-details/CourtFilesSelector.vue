@@ -8,7 +8,7 @@
         </v-col>
       </v-row>
       <v-tabs v-model="activeTab">
-        <template v-for="(file, index) in props.files" :key="file.key">
+        <template v-for="file in props.files" :key="file.key">
           <v-tab
             class="text-body-1 mb-0"
             selected-class="active-tab"
