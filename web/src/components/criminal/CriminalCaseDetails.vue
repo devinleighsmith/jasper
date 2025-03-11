@@ -1,6 +1,6 @@
 <template>
   <div class="main-container" style="overflow: hidden">
-    <b-card bg-variant="light" v-if="!isMounted && !isDataReady">
+    <!-- <b-card bg-variant="light" v-if="!isMounted && !isDataReady">
       <b-overlay :show="true">
         <b-card style="min-height: 100px" />
         <template v-slot:overlay>
@@ -10,7 +10,7 @@
           </div>
         </template>
       </b-overlay>
-    </b-card>
+    </b-card> -->
 
     <b-card bg-variant="light" v-if="isMounted && !isDataReady">
       <b-card style="min-height: 100px">
@@ -38,58 +38,62 @@
             </b-button>          -->
       </b-card>
     </b-card>
-
-    <b-row cols="2">
-      <b-col md="3" cols="3" style="overflow: auto">
+    <v-row>
+      <v-col>
         <court-files-selector
-          v-if="isDataReady && selectedFiles.length > 0"
+          v-model="fileNumber"
+          v-if="selectedFiles.length > 0"
           :files="selectedFiles"
-          @reload-case-details="reloadCaseDetails"
-          targetCaseDetails="CriminalCaseDetails"
         />
-        <criminal-side-panel v-if="isDataReady" />
-      </b-col>
-      <b-col col md="9" cols="9" class="px-0" style="overflow: auto">
-        <criminal-header-top v-if="isDataReady" />
-        <criminal-header v-if="isDataReady" />
+      </v-col>
+    </v-row>
+    <v-skeleton-loader class="my-1" type="table" :loading="loading">
+      <b-row cols="2">
+        <b-col md="3" cols="3" style="overflow: auto">
+          <criminal-side-panel v-if="isDataReady" />
+        </b-col>
+        <b-col col md="9" cols="9" class="px-0" style="overflow: auto">
+          <criminal-header-top v-if="isDataReady" />
+          <criminal-header v-if="isDataReady" />
 
-        <b-row class="ml-0" v-if="showDocuments">
-          <h2 style="white-space: pre" v-if="isDataReady">
-            {{ selectedSideBar }}
-          </h2>
-          <custom-overlay
-            v-if="isDataReady"
-            :show="!downloadCompleted"
-            style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
-          >
-            <b-button
-              v-if="enableArchive"
-              @click="downloadDocuments()"
-              size="md"
-              variant="info"
+          <b-row class="ml-0" v-if="showDocuments">
+            <h2 style="white-space: pre" v-if="isDataReady">
+              {{ selectedSideBar }}
+            </h2>
+            <custom-overlay
+              v-if="isDataReady"
+              :show="!downloadCompleted"
               style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
             >
-              Download All Documents
-            </b-button>
-          </custom-overlay>
-        </b-row>
+              <b-button
+                v-if="enableArchive"
+                @click="downloadDocuments()"
+                size="md"
+                variant="info"
+                style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
+              >
+                Download All Documents
+              </b-button>
+            </custom-overlay>
+          </b-row>
 
-        <h2 style="white-space: pre" v-if="!showDocuments && isDataReady">
-          {{ selectedSideBar }}
-        </h2>
+          <h2 style="white-space: pre" v-if="!showDocuments && isDataReady">
+            {{ selectedSideBar }}
+          </h2>
 
-        <criminal-participants v-if="showCaseDetails" />
-        <criminal-adjudicator-restrictions v-if="showCaseDetails" />
-        <criminal-crown-information v-if="showCaseDetails" />
-        <!--<criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.-->
-        <criminal-past-appearances v-if="showPastAppearances" />
-        <criminal-future-appearances v-if="showFutureAppearances" />
-        <criminal-documents-view v-if="showDocuments" />
-        <criminal-witnesses v-if="showWitnesses" />
-        <criminal-sentence v-if="showSentenceOrder" />
-        <b-card><br /></b-card>
-      </b-col>
-    </b-row>
+          <criminal-participants v-if="showCaseDetails" />
+          <criminal-adjudicator-restrictions v-if="showCaseDetails" />
+          <criminal-crown-information v-if="showCaseDetails" />
+          <!--<criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.-->
+          <criminal-past-appearances v-if="showPastAppearances" />
+          <criminal-future-appearances v-if="showFutureAppearances" />
+          <criminal-documents-view v-if="showDocuments" />
+          <criminal-witnesses v-if="showWitnesses" />
+          <criminal-sentence v-if="showSentenceOrder" />
+          <b-card><br /></b-card>
+        </b-col>
+      </b-row>
+    </v-skeleton-loader>
 
     <b-modal
       v-if="isMounted"
@@ -149,7 +153,14 @@
   import CriminalWitnesses from '@/components/criminal/CriminalWitnesses.vue';
   import CourtFilesSelector from '@/components/shared/CourtFilesSelector.vue';
   import base64url from 'base64url';
-  import { computed, defineComponent, inject, onMounted, ref } from 'vue';
+  import {
+    computed,
+    defineComponent,
+    inject,
+    onMounted,
+    ref,
+    watch,
+  } from 'vue';
   import { useRoute } from 'vue-router';
   import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
@@ -221,6 +232,12 @@
       const banExists = ref(false);
       const errorCode = ref(0);
       const errorText = ref('');
+      const loading = ref(false);
+      const fileNumber = ref('');
+
+      watch(fileNumber, () => {
+        reloadCaseDetails();
+      });
 
       const participantJson = ref<criminalParticipantType[]>([]);
       const adjudicatorRestrictionsJson = ref<criminalHearingRestrictionType[]>(
@@ -253,6 +270,7 @@
       ];
 
       onMounted(() => {
+        loading.value = true;
         criminalFileStore.criminalFileInformation.fileNumber = getSingleValue(
           route.params.fileNumber
         );
@@ -260,6 +278,7 @@
           criminalFileStore.criminalFileInformation
         );
         getFileDetails();
+        loading.value = false;
       });
 
       const getFileDetails = () => {
@@ -305,8 +324,9 @@
                 criminalFileStore.criminalFileInformation
               );
               isDataReady.value = true;
+              loading.value = false;
             } else if (errorCode.value == 0) errorCode.value = 200;
-
+            loading.value = false;
             isMounted.value = true;
           });
       };
@@ -590,10 +610,9 @@
       // };
 
       const reloadCaseDetails = () => {
+        loading.value = true;
         // Reset the properties to load new case details.
-        criminalFileStore.criminalFileInformation.fileNumber = getSingleValue(
-          route.params.fileNumber
-        );
+        criminalFileStore.criminalFileInformation.fileNumber = fileNumber.value;
         participantList.value.length = 0;
         bans.value.length = 0;
         adjudicatorRestrictionsInfo.value.length = 0;
@@ -621,6 +640,8 @@
         showFutureAppearances,
         showWitnesses,
         banExists,
+        fileNumber,
+        loading,
       };
     },
   });
