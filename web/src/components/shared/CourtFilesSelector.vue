@@ -8,78 +8,50 @@
         </v-col>
       </v-row>
       <v-tabs v-model="activeTab">
-        <template v-for="(tab, index) in tabs.items" :key="tab.key">
+        <template v-for="(file, index) in props.files" :key="file.key">
           <v-tab
             class="text-body-1 mb-0"
-            :class="{ 'bg-white': isActive(index) }"
-            rounded="t-lg"
-            :ripple="false"
-            :to="tab.key"
-            hide-slider
-            active-color="yellow"
-            base-color="white"
-            color="black"
-            @click="fileNumber = tab.key"
-            >{{ tab.value }}</v-tab
-          >
-          <v-divider class="ms-2" inset vertical thickness="2"></v-divider>
-        </template>
-        <!-- <template v-for="file in props.files" :key="file.key">
-          <v-tab
-            class="text-body-1 mb-0"
-            :class="{ 'bg-white': activeTab === file.key }"
+            selected-class="active-tab"
             rounded="t-lg"
             :ripple="false"
             :to="file.key"
             hide-slider
-            active-color="yellow"
             base-color="white"
             color="black"
             @click="fileNumber = file.key"
             >{{ file.value }}</v-tab
           >
           <v-divider class="ms-2" inset vertical thickness="2"></v-divider>
-        </template> -->
+        </template>
       </v-tabs>
     </v-container>
   </v-card>
 </template>
 <script setup lang="ts">
   import { KeyValueInfo } from '@/types/common';
-  import { defineProps, PropType, computed, ref, onMounted, watch } from 'vue';
+  import { defineProps, PropType, ref } from 'vue';
 
   const fileNumber = defineModel<string>();
   const props = defineProps({
     files: { type: Array as PropType<KeyValueInfo[]>, default: () => [] },
   });
   const activeTab = ref(() => fileNumber.value);
-  const tabs = ref({ items: [] });
 
+  // We have to evaluate ourselves for now, v-tab's active-color doesn't appear to be working
+  // https://vuetifyjs.com/en/api/v-tab/#props-active-color
   const isActive = (id) => {
     return activeTab.value === id;
   };
-
-  const setActive = (activeTabIndex) => {
-    tabs.items[activeTabIndex].isActive = true;
-  };
-
-  onMounted(() => {
-    props.files.forEach((file, index) => {
-      tabs.value.items.push({
-        key: file.key,
-        value: file.value,
-        isActive: activeTab.value === file.key,
-      });
-    });
-  });
 </script>
 
-<style>
-  /* .active-tab {
+<style scoped>
+  .active-tab {
     background-color: white !important;
   }
-  .active {
-    color: #222222 !important;
-    background-color: #ffff !important;
-  } */
+  .active-tab:hover {
+    color: black !important;
+  }
+  .v-tab {
+    text-decoration: none !important;
+  }
 </style>
