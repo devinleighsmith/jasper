@@ -48,4 +48,14 @@
   .v-tab {
     text-decoration: none !important;
   }
+  /* Dark mode styling overrides */
+  .v-theme--dark .active-tab {
+    background-color: #212121 !important;
+  }
+  .v-theme--dark .active-tab {
+    color: white !important;
+  }
+  .v-theme--dark .active-tab:hover {
+    color: white !important;
+  }
 </style>

@@ -32,11 +32,11 @@
       </v-col>
     </v-row>
     <v-skeleton-loader
-      class="my-1"
+      class="my-0"
       type="table"
       :loading="loading || !isMounted"
     >
-      <b-row cols="2">
+      <b-row cols="2" class="my-3">
         <b-col md="3" cols="3" style="overflow: auto">
           <criminal-side-panel v-if="isDataReady" />
         </b-col>
