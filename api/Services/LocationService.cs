@@ -65,7 +65,7 @@ namespace Scv.Api.Services
 
             await Task.WhenAll(getJCLocationsTask, getPCSSLocationsTask);
 
-            return MergeJCandPCSSLocations(getJCLocationsTask.Result, getPCSSLocationsTask.Result);
+            return Models.Location.Locations.Create(getJCLocationsTask.Result, getPCSSLocationsTask.Result);
         });
 
         #endregion Collection Methods
@@ -144,28 +144,6 @@ namespace Scv.Api.Services
         #endregion PCSS Methods
 
         #region Helpers
-
-        private static List<Location> MergeJCandPCSSLocations(ICollection<Location> jcLocations, ICollection<Location> pcssLocations)
-        {
-            var locations = jcLocations
-                .Select(jc =>
-                {
-                    var match = pcssLocations.SingleOrDefault(pcss => pcss.Code == jc.LocationId || pcss.Name == jc.Code);
-                    return new Location
-                    {
-                        Name = jc.Name,
-                        Code = jc.LocationId,
-                        Active = jc.Active,
-                        LocationId = match?.LocationId,
-                        CourtRooms = match != null ? match.CourtRooms : jc.CourtRooms
-                    };
-                })
-                .Where(l => l.Active.GetValueOrDefault())
-                .OrderBy(l => l.Name)
-                .ToList();
-
-            return locations;
-        }
 
         private async Task<T> GetDataFromCache<T>(string key, Func<Task<T>> fetchFunction)
         {
