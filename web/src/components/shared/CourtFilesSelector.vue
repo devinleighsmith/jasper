@@ -36,12 +36,6 @@
     files: { type: Array as PropType<KeyValueInfo[]>, default: () => [] },
   });
   const activeTab = ref(() => fileNumber.value);
-
-  // We have to evaluate ourselves for now, v-tab's active-color doesn't appear to be working
-  // https://vuetifyjs.com/en/api/v-tab/#props-active-color
-  const isActive = (id) => {
-    return activeTab.value === id;
-  };
 </script>
 
 <style scoped>
