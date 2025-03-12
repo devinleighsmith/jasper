@@ -1,16 +1,5 @@
 <template>
   <div class="main-container" style="overflow: hidden">
-    <b-card bg-variant="light" v-if="!isMounted && !isDataReady">
-      <b-overlay :show="true">
-        <b-card style="min-height: 100px" />
-        <template v-slot:overlay>
-          <div>
-            <loading-spinner />
-            <p id="loading-label">Loading ...</p>
-          </div>
-        </template>
-      </b-overlay>
-    </b-card>
 
     <b-card bg-variant="light" v-if="isMounted && !isDataReady">
       <b-card style="min-height: 100px">
@@ -45,16 +34,19 @@
             </b-button>
         </b-card> -->
     </b-card>
-
+    <v-row>
+      <v-col>
+        <court-files-selector v-model="fileNumber" :files="selectedFiles" />
+      </v-col>
+    </v-row>
+    <v-skeleton-loader
+      class="my-0"
+      type="table"
+      :loading="loading || !isMounted"
+    >
     <b-card no-body>
       <b-row cols="2">
         <b-col md="3" cols="3" style="overflow: auto">
-          <court-files-selector
-            v-if="isDataReady && selectedFiles.length > 0"
-            :files="selectedFiles"
-            @reload-case-details="reloadCaseDetails"
-            targetCaseDetails="CivilCaseDetails"
-          />
           <civil-side-panel v-if="isDataReady" />
         </b-col>
         <b-col col md="9" cols="9" class="px-0" style="overflow: auto">
@@ -98,6 +90,7 @@
         </b-col>
       </b-row>
     </b-card>
+    </v-skeleton-loader>
     <b-modal
       v-if="isMounted"
       v-model="showSealedWarning"
@@ -160,7 +153,7 @@
   import { getSingleValue } from '@/utils/utils';
   import base64url from 'base64url';
   import _ from 'underscore';
-  import { computed, defineComponent, inject, onMounted, ref } from 'vue';
+  import { computed, defineComponent, inject, onMounted, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
   import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
@@ -208,6 +201,8 @@
       const showSealedWarning = ref(false);
       const errorCode = ref(0);
       const errorText = ref('');
+      const loading = ref(false);
+      const fileNumber = ref('');
 
       const partiesJson = ref<partyType[]>([]);
       const adjudicatorRestrictionsJson = ref<civilHearingRestrictionType[]>(
@@ -226,13 +221,19 @@
         'Provided Documents',
       ]);
 
+      watch(fileNumber, () => {
+        reloadCaseDetails();
+      });
+
       onMounted(() => {
+        loading.value = true;
         civilFileStore.civilFileInformation.fileNumber = getSingleValue(
           route.params.fileNumber
         );
         civilFileStore.updateCivilFile(civilFileStore.civilFileInformation);
         getFileDetails();
         navigateToSection(route.params.section);
+        loading.value = false;
       });
 
       const navigateToSection = (section) => {
@@ -309,6 +310,7 @@
                 isDataReady.value = true;
               } else errorCode.value = 200;
             } else if (errorCode.value == 0) errorCode.value = 200;
+            loading.value = false;
             isMounted.value = true;
           });
       };
@@ -707,9 +709,7 @@
 
       const reloadCaseDetails = () => {
         // Reset the properties to load new case details.
-        civilFileStore.civilFileInformation.fileNumber = getSingleValue(
-          route.params.fileNumber
-        );
+        civilFileStore.civilFileInformation.fileNumber = fileNumber.value;
         isMounted.value = false;
         isDataReady.value = false;
         partiesJson.value.length = 0;
@@ -749,6 +749,8 @@
         showSealedWarning,
         isSealed,
         docIsSealed,
+        fileNumber,
+        loading
       };
     },
   });
