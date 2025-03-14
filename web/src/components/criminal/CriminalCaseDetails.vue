@@ -38,9 +38,12 @@
         :loading="loading || !isMounted"
       >
         <v-row style="display: flex; flex-wrap: nowrap">
-          <criminal-side-panel-og v-if="isDataReady" />
           <v-col cols="2" style="overflow-y: auto">
-            <criminal-side-panel :details v-if="isDataReady" />
+            <criminal-side-panel-v2
+              v-if="isDataReady && details"
+              :details="details"
+            />
+            <criminal-side-panel v-if="isDataReady" />
           </v-col>
 
           <v-col col md="9" cols="9" class="px-0" style="overflow: auto">
@@ -106,8 +109,16 @@
 </template>
 
 <script lang="ts">
+  import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
   import CriminalAdjudicatorRestrictions from '@/components/criminal/CriminalAdjudicatorRestrictions.vue';
   import CriminalCrownInformation from '@/components/criminal/CriminalCrownInformation.vue';
+  import CriminalDocumentsView from '@/components/criminal/CriminalDocumentsView.vue';
+  import CriminalFutureAppearances from '@/components/criminal/CriminalFutureAppearances.vue';
+  import CriminalHeader from '@/components/criminal/CriminalHeader.vue';
+  import CriminalHeaderTop from '@/components/criminal/CriminalHeaderTop.vue';
+  import CriminalParticipants from '@/components/criminal/CriminalParticipants.vue';
+  import CriminalPastAppearances from '@/components/criminal/CriminalPastAppearances.vue';
+  import CriminalSentence from '@/components/criminal/CriminalSentence.vue';
   import { beautifyDate } from '@/filters';
   import { HttpService } from '@/services/HttpService';
   import {
@@ -133,18 +144,10 @@
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { getSingleValue } from '@/utils/utils';
-  //  import CriminalCrownNotes from '@/components/criminal/CriminalCrownNotes.vue';
-  import CriminalDocumentsView from '@/components/criminal/CriminalDocumentsView.vue';
-  import CriminalFutureAppearances from '@/components/criminal/CriminalFutureAppearances.vue';
-  import CriminalHeader from '@/components/criminal/CriminalHeader.vue';
-  import CriminalHeaderTop from '@/components/criminal/CriminalHeaderTop.vue';
-  import CriminalParticipants from '@/components/criminal/CriminalParticipants.vue';
-  import CriminalPastAppearances from '@/components/criminal/CriminalPastAppearances.vue';
-  import CriminalSentence from '@/components/criminal/CriminalSentence.vue';
-  import CriminalSidePanel from '@/components/case-details/CriminalSidePanel.vue';
-  import CriminalSidePanelOg from '@/components/criminal/CriminalSidePanel.vue';
+  // In the process of deprecating in favor of CriminalSidePanel.vue
+  import CriminalSidePanelV2 from '@/components/case-details/CriminalSidePanel.vue';
+  import CriminalSidePanel from '@/components/criminal/CriminalSidePanel.vue';
   import CriminalWitnesses from '@/components/criminal/CriminalWitnesses.vue';
-  import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
   import base64url from 'base64url';
   import {
     computed,
@@ -200,6 +203,7 @@
       CriminalWitnesses,
       CriminalSentence,
       CustomOverlay,
+      CriminalSidePanelV2,
     },
     setup() {
       const commonStore = useCommonStore();

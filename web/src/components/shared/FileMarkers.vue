@@ -22,7 +22,6 @@
   import { defineProps, ref, onMounted } from 'vue';
 
   const props = defineProps<{
-    restrictions: string[];
     division: string;
     participants: any[];
     appearances: any[];
@@ -31,16 +30,12 @@
   const markers = ref([]);
   const selection = ref([]);
   const markerData = ref([
-    { name: 'CNT', description: 'Continuation' },
-    //{ name: 'LOCT', description: 'Lack of Court Time' },
-    //{ name: 'OTH', description: 'Other' },
+    { name: 'CNT', description: 'Continuation' }
   ]);
   const criminalMarkers = [
     { name: 'IC', description: 'In Custody' },
     { name: 'DO', description: 'Detained Order' },
-    //{ name: 'CSO', description: 'Conditional Sentence Order' },
-    { name: 'INT', description: 'Interpreter Required' },
-    //{ name: 'W', description: 'Warrant' },
+    { name: 'INT', description: 'Interpreter Required' }
   ];
   const familyMarkers = [
     {
@@ -56,9 +51,6 @@
   }
 
   onMounted(() => {
-    // continuationYn(CNT), condSentenceOrderYn(CSO), lackCourtTimeYn(LOCT), otherFactorsYn(OTH)
-
-    //IC DO CNT INT
     const participantFlags = {
       W: 'warrantYN',
       DO: 'detainedYN',
