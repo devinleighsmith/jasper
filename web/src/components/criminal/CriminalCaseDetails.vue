@@ -31,57 +31,61 @@
         <court-files-selector v-model="fileNumber" :files="selectedFiles" />
       </v-col>
     </v-row>
-    <v-skeleton-loader
-      class="my-0"
-      type="table"
-      :loading="loading || !isMounted"
-    >
-      <b-row cols="2" class="my-3">
-        <b-col md="3" cols="3" style="overflow: auto">
-          <criminal-side-panel v-if="isDataReady" />
-        </b-col>
-        <b-col col md="9" cols="9" class="px-0" style="overflow: auto">
-          <criminal-header-top v-if="isDataReady" />
-          <criminal-header v-if="isDataReady" />
+    <v-container>
+      <v-skeleton-loader
+        class="my-0"
+        type="table"
+        :loading="loading || !isMounted"
+      >
+        <v-row style="display: flex; flex-wrap: nowrap">
+          <criminal-side-panel-og v-if="isDataReady" />
+          <v-col cols="2" style="overflow-y: auto">
+            <criminal-side-panel :details v-if="isDataReady" />
+          </v-col>
 
-          <b-row class="ml-0" v-if="showDocuments">
-            <h2 style="white-space: pre" v-if="isDataReady">
-              {{ selectedSideBar }}
-            </h2>
-            <custom-overlay
-              v-if="isDataReady"
-              :show="!downloadCompleted"
-              style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
-            >
-              <b-button
-                v-if="enableArchive"
-                @click="downloadDocuments()"
-                size="md"
-                variant="info"
+          <v-col col md="9" cols="9" class="px-0" style="overflow: auto">
+            <criminal-header-top v-if="isDataReady" />
+            <criminal-header v-if="isDataReady" />
+
+            <b-row class="ml-0" v-if="showDocuments">
+              <h2 style="white-space: pre" v-if="isDataReady">
+                {{ selectedSideBar }}
+              </h2>
+              <custom-overlay
+                v-if="isDataReady"
+                :show="!downloadCompleted"
                 style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
               >
-                Download All Documents
-              </b-button>
-            </custom-overlay>
-          </b-row>
+                <b-button
+                  v-if="enableArchive"
+                  @click="downloadDocuments()"
+                  size="md"
+                  variant="info"
+                  style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
+                >
+                  Download All Documents
+                </b-button>
+              </custom-overlay>
+            </b-row>
 
-          <h2 style="white-space: pre" v-if="!showDocuments && isDataReady">
-            {{ selectedSideBar }}
-          </h2>
+            <h2 style="white-space: pre" v-if="!showDocuments && isDataReady">
+              {{ selectedSideBar }}
+            </h2>
 
-          <criminal-participants v-if="showCaseDetails" />
-          <criminal-adjudicator-restrictions v-if="showCaseDetails" />
-          <criminal-crown-information v-if="showCaseDetails" />
-          <!--<criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.-->
-          <criminal-past-appearances v-if="showPastAppearances" />
-          <criminal-future-appearances v-if="showFutureAppearances" />
-          <criminal-documents-view v-if="showDocuments" />
-          <criminal-witnesses v-if="showWitnesses" />
-          <criminal-sentence v-if="showSentenceOrder" />
-          <b-card><br /></b-card>
-        </b-col>
-      </b-row>
-    </v-skeleton-loader>
+            <criminal-participants v-if="showCaseDetails" />
+            <criminal-adjudicator-restrictions v-if="showCaseDetails" />
+            <criminal-crown-information v-if="showCaseDetails" />
+            <!--<criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.-->
+            <criminal-past-appearances v-if="showPastAppearances" />
+            <criminal-future-appearances v-if="showFutureAppearances" />
+            <criminal-documents-view v-if="showDocuments" />
+            <criminal-witnesses v-if="showWitnesses" />
+            <criminal-sentence v-if="showSentenceOrder" />
+            <b-card><br /></b-card>
+          </v-col>
+        </v-row>
+      </v-skeleton-loader>
+    </v-container>
 
     <b-modal
       v-if="isMounted"
@@ -137,7 +141,8 @@
   import CriminalParticipants from '@/components/criminal/CriminalParticipants.vue';
   import CriminalPastAppearances from '@/components/criminal/CriminalPastAppearances.vue';
   import CriminalSentence from '@/components/criminal/CriminalSentence.vue';
-  import CriminalSidePanel from '@/components/criminal/CriminalSidePanel.vue';
+  import CriminalSidePanel from '@/components/case-details/CriminalSidePanel.vue';
+  import CriminalSidePanelOg from '@/components/criminal/CriminalSidePanel.vue';
   import CriminalWitnesses from '@/components/criminal/CriminalWitnesses.vue';
   import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
   import base64url from 'base64url';
@@ -213,7 +218,7 @@
         AdjudicatorRestrictionsInfoType[]
       >([]);
       const bans = ref<bansInfoType[]>([]);
-
+      const details = ref<criminalFileDetailsType>();
       const isDataReady = ref(false);
       const isMounted = ref(false);
       const downloadCompleted = ref(true);
@@ -311,6 +316,7 @@
               criminalFileStore.updateCriminalFile(
                 criminalFileStore.criminalFileInformation
               );
+              details.value = data;
               isDataReady.value = true;
               loading.value = false;
             } else if (errorCode.value == 0) errorCode.value = 200;
@@ -630,6 +636,7 @@
         banExists,
         fileNumber,
         loading,
+        details,
       };
     },
   });
