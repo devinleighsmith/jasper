@@ -2,6 +2,7 @@
   <h5 class="my-1">Case Details</h5>
   <v-card color="#efedf5">
     <division-badge :activityClassDesc division="Criminal" class="mx-3 my-3" />
+    <span v-if="bansExist"><b style="color: #e30e0e">BAN</b></span>
     <v-card-title>{{ names }}</v-card-title>
     <v-card-subtitle>{{ location }}</v-card-subtitle>
     <file-markers
@@ -35,6 +36,7 @@
 
   const details = ref(props.details);
   const participants = ref(details.value.participant);
+  const bansExist = participants.value.some((p) => p.ban.length > 0);
   const appearances = ref(details.value.appearances?.apprDetail);
   const names = computed(() => {
     return (

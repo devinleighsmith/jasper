@@ -89,22 +89,6 @@
         </v-row>
       </v-skeleton-loader>
     </v-container>
-
-    <b-modal
-      v-if="isMounted"
-      v-model="banExists"
-      id="bv-modal-ban"
-      hide-header
-      hide-footer
-    >
-      <b-card>
-        A Ban has been ordered on at least one participant in this case. Please
-        check Ban Details before giving out sensitive details.
-      </b-card>
-      <!-- <b-button class="mt-3 bg-primary" @click="$bvModal.hide('bv-modal-ban')"
-        >Continue</b-button
-      > -->
-    </b-modal>
   </div>
 </template>
 
@@ -226,7 +210,6 @@
       const isDataReady = ref(false);
       const isMounted = ref(false);
       const downloadCompleted = ref(true);
-      const banExists = ref(false);
       const errorCode = ref(0);
       const errorText = ref('');
       const loading = ref(false);
@@ -311,9 +294,6 @@
                 participantList.value;
               criminalFileStore.criminalFileInformation.adjudicatorRestrictionsInfo =
                 adjudicatorRestrictionsInfo.value;
-              if (bans.value.length > 0) {
-                banExists.value = true;
-              }
               criminalFileStore.criminalFileInformation.bans = bans.value;
               criminalFileStore.criminalFileInformation.courtLevel = courtLevel;
               criminalFileStore.criminalFileInformation.courtClass = courtClass;
@@ -637,7 +617,6 @@
         showPastAppearances,
         showFutureAppearances,
         showWitnesses,
-        banExists,
         fileNumber,
         loading,
         details,
