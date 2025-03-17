@@ -12,27 +12,14 @@ describe('DivisionBadge.vue', () => {
     });
   };
 
-  it('renders correctly with Criminal division and Adult activity class', () => {
-    const wrapper = createWrapper('Criminal', 'Adult');
-    expect(wrapper.text()).toContain('CRIMINAL - ADULT');
-    expect(wrapper.find('v-chip').attributes('color')).toEqual('#4092c1');
-  });
-
-  it('renders correctly with Criminal division and YouthJustice activity class', () => {
-    const wrapper = createWrapper('Criminal', 'Youth Justice');
-    expect(wrapper.text()).toContain('CRIMINAL - YOUTH');
-    expect(wrapper.find('v-chip').attributes('color')).toEqual('#4092c1');
-  });
-
-  it('renders correctly with Family division', () => {
-    const wrapper = createWrapper('Family', '');
-    expect(wrapper.text()).toContain('FAMILY');
-    expect(wrapper.find('v-chip').attributes('color')).toEqual('#2e8540');
-  });
-
-  it('renders correctly with default division', () => {
-    const wrapper = createWrapper('Unknown', '');
-    expect(wrapper.text()).toContain('UNKNOWN');
-    expect(wrapper.find('v-chip').attributes('color')).toEqual('#79368f');
+  it.each([
+    { division: 'Criminal', activityClassDesc: 'Adult', expectedText: 'CRIMINAL - ADULT', expectedColor: '#4092c1' },
+    { division: 'Criminal', activityClassDesc: 'Youth Justice', expectedText: 'CRIMINAL - YOUTH', expectedColor: '#4092c1' },
+    { division: 'Family', activityClassDesc: '', expectedText: 'FAMILY', expectedColor: '#2e8540' },
+    { division: 'Unknown', activityClassDesc: '', expectedText: 'UNKNOWN', expectedColor: '#79368f' },
+  ])('renders correctly with $division division and $activityClassDesc activity class', ({ division, activityClassDesc, expectedText, expectedColor }) => {
+    const wrapper = createWrapper(division, activityClassDesc);
+    expect(wrapper.text()).toContain(expectedText);
+    expect(wrapper.find('v-chip').attributes('color')).toEqual(expectedColor);
   });
 });
