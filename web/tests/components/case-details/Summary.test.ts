@@ -1,67 +1,80 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Summary from 'CPM/case-details/Summary.vue';
-import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
+import Summary from 'CMP/case-details/Summary.vue';
+import { banType, criminalAppearancesType, criminalFileDetailsType, crownType } from '@/types/criminal/jsonTypes';
+import { AdditionalProperties } from '@/types/common';
 
-  
+const createParticipant = (givenNm: string, lastNm: string) => ({
+  ban: [],
+  charge: [],
+  count: [],
+  fullName: '',
+  document: [],
+  hideJustinCounsel: false,
+  partId: '',
+  profSeqNo: '',
+  lastNm,
+  givenNm,
+  orgNm: '',
+  warrantYN: '',
+  inCustodyYN: '',
+  interpreterYN: '',
+  detainedYN: '',
+  birthDt: '',
+  counselRrepId: '',
+  counselPartId: '',
+  counselLastNm: '',
+  counselGivenNm: '',
+  counselRelatedRepTypeCd: '',
+  counselEnteredDt: '',
+  designatedCounselYN: '',
+  additionalProperties: {} as AdditionalProperties,
+  additionalProp1: {},
+  additionalProp2: {},
+  additionalProp3: {},
+});  
+
 const details: criminalFileDetailsType = {
     responseCd: '200',
     responseMessageTxt: 'Success',
     justinNo: '123456',
-    fileNumberTxt: 'FN123456',
-    homeLocationAgenId: 'HLA123',
-    homeLocationAgencyName: 'Location A',
-    homeLocationAgencyCode: 'LAC123',
-    homeLocationRegionName: 'Region A',
-    courtLevelCd: 'CL123',
-    courtLevelDescription: 'Court Level A',
-    courtClassCd: 'CC123',
-    courtClassDescription: 'Court Class A',
-    activityClassCd: 'AC123',
-    activityClassDesc: 'Activity Class A',
+    fileNumberTxt: '123',
+    homeLocationAgenId: 'H',
+    homeLocationAgencyName: 'LocationA',
+    homeLocationAgencyCode: '',
+    homeLocationRegionName: '',
+    courtLevelCd: '',
+    courtLevelDescription: '',
+    courtClassCd: '',
+    courtClassDescription: '',
+    activityClassCd: '',
+    activityClassDesc: '',
     currentEstimateLenQty: '10',
     currentEstimateLenUnit: 'days',
     initialEstimateLenQty: '5',
     initialEstimateLenUnit: 'days',
     trialStartDt: '2023-01-01',
-    mdocSubCategoryDsc: 'SubCategory A',
-    mdocCcn: 'CCN123',
-    assignedPartNm: 'Assigned Part A',
-    approvedByAgencyCd: 'ABAC123',
-    approvedByPartNm: 'Approved Part A',
-    approvalCrownAgencyTypeCd: 'ACAT123',
+    mdocSubCategoryDsc: '',
+    mdocCcn: '',
+    assignedPartNm: '',
+    approvedByAgencyCd: '',
+    approvedByPartNm: '',
+    approvalCrownAgencyTypeCd: '',
     crownEstimateLenQty: 15,
     crownEstimateLenDsc: '15 days',
     crownEstimateLenUnit: 'days',
     caseAgeDays: '100',
     indictableYN: 'Y',
-    complexityTypeCd: 'CT123',
-    assignmentTypeDsc: 'Assignment Type A',
-    trialRemark: [
-    ],
+    complexityTypeCd: '',
+    assignmentTypeDsc: '',
+    trialRemark: [],
     participant: [
+      createParticipant('John', 'Doe')
     ],
-    witness: [
-    ],
-    crown: [
-    ],
-    hearingRestriction: [
-    ],
-    appearances: {
-        apprDetail: [],
-        responseCd: '',
-        responseMessageTxt: '',
-        futureRecCount: '',
-        historyRecCount: '',
-        additionalProperties: {
-            additionalProp1: {},
-            additionalProp2: {},
-            additionalProp3: {},
-        },
-        additionalProp1: {},
-        additionalProp2: {},
-        additionalProp3: {},
-    }
+    witness: [],
+    crown: [],
+    hearingRestriction: [],
+    appearances: { } as criminalAppearancesType
 };
 
   describe('Summary.vue', () => {
@@ -73,10 +86,45 @@ const details: criminalFileDetailsType = {
       expect(wrapper.find('h5').text()).toBe('Case Details');
       expect(wrapper.findComponent({ name: 'DivisionBadge' }).exists()).toBe(true);
       expect(wrapper.findComponent({ name: 'FileMarkers' }).exists()).toBe(true);
-      expect(wrapper.find('v-card-title').text()).toBe('DOE, John and 1 other');
-      expect(wrapper.find('v-card-subtitle').text()).toBe('Location A');
-      expect(wrapper.findAll('v-row').at(1).find('v-col').text()).toBe('Crown');
-      expect(wrapper.findAll('v-row').at(1).findAll('v-col').at(1).text()).toBe('Brown, Charlie');
-      expect(wrapper.findAll('v-row').at(2).findAll('v-col').at(1).text()).toBe('100 days');
+      expect(wrapper.find('v-card-title').text()).toBe('DOE, John');
+      expect(wrapper.find('v-card-subtitle').text()).toBe('LocationA');
+      expect(wrapper.findAll('v-row')?.at(1)?.find('v-col').text()).toBe('Crown');
+      expect(wrapper.findAll('v-row')?.at(2)?.findAll('v-col')?.at(1)?.text()).toBe('100 days');
+    });
+
+    it('renders correct text when more than one particpant', () => {
+      details.participant = [
+        createParticipant('John', 'Doe'),
+        createParticipant('Charlie', 'Brown')
+      ];
+      
+      const wrapper = mount(Summary, {
+        props: { details }
+      });
+
+      expect(wrapper.find('v-card-title').text()).toBe('DOE, John and 1 other(s)');
+    });
+
+    it('renders bans text when bans present', () => {
+      details.participant[0].ban = [ {} as banType ];
+      
+      const wrapper = mount(Summary, {
+        props: { details }
+      });
+
+      expect(wrapper.find('span').text()).toBe('BAN');
+    });
+
+    it.each([
+      [true, "Byrne, David"],
+      [false, ""],
+    ])('renders crown names when crown present and assigned', (assigned, output) => {
+      details.crown = [ { givenNm: 'David', lastNm: 'Byrne', assigned: assigned } as crownType ];
+      
+      const wrapper = mount(Summary, {
+        props: { details }
+      });
+      
+      expect(wrapper.findAll('v-row')?.at(1)?.findAll('v-col')?.at(1)?.text()).toBe(output);
     });
   });

@@ -3,7 +3,7 @@
   <v-card color="#efedf5">
     <division-badge :activityClassDesc division="Criminal" class="mx-3 my-3" />
     <span v-if="bansExist"><b style="color: #e30e0e">BAN</b></span>
-    <v-card-title>{{ names }}</v-card-title>
+    <v-card-title style="text-wrap: wrap">{{ names }}</v-card-title>
     <v-card-subtitle>{{ location }}</v-card-subtitle>
     <file-markers
       :participants
@@ -11,15 +11,15 @@
       division="Criminal"
       class="mx-3 mt-2"
     />
-    <v-row class="mx-1 my-1">
+    <v-row class="mx-1 mt-2">
       <v-col cols="6">Elections</v-col>
       <v-col></v-col>
     </v-row>
-    <v-row class="mx-1 my-1">
+    <v-row class="mx-1">
       <v-col cols="6">Crown</v-col>
       <v-col>{{ crownName }}</v-col>
     </v-row>
-    <v-row class="mx-1 my-1">
+    <v-row class="mx-1 mb-1">
       <v-col cols="6">Case Age</v-col>
       <v-col>{{ details.caseAgeDays }} days</v-col>
     </v-row>
@@ -40,11 +40,10 @@
   const appearances = ref(details.value.appearances?.apprDetail);
   const names = computed(() => {
     return (
-      participants.value[0].lastNm.toUpperCase() +
-      ', ' +
+      participants.value[0].lastNm.toUpperCase() + ', ' +
       participants.value[0].givenNm +
       (participants.value.length > 1
-        ? ` and ${participants.value.length - 1} other`
+        ? ` and ${participants.value.length - 1} other(s)`
         : '')
     );
   });

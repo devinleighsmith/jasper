@@ -1,11 +1,11 @@
 <template>
-  <Summary :details />
+  <Summary v-if="details" :details />
 </template>
 
 <script setup lang="ts">
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-  import { ref } from 'vue';
-  import Summary from './Summary.vue';
+import { ref } from 'vue';
+import Summary from './Summary.vue';
 
   const props = defineProps<{ details: criminalFileDetailsType }>();
 
