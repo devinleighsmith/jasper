@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-  import { defineProps, ref, onMounted } from 'vue';
+  import { defineProps, onMounted, ref } from 'vue';
 
   const props = defineProps<{
     division: string;
@@ -27,15 +27,13 @@
     appearances: any[];
   }>();
 
-  const markers = ref([]);
-  const selection = ref([]);
-  const markerData = ref([
-    { name: 'CNT', description: 'Continuation' }
-  ]);
+  const markers = ref<any>([]);
+  const selection = ref<string[]>([]);
+  const markerData = ref([{ name: 'CNT', description: 'Continuation' }]);
   const criminalMarkers = [
     { name: 'IC', description: 'In Custody' },
     { name: 'DO', description: 'Detained Order' },
-    { name: 'INT', description: 'Interpreter Required' }
+    { name: 'INT', description: 'Interpreter Required' },
   ];
   const familyMarkers = [
     {

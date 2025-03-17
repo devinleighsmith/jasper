@@ -445,7 +445,7 @@
 
       const SortedOrderMade = computed(() => {
         return _.sortBy(
-          participantSentences[orderMadeClickedParticipant.value].orderMade,
+          participantSentences[orderMadeClickedParticipant.value]?.orderMade,
           'date'
         ).reverse();
       });
@@ -453,7 +453,7 @@
       const SortedJudgesRecommendation = computed(() => {
         return _.sortBy(
           participantSentences[judgeRecomClickedParticipant.value]
-            .judgesRecommendation,
+            ?.judgesRecommendation,
           'date'
         ).reverse();
       });
