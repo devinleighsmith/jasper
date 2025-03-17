@@ -43,7 +43,7 @@
               v-if="isDataReady && details"
               :details="details"
             />
-            <criminal-side-panel v-if="isDataReady" />
+            <criminal-side-panel-v1 v-if="isDataReady" />
           </v-col>
 
           <v-col col md="9" cols="9" class="px-0" style="overflow: auto">
@@ -94,6 +94,7 @@
 
 <script lang="ts">
   import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
+  import CriminalSidePanelV2 from '@/components/case-details/CriminalSidePanel.vue';
   import CriminalAdjudicatorRestrictions from '@/components/criminal/CriminalAdjudicatorRestrictions.vue';
   import CriminalCrownInformation from '@/components/criminal/CriminalCrownInformation.vue';
   import CriminalDocumentsView from '@/components/criminal/CriminalDocumentsView.vue';
@@ -103,6 +104,9 @@
   import CriminalParticipants from '@/components/criminal/CriminalParticipants.vue';
   import CriminalPastAppearances from '@/components/criminal/CriminalPastAppearances.vue';
   import CriminalSentence from '@/components/criminal/CriminalSentence.vue';
+  // In the process of deprecating in favor of @/components/case-details/CriminalSidePanel.vue
+  import CriminalSidePanelV1 from '@/components/criminal/CriminalSidePanel.vue';
+  import CriminalWitnesses from '@/components/criminal/CriminalWitnesses.vue';
   import { beautifyDate } from '@/filters';
   import { HttpService } from '@/services/HttpService';
   import {
@@ -128,10 +132,6 @@
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { getSingleValue } from '@/utils/utils';
-  // In the process of deprecating in favor of CriminalSidePanel.vue
-  import CriminalSidePanelV2 from '@/components/case-details/CriminalSidePanel.vue';
-  import CriminalSidePanel from '@/components/criminal/CriminalSidePanel.vue';
-  import CriminalWitnesses from '@/components/criminal/CriminalWitnesses.vue';
   import base64url from 'base64url';
   import {
     computed,
@@ -144,7 +144,7 @@
   import { useRoute } from 'vue-router';
   import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
-
+  
   enum DecodeCourtLevel {
     'P' = 0,
     'S' = 1,
@@ -175,7 +175,7 @@
     components: {
       CourtFilesSelector,
       CriminalDocumentsView,
-      CriminalSidePanel,
+      CriminalSidePanelV1,
       CriminalHeaderTop,
       CriminalHeader,
       CriminalParticipants,
