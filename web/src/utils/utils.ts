@@ -173,3 +173,16 @@ export const extractCivilAppearancesInfo = (
 
   return appInfo;
 };
+
+export const formatDDMMYYYDate = (dateString: string): string => {
+  const date = dateString ? new Date(dateString) : null;
+  if(!date){
+    return '';
+  }
+  
+  var day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
+  var month = new Intl.DateTimeFormat('en', { month: 'short' }).format(date);
+  var year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
+
+  return `${day}-${month}-${year}`;
+};
