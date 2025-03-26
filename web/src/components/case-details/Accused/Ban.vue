@@ -19,7 +19,7 @@
               <td>{{ ban.banTypeCd }}</td>
               <td>
                 {{
-                  formatDDMMYYYDate(ban.banOrderedDate)
+                  formatDateToDDMMMYYYY(ban.banOrderedDate)
                 }}
               </td>
               <td>{{ ban.banTypeAct }}</td>
@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-  import { formatDDMMYYYDate } from '@/utils/utils';
+  import { formatDateToDDMMMYYYY } from '@/utils/utils';
 
   defineProps<{ bans: any; }>();
   

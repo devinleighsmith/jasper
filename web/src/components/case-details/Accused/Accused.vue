@@ -8,24 +8,18 @@
           variant="flat"
           class="w-100 justify-center align-center"
         >
-          {{ accused.lastNm.toUpperCase() }},
-          {{ accused.givenNm.toUpperCase() }}
+          {{ accused.lastNm?.toUpperCase() }},
+          {{ accused.givenNm?.toUpperCase() }}
         </v-chip>
       </v-col>
     </v-row>
 
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Ban</v-col>
-      <!-- Currently grabbing the first one only? -->
       <v-col>
-        <div v-for="(ban, index) in accused.ban" :key="index">
+        <div v-for="(bans, banType, index) in groupedBans" :key="banType">
           <span style="color: #e30e0e">
-            {{ ban.banTypeDescription }}
-            ({{
-              accused.ban.filter(
-                (bnt) => bnt.banTypeDescription === ban.banTypeDescription
-              ).length
-            }})
+            {{ banType }} ({{ (bans ?? []).length }})
           </span>
           <v-icon
             v-if="index === 0"
@@ -39,11 +33,11 @@
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">DOB</v-col>
-      <v-col>{{ dateOfBirth }}</v-col>
+      <v-col>{{ formatDateToDDMMMYYYY(accused.birthDt) }}</v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Counsel</v-col>
-      <v-col>{{ accused.counselLastNm }}</v-col>
+      <v-col>{{ counselName }}</v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Counsel Desig. Filed</v-col>
@@ -51,11 +45,11 @@
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Bail status</v-col>
-      <v-col>Test-Data</v-col>
+      <v-col></v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Plea</v-col>
-      <v-col>Test-Data</v-col>
+      <v-col></v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Appearances</v-col>
@@ -67,8 +61,9 @@
 
 <script setup lang="ts">
   import { criminalParticipantType } from '@/types/criminal/jsonTypes';
+  import { formatDateToDDMMMYYYY } from '@/utils/utils';
   import { mdiInformationSlabCircleOutline } from '@mdi/js';
-  import { defineProps, ref } from 'vue';
+  import { computed, defineProps, ref } from 'vue';
   import Ban from './Ban.vue';
 
   const props = defineProps<{
@@ -77,17 +72,10 @@
   }>();
 
   const showBanModal = ref(false);
-  const dateOfBirth = props.accused?.birthDt
-    ? new Date(props.accused.birthDt)
-        .toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-        })
-        .replace(/ /g, '-')
-    : '';
-
-
-  console.log(props.accused);
-  console.log(props.appearances);
+  const counselName = computed(() =>
+    props.accused.counselLastNm && props.accused.counselGivenNm
+      ? `${props.accused.counselLastNm.toUpperCase()}, ${props.accused.counselGivenNm}`
+      : ''
+  );
+  const groupedBans = Object.groupBy(props.accused.ban, (ban) => ban.banTypeDescription);
 </script>
