@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import Accused from 'CMP/case-details/Accused/Accused.vue';
-import Ban from 'CMP/case-details/Accused/Ban.vue';
 
 describe('Accused.vue', () => {
   const accusedMock = {
@@ -49,7 +48,7 @@ describe('Accused.vue', () => {
     expect(icon.exists()).toBe(true);
 
     await icon.trigger('click');
-    expect(wrapper.findComponent(Ban).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'Ban' }).exists()).toBe(true);
   });
 
   it('renders formatted DOB', () => {

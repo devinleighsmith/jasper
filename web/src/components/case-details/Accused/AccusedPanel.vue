@@ -1,7 +1,6 @@
 <template>
   <div class="py-3">
     <h5>{{ titleText }}</h5>
-    <!-- <div v-if="props.activityClass === 'Adult'"> -->
     <Accused
       v-for="accused in props.accused"
       :key="accused.partId"
@@ -12,19 +11,6 @@
         )
       "
     />
-    <!-- </div> -->
-    <!-- <div v-else>
-      <YouthAccused
-        v-for="accused in props.accused"
-        :key="accused.partId"
-        :accused
-        :appearances="
-          props.appearances.filter(
-            (appearance) => appearance.lastNm === accused.lastNm
-          )
-        "
-      /> -->
-    <!-- </div> -->
   </div>
 </template>
 
