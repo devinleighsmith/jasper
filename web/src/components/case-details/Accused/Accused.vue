@@ -77,5 +77,12 @@
       ? `${props.accused.counselLastNm.toUpperCase()}, ${props.accused.counselGivenNm}`
       : ''
   );
-  const groupedBans = Object.groupBy(props.accused.ban, (ban) => ban.banTypeDescription);
+  const groupedBans = computed(() =>
+    props.accused.ban.reduce((acc, ban) => {
+      const { banTypeDescription } = ban;
+      acc[banTypeDescription] = acc[banTypeDescription] || [];
+      acc[banTypeDescription].push(ban);
+      return acc;
+    }, {} as Record<string, typeof props.accused.ban>)
+  );
 </script>
