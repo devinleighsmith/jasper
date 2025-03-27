@@ -18,6 +18,5 @@
   const props = defineProps<{ details: criminalFileDetailsType }>();
 
   const details = ref(props.details);
-  const appearances = ref(props.details.appearances.apprDetail);
-  console.log(details);
+  const appearances = ref(props.details.appearances?.apprDetail);
 </script>

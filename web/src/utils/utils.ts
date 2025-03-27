@@ -174,15 +174,21 @@ export const extractCivilAppearancesInfo = (
   return appInfo;
 };
 
-export const formatDDMMYYYDate = (dateString: string): string => {
+/**
+ * Formats a given date string into the format "DD-MMM-YYYY".
+ *
+ * @param dateString - The date string to format. It should be a valid date string.
+ * @returns {string} A formatted date string in "DD-MMM-YYYY" format (e.g., "01-Jan-2023").
+ */
+export const formatDateToDDMMMYYYY = (dateString: string): string => {
   const date = dateString ? new Date(dateString) : null;
-  if(!date){
+  if (!date) {
     return '';
   }
-  
-  var day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
-  var month = new Intl.DateTimeFormat('en', { month: 'short' }).format(date);
-  var year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
+
+  const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
+  const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(date);
+  const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
 
   return `${day}-${month}-${year}`;
 };
