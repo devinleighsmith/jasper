@@ -45,8 +45,7 @@
         class="w-100"
       >
         <court-list-card :cardInfo="pairing.card" />
-        <!-- Wait until we can get real data back before enabling data-table -->
-        <!-- <v-data-table
+        <v-data-table
           v-model="selectedItems"
           :items="pairing.table"
           :headers
@@ -54,16 +53,40 @@
           item-value="courtFileNumber"
           class="pb-5"
         >
+          <!-- division: string;
+    participants: any[];
+    appearances: criminalApprDetailType[]; -->
+          <template v-slot:item.fileMarkers="{ item }">
+            <file-markers :appearances="[item]" division="Criminal" />
+          </template>
+          <template v-slot:item.appearanceReasonCd="{ value, item }">
+            <v-tooltip :text="item.appearanceReasonDsc" location="top">
+              <template v-slot:activator="{ props }">
+                <span v-bind="props">{{ value }}</span>
+              </template>
+            </v-tooltip>
+          </template>
+          <template v-slot:item.crown="{ value }">
+            <!-- ?? only grabbing first value, there could be multiple in the array ?? -->
+            {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
+          </template>
+          <template v-slot:item.counsel="{ value }">
+            <!-- ?? only grabbing first value, there could be multiple in the array ?? -->
+            <!-- ?? what about justin counsel ?? -->
+            {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
+          </template>
           <template v-slot:bottom />
-        </v-data-table> -->
+        </v-data-table>
       </template>
     </v-skeleton-loader>
   </v-container>
 </template>
 
 <script setup lang="ts">
+  import FileMarkers from '@/components/shared/FileMarkers.vue';
   import { HttpService } from '@/services/HttpService';
   import { CourtListCardInfo } from '@/types/courtlist';
+  import { courtListAppearanceType } from '@/types/criminal/jsonTypes';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
   import { computed, inject, ref } from 'vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
@@ -77,13 +100,44 @@
   const search = ref();
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
-  const cardTablePairings = ref<{ card: CourtListCardInfo; table: any }[]>([]);
-  const filesFilterMap: { [key: string]: (appearance: any) => boolean } = {
-    Complete: (appearance: any) => appearance.isComplete,
-    Cancelled: (appearance: any) => appearance.appearanceStatusCd === 'CNCL',
-    'To be called': (appearance: any) =>
+  const selectedItems = ref();
+  const cardTablePairings = ref<
+    { card: CourtListCardInfo; table: courtListAppearanceType[] }[]
+  >([]);
+  const filesFilterMap: {
+    [key: string]: (appearance: courtListAppearanceType) => boolean;
+  } = {
+    Complete: (appearance: courtListAppearanceType) => !!appearance.isComplete,
+    Cancelled: (appearance: courtListAppearanceType) =>
+      appearance.appearanceStatusCd === 'CNCL',
+    'To be called': (appearance: courtListAppearanceType) =>
       appearance.appearanceStatusCd === 'SCHD',
   };
+
+  const headers = ref([
+    { key: 'data-table-group' },
+    { title: 'FILE #', key: 'courtFileNumber' },
+    { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
+    { title: 'TIME', key: 'appearanceTm' },
+    {
+      title: 'EST.',
+      key: 'estimatedTimeHour',
+      value: (item: courtListAppearanceType) =>
+        hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin),
+    },
+    { title: 'ROOM', key: 'courtRoomCd' },
+    { title: 'REASON', key: 'appearanceReasonCd' },
+    { title: 'FILE MARKERS', key: 'fileMarkers' },
+    // what if justinCounsel has a value?
+    { title: 'COUNSEL', key: 'counsel' },
+    { title: 'CROWN', key: 'crown' },
+    {
+      title: 'CASE AGE',
+      key: 'caseAgeDays',
+      value: (item: courtListAppearanceType) => item.caseAgeDays + 'd',
+    },
+    { title: 'NOTES', key: 'courtFileNumber' },
+  ]);
 
   const filterByAMPM = (pairing: any) =>
     !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
@@ -135,8 +189,10 @@
       card.courtListLocationID = courtList.locationId;
       card.courtListLocation = courtList.locationNm;
       card.amPM = adjudicatorDetails?.amPm;
+
       cardTablePairings.value.push({ card, table: courtList.appearances });
     });
+    console.log(data);
   };
 
   const addDay = (days: number) => {
@@ -146,5 +202,19 @@
       );
       selectedDate.value = appliedDate.value;
     }
+  };
+
+  const hoursMinsFormatter = (hours: string, minutes: string) => {
+    // return tot his... this will make 1hrs 3mins
+    const hrs = parseInt(hours, 10);
+    const mins = parseInt(minutes, 10);
+    let result = '';
+    if (hrs) {
+      result += `${hrs} Hr(s)`;
+    }
+    if (mins) {
+      result += `${result ? ' ' : ''}${mins} Min(s)`;
+    }
+    return result || '0 Mins';
   };
 </script>

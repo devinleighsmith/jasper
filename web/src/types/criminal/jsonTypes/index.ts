@@ -257,3 +257,157 @@ export interface criminalFileDetailsType {
     hearingRestriction: criminalHearingRestrictionType[];
     appearances: criminalAppearancesType
 }
+
+
+export interface courtListAppearanceType {
+    aslSortOrder?: number;
+    courtDivisionCd: string;
+    appearanceDt: string;
+    appearanceTm: string;
+    courtRoomCd: string;
+    courtFileNumber: string;
+    pcssAppearanceId?: number;
+    isComplete?: boolean;
+    activityClassCd: string;
+    activityClassDsc: string;
+    appearanceReasonCd: string;
+    appearanceReasonDsc: string;
+    appearanceMethod?: AppearanceMethod;
+    equipmentBooking?: any;
+    scheduleNoteTxt: string;
+    estimatedTimeHour: string;
+    estimatedTimeMin: string;
+    estimatedTimeString: string;
+    justinNo: string;
+    physicalFileId: string;
+    courtlistRefNumber: string;
+    styleOfCause: string;
+    adjudicatorInitials: string;
+    adjudicatorNm: string;
+    caseAgeDays: string;
+    videoYn: string;
+    accusedNm: string;
+    accusedCounselNm: string;
+    appearanceId: string;
+    profPartId: string;
+    profSeqNo: string;
+    inCustodyYn: string;
+    detainedYn: string;
+    continuationYn: string;
+    condSentenceOrderYn: string;
+    lackCourtTimeYn: string;
+    otherFactorsYn: string;
+    otherFactorsComment: string;
+    cfcsaYn: string;
+    softYn: string;
+    scheduledOnDt: string;
+    scheduledByInitials: string;
+    scheduledByName: string;
+    activityCd: string;
+    activityDsc: string;
+    courtActivityId?: number;
+    courtActivitySlotId?: number;
+    remoteVideoYn: string;
+    appearanceStatusCd: string;
+    appearanceStatusDsc: string;
+    totalAppearances?: number;
+    appearanceNumber?: number;
+    trialTrackerCd: string;
+    trialTrackerDsc: string;
+    trialTrackerTrialResultTxt: string;
+    trialTrackerOtherTxt: string;
+    aslParentTrialTrackerCd: string;
+    aslParentTrialTrackerDsc: string;
+    assignmentListRoomYn: string;
+    aslChildAppearance?: any;
+    charges?: any[];
+    crown?: Crown[];
+    counsel?: PcssCounsel[];
+    justinCounsel?: JustinCounsel;
+    homeLocationId?: number;
+    homeLocationNm: string;
+    remoteLocationId?: number;
+    remoteLocationNm: string;
+    ceisCounsel?: any;
+    justinApprId: string;
+    ceisAppearanceId: string;
+    jcmComments?: JcmComment2[];
+    appearanceAdjudicatorRestriction?: any[];
+    stoodDownJCMYn: string;
+    courtClassCd: string;
+    appearanceSequenceNumber: string;
+    fixedListDoneYn: string;
+    aslCourtFileNumber: string;
+    selfRepresentedYn: string;
+    otherRepresentedYn: string;
+    linkedCounsel?: PcssCounsel;
+    aslFeederAdjudicators?: any[];
+}
+
+export interface AppearanceMethod {
+    responseMessageTxt: string;
+    responseCd: string;
+    courtDivisionCd: string;
+    details?: AppearanceMethodDetail[];
+}
+
+export interface AppearanceMethodDetail {
+    appearanceId: string;
+    roleTypeCd: string;
+    appearanceMethodCd: string;
+    assetUsageSeqNo: string;
+    phoneNumberTxt: string;
+    instructionTxt: string;
+    apprMethodCcn: string;
+    origRoleCd: string;
+    origAppearanceMethodCd: string;
+}
+
+export interface Crown {
+    partId: string;
+    lastNm: string;
+    givenNm: string;
+    assignedYn: string;
+}
+
+export interface PcssCounsel {
+    counselId?: number;
+    lawSocietyId?: number;
+    lastNm: string;
+    givenNm: string;
+    prefNm: string;
+    addressLine1Txt: string;
+    addressLine2Txt: string;
+    cityTxt: string;
+    province: string;
+    postalCode: string;
+    phoneNoTxt: string;
+    emailAddressTxt: string;
+    activeYn: string;
+    counselType: string;
+    orgNm: string;
+    justinCounsel?: JustinCounsel;
+    jcmComments?: JcmComment2[];
+    // activityAppearanceDetail?: ActivityAppearanceDetail[];
+    activityAppearanceDetail?: any[];
+}
+
+export interface JustinCounsel {
+    lastNm: string;
+    givenNm: string;
+    counselEnteredDt: string;
+    counselPartId: string;
+    counselRelatedRepTypeCd: string;
+    counselRrepId: string;
+}
+
+export interface JcmComment2 {
+    jcmCommentId?: number;
+    justinNo: string;
+    physicalFileId: string;
+    commentTxt: string;
+    entDtm: string;
+    updDtm: string;
+    rotaInitialsCd: string;
+    fullName: string;
+}
