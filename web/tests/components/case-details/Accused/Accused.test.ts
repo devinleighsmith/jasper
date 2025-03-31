@@ -48,7 +48,7 @@ describe('Accused.vue', () => {
     expect(icon.exists()).toBe(true);
 
     await icon.trigger('click');
-    expect(wrapper.findComponent({ name: 'Ban' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'Bans' }).exists()).toBe(true);
   });
 
   it('renders formatted DOB', () => {
