@@ -16,16 +16,14 @@
           </thead>
           <tbody>
             <tr v-for="ban in bans" :key="ban.banStatuteId">
-              <td>{{ ban.banTypeCd }}</td>
+              <td>{{ ban.banTypeDescription }}</td>
               <td>
-                {{
-                  formatDateToDDMMMYYYY(ban.banOrderedDate)
-                }}
+                {{ formatDateToDDMMMYYYY(ban.banOrderedDate) }}
               </td>
               <td>{{ ban.banTypeAct }}</td>
               <td>{{ ban.banTypeSection }}</td>
               <td>{{ ban.banTypeSubSection }}</td>
-              <td>{{ ban.banTypeDescription }}</td>
+              <td>{{ ban.banCommentText }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -40,7 +38,7 @@
 <script setup lang="ts">
   import { formatDateToDDMMMYYYY } from '@/utils/utils';
 
-  defineProps<{ bans: any; }>();
-  
+  defineProps<{ bans: any }>();
+
   const show = defineModel<boolean>({ type: Boolean, required: true });
 </script>
