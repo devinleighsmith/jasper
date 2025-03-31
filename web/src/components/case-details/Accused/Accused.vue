@@ -43,14 +43,15 @@
       <v-col cols="6" class="data-label">Counsel Desig. Filed</v-col>
       <v-col>{{ accused.designatedCounselYN }}</v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <!-- Comment these fields until we have more information on them -->
+    <!-- <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Bail status</v-col>
       <v-col></v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Plea</v-col>
       <v-col></v-col>
-    </v-row>
+    </v-row> -->
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Appearances</v-col>
       <v-col>{{ appearances.length }}</v-col>

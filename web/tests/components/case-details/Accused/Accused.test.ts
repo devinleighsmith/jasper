@@ -83,7 +83,7 @@ describe('Accused.vue', () => {
       props: { accused: accusedMock, appearances: appearancesMock },
     });
 
-    const appearancesCount = wrapper.findAll('v-row')[7].find('v-col:last-child').text();
+    const appearancesCount = wrapper.findAll('v-row')[5].find('v-col:last-child').text();
     expect(appearancesCount).toBe('3');
   });
 });
