@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import Ban from 'CMP/case-details/Accused/Ban.vue';
+import Bans from 'CMP/case-details/Accused/Bans.vue';
 
-describe('Ban.vue', () => {
+describe('Bans.vue', () => {
   const bansMock = [
     {
       banStatuteId: 1,
@@ -12,6 +12,7 @@ describe('Ban.vue', () => {
       banTypeSection: 'Section1',
       banTypeSubSection: 'Sub1',
       banTypeDescription: 'Description1',
+      banCommentText: 'Comment1',
     },
     {
       banStatuteId: 2,
@@ -21,12 +22,13 @@ describe('Ban.vue', () => {
       banTypeSection: 'Section2',
       banTypeSubSection: 'Sub2',
       banTypeDescription: 'Description2',
+      banCommentText: 'Comment2',
 
     },
   ];
 
   it('renders the correct number of rows in the table', () => {
-    const wrapper = mount(Ban, {
+    const wrapper = mount(Bans, {
       props: {
         bans: bansMock,
         modelValue: true,
@@ -38,7 +40,7 @@ describe('Ban.vue', () => {
   });
 
   it('renders the correct data in the table', () => {
-    const wrapper = mount(Ban, {
+    const wrapper = mount(Bans, {
       props: {
         bans: bansMock,
         modelValue: true,
@@ -46,11 +48,11 @@ describe('Ban.vue', () => {
     });
 
     const firstRowCells = wrapper.findAll('tbody tr').at(0)?.findAll('td');
-    expect(firstRowCells?.at(0)?.text()).toBe(bansMock[0].banTypeCd);
+    expect(firstRowCells?.at(0)?.text()).toBe(bansMock[0].banTypeDescription);
     expect(firstRowCells?.at(1)?.text()).toBe('01-Jan-2025');
     expect(firstRowCells?.at(2)?.text()).toBe(bansMock[0].banTypeAct);
     expect(firstRowCells?.at(3)?.text()).toBe(bansMock[0].banTypeSection);
     expect(firstRowCells?.at(4)?.text()).toBe(bansMock[0].banTypeSubSection);
-    expect(firstRowCells?.at(5)?.text()).toBe(bansMock[0].banTypeDescription);
+    expect(firstRowCells?.at(5)?.text()).toBe(bansMock[0].banCommentText);
   });
 });
