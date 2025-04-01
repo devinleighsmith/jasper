@@ -4,7 +4,8 @@
     :items="data"
     :headers
     :search="search"
-    item-value="courtFileNumber"
+    item-value="appearanceId"
+    items-per-page="100"
     class="pb-5"
   >
     <template v-slot:item.estimatedTime="{ item }">
@@ -25,15 +26,29 @@
       </v-tooltip>
     </template>
     <template v-slot:item.crown="{ value }">
-      <!-- ?? only grabbing first value, there could be multiple in the array ?? -->
-      {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
+      <v-tooltip :disabled="value?.length < 2" location="top">
+        <template #activator="{ props }">
+          <span v-bind="props">{{ renderCrown(value) }}</span>
+        </template>
+        <span v-html="renderCrownTooltip(value)"></span>
+      </v-tooltip>
     </template>
-    <template v-slot:item.counsel="{ value }">
-      <!-- ?? only grabbing first value, there could be multiple in the array ?? -->
-      <!-- ?? what about justin counsel ?? -->
-      {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
+    <template v-slot:item.counsel="{ item }">
+      <v-tooltip
+        :disabled="
+          (item.counsel?.length ?? 0) + (item.justinCounsel ? 1 : 0) < 2
+        "
+        location="top"
+      >
+        <template #activator="{ props }">
+          <span v-bind="props">{{
+            renderCrown(item.counsel) + renderJustinCounsel(item.justinCounsel)
+          }}</span>
+        </template>
+        <span v-html="renderCrownTooltip(item.counsel)"></span>
+      </v-tooltip>
     </template>
-    <template v-slot:item.actions="{ item }">
+    <template v-slot:item.actions>
       <v-icon :icon="mdiNotebookEditOutline" size="large" />
       <v-icon :icon="mdiFileDocumentEditOutline" size="large" />
     </template>
@@ -49,13 +64,37 @@
   import { mdiFileDocumentEditOutline, mdiNotebookEditOutline } from '@mdi/js';
   import { ref } from 'vue';
 
-  // does it need to be define model?w
-  const search = defineModel<string>('search');
-  const selected = defineModel<string>('selectedItems');
+  const selected = defineModel<string[]>('selectedItems');
 
   const props = defineProps<{
     data: courtListAppearanceType[];
+    search: string;
   }>();
+
+  // props.data[0]?.crown?.push({
+  //   partId: '9828.0007',
+  //   lastNm: 'Traill',
+  //   givenNm: 'Josh  ',
+  //   assignedYn: 'N',
+  // });
+
+  //   {
+  //     "counselId": 35,
+  //     "lawSocietyId": 35,
+  //     "lastNm": "Brown- Smith ",
+  //     "givenNm": "Bobby ",
+  //     "prefNm": "",
+  //     "addressLine1Txt": "",
+  //     "addressLine2Txt": "",
+  //     "cityTxt": "Victoria",
+  //     "province": "BC",
+  //     "postalCode": "",
+  //     "phoneNoTxt": "250-34567802",
+  //     "emailAddressTxt": "",
+  //     "activeYn": "Y",
+  //     "counselType": "REG"
+  // }
+  console.log(props.data);
 
   const headers = ref([
     { key: 'data-table-group' },
@@ -72,10 +111,45 @@
     {
       title: 'CASE AGE',
       key: 'caseAgeDays',
-      value: (item: courtListAppearanceType) => item.caseAgeDays + 'd',
+      value: (item: courtListAppearanceType) =>
+        item.caseAgeDays ? item.caseAgeDays + 'd' : '',
     },
     { title: 'NOTES', key: 'actions' },
   ]);
+
+  const renderCrownTooltip = (crown: any) => {
+    if (!crown) {
+      return '';
+    }
+    let tooltip = '';
+    crown.forEach((crown: any) => {
+      tooltip += crown?.lastNm + ', ' + crown?.givenNm + '<br/>';
+    });
+    return tooltip;
+  };
+
+  const renderCrown = (crown: any) => {
+    if (!crown || crown.length === 0) {
+      return '';
+    }
+    let name = crown[0]?.lastNm + ', ' + crown[0]?.givenNm;
+    if (crown.length > 1) {
+      name += `+${crown.length - 1}`;
+    }
+    return name;
+  };
+
+  const renderJustinCounsel = (counsel: any) => {
+    if (!counsel) {
+      return '';
+    }
+    let name = counsel?.lastNm;
+    if (counsel?.givenNm) {
+      name += ', ' + counsel?.givenNm;
+    }
+
+    return name;
+  };
 
   const hoursMinsFormatter = (hours: string, minutes: string) => {
     // return to this... this will make 1hrs 3mins

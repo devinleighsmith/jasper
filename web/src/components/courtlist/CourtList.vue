@@ -47,7 +47,7 @@
         <court-list-card :cardInfo="pairing.card" />
         <court-list-table
           v-model:selectedItems="selectedItems"
-          v-model:search="search"
+          :search="search"
           :data="pairing.table"
         />
       </template>
@@ -70,10 +70,10 @@
   const selectedDate = ref(new Date());
   const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
-  const search = ref();
+  const search = ref('');
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
-  const selectedItems = ref();
+  const selectedItems = ref([]);
   const httpService = inject<HttpService>('httpService');
   const cardTablePairings = ref<
     {
@@ -149,7 +149,7 @@
 
       cardTablePairings.value.push({ card, table: appearances });
     });
-    console.log(data);
+    //console.log(data);
   };
 
   const addDay = (days: number) => {
