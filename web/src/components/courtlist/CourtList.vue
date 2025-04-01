@@ -53,11 +53,17 @@
           item-value="courtFileNumber"
           class="pb-5"
         >
-          <!-- division: string;
-    participants: any[];
-    appearances: criminalApprDetailType[]; -->
+          <template v-slot:item.estimatedTime="{ item }">
+            {{
+              hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin)
+            }}
+          </template>
           <template v-slot:item.fileMarkers="{ item }">
-            <file-markers :appearances="[item]" division="Criminal" />
+            <file-markers
+              :appearances="[item as unknown as criminalApprDetailType]"
+              :participants="[]"
+              division="Criminal"
+            />
           </template>
           <template v-slot:item.appearanceReasonCd="{ value, item }">
             <v-tooltip :text="item.appearanceReasonDsc" location="top">
@@ -75,6 +81,10 @@
             <!-- ?? what about justin counsel ?? -->
             {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
           </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon :icon="mdiNotebookEditOutline" size="large" />
+            <v-icon :icon="mdiFileDocumentEditOutline" size="large" />
+          </template>
           <template v-slot:bottom />
         </v-data-table>
       </template>
@@ -86,8 +96,16 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import { HttpService } from '@/services/HttpService';
   import { CourtListCardInfo } from '@/types/courtlist';
-  import { courtListAppearanceType } from '@/types/criminal/jsonTypes';
-  import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
+  import {
+    courtListAppearanceType,
+    criminalApprDetailType,
+  } from '@/types/criminal/jsonTypes';
+  import {
+    mdiChevronLeft,
+    mdiChevronRight,
+    mdiFileDocumentEditOutline,
+    mdiNotebookEditOutline,
+  } from '@mdi/js';
   import { computed, inject, ref } from 'vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
@@ -101,8 +119,12 @@
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
   const selectedItems = ref();
+  const httpService = inject<HttpService>('httpService');
   const cardTablePairings = ref<
-    { card: CourtListCardInfo; table: courtListAppearanceType[] }[]
+    {
+      card: CourtListCardInfo;
+      table: courtListAppearanceType[];
+    }[]
   >([]);
   const filesFilterMap: {
     [key: string]: (appearance: courtListAppearanceType) => boolean;
@@ -119,12 +141,7 @@
     { title: 'FILE #', key: 'courtFileNumber' },
     { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
     { title: 'TIME', key: 'appearanceTm' },
-    {
-      title: 'EST.',
-      key: 'estimatedTimeHour',
-      value: (item: courtListAppearanceType) =>
-        hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin),
-    },
+    { title: 'EST.', key: 'estimatedTime' },
     { title: 'ROOM', key: 'courtRoomCd' },
     { title: 'REASON', key: 'appearanceReasonCd' },
     { title: 'FILE MARKERS', key: 'fileMarkers' },
@@ -136,7 +153,7 @@
       key: 'caseAgeDays',
       value: (item: courtListAppearanceType) => item.caseAgeDays + 'd',
     },
-    { title: 'NOTES', key: 'courtFileNumber' },
+    { title: 'NOTES', key: 'actions' },
   ]);
 
   const filterByAMPM = (pairing: any) =>
@@ -148,7 +165,12 @@
       : table;
   };
 
-  const filteredTablePairings = computed(() => {
+  const filteredTablePairings = computed<
+    {
+      card: CourtListCardInfo;
+      table: courtListAppearanceType[];
+    }[]
+  >(() => {
     return cardTablePairings.value
       .filter(filterByAMPM)
       .map((pairing) => ({ ...pairing, table: filterByFiles(pairing.table) }));
@@ -165,7 +187,6 @@
       : ''
   );
 
-  const httpService = inject<HttpService>('httpService');
   if (!httpService) {
     throw new Error('Service is undefined.');
   }
@@ -182,6 +203,7 @@
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
       const card = {} as CourtListCardInfo;
+      const appearances = courtList.appearances as courtListAppearanceType[];
       card.fileCount = courtList.casesTarget;
       card.activity = courtList.activityDsc;
       card.presider = adjudicatorDetails?.adjudicatorNm;
@@ -190,7 +212,7 @@
       card.courtListLocation = courtList.locationNm;
       card.amPM = adjudicatorDetails?.amPm;
 
-      cardTablePairings.value.push({ card, table: courtList.appearances });
+      cardTablePairings.value.push({ card, table: appearances });
     });
     console.log(data);
   };
