@@ -43,20 +43,21 @@
       <v-col cols="6" class="data-label">Counsel Desig. Filed</v-col>
       <v-col>{{ accused.designatedCounselYN }}</v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <!-- Comment these fields until we have more information on them -->
+    <!-- <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Bail status</v-col>
       <v-col></v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Plea</v-col>
       <v-col></v-col>
-    </v-row>
+    </v-row> -->
     <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Appearances</v-col>
       <v-col>{{ appearances.length }}</v-col>
     </v-row>
   </v-card>
-  <Ban v-if="showBanModal" :bans="accused.ban" v-model="showBanModal" />
+  <Bans v-if="showBanModal" :bans="accused.ban" v-model="showBanModal" />
 </template>
 
 <script setup lang="ts">
@@ -64,13 +65,12 @@
   import { formatDateToDDMMMYYYY } from '@/utils/utils';
   import { mdiInformationSlabCircleOutline } from '@mdi/js';
   import { computed, defineProps, ref } from 'vue';
-  import Ban from './Ban.vue';
+  import Bans from './Bans.vue';
 
   const props = defineProps<{
     accused: criminalParticipantType;
     appearances: any;
   }>();
-
   const showBanModal = ref(false);
   const counselName = computed(() =>
     props.accused.counselLastNm && props.accused.counselGivenNm
@@ -78,11 +78,14 @@
       : ''
   );
   const groupedBans = computed(() =>
-    props.accused.ban.reduce((acc, ban) => {
-      const { banTypeDescription } = ban;
-      acc[banTypeDescription] = acc[banTypeDescription] || [];
-      acc[banTypeDescription].push(ban);
-      return acc;
-    }, {} as Record<string, typeof props.accused.ban>)
+    props.accused.ban.reduce(
+      (acc, ban) => {
+        const { banTypeDescription } = ban;
+        acc[banTypeDescription] = acc[banTypeDescription] || [];
+        acc[banTypeDescription].push(ban);
+        return acc;
+      },
+      {} as Record<string, typeof props.accused.ban>
+    )
   );
 </script>

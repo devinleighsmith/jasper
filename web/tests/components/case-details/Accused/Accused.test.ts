@@ -48,7 +48,7 @@ describe('Accused.vue', () => {
     expect(icon.exists()).toBe(true);
 
     await icon.trigger('click');
-    expect(wrapper.findComponent({ name: 'Ban' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'Bans' }).exists()).toBe(true);
   });
 
   it('renders formatted DOB', () => {
@@ -83,7 +83,7 @@ describe('Accused.vue', () => {
       props: { accused: accusedMock, appearances: appearancesMock },
     });
 
-    const appearancesCount = wrapper.findAll('v-row')[7].find('v-col:last-child').text();
+    const appearancesCount = wrapper.findAll('v-row')[5].find('v-col:last-child').text();
     expect(appearancesCount).toBe('3');
   });
 });
