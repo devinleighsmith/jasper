@@ -45,68 +45,23 @@
         class="w-100"
       >
         <court-list-card :cardInfo="pairing.card" />
-        <v-data-table
-          v-model="selectedItems"
-          :items="pairing.table"
-          :headers
-          :search="search"
-          item-value="courtFileNumber"
-          class="pb-5"
-        >
-          <template v-slot:item.estimatedTime="{ item }">
-            {{
-              hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin)
-            }}
-          </template>
-          <template v-slot:item.fileMarkers="{ item }">
-            <file-markers
-              :appearances="[item as unknown as criminalApprDetailType]"
-              :participants="[]"
-              division="Criminal"
-            />
-          </template>
-          <template v-slot:item.appearanceReasonCd="{ value, item }">
-            <v-tooltip :text="item.appearanceReasonDsc" location="top">
-              <template v-slot:activator="{ props }">
-                <span v-bind="props">{{ value }}</span>
-              </template>
-            </v-tooltip>
-          </template>
-          <template v-slot:item.crown="{ value }">
-            <!-- ?? only grabbing first value, there could be multiple in the array ?? -->
-            {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
-          </template>
-          <template v-slot:item.counsel="{ value }">
-            <!-- ?? only grabbing first value, there could be multiple in the array ?? -->
-            <!-- ?? what about justin counsel ?? -->
-            {{ value?.length ? value[0].lastNm + ', ' + value[0].givenNm : '' }}
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon :icon="mdiNotebookEditOutline" size="large" />
-            <v-icon :icon="mdiFileDocumentEditOutline" size="large" />
-          </template>
-          <template v-slot:bottom />
-        </v-data-table>
+        <court-list-table
+          v-model:selectedItems="selectedItems"
+          v-model:search="search"
+          :data="pairing.table"
+        />
       </template>
     </v-skeleton-loader>
   </v-container>
 </template>
 
 <script setup lang="ts">
-  import FileMarkers from '@/components/shared/FileMarkers.vue';
   import { HttpService } from '@/services/HttpService';
   import { CourtListCardInfo } from '@/types/courtlist';
-  import {
-    courtListAppearanceType,
-    criminalApprDetailType,
-  } from '@/types/criminal/jsonTypes';
-  import {
-    mdiChevronLeft,
-    mdiChevronRight,
-    mdiFileDocumentEditOutline,
-    mdiNotebookEditOutline,
-  } from '@mdi/js';
+  import { courtListAppearanceType } from '@/types/criminal/jsonTypes';
+  import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
   import { computed, inject, ref } from 'vue';
+  import CourtListTable from './CourtListTable.vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
   const errorCode = ref(0);
@@ -135,26 +90,6 @@
     'To be called': (appearance: courtListAppearanceType) =>
       appearance.appearanceStatusCd === 'SCHD',
   };
-
-  const headers = ref([
-    { key: 'data-table-group' },
-    { title: 'FILE #', key: 'courtFileNumber' },
-    { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
-    { title: 'TIME', key: 'appearanceTm' },
-    { title: 'EST.', key: 'estimatedTime' },
-    { title: 'ROOM', key: 'courtRoomCd' },
-    { title: 'REASON', key: 'appearanceReasonCd' },
-    { title: 'FILE MARKERS', key: 'fileMarkers' },
-    // what if justinCounsel has a value?
-    { title: 'COUNSEL', key: 'counsel' },
-    { title: 'CROWN', key: 'crown' },
-    {
-      title: 'CASE AGE',
-      key: 'caseAgeDays',
-      value: (item: courtListAppearanceType) => item.caseAgeDays + 'd',
-    },
-    { title: 'NOTES', key: 'actions' },
-  ]);
 
   const filterByAMPM = (pairing: any) =>
     !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
@@ -224,19 +159,5 @@
       );
       selectedDate.value = appliedDate.value;
     }
-  };
-
-  const hoursMinsFormatter = (hours: string, minutes: string) => {
-    // return tot his... this will make 1hrs 3mins
-    const hrs = parseInt(hours, 10);
-    const mins = parseInt(minutes, 10);
-    let result = '';
-    if (hrs) {
-      result += `${hrs} Hr(s)`;
-    }
-    if (mins) {
-      result += `${result ? ' ' : ''}${mins} Min(s)`;
-    }
-    return result || '0 Mins';
   };
 </script>
