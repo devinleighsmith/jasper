@@ -25,14 +25,6 @@
         </template>
       </v-tooltip>
     </template>
-    <template v-slot:item.crown="{ value }">
-      <v-tooltip :disabled="value?.length < 2" location="top">
-        <template #activator="{ props }">
-          <span v-bind="props">{{ renderCrown(value) }}</span>
-        </template>
-        <span v-html="renderCrownTooltip(value)"></span>
-      </v-tooltip>
-    </template>
     <template v-slot:item.counsel="{ item }">
       <v-tooltip
         :disabled="
@@ -40,12 +32,22 @@
         "
         location="top"
       >
-        <template #activator="{ props }">
+        <!-- <template #activator="{ props }">
           <span v-bind="props">{{
-            renderCrown(item.counsel) + renderJustinCounsel(item.justinCounsel)
+            renderCounsel(item.counsel, item.justinCounsel)
           }}</span>
         </template>
-        <span v-html="renderCrownTooltip(item.counsel)"></span>
+        <span
+          v-html="renderCounselTooltip(item.counsel, item.justinCounsel)"
+        ></span> -->
+      </v-tooltip>
+    </template>
+    <template v-slot:item.crown="{ value }">
+      <v-tooltip :disabled="value?.length < 2" location="top">
+        <template #activator="{ props }">
+          <span v-bind="props">{{ renderCrown(value) }}</span>
+        </template>
+        <span v-html="renderCrownTooltip(value)"></span>
       </v-tooltip>
     </template>
     <template v-slot:item.actions>
@@ -66,35 +68,10 @@
 
   const selected = defineModel<string[]>('selectedItems');
 
-  const props = defineProps<{
+  defineProps<{
     data: courtListAppearanceType[];
     search: string;
   }>();
-
-  // props.data[0]?.crown?.push({
-  //   partId: '9828.0007',
-  //   lastNm: 'Traill',
-  //   givenNm: 'Josh  ',
-  //   assignedYn: 'N',
-  // });
-
-  //   {
-  //     "counselId": 35,
-  //     "lawSocietyId": 35,
-  //     "lastNm": "Brown- Smith ",
-  //     "givenNm": "Bobby ",
-  //     "prefNm": "",
-  //     "addressLine1Txt": "",
-  //     "addressLine2Txt": "",
-  //     "cityTxt": "Victoria",
-  //     "province": "BC",
-  //     "postalCode": "",
-  //     "phoneNoTxt": "250-34567802",
-  //     "emailAddressTxt": "",
-  //     "activeYn": "Y",
-  //     "counselType": "REG"
-  // }
-  console.log(props.data);
 
   const headers = ref([
     { key: 'data-table-group' },
@@ -105,7 +82,6 @@
     { title: 'ROOM', key: 'courtRoomCd' },
     { title: 'REASON', key: 'appearanceReasonCd' },
     { title: 'FILE MARKERS', key: 'fileMarkers' },
-    // what if justinCounsel has a value?
     { title: 'COUNSEL', key: 'counsel' },
     { title: 'CROWN', key: 'crown' },
     {
@@ -116,6 +92,20 @@
     },
     { title: 'NOTES', key: 'actions' },
   ]);
+
+  //   const renderCounselTooltip = (counsel: any, justinCounsel: any) => {
+  //     if (!counsel) {
+  //       return '';
+  //     }
+  //     let tooltip = '';
+  //     counsel.forEach((counsel: any) => {
+  //       tooltip += counsel?.lastNm + ', ' + counsel?.givenNm + '<br/>';
+  //     });
+  //     if (justinCounsel) {
+  //       tooltip += justinCounsel?.lastNm + ', ' + justinCounsel?.givenNm;
+  //     }
+  //     return tooltip;
+  //   };
 
   const renderCrownTooltip = (crown: any) => {
     if (!crown) {
@@ -128,6 +118,26 @@
     return tooltip;
   };
 
+  //   const renderCounsel = (counsel: any, justinCounsel: any) => {
+  //     if (
+  //       !counsel ||
+  //       (counsel.length === 0 && (!justinCounsel || justinCounsel.length === 0))
+  //     ) {
+  //       return '';
+  //     }
+  //     let name = '';
+  //     if (counsel[0].lastNm != null && counsel[0].givenNm != null) {
+  //       name = counsel[0]?.lastNm + ', ' + counsel[0]?.givenNm;
+  //     } else {
+  //       name = justinCounsel.lastNm + ', ' + justinCounsel.givenNm;
+  //     }
+  //     const count = counsel.length + (justinCounsel != null ? 1 : 0);
+  //     if (count > 1) {
+  //       name += `+${count - 1}`;
+  //     }
+  //     return name;
+  //   };
+
   const renderCrown = (crown: any) => {
     if (!crown || crown.length === 0) {
       return '';
@@ -139,20 +149,19 @@
     return name;
   };
 
-  const renderJustinCounsel = (counsel: any) => {
-    if (!counsel) {
-      return '';
-    }
-    let name = counsel?.lastNm;
-    if (counsel?.givenNm) {
-      name += ', ' + counsel?.givenNm;
-    }
+//   const renderJustinCounsel = (counsel: any) => {
+//     if (!counsel) {
+//       return '';
+//     }
+//     let name = counsel?.lastNm;
+//     if (counsel?.givenNm) {
+//       name += ', ' + counsel?.givenNm;
+//     }
 
-    return name;
-  };
+//     return name;
+//   };
 
   const hoursMinsFormatter = (hours: string, minutes: string) => {
-    // return to this... this will make 1hrs 3mins
     const hrs = parseInt(hours, 10);
     const mins = parseInt(minutes, 10);
     let result = '';
