@@ -23,7 +23,7 @@
     <template v-slot:item.appearanceReasonCd="{ value, item }">
       <v-tooltip :text="item.appearanceReasonDsc" location="top">
         <template v-slot:activator="{ props }">
-          <span v-bind="props" class="underline">{{ value }}</span>
+          <span v-bind="props" class="has-tooltip">{{ value }}</span>
         </template>
       </v-tooltip>
     </template>
@@ -38,7 +38,7 @@
           <span
             v-bind="props"
             :class="{
-              'underline underline-dotted':
+              'has-tooltip':
                 (item?.accusedCounselNm ? 1 : 0) + (item.counsel?.length ?? 0) >
                 1,
             }"
@@ -53,14 +53,11 @@
     <template v-slot:item.crown="{ value }">
       <v-tooltip :disabled="value?.length < 2" location="top">
         <template #activator="{ props }">
-          <span
-            :class="{ 'underline underline-dotted': value?.length > 1 }"
-            v-bind="props"
-          >
-            {{ renderCrown(value) }}
+          <span :class="{ 'has-tooltip': value?.length > 1 }" v-bind="props">
+            {{ renderName(value) }}
           </span>
         </template>
-        <span v-html="renderCrownTooltip(value)"></span>
+        <span v-html="renderTooltip(value)"></span>
       </v-tooltip>
     </template>
     <template v-slot:item.actions>
@@ -72,11 +69,9 @@
 </template>
 
 <script setup lang="ts">
-  import { PcssCounsel } from '@/types/criminal';
   import { CourtListAppearance } from '@/types/courtlist';
-  import {
-    criminalApprDetailType,
-  } from '@/types/criminal/jsonTypes';
+  import { PcssCounsel } from '@/types/criminal';
+  import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
   import { mdiFileDocumentEditOutline, mdiNotebookEditOutline } from '@mdi/js';
   import { ref } from 'vue';
 
@@ -94,7 +89,7 @@
     { key: 'data-table-group' },
     {
       title: '#',
-      key: 'appearanceSequenceNumber'
+      key: 'appearanceSequenceNumber',
     },
     { title: 'FILE #', key: 'courtFileNumber' },
     { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
@@ -119,19 +114,19 @@
       items?.map((item) => `${item?.lastNm}, ${item?.givenNm}`).join('<br/>') ||
       '';
     if (additionalItem) {
-      const [firstName, lastName] = additionalItem.split(' ');
-      tooltip += `${tooltip ? '<br/>' : ''}${lastName}, ${firstName}`;
+      tooltip += `${tooltip ? '<br/>' : ''}${splitNames(additionalItem)}`;
     }
     return tooltip;
   };
 
   const renderName = (items: any[], additionalItem?: string) => {
-    if (!items?.length && !additionalItem) return '';
+    if (!items?.length && !additionalItem) {
+      return '';
+    }
     let name = items?.[0] ? `${items[0]?.lastNm}, ${items[0]?.givenNm}` : '';
     const count = (items?.length || 0) + (additionalItem ? 1 : 0);
     if (additionalItem && !name) {
-      const [firstName, lastName] = additionalItem.split(' ');
-      name = `${lastName}, ${firstName}`;
+      name = splitNames(additionalItem);
     }
     return count > 1 ? `${name} +${count - 1}` : name;
   };
@@ -141,14 +136,15 @@
     counsel: PcssCounsel[] | undefined
   ) => renderTooltip(counsel ?? [], accusedCounselNm);
 
-  const renderCrownTooltip = (crown: any) => renderTooltip(crown);
-
   const renderCounsel = (
     accusedCounselNm: string,
     counsel: PcssCounsel[] | undefined
   ) => renderName(counsel ?? [], accusedCounselNm);
 
-  const renderCrown = (crown: any) => renderName(crown);
+  const splitNames = (name: string) => {
+    const [firstName, lastName] = name.split(' ');
+    return `${lastName}, ${firstName}`;
+  };
 
   const hoursMinsFormatter = (hours: string, minutes: string) => {
     const hrs = parseInt(hours, 10);
@@ -163,10 +159,3 @@
     return result || '0 Mins';
   };
 </script>
-
-<style scoped>
-  .underline {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-  }
-</style>

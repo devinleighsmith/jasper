@@ -11,3 +11,8 @@ select {
 .data-label {
   color: gray;
 }
+
+.has-tooltip {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
