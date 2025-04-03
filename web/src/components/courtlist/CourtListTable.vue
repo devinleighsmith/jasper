@@ -1,6 +1,8 @@
 <template>
   <v-data-table
     v-model="selected"
+    must-sort
+    :sort-by="sortBy"
     :items="data"
     :headers
     :search="search"
@@ -79,6 +81,9 @@
   import { ref } from 'vue';
 
   const selected = defineModel<string[]>('selectedItems');
+  const sortBy = ref([
+    { key: 'appearanceSequenceNumber', order: 'asc' },
+  ] as const);
 
   defineProps<{
     data: courtListAppearanceType[];
@@ -87,6 +92,10 @@
 
   const headers = ref([
     { key: 'data-table-group' },
+    {
+      title: '#',
+      key: 'appearanceSequenceNumber'
+    },
     { title: 'FILE #', key: 'courtFileNumber' },
     { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
     { title: 'TIME', key: 'appearanceTm' },
