@@ -85,3 +85,8 @@ export interface KeyValueInfo {
   key: string;
   value: string;
 }
+
+export enum DivisionEnum {
+  R = 'R',
+  I = 'I',
+}
