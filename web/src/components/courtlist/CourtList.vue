@@ -149,7 +149,6 @@
 
       cardTablePairings.value.push({ card, table: appearances });
     });
-    //console.log(data);
   };
 
   const addDay = (days: number) => {

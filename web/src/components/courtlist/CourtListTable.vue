@@ -21,31 +21,42 @@
     <template v-slot:item.appearanceReasonCd="{ value, item }">
       <v-tooltip :text="item.appearanceReasonDsc" location="top">
         <template v-slot:activator="{ props }">
-          <span v-bind="props">{{ value }}</span>
+          <span v-bind="props" class="underline">{{ value }}</span>
         </template>
       </v-tooltip>
     </template>
     <template v-slot:item.counsel="{ item }">
       <v-tooltip
         :disabled="
-          (item.counsel?.length ?? 0) + (item.justinCounsel ? 1 : 0) < 2
+          (item.counsel?.length ?? 0) + (item.accusedCounselNm ? 1 : 0) < 2
         "
         location="top"
       >
-        <!-- <template #activator="{ props }">
-          <span v-bind="props">{{
-            renderCounsel(item.counsel, item.justinCounsel)
-          }}</span>
+        <template #activator="{ props }">
+          <span
+            v-bind="props"
+            :class="{
+              'underline underline-dotted':
+                (item?.accusedCounselNm ? 1 : 0) + (item.counsel?.length ?? 0) >
+                1,
+            }"
+            >{{ renderCounsel(item.accusedCounselNm, item.counsel) }}</span
+          >
         </template>
         <span
-          v-html="renderCounselTooltip(item.counsel, item.justinCounsel)"
-        ></span> -->
+          v-html="renderCounselTooltip(item.accusedCounselNm, item.counsel)"
+        ></span>
       </v-tooltip>
     </template>
     <template v-slot:item.crown="{ value }">
       <v-tooltip :disabled="value?.length < 2" location="top">
         <template #activator="{ props }">
-          <span v-bind="props">{{ renderCrown(value) }}</span>
+          <span
+            :class="{ 'underline underline-dotted': value?.length > 1 }"
+            v-bind="props"
+          >
+            {{ renderCrown(value) }}
+          </span>
         </template>
         <span v-html="renderCrownTooltip(value)"></span>
       </v-tooltip>
@@ -59,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+  import { PcssCounsel } from '@/types/criminal';
   import {
     courtListAppearanceType,
     criminalApprDetailType,
@@ -81,7 +93,7 @@
     { title: 'EST.', key: 'estimatedTime' },
     { title: 'ROOM', key: 'courtRoomCd' },
     { title: 'REASON', key: 'appearanceReasonCd' },
-    { title: 'FILE MARKERS', key: 'fileMarkers' },
+    { title: 'FILE MARKERS', key: 'fileMarkers', sortable: false },
     { title: 'COUNSEL', key: 'counsel' },
     { title: 'CROWN', key: 'crown' },
     {
@@ -90,76 +102,44 @@
       value: (item: courtListAppearanceType) =>
         item.caseAgeDays ? item.caseAgeDays + 'd' : '',
     },
-    { title: 'NOTES', key: 'actions' },
+    { title: 'NOTES', key: 'actions', sortable: false },
   ]);
 
-  //   const renderCounselTooltip = (counsel: any, justinCounsel: any) => {
-  //     if (!counsel) {
-  //       return '';
-  //     }
-  //     let tooltip = '';
-  //     counsel.forEach((counsel: any) => {
-  //       tooltip += counsel?.lastNm + ', ' + counsel?.givenNm + '<br/>';
-  //     });
-  //     if (justinCounsel) {
-  //       tooltip += justinCounsel?.lastNm + ', ' + justinCounsel?.givenNm;
-  //     }
-  //     return tooltip;
-  //   };
-
-  const renderCrownTooltip = (crown: any) => {
-    if (!crown) {
-      return '';
+  const renderTooltip = (items: any[], additionalItem?: string) => {
+    let tooltip =
+      items?.map((item) => `${item?.lastNm}, ${item?.givenNm}`).join('<br/>') ||
+      '';
+    if (additionalItem) {
+      const [firstName, lastName] = additionalItem.split(' ');
+      tooltip += `${tooltip ? '<br/>' : ''}${lastName}, ${firstName}`;
     }
-    let tooltip = '';
-    crown.forEach((crown: any) => {
-      tooltip += crown?.lastNm + ', ' + crown?.givenNm + '<br/>';
-    });
     return tooltip;
   };
 
-  //   const renderCounsel = (counsel: any, justinCounsel: any) => {
-  //     if (
-  //       !counsel ||
-  //       (counsel.length === 0 && (!justinCounsel || justinCounsel.length === 0))
-  //     ) {
-  //       return '';
-  //     }
-  //     let name = '';
-  //     if (counsel[0].lastNm != null && counsel[0].givenNm != null) {
-  //       name = counsel[0]?.lastNm + ', ' + counsel[0]?.givenNm;
-  //     } else {
-  //       name = justinCounsel.lastNm + ', ' + justinCounsel.givenNm;
-  //     }
-  //     const count = counsel.length + (justinCounsel != null ? 1 : 0);
-  //     if (count > 1) {
-  //       name += `+${count - 1}`;
-  //     }
-  //     return name;
-  //   };
-
-  const renderCrown = (crown: any) => {
-    if (!crown || crown.length === 0) {
-      return '';
+  const renderName = (items: any[], additionalItem?: string) => {
+    if (!items?.length && !additionalItem) return '';
+    let name = items?.[0] ? `${items[0]?.lastNm}, ${items[0]?.givenNm}` : '';
+    const count = (items?.length || 0) + (additionalItem ? 1 : 0);
+    if (additionalItem && !name) {
+      const [firstName, lastName] = additionalItem.split(' ');
+      name = `${lastName}, ${firstName}`;
     }
-    let name = crown[0]?.lastNm + ', ' + crown[0]?.givenNm;
-    if (crown.length > 1) {
-      name += `+${crown.length - 1}`;
-    }
-    return name;
+    return count > 1 ? `${name} +${count - 1}` : name;
   };
 
-//   const renderJustinCounsel = (counsel: any) => {
-//     if (!counsel) {
-//       return '';
-//     }
-//     let name = counsel?.lastNm;
-//     if (counsel?.givenNm) {
-//       name += ', ' + counsel?.givenNm;
-//     }
+  const renderCounselTooltip = (
+    accusedCounselNm: string,
+    counsel: PcssCounsel[] | undefined
+  ) => renderTooltip(counsel ?? [], accusedCounselNm);
 
-//     return name;
-//   };
+  const renderCrownTooltip = (crown: any) => renderTooltip(crown);
+
+  const renderCounsel = (
+    accusedCounselNm: string,
+    counsel: PcssCounsel[] | undefined
+  ) => renderName(counsel ?? [], accusedCounselNm);
+
+  const renderCrown = (crown: any) => renderName(crown);
 
   const hoursMinsFormatter = (hours: string, minutes: string) => {
     const hrs = parseInt(hours, 10);
@@ -174,3 +154,10 @@
     return result || '0 Mins';
   };
 </script>
+
+<style scoped>
+  .underline {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+  }
+</style>
