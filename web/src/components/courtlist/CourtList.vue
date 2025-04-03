@@ -81,7 +81,6 @@
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
   const selectedItems = ref([]);
-  const httpService = inject<HttpService>('httpService');
   const cardTablePairings = ref<
     {
       card: CourtListCardInfo;
