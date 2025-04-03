@@ -64,8 +64,7 @@
   import { CourtListService, LookupService } from '@/services';
   import { HttpService } from '@/services/HttpService';
   import { DivisionEnum, LookupCode } from '@/types/common';
-  import { CourtListCardInfo } from '@/types/courtlist';
-  import { courtListAppearanceType } from '@/types/criminal/jsonTypes';
+  import { CourtListAppearance, CourtListCardInfo } from '@/types/courtlist';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
   import { computed, inject, onMounted, provide, ref } from 'vue';
   import CourtListTable from './CourtListTable.vue';
@@ -84,16 +83,16 @@
   const cardTablePairings = ref<
     {
       card: CourtListCardInfo;
-      table: courtListAppearanceType[];
+      table: CourtListAppearance[];
     }[]
   >([]);
   const filesFilterMap: {
-    [key: string]: (appearance: courtListAppearanceType) => boolean;
+    [key: string]: (appearance: CourtListAppearance) => boolean;
   } = {
-    Complete: (appearance: courtListAppearanceType) => !!appearance.isComplete,
-    Cancelled: (appearance: courtListAppearanceType) =>
+    Complete: (appearance: CourtListAppearance) => !!appearance.isComplete,
+    Cancelled: (appearance: CourtListAppearance) =>
       appearance.appearanceStatusCd === 'CNCL',
-    'To be called': (appearance: courtListAppearanceType) =>
+    'To be called': (appearance: CourtListAppearance) =>
       appearance.appearanceStatusCd === 'SCHD',
   };
   const showDialog = ref(false);
@@ -125,7 +124,7 @@
   const filteredTablePairings = computed<
     {
       card: CourtListCardInfo;
-      table: courtListAppearanceType[];
+      table: CourtListAppearance[];
     }[]
   >(() => {
     return cardTablePairings.value
@@ -167,7 +166,7 @@
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
       const card = {} as CourtListCardInfo;
-      const appearances = courtList.appearances as courtListAppearanceType[];
+      const appearances = courtList.appearances as CourtListAppearance[];
       card.fileCount = courtList.casesTarget;
       card.activity = courtList.activityDsc;
       card.presider = adjudicatorDetails?.adjudicatorNm;

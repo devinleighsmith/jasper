@@ -73,8 +73,8 @@
 
 <script setup lang="ts">
   import { PcssCounsel } from '@/types/criminal';
+  import { CourtListAppearance } from '@/types/courtlist';
   import {
-    courtListAppearanceType,
     criminalApprDetailType,
   } from '@/types/criminal/jsonTypes';
   import { mdiFileDocumentEditOutline, mdiNotebookEditOutline } from '@mdi/js';
@@ -86,7 +86,7 @@
   ] as const);
 
   defineProps<{
-    data: courtListAppearanceType[];
+    data: CourtListAppearance[];
     search: string;
   }>();
 
@@ -108,7 +108,7 @@
     {
       title: 'CASE AGE',
       key: 'caseAgeDays',
-      value: (item: courtListAppearanceType) =>
+      value: (item: CourtListAppearance) =>
         item.caseAgeDays ? item.caseAgeDays + 'd' : '',
     },
     { title: 'NOTES', key: 'actions', sortable: false },
