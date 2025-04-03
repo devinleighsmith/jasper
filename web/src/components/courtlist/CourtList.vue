@@ -51,16 +51,23 @@
           :data="pairing.table"
         />
       </template>
+      <court-list-table-search-dialog
+        v-model:showDialog="showDialog"
+        v-model:types="classes"
+        :on-generate="onGenerateClick"
+      />
     </v-skeleton-loader>
   </v-container>
 </template>
 
 <script setup lang="ts">
+  import { CourtListService, LookupService } from '@/services';
   import { HttpService } from '@/services/HttpService';
+  import { DivisionEnum, LookupCode } from '@/types/common';
   import { CourtListCardInfo } from '@/types/courtlist';
   import { courtListAppearanceType } from '@/types/criminal/jsonTypes';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
-  import { computed, inject, ref } from 'vue';
+  import { computed, inject, onMounted, provide, ref } from 'vue';
   import CourtListTable from './CourtListTable.vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
@@ -89,6 +96,22 @@
       appearance.appearanceStatusCd === 'CNCL',
     'To be called': (appearance: courtListAppearanceType) =>
       appearance.appearanceStatusCd === 'SCHD',
+  };
+  const showDialog = ref(false);
+  const classes = ref<LookupCode[]>([]);
+  let selectedLocationId: string = '';
+  let selectedCourtRoom: string = '';
+
+  onMounted(async () => {
+    await getCourtClasses();
+  });
+
+  const getCourtClasses = async () => {
+    const data = await lookupService?.getCourtClasses();
+    classes.value =
+      data?.filter(
+        (c) => c.longDesc === DivisionEnum.R || c.longDesc === DivisionEnum.I
+      ) || [];
   };
 
   const filterByAMPM = (pairing: any) =>
@@ -122,11 +145,18 @@
       : ''
   );
 
-  if (!httpService) {
-    throw new Error('Service is undefined.');
+  const httpService = inject<HttpService>('httpService');
+  const lookupService = inject<LookupService>('lookupService');
+  const courtListService = inject<CourtListService>('courtListService');
+  if (!httpService || !lookupService || !courtListService) {
+    throw new Error('Service(s) is undefined.');
   }
 
-  const populateCardTablePairings = (data: any) => {
+  const populateCardTablePairings = (
+    data: any,
+    locationId: string,
+    courtRoom: string
+  ) => {
     cardTablePairings.value = [];
     if (!data?.items?.length) {
       return;
@@ -149,6 +179,9 @@
 
       cardTablePairings.value.push({ card, table: appearances });
     });
+
+    selectedLocationId = locationId;
+    selectedCourtRoom = courtRoom;
   };
 
   const addDay = (days: number) => {
@@ -158,5 +191,35 @@
       );
       selectedDate.value = appliedDate.value;
     }
+  };
+
+  provide('menuClicked', (output) => {
+    showDialog.value = true;
+  });
+
+  const onGenerateClick = (
+    type: string,
+    reportType: string,
+    additions: string
+  ) => {
+    const selectedClass = classes.value.find((c) => c.code === type)!;
+
+    let queryParams: Record<string, any> = {
+      courtDivision: selectedClass.longDesc,
+      courtClass: selectedClass.code,
+      date: selectedDate.value,
+      locationId: selectedLocationId,
+      roomCode: selectedCourtRoom,
+    };
+
+    if (selectedClass!.longDesc === DivisionEnum.R) {
+      queryParams.reportType = reportType;
+    } else {
+      queryParams.additionsList = additions;
+    }
+
+    const url = courtListService.generateReportUrl(queryParams);
+
+    window.open(url, '_blank');
   };
 </script>
