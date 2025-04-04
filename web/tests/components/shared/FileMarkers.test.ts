@@ -8,7 +8,7 @@ describe('FileMarkers.vue', () => {
     restrictions: [],
     division: 'Criminal',
     participants: [{ inCustodyYN: 'Y', detainedYN: 'N', interpreterYN: 'N' }],
-    appearances: [{ appearanceReasonCd: 'CNT' }],
+    appearances: [{ continuationYn: 'Y' }],
   };
 
   it('renders markers based on division and props', async () => {

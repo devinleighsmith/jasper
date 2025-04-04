@@ -19,12 +19,16 @@
 </template>
 
 <script setup lang="ts">
+  import {
+    criminalApprDetailType,
+    criminalParticipantType,
+  } from '@/types/criminal/jsonTypes';
   import { defineProps, onMounted, ref } from 'vue';
 
   const props = defineProps<{
     division: string;
-    participants: any[];
-    appearances: any[];
+    participants: criminalParticipantType[];
+    appearances: criminalApprDetailType[];
   }>();
 
   const markers = ref<any>([]);
@@ -56,7 +60,7 @@
       INT: 'interpreterYN',
     };
     const appearanceFlags = {
-      CNT: 'appearanceReasonCd',
+      CNT: 'continuationYn',
     };
     // Match participant flags
     selection.value = Object.keys(participantFlags)
@@ -66,7 +70,7 @@
       // Match appearance flags
       .concat(
         Object.keys(appearanceFlags).filter((key) =>
-          props.appearances?.some((app) => app[appearanceFlags[key]])
+          props.appearances?.some((app) => app[appearanceFlags[key]] === 'Y')
         )
       );
 

@@ -45,17 +45,11 @@
         class="w-100"
       >
         <court-list-card :cardInfo="pairing.card" />
-        <!-- Wait until we can get real data back before enabling data-table -->
-        <!-- <v-data-table
-          v-model="selectedItems"
-          :items="pairing.table"
-          :headers
+        <court-list-table
+          v-model:selectedItems="selectedItems"
           :search="search"
-          item-value="courtFileNumber"
-          class="pb-5"
-        >
-          <template v-slot:bottom />
-        </v-data-table> -->
+          :data="pairing.table"
+        />
       </template>
       <court-list-table-search-dialog
         v-model:showDialog="showDialog"
@@ -68,9 +62,10 @@
 <script setup lang="ts">
   import { CourtListService } from '@/services';
   import { HttpService } from '@/services/HttpService';
-  import { CourtListCardInfo } from '@/types/courtlist';
+  import { CourtListAppearance, CourtListCardInfo } from '@/types/courtlist';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
   import { computed, inject, provide, ref } from 'vue';
+  import CourtListTable from './CourtListTable.vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
   const errorCode = ref(0);
@@ -79,14 +74,23 @@
   const selectedDate = ref(new Date());
   const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
-  const search = ref();
+  const search = ref('');
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
-  const cardTablePairings = ref<{ card: CourtListCardInfo; table: any }[]>([]);
-  const filesFilterMap: { [key: string]: (appearance: any) => boolean } = {
-    Complete: (appearance: any) => appearance.isComplete,
-    Cancelled: (appearance: any) => appearance.appearanceStatusCd === 'CNCL',
-    'To be called': (appearance: any) =>
+  const selectedItems = ref([]);
+  const cardTablePairings = ref<
+    {
+      card: CourtListCardInfo;
+      table: CourtListAppearance[];
+    }[]
+  >([]);
+  const filesFilterMap: {
+    [key: string]: (appearance: CourtListAppearance) => boolean;
+  } = {
+    Complete: (appearance: CourtListAppearance) => !!appearance.isComplete,
+    Cancelled: (appearance: CourtListAppearance) =>
+      appearance.appearanceStatusCd === 'CNCL',
+    'To be called': (appearance: CourtListAppearance) =>
       appearance.appearanceStatusCd === 'SCHD',
   };
   const showDialog = ref(false);
@@ -100,7 +104,12 @@
       : table;
   };
 
-  const filteredTablePairings = computed(() => {
+  const filteredTablePairings = computed<
+    {
+      card: CourtListCardInfo;
+      table: CourtListAppearance[];
+    }[]
+  >(() => {
     return cardTablePairings.value
       .filter(filterByAMPM)
       .map((pairing) => ({ ...pairing, table: filterByFiles(pairing.table) }));
@@ -135,6 +144,7 @@
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
       const card = {} as CourtListCardInfo;
+      const appearances = courtList.appearances as CourtListAppearance[];
       card.fileCount = courtList.casesTarget;
       card.activity = courtList.activityDsc;
       card.presider = adjudicatorDetails?.adjudicatorNm;
@@ -142,7 +152,8 @@
       card.courtListLocationID = courtList.locationId;
       card.courtListLocation = courtList.locationNm;
       card.amPM = adjudicatorDetails?.amPm;
-      cardTablePairings.value.push({ card, table: courtList.appearances });
+
+      cardTablePairings.value.push({ card, table: appearances });
     });
   };
 
