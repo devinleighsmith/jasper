@@ -19,12 +19,15 @@
 </template>
 
 <script setup lang="ts">
-  import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
+  import {
+    criminalApprDetailType,
+    criminalParticipantType,
+  } from '@/types/criminal/jsonTypes';
   import { defineProps, onMounted, ref } from 'vue';
 
   const props = defineProps<{
     division: string;
-    participants: any[];
+    participants: criminalParticipantType[];
     appearances: criminalApprDetailType[];
   }>();
 
@@ -75,7 +78,7 @@
       ...marker,
       selected: selection.value.includes(marker.name),
     }));
-});
+  });
 </script>
 
 <style scoped>
