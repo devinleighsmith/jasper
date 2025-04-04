@@ -53,7 +53,6 @@
       </template>
       <court-list-table-search-dialog
         v-model:showDialog="showDialog"
-        v-model:types="classes"
         :on-generate="onGenerateClick"
       />
     </v-skeleton-loader>
@@ -61,12 +60,11 @@
 </template>
 
 <script setup lang="ts">
-  import { CourtListService, LookupService } from '@/services';
+  import { CourtListService } from '@/services';
   import { HttpService } from '@/services/HttpService';
-  import { DivisionEnum, LookupCode } from '@/types/common';
   import { CourtListAppearance, CourtListCardInfo } from '@/types/courtlist';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
-  import { computed, inject, onMounted, provide, ref } from 'vue';
+  import { computed, inject, provide, ref } from 'vue';
   import CourtListTable from './CourtListTable.vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
@@ -96,21 +94,6 @@
       appearance.appearanceStatusCd === 'SCHD',
   };
   const showDialog = ref(false);
-  const classes = ref<LookupCode[]>([]);
-  let selectedLocationId: string = '';
-  let selectedCourtRoom: string = '';
-
-  onMounted(async () => {
-    await getCourtClasses();
-  });
-
-  const getCourtClasses = async () => {
-    const data = await lookupService?.getCourtClasses();
-    classes.value =
-      data?.filter(
-        (c) => c.longDesc === DivisionEnum.R || c.longDesc === DivisionEnum.I
-      ) || [];
-  };
 
   const filterByAMPM = (pairing: any) =>
     !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
@@ -144,17 +127,12 @@
   );
 
   const httpService = inject<HttpService>('httpService');
-  const lookupService = inject<LookupService>('lookupService');
   const courtListService = inject<CourtListService>('courtListService');
-  if (!httpService || !lookupService || !courtListService) {
+  if (!httpService || !courtListService) {
     throw new Error('Service(s) is undefined.');
   }
 
-  const populateCardTablePairings = (
-    data: any,
-    locationId: string,
-    courtRoom: string
-  ) => {
+  const populateCardTablePairings = (data: any) => {
     cardTablePairings.value = [];
     if (!data?.items?.length) {
       return;
@@ -177,9 +155,6 @@
 
       cardTablePairings.value.push({ card, table: appearances });
     });
-
-    selectedLocationId = locationId;
-    selectedCourtRoom = courtRoom;
   };
 
   const addDay = (days: number) => {
@@ -191,33 +166,50 @@
     }
   };
 
-  provide('menuClicked', (output) => {
+  provide('menuClicked', () => {
     showDialog.value = true;
   });
 
-  const onGenerateClick = (
-    type: string,
-    reportType: string,
-    additions: string
-  ) => {
-    const selectedClass = classes.value.find((c) => c.code === type)!;
+  const onGenerateClick = (reportType: 'Daily' | 'Additions') => {
+    // Prepare unique combinations to generate report(s)
+    const uniqueMap = new Map<
+      string,
+      {
+        locationId: number;
+        date: string;
+        division: string;
+        class: string;
+        courtRoom: string;
+      }
+    >();
+    cardTablePairings.value.forEach((element) => {
+      element.table.forEach((data) => {
+        const obj = {
+          locationId: element.card.courtListLocationID,
+          date: data.appearanceDt,
+          division: data.courtDivisionCd,
+          class: data.courtClassCd,
+          courtRoom: data.courtRoomCd,
+        };
 
-    let queryParams: Record<string, any> = {
-      courtDivision: selectedClass.longDesc,
-      courtClass: selectedClass.code,
-      date: selectedDate.value,
-      locationId: selectedLocationId,
-      roomCode: selectedCourtRoom,
-    };
+        const key = `${obj.locationId}|${obj.date}|${obj.division}|${obj.class}|${obj.courtRoom}`;
+        uniqueMap.set(key, obj);
+      });
+    });
 
-    if (selectedClass!.longDesc === DivisionEnum.R) {
-      queryParams.reportType = reportType;
-    } else {
-      queryParams.additionsList = additions;
-    }
+    // Open tab(s)
+    uniqueMap.forEach((value, key) => {
+      let queryParams: Record<string, any> = {
+        courtDivision: value.division,
+        courtClass: value.class,
+        date: value.date,
+        locationId: value.locationId,
+        roomCode: value.courtRoom,
+        ...(reportType === 'Daily' ? { reportType } : { additionsList: 'Y' }),
+      };
 
-    const url = courtListService.generateReportUrl(queryParams);
-
-    window.open(url, '_blank');
+      const url = courtListService.generateReportUrl(queryParams);
+      window.open(url, '_blank');
+    });
   };
 </script>
