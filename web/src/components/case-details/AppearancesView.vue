@@ -71,8 +71,7 @@
     {
       title: 'DATE',
       key: 'appearanceDt',
-      value: (item: criminalApprDetailType) =>
-        formatDateToDDMMMYYYY(item.appearanceDt),
+      value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
     },
     { title: '', key: 'DARS' },
     { title: 'REASON', key: 'appearanceReasonCd' },
@@ -81,11 +80,17 @@
       key: 'appearanceTm',
     },
     { title: 'LOCATION ROOM', key: 'courtLocation' },
-    { title: 'PRESIDER', key: 'judgeFullNm' },
+    {
+      title: 'PRESIDER',
+      key: 'judgeFullNm',
+      value: (item) =>
+        // Check for empty string with comma, this seems to be very common
+        item.judgeFullNm && item.judgeFullNm !== ', ' ? item.judgeFullNm : '',
+    },
     {
       title: 'ACCUSED',
       key: 'name',
-      value: (item: criminalApprDetailType) =>
+      value: (item) =>
         item.lastNm && item.givenNm ? item.lastNm + ', ' + item.givenNm : '',
     },
     { title: 'STATUS', key: 'appearanceStatusCd' },
@@ -94,8 +99,7 @@
     {
       title: 'DATE',
       key: 'appearanceDt',
-      value: (item: criminalApprDetailType) =>
-        formatDateToDDMMMYYYY(item.appearanceDt),
+      value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
     },
     { title: 'REASON', key: 'appearanceReasonCd' },
     {
@@ -107,14 +111,14 @@
     {
       title: 'ACCUSED',
       key: 'name',
-      value: (item: criminalApprDetailType) =>
+      value: (item) =>
         item.lastNm && item.givenNm ? item.lastNm + ', ' + item.givenNm : '',
     },
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
 
   const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
-  const now = new Date('2020-10-01T00:00:00Z'); // Replace with actual current date
+  const now = new Date(); // Replace with actual current date
   const futureAppearances = computed(() =>
     props.appearances?.filter(
       (app: criminalApprDetailType) => new Date(app?.appearanceDt) > now
@@ -125,5 +129,4 @@
       (app: criminalApprDetailType) => new Date(app?.appearanceDt) <= now
     )
   );
-  console.log(props.appearances);
 </script>
