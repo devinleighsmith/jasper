@@ -5,8 +5,8 @@
  * @returns {string} A formatted date string in "DD-MMM-YYYY" format (e.g., "01-Jan-2023").
  */
 export const formatDateToDDMMMYYYY = (dateString: string): string => {
-  const date = dateString ? new Date(dateString) : null;
-  if (!date) {
+  const date = dateString ? new Date(`${dateString}T00:00:00`) : null;
+  if (!date || isNaN(date.getTime())) {
     return '';
   }
 
@@ -17,6 +17,13 @@ export const formatDateToDDMMMYYYY = (dateString: string): string => {
   return `${day}-${month}-${year}`;
 };
 
+/**
+ * Formats hours and minutes into a human-readable string.
+ *
+ * @param hours - The number of hours as a string. Should be a valid integer in string format.
+ * @param minutes - The number of minutes as a string. Should be a valid integer in string format.
+ * @returns A formatted string representing the hours and minutes.
+ */
 export const hoursMinsFormatter = (hours: string, minutes: string) => {
   const hrs = parseInt(hours, 10);
   const mins = parseInt(minutes, 10);
@@ -30,6 +37,12 @@ export const hoursMinsFormatter = (hours: string, minutes: string) => {
   return result || '0 Mins';
 };
 
+/**
+ * Extracts and formats the time from a given date string.
+ *
+ * @param date - The date string in the format "YYYY-MM-DD HH:mm:ss".
+ * @returns The formatted time in 12-hour format with AM/PM (e.g., "2:30 PM").
+ */
 export const extractTime = (date: string) => {
     const time = date.split(' ')[1];
     const hours = parseInt(time.slice(0, 2), 10);
@@ -37,4 +50,4 @@ export const extractTime = (date: string) => {
     const period = hours >= 12 ? 'PM' : 'AM';
     const formattedHours = hours % 12 || 12; // Convert to 12-hour format
     return `${formattedHours}:${minutes} ${period}`;
-  };
+};
