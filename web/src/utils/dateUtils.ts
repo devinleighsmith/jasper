@@ -5,8 +5,12 @@
  * @returns {string} A formatted date string in "DD-MMM-YYYY" format (e.g., "01-Jan-2023").
  */
 export const formatDateToDDMMMYYYY = (dateString: string): string => {
-  const date = dateString ? new Date(`${dateString}T00:00:00`) : null;
-  if (!date || isNaN(date.getTime())) {
+  if(!dateString){
+    return '';
+  }
+  const normalizedDateString = dateString.split(' ')[0]; // Extract only the date part
+  const date = normalizedDateString ? new Date(`${normalizedDateString}T00:00:00`) : null;
+  if (!date) {
     return '';
   }
 
