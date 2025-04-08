@@ -26,7 +26,7 @@
           </v-col>
 
           <v-col class="px-0" style="overflow: auto">
-            <Header :details="details" />
+            <case-header :details="details" />
             <!-- Comment this out for now as we continue to deprecate it -->
             <!-- <criminal-header-top v-if="isDataReady" />
             <criminal-header v-if="isDataReady" />
@@ -76,12 +76,12 @@
 <script lang="ts">
   import CourtFilesSelector from '@/components/case-details/CourtFilesSelector.vue';
   import CriminalSidePanelV2 from '@/components/case-details/CriminalSidePanel.vue';
+  import CaseHeader from '@/components/case-details/CaseHeader.vue';
   import CriminalAdjudicatorRestrictions from '@/components/criminal/CriminalAdjudicatorRestrictions.vue';
   import CriminalCrownInformation from '@/components/criminal/CriminalCrownInformation.vue';
   import CriminalDocumentsView from '@/components/criminal/CriminalDocumentsView.vue';
   import CriminalFutureAppearances from '@/components/criminal/CriminalFutureAppearances.vue';
   import CriminalHeader from '@/components/criminal/CriminalHeader.vue';
-  import Header from '@/components/case-details/Header.vue';
   import CriminalHeaderTop from '@/components/criminal/CriminalHeaderTop.vue';
   import CriminalParticipants from '@/components/criminal/CriminalParticipants.vue';
   import CriminalPastAppearances from '@/components/criminal/CriminalPastAppearances.vue';

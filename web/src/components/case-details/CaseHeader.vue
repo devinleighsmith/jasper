@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-tabs
-      color="#72acca"
       v-model="selectedTab"
+      color="#72acca"
       align-tabs="start"
       hide-slider
     >

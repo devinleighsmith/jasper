@@ -118,7 +118,7 @@
   ];
 
   const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
-  const now = new Date(); // Replace with actual current date
+  const now = new Date();
   const futureAppearances = computed(() =>
     props.appearances?.filter(
       (app: criminalApprDetailType) => new Date(app?.appearanceDt) > now
