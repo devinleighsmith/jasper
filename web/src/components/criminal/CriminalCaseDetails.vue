@@ -1,31 +1,10 @@
 <template>
   <div class="main-container" style="overflow: hidden">
-    <b-card bg-variant="light" v-if="isMounted && !isDataReady">
-      <b-card style="min-height: 100px">
-        <span v-if="errorCode == 404"
-          >This
-          <b>File-Number '{{ criminalFileInformation.fileNumber }}'</b>
-          doesn't exist in the <b>criminal</b> records.
-        </span>
-        <span v-else-if="errorCode == 200 || errorCode == 204">
-          Bad Data in
-          <b>File-Number '{{ criminalFileInformation.fileNumber }}'</b>
-          !
-        </span>
-        <span v-else-if="errorCode == 403">
-          You are not authorized to access this file.
-        </span>
-        <span v-else>
-          Server is not responding. <b>({{ errorText }})</b>
-        </span>
-      </b-card>
-      <b-card>
-        <!-- <b-button id="backToLandingPage" variant="outline-primary text-dark bg-warning" @click="navigateToLandingPage">
-                <b-icon-house-door class="mr-1 ml-0" variant="dark" scale="1" ></b-icon-house-door>
-                Return to Main Page
-            </b-button>          -->
-      </b-card>
-    </b-card>
+    <!-- todo: Extract this out to more generic location -->
+    <v-card style="min-height: 40px" v-if="errorCode > 0 && errorCode == 403">
+      <span> You are not authorized to access this page. </span>
+    </v-card>
+    <!------------------------------------------------------->
     <v-row>
       <v-col>
         <court-files-selector v-model="fileNumber" :files="selectedFiles" />
@@ -46,8 +25,10 @@
             <criminal-side-panel-v1 v-if="isDataReady" />
           </v-col>
 
-          <v-col col md="9" cols="9" class="px-0" style="overflow: auto">
-            <criminal-header-top v-if="isDataReady" />
+          <v-col class="px-0" style="overflow: auto">
+            <Header :details="details" />
+            <!-- Comment this out for now as we continue to deprecate it -->
+            <!-- <criminal-header-top v-if="isDataReady" />
             <criminal-header v-if="isDataReady" />
 
             <b-row class="ml-0" v-if="showDocuments">
@@ -78,13 +59,13 @@
             <criminal-participants v-if="showCaseDetails" />
             <criminal-adjudicator-restrictions v-if="showCaseDetails" />
             <criminal-crown-information v-if="showCaseDetails" />
-            <!--<criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.-->
+            <criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.
             <criminal-past-appearances v-if="showPastAppearances" />
             <criminal-future-appearances v-if="showFutureAppearances" />
             <criminal-documents-view v-if="showDocuments" />
             <criminal-witnesses v-if="showWitnesses" />
             <criminal-sentence v-if="showSentenceOrder" />
-            <b-card><br /></b-card>
+            <b-card><br /></b-card> -->
           </v-col>
         </v-row>
       </v-skeleton-loader>
@@ -100,6 +81,7 @@
   import CriminalDocumentsView from '@/components/criminal/CriminalDocumentsView.vue';
   import CriminalFutureAppearances from '@/components/criminal/CriminalFutureAppearances.vue';
   import CriminalHeader from '@/components/criminal/CriminalHeader.vue';
+  import Header from '@/components/case-details/Header.vue';
   import CriminalHeaderTop from '@/components/criminal/CriminalHeaderTop.vue';
   import CriminalParticipants from '@/components/criminal/CriminalParticipants.vue';
   import CriminalPastAppearances from '@/components/criminal/CriminalPastAppearances.vue';
@@ -144,7 +126,7 @@
   import { useRoute } from 'vue-router';
   import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
-  
+
   enum DecodeCourtLevel {
     'P' = 0,
     'S' = 1,
