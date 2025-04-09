@@ -73,4 +73,12 @@ describe('AppearancesView.vue', () => {
     expect(wrapper.findAll('v-card')?.at(0)?.findAll('v-col')?.at(0)?.text()).toBe("Past Appearances");
     expect(wrapper.findAll('v-card')?.at(1)?.findAll('v-col')?.at(0)?.text()).toBe("Future Appearances");
   });
+
+  it('filters appearances by selected accused', () => {
+    const wrapper: any = mount(AppearancesView,  {props });
+
+    wrapper.vm.selectedAccused = 'Doe, John';
+    const appearances = wrapper.vm.pastAppearances.concat(wrapper.vm.futureAppearances);
+    expect(appearances.length).toBe(1);
+  });
 });
