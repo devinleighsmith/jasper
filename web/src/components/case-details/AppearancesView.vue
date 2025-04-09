@@ -92,6 +92,8 @@
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
+      sortRaw: (a: criminalApprDetailType, b: criminalApprDetailType) =>
+        new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
       width: '13%',
     },
     { title: '', key: 'DARS', sortable: false, width: '1%' },
