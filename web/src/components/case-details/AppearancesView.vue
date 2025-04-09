@@ -3,6 +3,7 @@
     <v-col cols="9" />
     <v-col>
       <v-select
+        v-if="accusedOnFile.length > 1"
         v-model="selectedAccused"
         label="Accused"
         placeholder="All accused"
@@ -91,7 +92,7 @@
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
-      width: '10%',
+      width: '13%',
     },
     { title: '', key: 'DARS', sortable: false, width: '1%' },
     { title: 'REASON', key: 'appearanceReasonCd' },
@@ -145,7 +146,7 @@
   });
   const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
   const now = new Date();
-  
+
   const filterByAccused = (appearance: criminalApprDetailType) =>
     !selectedAccused.value ||
     accusedFormatter(appearance.lastNm, appearance.givenNm) ===
