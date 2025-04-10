@@ -157,14 +157,3 @@
     shared.openDocumentsPdf(documentType, documentData);
   };
 </script>
-
-<style scoped>
-  .tableBanner {
-    background-color: #3095b0;
-    color: white;
-    text-transform: uppercase;
-    height: 1rem !important;
-    display: flex;
-    align-items: center;
-  }
-</style>
