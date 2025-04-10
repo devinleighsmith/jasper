@@ -1,4 +1,17 @@
 <template>
+  <v-row>
+    <v-col cols="9" />
+    <v-col>
+      <v-select
+        v-if="accusedOnFile.length > 1"
+        v-model="selectedAccused"
+        label="Accused"
+        placeholder="All accused"
+        hide-details
+        :items="accusedOnFile"
+      />
+    </v-col>
+  </v-row>
   <div
     v-for="(appearances, type) in {
       past: pastAppearances,
@@ -30,6 +43,12 @@
       item-value="appearanceId"
       fixed-header
     >
+      <template v-slot:item.DARS="{ item }">
+        <v-icon
+          v-if="item.appearanceStatusCd === 'SCHD'"
+          :icon="mdiHeadphones"
+        />
+      </template>
       <template v-slot:item.appearanceReasonCd="{ value, item }">
         <v-tooltip :text="item.appearanceReasonDsc" location="top">
           <template v-slot:activator="{ props }">
@@ -64,6 +83,7 @@
     formatDateToDDMMMYYYY,
     hoursMinsFormatter,
   } from '@/utils/dateUtils';
+  import { mdiHeadphones } from '@mdi/js';
   import { computed, ref } from 'vue';
 
   const props = defineProps<{ appearances: criminalApprDetailType[] }>();
@@ -72,8 +92,11 @@
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
+      sortRaw: (a: criminalApprDetailType, b: criminalApprDetailType) =>
+        new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
+      width: '13%',
     },
-    { title: '', key: 'DARS' },
+    { title: '', key: 'DARS', sortable: false, width: '1%' },
     { title: 'REASON', key: 'appearanceReasonCd' },
     {
       title: 'TIME DURATION',
@@ -111,22 +134,40 @@
     {
       title: 'ACCUSED',
       key: 'name',
-      value: (item) =>
-        item.lastNm && item.givenNm ? item.lastNm + ', ' + item.givenNm : '',
+      value: (item) => accusedFormatter(item.lastNm, item.givenNm),
     },
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
 
+  const selectedAccused = ref<string>();
+  const accusedOnFile = computed<string[]>(() => {
+    const accusedList = props.appearances?.map((app) =>
+      accusedFormatter(app.lastNm, app.givenNm)
+    );
+    return [...new Set(accusedList)];
+  });
   const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
   const now = new Date();
+
+  const filterByAccused = (appearance: criminalApprDetailType) =>
+    !selectedAccused.value ||
+    accusedFormatter(appearance.lastNm, appearance.givenNm) ===
+      selectedAccused.value;
   const futureAppearances = computed(() =>
-    props.appearances?.filter(
-      (app: criminalApprDetailType) => new Date(app?.appearanceDt) > now
-    )
+    props.appearances
+      ?.filter(
+        (app: criminalApprDetailType) => new Date(app?.appearanceDt) > now
+      )
+      .filter(filterByAccused)
   );
   const pastAppearances = computed(() =>
-    props.appearances?.filter(
-      (app: criminalApprDetailType) => new Date(app?.appearanceDt) <= now
-    )
+    props.appearances
+      ?.filter(
+        (app: criminalApprDetailType) => new Date(app?.appearanceDt) <= now
+      )
+      .filter(filterByAccused)
   );
+
+  const accusedFormatter = (lastNm: string, givenNm: string) =>
+    lastNm && givenNm ? lastNm + ', ' + givenNm : '';
 </script>
