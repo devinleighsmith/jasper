@@ -17,7 +17,7 @@ select {
   text-decoration-style: dotted;
 }
 
-.tableBanner {
+.table-banner {
   background-color: var(--bg-blue) !important;
   color: white !important;
   text-transform: uppercase !important;

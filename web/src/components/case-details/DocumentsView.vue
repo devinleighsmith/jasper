@@ -37,7 +37,7 @@
         <tr>
           <td class="pa-0" style="height: 1rem" :colspan="columns.length">
             <v-banner
-              class="tableBanner"
+              class="table-banner"
               :ref="
                 () => {
                   if (!isGroupOpen(item)) toggleGroup(item);
