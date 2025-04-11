@@ -21,7 +21,7 @@
   >
     <v-card
       class="my-6"
-      color="#efedf5"
+      color="var(--bg-gray)"
       elevation="0"
       v-if="appearances?.length"
     >
@@ -77,14 +77,14 @@
 
 <script setup lang="ts">
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
-  import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
-  import {
-    extractTime,
-    formatDateToDDMMMYYYY,
-    hoursMinsFormatter,
-  } from '@/utils/dateUtils';
-  import { mdiHeadphones } from '@mdi/js';
-  import { computed, ref } from 'vue';
+import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
+import {
+  extractTime,
+  formatDateToDDMMMYYYY,
+  hoursMinsFormatter,
+} from '@/utils/dateUtils';
+import { mdiHeadphones } from '@mdi/js';
+import { computed, ref } from 'vue';
 
   const props = defineProps<{ appearances: criminalApprDetailType[] }>();
   const pastHeaders = [
@@ -146,7 +146,7 @@
     );
     return [...new Set(accusedList)];
   });
-  const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
+  const sortBy = ref([{ key: 'appearanceDt', order: 'desc' }] as const);
   const now = new Date();
 
   const filterByAccused = (appearance: criminalApprDetailType) =>

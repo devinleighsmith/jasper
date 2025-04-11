@@ -1,7 +1,7 @@
 <template>
   <div
     v-for="(documents, type) in {
-      keyDocuments: keyDocuments,
+      // keyDocuments: keyDocuments,
       documents: documents,
     }"
     :key="type"
@@ -14,12 +14,32 @@
     >
       <v-card-text>
         <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6">
-            {{ type === 'keyDocuments' ? 'Key documents' : 'Documents' }}
-          </v-col>
+          <v-col class="text-h5" cols="6"
+            >All Documents ({{ unfilteredDocuments.length }})</v-col
+          >
         </v-row>
       </v-card-text>
     </v-card>
+    <v-row>
+      <v-col cols="9" />
+      <v-col>
+        <v-select
+          v-if="documentCategories.length > 1"
+          v-model="selectedCategory"
+          label="Documents"
+          placeholder="All documents"
+          hide-details
+          :items="documentCategories"
+        >
+          <template v-slot:item="{ props: itemProps, item }">
+            <v-list-item
+              v-bind="itemProps"
+              :title="item.raw + ' (' + categoryCount(item.raw) + ')'"
+            ></v-list-item>
+          </template>
+        </v-select>
+      </v-col>
+    </v-row>
     <v-data-table-virtual
       v-if="documents?.length"
       v-model="selectedItems"
@@ -60,36 +80,71 @@
         >
           {{ formatType(item) }}
         </a>
+        <span v-else>
+          {{ formatType(item) }}
+        </span>
       </template>
     </v-data-table-virtual>
   </div>
 </template>
 <script setup lang="ts">
   import shared from '@/components/shared';
-import { beautifyDate } from '@/filters';
-import { useCriminalFileStore } from '@/stores';
-import {
-  criminalParticipantType,
-  documentType,
-} from '@/types/criminal/jsonTypes';
-import { CourtDocumentType, DocumentData } from '@/types/shared';
-import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-import { ref } from 'vue';
+  import { beautifyDate } from '@/filters';
+  import { useCriminalFileStore } from '@/stores';
+  import {
+    criminalParticipantType,
+    documentType,
+  } from '@/types/criminal/jsonTypes';
+  import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { computed, ref } from 'vue';
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
-  const keyDocuments = [];
   const criminalFileStore = useCriminalFileStore();
-  const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
+  const sortBy = ref([{ key: 'issueDate', order: 'desc' }] as const);
   const selectedItems = defineModel<criminalParticipantType[]>();
-  const documents = props.participants?.flatMap(
-    (participant) =>
-      participant.document?.map((doc) => ({
-        ...doc,
-        name: participant.fullName,
-        profSeqNo: participant.profSeqNo,
-        id: crypto.randomUUID(),
-      })) || []
+  const selectedCategory = ref<string>();
+
+  const formatCategory = (item: documentType) =>
+    item.category === 'rop' ? 'ROP' : item.category;
+  const formatType = (item: documentType) =>
+    item.category === 'rop'
+      ? 'Record of Proceedings'
+      : item.documentTypeDescription;
+
+  const filterByCategory = (item: any) => {
+    if (!selectedCategory.value) return true;
+    return (
+      item.category?.toLowerCase() === selectedCategory.value?.toLowerCase()
+    );
+  };
+
+  const unfilteredDocuments = computed(
+    () =>
+      props.participants?.flatMap((participant) =>
+        participant.document?.map((doc) => ({
+          ...doc,
+          name: participant.fullName,
+          profSeqNo: participant.profSeqNo,
+          id: crypto.randomUUID(),
+        }))
+      ) || []
   );
+
+  const documents = computed(() =>
+    unfilteredDocuments.value.filter(filterByCategory)
+  );
+
+  const categoryCount = (category: string): number => {
+    return unfilteredDocuments.value.filter(
+      (doc) => formatCategory(doc) === category
+    ).length;
+  };
+
+  const documentCategories = ref<string[]>([
+    ...new Set(documents.value?.map((doc) => formatCategory(doc)) || []),
+  ]);
+
   const groupBy = ref([
     {
       key: 'name',
@@ -102,6 +157,8 @@ import { ref } from 'vue';
       title: 'DATE SWORN/FILED',
       key: 'issueDate',
       value: (item) => formatDateToDDMMMYYYY(item.issueDate),
+      sortRaw: (a: documentType, b: documentType) =>
+        new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime(),
     },
     {
       title: 'DOCUMENT TYPE',
@@ -116,13 +173,6 @@ import { ref } from 'vue';
       key: 'documentPageCount',
     },
   ];
-
-  const formatCategory = (item: documentType) =>
-    item.category === 'rop' ? 'ROP' : item.category;
-  const formatType = (item: documentType) =>
-    item.category === 'rop'
-      ? 'Record of Proceedings'
-      : item.documentTypeDescription;
 
   // This is code ported over from 'CriminalDocumentsView.vue' to keep file viewing capability
   // This will eventually be deprecated in favor of Nutrient PDF viewing functionality

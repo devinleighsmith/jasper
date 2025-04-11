@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="6">
+      <v-col cols="10">
         <v-tabs
           v-model="selectedTab"
           color="#72acca"
@@ -39,8 +39,7 @@
           </v-tab>
         </v-tabs>
       </v-col>
-      <v-col cols="2" />
-      <v-col>
+      <v-col cols="2">
         <v-btn-secondary text="View shared folder" />
       </v-col>
     </v-row>
@@ -61,10 +60,10 @@
 
 <script setup lang="ts">
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-  import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
-  import { ref } from 'vue';
-  import AppearancesView from './AppearancesView.vue';
-  import DocumentsView from './DocumentsView.vue';
+import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
+import { ref } from 'vue';
+import AppearancesView from './AppearancesView.vue';
+import DocumentsView from './DocumentsView.vue';
 
   defineProps<{ details: criminalFileDetailsType }>();
   const selectedTab = ref('documents');
