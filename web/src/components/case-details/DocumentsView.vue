@@ -8,7 +8,7 @@
   >
     <v-card
       class="my-6"
-      color="#efedf5"
+      color="var(--bg-gray)"
       elevation="0"
       v-if="documents?.length > 0"
     >
@@ -66,15 +66,15 @@
 </template>
 <script setup lang="ts">
   import shared from '@/components/shared';
-  import { beautifyDate } from '@/filters';
-  import { useCriminalFileStore } from '@/stores';
-  import {
-    criminalParticipantType,
-    documentType,
-  } from '@/types/criminal/jsonTypes';
-  import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-  import { ref } from 'vue';
+import { beautifyDate } from '@/filters';
+import { useCriminalFileStore } from '@/stores';
+import {
+  criminalParticipantType,
+  documentType,
+} from '@/types/criminal/jsonTypes';
+import { CourtDocumentType, DocumentData } from '@/types/shared';
+import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+import { ref } from 'vue';
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
   const keyDocuments = [];
