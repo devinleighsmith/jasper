@@ -53,12 +53,12 @@
 
 <script setup lang="ts">
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
-import { ref } from 'vue';
-import AppearancesView from './AppearancesView.vue';
-import DocumentsView from './DocumentsView.vue';
+  import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
+  import { ref } from 'vue';
+  import AppearancesView from './AppearancesView.vue';
+  import DocumentsView from './DocumentsView.vue';
 
-  const props = defineProps<{ details: criminalFileDetailsType }>();
+  defineProps<{ details: criminalFileDetailsType }>();
   const selectedTab = ref('documents');
 </script>
 
