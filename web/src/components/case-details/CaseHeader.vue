@@ -1,41 +1,49 @@
 <template>
   <v-container>
-    <v-tabs
-      v-model="selectedTab"
-      color="#72acca"
-      align-tabs="start"
-      hide-slider
-    >
-      <v-tab
-        :prepend-icon="mdiTextBoxOutline"
-        :class="{ 'active-tab': selectedTab === 'documents' }"
-        border="md"
-        rounded="lg"
-        value="documents"
-      >
-        Documents
-      </v-tab>
-      <v-tab
-        :prepend-icon="mdiCalendar"
-        :class="{ 'active-tab': selectedTab === 'appearances' }"
-        border="md"
-        rounded="lg"
-        value="appearances"
-        class="mx-3"
-      >
-        Appearances
-      </v-tab>
-      <v-tab
-        :prepend-icon="mdiScaleBalance"
-        :class="{ 'active-tab': selectedTab === 'sentence' }"
-        value="sentence"
-        border="md"
-        rounded="lg"
-        disabled
-      >
-        Sentence/order details
-      </v-tab>
-    </v-tabs>
+    <v-row>
+      <v-col cols="6">
+        <v-tabs
+          v-model="selectedTab"
+          color="#72acca"
+          align-tabs="start"
+          hide-slider
+        >
+          <v-tab
+            :prepend-icon="mdiTextBoxOutline"
+            :class="{ 'active-tab': selectedTab === 'documents' }"
+            border="md"
+            rounded="lg"
+            value="documents"
+          >
+            Documents
+          </v-tab>
+          <v-tab
+            :prepend-icon="mdiCalendar"
+            :class="{ 'active-tab': selectedTab === 'appearances' }"
+            border="md"
+            rounded="lg"
+            value="appearances"
+            class="mx-3"
+          >
+            Appearances
+          </v-tab>
+          <v-tab
+            :prepend-icon="mdiScaleBalance"
+            :class="{ 'active-tab': selectedTab === 'sentence' }"
+            value="sentence"
+            border="md"
+            rounded="lg"
+            disabled
+          >
+            Sentence/order details
+          </v-tab>
+        </v-tabs>
+      </v-col>
+      <v-col cols="2" />
+      <v-col>
+        <v-btn-secondary text="View shared folder" />
+      </v-col>
+    </v-row>
 
     <v-window mandatory continuous v-model="selectedTab">
       <v-window-item value="documents">
