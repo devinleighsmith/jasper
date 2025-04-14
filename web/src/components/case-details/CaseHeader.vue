@@ -44,7 +44,7 @@
       </v-col>
     </v-row>
 
-    <v-window mandatory continuous v-model="selectedTab">
+    <v-window mandatory continuous v-model="selectedTab" class="mt-3">
       <v-window-item value="documents">
         <DocumentsView :participants="details.participant" />
       </v-window-item>
@@ -60,10 +60,10 @@
 
 <script setup lang="ts">
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
-import { ref } from 'vue';
-import AppearancesView from './AppearancesView.vue';
-import DocumentsView from './DocumentsView.vue';
+  import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
+  import { ref } from 'vue';
+  import AppearancesView from './AppearancesView.vue';
+  import DocumentsView from './DocumentsView.vue';
 
   defineProps<{ details: criminalFileDetailsType }>();
   const selectedTab = ref('documents');

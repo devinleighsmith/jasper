@@ -173,3 +173,31 @@ export const extractCivilAppearancesInfo = (
 
   return appInfo;
 };
+
+/**
+ * Formats a full name by combining the last name and given name.
+ *
+ * @param lastName - The last name of the individual. Defaults to an empty string if not provided.
+ * @param givenName - The given (first) name of the individual. Defaults to an empty string if not provided.
+ * @returns A formatted string in the format "LastName, GivenName" if both names are provided,
+ *          otherwise returns the last name only.
+ */
+export const formatToFullName = (lastName = '', givenName = ''): string =>
+  lastName && givenName ? `${lastName}, ${givenName}` : lastName;
+
+/**
+ * Formats a full name into a "LastName, GivenNames" format.
+ *
+ * @param fullName - The full name to format, consisting of given names and a last name.
+ * @returns A formatted string in the "LastName, GivenNames" format. 
+ *          If the input is empty or invalid, returns an empty string.
+ */
+export const formatFromFullname = (fullName: string): string => {
+  if (!fullName) return '';
+  const nameParts = fullName.split(' ');
+  const lastName = nameParts.pop() ?? '';
+  const givenNames = nameParts.join(' ');
+  let name = lastName;
+
+  return lastName.trim() && givenNames.trim() ? name+= `, ${givenNames}` : name;
+};
