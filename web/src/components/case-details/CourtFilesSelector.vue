@@ -1,9 +1,9 @@
 <template>
   <v-card :class="getBannerStyle" variant="flat">
     <v-container class="pb-0">
-      <v-row class="pb-3">
+      <v-row justify="end" class="pb-3">
         <v-col cols="10" />
-        <v-col>
+        <v-col class="d-flex justify-end">
           <v-btn base-color="white">View all documents</v-btn>
         </v-col>
       </v-row>

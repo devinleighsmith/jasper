@@ -2,14 +2,7 @@
   <v-row>
     <v-col cols="9" />
     <v-col>
-      <v-select
-        v-if="accusedOnFile.length > 1"
-        v-model="selectedAccused"
-        label="Accused"
-        placeholder="All accused"
-        hide-details
-        :items="accusedOnFile"
-      />
+      <name-filter v-model="selectedAccused" :people="appearances" />
     </v-col>
   </v-row>
   <div
@@ -21,7 +14,7 @@
   >
     <v-card
       class="my-6"
-      color="#efedf5"
+      color="var(--bg-gray)"
       elevation="0"
       v-if="appearances?.length"
     >
@@ -83,8 +76,10 @@
     formatDateToDDMMMYYYY,
     hoursMinsFormatter,
   } from '@/utils/dateUtils';
+  import { formatToFullName } from '@/utils/utils';
   import { mdiHeadphones } from '@mdi/js';
   import { computed, ref } from 'vue';
+  import NameFilter from '@/components/shared/Form/NameFilter.vue';
 
   const props = defineProps<{ appearances: criminalApprDetailType[] }>();
   const pastHeaders = [
@@ -134,24 +129,18 @@
     {
       title: 'ACCUSED',
       key: 'name',
-      value: (item) => accusedFormatter(item.lastNm, item.givenNm),
+      value: (item) => formatToFullName(item.lastNm, item.givenNm),
     },
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
 
   const selectedAccused = ref<string>();
-  const accusedOnFile = computed<string[]>(() => {
-    const accusedList = props.appearances?.map((app) =>
-      accusedFormatter(app.lastNm, app.givenNm)
-    );
-    return [...new Set(accusedList)];
-  });
-  const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
+  const sortBy = ref([{ key: 'appearanceDt', order: 'desc' }] as const);
   const now = new Date();
 
   const filterByAccused = (appearance: criminalApprDetailType) =>
     !selectedAccused.value ||
-    accusedFormatter(appearance.lastNm, appearance.givenNm) ===
+    formatToFullName(appearance.lastNm, appearance.givenNm) ===
       selectedAccused.value;
   const futureAppearances = computed(() =>
     props.appearances
@@ -167,7 +156,4 @@
       )
       .filter(filterByAccused)
   );
-
-  const accusedFormatter = (lastNm: string, givenNm: string) =>
-    lastNm && givenNm ? lastNm + ', ' + givenNm : '';
 </script>

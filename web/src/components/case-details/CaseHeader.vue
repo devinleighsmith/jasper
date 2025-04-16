@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="6">
+      <v-col cols="10">
         <v-tabs
           v-model="selectedTab"
           color="#72acca"
@@ -39,13 +39,12 @@
           </v-tab>
         </v-tabs>
       </v-col>
-      <v-col cols="2" />
-      <v-col>
+      <v-col cols="2">
         <v-btn-secondary text="View shared folder" />
       </v-col>
     </v-row>
 
-    <v-window mandatory continuous v-model="selectedTab">
+    <v-window mandatory continuous v-model="selectedTab" class="mt-3">
       <v-window-item value="documents">
         <DocumentsView :participants="details.participant" />
       </v-window-item>

@@ -1,7 +1,29 @@
 <template>
+  <v-row>
+    <v-col cols="6" />
+    <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
+      <v-select
+        v-model="selectedCategory"
+        label="Documents"
+        placeholder="All documents"
+        hide-details
+        :items="documentCategories"
+      >
+        <template v-slot:item="{ props: itemProps, item }">
+          <v-list-item
+            v-bind="itemProps"
+            :title="item.raw + ' (' + categoryCount(item.raw) + ')'"
+          ></v-list-item>
+        </template>
+      </v-select>
+    </v-col>
+    <v-col cols="3" class="ml-auto" v-if="participants.length > 1">
+      <name-filter v-model="selectedAccused" :people="participants" />
+    </v-col>
+  </v-row>
   <div
     v-for="(documents, type) in {
-      keyDocuments: keyDocuments,
+      // keyDocuments: keyDocuments,
       documents: documents,
     }"
     :key="type"
@@ -10,13 +32,13 @@
       class="my-6"
       color="var(--bg-gray)"
       elevation="0"
-      v-if="documents?.length > 0"
+      v-if="unfilteredDocuments?.length > 0"
     >
       <v-card-text>
         <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6">
-            {{ type === 'keyDocuments' ? 'Key documents' : 'Documents' }}
-          </v-col>
+          <v-col class="text-h5" cols="6"
+            >All Documents ({{ documents.length }})</v-col
+          >
         </v-row>
       </v-card-text>
     </v-card>
@@ -44,7 +66,7 @@
                 }
               "
             >
-              {{ item.value }}
+              {{ formatFromFullname(item.value) }}
             </v-banner>
           </td>
         </tr>
@@ -60,39 +82,81 @@
         >
           {{ formatType(item) }}
         </a>
+        <span v-else>
+          {{ formatType(item) }}
+        </span>
       </template>
     </v-data-table-virtual>
   </div>
 </template>
 <script setup lang="ts">
   import shared from '@/components/shared';
-import { beautifyDate } from '@/filters';
-import { useCriminalFileStore } from '@/stores';
-import {
-  criminalParticipantType,
-  documentType,
-} from '@/types/criminal/jsonTypes';
-import { CourtDocumentType, DocumentData } from '@/types/shared';
-import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-import { ref } from 'vue';
+  import NameFilter from '@/components/shared/Form/NameFilter.vue';
+  import { beautifyDate } from '@/filters';
+  import { useCriminalFileStore } from '@/stores';
+  import {
+    criminalParticipantType,
+    documentType,
+  } from '@/types/criminal/jsonTypes';
+  import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { formatFromFullname } from '@/utils/utils';
+  import { computed, ref } from 'vue';
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
-  const keyDocuments = [];
-  const criminalFileStore = useCriminalFileStore();
-  const sortBy = ref([{ key: 'appearanceDt', order: 'asc' }] as const);
   const selectedItems = defineModel<criminalParticipantType[]>();
-  const documents = props.participants?.flatMap(
-    (participant) =>
-      participant.document?.map((doc) => ({
-        ...doc,
-        name: participant.fullName,
-        profSeqNo: participant.profSeqNo,
-        id: crypto.randomUUID(),
-      })) || []
+  const criminalFileStore = useCriminalFileStore();
+  const sortBy = ref([{ key: 'issueDate', order: 'desc' }] as const);
+  const selectedCategory = ref<string>();
+  const selectedAccused = ref<string>();
+
+  const formatCategory = (item: documentType) =>
+    item.category === 'rop' ? 'ROP' : item.category;
+  const formatType = (item: documentType) =>
+    item.category === 'rop'
+      ? 'Record of Proceedings'
+      : item.documentTypeDescription;
+
+  const filterByCategory = (item: any) =>
+    !selectedCategory.value ||
+    item.category?.toLowerCase() === selectedCategory.value?.toLowerCase();
+  const filterByAccused = (item: any) =>
+    !selectedAccused.value ||
+    (item.fullName && formatFromFullname(item.fullName) === selectedAccused.value);
+
+  const unfilteredDocuments = computed(
+    () =>
+      props.participants?.flatMap((participant) =>
+        participant.document?.map((doc) => ({
+          ...doc,
+          fullName: participant.fullName || '',
+          profSeqNo: participant.profSeqNo,
+          id: crypto.randomUUID(),
+        }))
+      ) || []
   );
+
+  const documents = computed(() =>
+    unfilteredDocuments.value.filter(filterByCategory).filter(filterByAccused)
+  );
+
+  const categoryCount = (category: string): number => {
+    return unfilteredDocuments.value.filter(
+      (doc) => formatCategory(doc) === category
+    ).length;
+  };
+
+  const documentCategories = ref<string[]>([
+    ...new Set(
+      unfilteredDocuments.value
+      ?.filter((doc) => doc.category)
+      .map((doc) => formatCategory(doc)) || []
+    )
+  ]);
+
   const groupBy = ref([
     {
-      key: 'name',
+      key: 'fullName',
       order: 'asc' as const,
     },
   ]);
@@ -102,6 +166,8 @@ import { ref } from 'vue';
       title: 'DATE SWORN/FILED',
       key: 'issueDate',
       value: (item) => formatDateToDDMMMYYYY(item.issueDate),
+      sortRaw: (a: documentType, b: documentType) =>
+        new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime(),
     },
     {
       title: 'DOCUMENT TYPE',
@@ -117,17 +183,9 @@ import { ref } from 'vue';
     },
   ];
 
-  const formatCategory = (item: documentType) =>
-    item.category === 'rop' ? 'ROP' : item.category;
-  const formatType = (item: documentType) =>
-    item.category === 'rop'
-      ? 'Record of Proceedings'
-      : item.documentTypeDescription;
-
   // This is code ported over from 'CriminalDocumentsView.vue' to keep file viewing capability
   // This will eventually be deprecated in favor of Nutrient PDF viewing functionality
   const cellClick = (data) => {
-    console.log(data.item?.documentType);
     const ropDescription = 'Record of Proceedings';
     const documentType =
       data.item?.category?.toLowerCase() === 'rop'
