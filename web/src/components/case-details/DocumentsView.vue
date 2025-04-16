@@ -37,7 +37,7 @@
       <v-card-text>
         <v-row align="center" no-gutters>
           <v-col class="text-h5" cols="6"
-            >All Documents ({{ unfilteredDocuments.length }})</v-col
+            >All Documents ({{ documents.length }})</v-col
           >
         </v-row>
       </v-card-text>
@@ -91,6 +91,7 @@
 </template>
 <script setup lang="ts">
   import shared from '@/components/shared';
+  import NameFilter from '@/components/shared/Form/NameFilter.vue';
   import { beautifyDate } from '@/filters';
   import { useCriminalFileStore } from '@/stores';
   import {
@@ -101,7 +102,6 @@
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { formatFromFullname } from '@/utils/utils';
   import { computed, ref } from 'vue';
-  import NameFilter from '@/components/shared/Form/NameFilter.vue';
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
   const selectedItems = defineModel<criminalParticipantType[]>();
@@ -148,8 +148,10 @@
 
   const documentCategories = ref<string[]>([
     ...new Set(
-      unfilteredDocuments.value?.map((doc) => formatCategory(doc)) || []
-    ),
+      unfilteredDocuments.value
+      ?.filter((doc) => doc.category)
+      .map((doc) => formatCategory(doc)) || []
+    )
   ]);
 
   const groupBy = ref([
