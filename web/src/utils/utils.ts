@@ -189,7 +189,7 @@ export const formatToFullName = (lastName = '', givenName = ''): string =>
  * Formats a full name into a "LastName, GivenNames" format.
  *
  * @param fullName - The full name to format, consisting of given names and a last name.
- * @returns A formatted string in the "LastName, GivenNames" format. 
+ * @returns A formatted string in the "LastName, GivenNames" format.
  *          If the input is empty or invalid, returns an empty string.
  */
 export const formatFromFullname = (fullName: string): string => {
@@ -199,5 +199,5 @@ export const formatFromFullname = (fullName: string): string => {
   const givenNames = nameParts.join(' ');
   let name = lastName;
 
-  return lastName.trim() && givenNames.trim() ? name+= `, ${givenNames}` : name;
+  return lastName.trim() && givenNames.trim() ? name + `, ${givenNames}` : name;
 };
