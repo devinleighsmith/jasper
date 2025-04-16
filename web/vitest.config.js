@@ -25,6 +25,9 @@ export default defineConfig({
         logHeapUsage: true,
         reporters: ['default', 'junit'],
         outputFile: './coverage/junit.xml',
-        mockReset: true
+        mockReset: true,
+        // We want to silence any warnings relating to Vuetify components
+        // not being recognized as existing Vue components.
+        onConsoleLog: log => !log.includes('Failed to resolve component: v-')
     }
 });
