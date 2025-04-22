@@ -112,8 +112,8 @@
             <civil-future-appearances v-if="showFutureAppearances" />
             <b-card><br /></b-card>
           </b-col>
-        </b-row> -->
-      <!-- </b-card> -->
+        </b-row>
+      </b-card> -->
     </v-skeleton-loader>
     <b-modal
       v-if="isMounted"
