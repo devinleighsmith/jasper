@@ -57,7 +57,7 @@
           <civil-side-panel-v1 v-if="isDataReady" />
         </v-col>
         <v-col class="px-0" style="overflow: auto">
-          <case-header
+          <CaseHeader
             :details="details"
             :activityClassCd="details.activityClassCd"
           />
