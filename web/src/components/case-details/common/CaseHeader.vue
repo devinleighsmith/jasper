@@ -66,12 +66,12 @@
 
 <script setup lang="ts">
   import { civilFileDetailsType } from '@/types/civil/jsonTypes';
-import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-import { fileDetailsType } from '@/types/shared';
-import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
-import { computed, ref } from 'vue';
-import AppearancesView from './AppearancesView.vue';
-import DocumentsView from './DocumentsView.vue';
+  import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
+  import { fileDetailsType } from '@/types/shared';
+  import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
+  import { computed, ref } from 'vue';
+  import AppearancesView from './AppearancesView.vue';
+  import DocumentsView from './DocumentsView.vue';
 
   const props = defineProps<{
     details: fileDetailsType;
