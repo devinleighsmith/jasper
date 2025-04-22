@@ -47,15 +47,28 @@
       type="table"
       :loading="loading || !isMounted"
     >
-      <b-card no-body>
+      <v-row style="display: flex; flex-wrap: nowrap">
+        <v-col cols="3" style="overflow-y: auto">
+          <civil-side-panel-v2
+            v-if="isDataReady && details"
+            :details="details"
+            :adjudicatorRestrictions="adjudicatorRestrictions"
+          />
+          <civil-side-panel-v1 v-if="isDataReady" />
+        </v-col>
+        <v-col class="px-0" style="overflow: auto">
+          <case-header
+            :details="details"
+            :activityClassCd="details.activityClassCd"
+          />
+        </v-col>
+      </v-row>
+      <!-- Comment this out for now as we continue to deprecate it -->
+      <!-- <b-card no-body>
         <b-row cols="2">
           <b-col md="3" cols="3" style="overflow: auto">
-            <civil-side-panel-v2
-              v-if="isDataReady && details"
-              :details="details"
-              :adjudicatorRestrictions="adjudicatorRestrictions"
-            />
-            <civil-side-panel-v1 v-if="isDataReady" />
+           
+            
           </b-col>
           <b-col col md="9" cols="9" class="px-0" style="overflow: auto">
             <civil-header-top v-if="isDataReady" />
@@ -99,8 +112,8 @@
             <civil-future-appearances v-if="showFutureAppearances" />
             <b-card><br /></b-card>
           </b-col>
-        </b-row>
-      </b-card>
+        </b-row> -->
+      <!-- </b-card> -->
     </v-skeleton-loader>
     <b-modal
       v-if="isMounted"
@@ -124,6 +137,7 @@
 </template>
 
 <script lang="ts">
+  import CivilSidePanelV2 from '@/components/case-details/civil/CivilSidePanel.vue';
   import CivilCommentNotes from '@/components/civil/CivilCommentNotes.vue';
   import CivilDocumentsView from '@/components/civil/CivilDocumentsView.vue';
   import CivilFutureAppearances from '@/components/civil/CivilFutureAppearances.vue';
@@ -132,10 +146,10 @@
   import CivilParties from '@/components/civil/CivilParties.vue';
   import CivilPastAppearances from '@/components/civil/CivilPastAppearances.vue';
   import CivilProvidedDocumentsView from '@/components/civil/CivilProvidedDocumentsView.vue';
-  import CivilSidePanelV2 from '@/components/case-details/civil/CivilSidePanel.vue';
   // In the process of deprecating in favor of @/components/case-details/CriminalSidePanel.vue
-  import CivilSidePanelV1 from '@/components/civil/CivilSidePanel.vue';
+  import CaseHeader from '@/components/case-details/common/CaseHeader.vue';
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
+  import CivilSidePanelV1 from '@/components/civil/CivilSidePanel.vue';
   import { beautifyDate } from '@/filters';
   import { HttpService } from '@/services/HttpService';
   import {
@@ -192,6 +206,7 @@
       CivilHeader,
       CourtFilesSelector,
       CustomOverlay,
+      CaseHeader,
     },
     setup() {
       const civilFileStore = useCivilFileStore();

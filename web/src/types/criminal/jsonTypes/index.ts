@@ -1,4 +1,5 @@
 import { AdditionalProperties } from '../../common';
+import { fileDetailsType } from '@/types/shared';
 
 export interface countSentenceType {
   judgesRecommendation: string;
@@ -115,7 +116,12 @@ export interface criminalTrialRemarkType {
   additionalProp3: {};
 }
 
-export interface criminalParticipantType {
+export interface personType {
+  givenNm: string;
+  lastNm: string;
+}
+
+export interface criminalParticipantType extends personType {
   fullName: string;
   document: documentType[];
   hideJustinCounsel: boolean;
@@ -123,8 +129,6 @@ export interface criminalParticipantType {
   ban: banType[];
   partId: string;
   profSeqNo: string;
-  lastNm: string;
-  givenNm: string;
   orgNm: string;
   warrantYN: string;
   inCustodyYN: string;
@@ -171,7 +175,7 @@ export interface crownType {
   givenNm: string;
 }
 
-export interface criminalApprDetailType {
+export interface criminalApprDetailType extends personType {
   historyYN: string;
   appearanceId: string;
   appearanceDt: string;
@@ -190,8 +194,6 @@ export interface criminalApprDetailType {
   appearanceStatusCd: string;
   partId: string;
   profSeqNo: string;
-  lastNm: string;
-  givenNm: string;
   orgNm: string;
   appearanceResultCd: string;
   appearanceCcn: string;
@@ -215,22 +217,8 @@ export interface criminalAppearancesType {
   additionalProp2: {};
   additionalProp3: {};
 }
-
-export interface criminalFileDetailsType {
-  responseCd: string;
-  responseMessageTxt: string;
+export interface criminalFileDetailsType extends fileDetailsType {
   justinNo: string;
-  fileNumberTxt: string;
-  homeLocationAgenId: string;
-  homeLocationAgencyName: string;
-  homeLocationAgencyCode: string;
-  homeLocationRegionName: string;
-  courtLevelCd: string;
-  courtLevelDescription: string;
-  courtClassCd: string;
-  courtClassDescription: string;
-  activityClassCd: string;
-  activityClassDesc: string;
   currentEstimateLenQty: string;
   currentEstimateLenUnit: string;
   initialEstimateLenQty: string;
