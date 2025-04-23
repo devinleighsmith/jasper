@@ -31,7 +31,10 @@
           </v-col>
 
           <v-col class="px-0" style="overflow: auto">
-            <case-header :details="details" />
+            <CaseHeader
+              :details="details"
+              :activityClassCd="details.activityClassCd"
+            />
             <!-- Comment this out for now as we continue to deprecate it -->
             <!-- 
             <b-row class="ml-0" v-if="showDocuments">

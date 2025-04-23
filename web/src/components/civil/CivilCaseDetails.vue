@@ -48,7 +48,7 @@
         type="table"
         :loading="loading || !isMounted"
       >
-        <v-row style="display: flex; flex-wrap: nowrap">
+        <v-row>
           <v-col cols="3" style="overflow-y: auto">
             <civil-side-panel-v2
               v-if="isDataReady && details"
@@ -57,47 +57,11 @@
             />
             <civil-side-panel-v1 v-if="isDataReady" />
           </v-col>
-          <v-col class="px-0" style="overflow: auto">
-            <civil-header-top v-if="isDataReady" />
-            <civil-header v-if="isDataReady" />
-
-            <b-row class="ml-0" v-if="showAllDocuments">
-              <h2 style="white-space: pre" v-if="isDataReady">
-                {{ selectedSideBar }}
-              </h2>
-              <custom-overlay
-                v-if="isDataReady"
-                :show="!downloadCompleted"
-                style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
-              >
-                <b-button
-                  v-if="enableArchive"
-                  @click="downloadAllDocuments()"
-                  size="md"
-                  variant="info"
-                  style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
-                >
-                  Download All Documents
-                </b-button>
-              </custom-overlay>
-            </b-row>
-
-            <h2
-              v-if="!showAllDocuments && isDataReady"
-              style="white-space: pre"
-            >
-              {{ selectedSideBar }}
-            </h2>
-
-            <civil-parties v-if="showCaseDetails" />
-            <civil-comment-notes v-if="showCaseDetails" />
-            <civil-documents-view v-if="showDocuments || showAllDocuments" />
-            <civil-provided-documents-view
-              v-if="showProvidedDocuments || showAllDocuments"
+          <v-col>
+            <CaseHeader
+              :details="details"
+              :activityClassCd="details.activityClassCd"
             />
-            <civil-past-appearances v-if="showPastAppearances" />
-            <civil-future-appearances v-if="showFutureAppearances" />
-            <b-card><br /></b-card>
           </v-col>
         </v-row>
       </v-skeleton-loader>
@@ -126,14 +90,7 @@
 
 <script lang="ts">
   import CivilSidePanelV2 from '@/components/case-details/civil/CivilSidePanel.vue';
-  import CivilCommentNotes from '@/components/civil/CivilCommentNotes.vue';
-  import CivilDocumentsView from '@/components/civil/CivilDocumentsView.vue';
-  import CivilFutureAppearances from '@/components/civil/CivilFutureAppearances.vue';
-  import CivilHeader from '@/components/civil/CivilHeader.vue';
-  import CivilHeaderTop from '@/components/civil/CivilHeaderTop.vue';
-  import CivilParties from '@/components/civil/CivilParties.vue';
-  import CivilPastAppearances from '@/components/civil/CivilPastAppearances.vue';
-  import CivilProvidedDocumentsView from '@/components/civil/CivilProvidedDocumentsView.vue';
+  import CaseHeader from '@/components/case-details/common/CaseHeader.vue';
   // In the process of deprecating in favor of @/components/case-details/CriminalSidePanel.vue
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
   import CivilSidePanelV1 from '@/components/civil/CivilSidePanel.vue';
@@ -181,18 +138,10 @@
 
   export default defineComponent({
     components: {
-      CivilCommentNotes,
-      CivilDocumentsView,
-      CivilProvidedDocumentsView,
-      CivilPastAppearances,
-      CivilFutureAppearances,
-      CivilParties,
-      CivilSidePanelV1,
       CivilSidePanelV2,
-      CivilHeaderTop,
-      CivilHeader,
       CourtFilesSelector,
       CustomOverlay,
+      CaseHeader,
     },
     setup() {
       const civilFileStore = useCivilFileStore();
