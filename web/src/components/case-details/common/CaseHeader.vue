@@ -70,6 +70,7 @@
   import { fileDetailsType } from '@/types/shared';
   import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
+  import { DivisionEnum } from '@/types/common/index';
   import AppearancesView from './AppearancesView.vue';
   import DocumentsView from './DocumentsView.vue';
 
@@ -77,7 +78,7 @@
     details: fileDetailsType;
     activityClassCd: string;
   }>();
-  const isCriminal = computed(() => props.activityClassCd === 'R');
+  const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);
   const selectedTab = ref('documents');
   let appearances: any[];
   let participants: any[];

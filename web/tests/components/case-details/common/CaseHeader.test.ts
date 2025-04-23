@@ -1,6 +1,7 @@
 import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
 import { shallowMount } from '@vue/test-utils';
 import CaseHeader from 'CMP/case-details/common/CaseHeader.vue';
+import { DivisionEnum } from '@/types/common/index';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 describe('CaseHeader.vue', () => {
@@ -12,7 +13,7 @@ describe('CaseHeader.vue', () => {
     },
   };
   let wrapper: any;
-  const activityClassCd: string = 'R';
+  const activityClassCd: string = DivisionEnum.R;
 
   beforeEach(() => {
     wrapper = shallowMount(CaseHeader, {
@@ -34,7 +35,7 @@ describe('CaseHeader.vue', () => {
     expect(tabs[2].attributes('prepend-icon')).toBe(mdiScaleBalance);
   });
 
-  it('renders tabs with correct icons and labels when crivil case', () => {
+  it('renders tabs with correct icons and labels when civil case', () => {
     wrapper = shallowMount(CaseHeader, {
       props: { details: mockDetails, activityClassCd: 'F' },
     });
