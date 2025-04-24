@@ -66,8 +66,7 @@
       <template v-slot:item.filedBy="{ item }">
         {{ item.filedBy != null ? item?.filedBy[0]?.roleTypeCode : '' }}
       </template>
-      <!-- Only grabbing the first in array for now -->
-      <!-- PCSS lists each issue on a new line -->
+      <!-- Grabbing the first in array until pending questions are resolved-->
       <template v-slot:item.issue="{ item }">
         {{ item.issue != null ? item?.issue[0]?.issueTypeDesc : '' }}
       </template>
