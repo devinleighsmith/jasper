@@ -79,14 +79,14 @@
 </template>
 
 <script setup lang="ts">
-    import shared from '@/components/shared';
-    import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
-    import { beautifyDate } from '@/filters';
-    import { useCivilFileStore } from '@/stores';
-    import { civilDocumentType } from '@/types/civil/jsonTypes';
-    import { CourtDocumentType, DocumentData } from '@/types/shared';
-    import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-    import { computed, ref } from 'vue';
+  import shared from '@/components/shared';
+  import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
+  import { beautifyDate } from '@/filters';
+  import { useCivilFileStore } from '@/stores';
+  import { civilDocumentType } from '@/types/civil/jsonTypes';
+  import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { computed, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
