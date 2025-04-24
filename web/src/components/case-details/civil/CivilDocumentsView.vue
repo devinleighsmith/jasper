@@ -80,13 +80,13 @@
 
 <script setup lang="ts">
     import shared from '@/components/shared';
-import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
-import { beautifyDate } from '@/filters';
-import { useCivilFileStore } from '@/stores';
-import { civilDocumentType } from '@/types/civil/jsonTypes';
-import { CourtDocumentType, DocumentData } from '@/types/shared';
-import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-import { computed, ref } from 'vue';
+    import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
+    import { beautifyDate } from '@/filters';
+    import { useCivilFileStore } from '@/stores';
+    import { civilDocumentType } from '@/types/civil/jsonTypes';
+    import { CourtDocumentType, DocumentData } from '@/types/shared';
+    import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+    import { computed, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
@@ -94,7 +94,7 @@ import { computed, ref } from 'vue';
   const selectedItems = defineModel<civilDocumentType[]>();
   const sortBy = ref([{ key: 'fileSeqNo', order: 'desc' }] as const);
   const selectedType = ref<string>();
-const menuItems = [{ title: 'Add to binder' }];
+  const menuItems = [{ title: 'Add to binder' }];
   const headers = [
     { key: 'data-table-group' },
     {
