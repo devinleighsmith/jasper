@@ -1,4 +1,16 @@
 <template>
+  <v-row>
+    <v-col cols="6" />
+    <v-col cols="3" class="ml-auto" v-if="documentTypes.length > 1">
+      <v-select
+        v-model="selectedType"
+        label="Documents"
+        placeholder="All documents"
+        hide-details
+        :items="documentTypes"
+      />
+    </v-col>
+  </v-row>
   <div
     v-for="(documents, type) in {
       // binder: binder,
@@ -15,7 +27,7 @@
       <v-card-text>
         <v-row align="center" no-gutters>
           <v-col class="text-h5" cols="6">
-            All Documents ({{ documents.length }})
+            All Documents ({{ filteredDocuments.length }})
           </v-col>
         </v-row>
       </v-card-text>
@@ -24,7 +36,7 @@
       v-if="documents?.length"
       v-model="selectedItems"
       :headers="headers"
-      :items="documents"
+      :items="filteredDocuments"
       :sort-by="sortBy"
       item-value="civilDocumentId"
       show-select
@@ -43,56 +55,46 @@
           {{ item.documentTypeDescription }}
         </span>
       </template>
-      <!-- Only grabbing the first in array for now -->
       <template v-slot:item.activity="{ item }">
-        {{
-          item.documentSupport != null ? item?.documentSupport[0]?.actCd : ''
-        }}
+        <v-chip-group>
+          <div v-for="info in item.documentSupport" :key="info.actCd">
+            <v-chip rounded="lg">{{ info.actCd }}</v-chip>
+          </div>
+        </v-chip-group>
       </template>
-      <!-- Only grabbing the first in array for now -->
+      <!-- To do, show all full roleType descriptions -->
       <template v-slot:item.filedBy="{ item }">
         {{ item.filedBy != null ? item?.filedBy[0]?.roleTypeCode : '' }}
       </template>
       <!-- Only grabbing the first in array for now -->
+      <!-- PCSS lists each issue on a new line -->
       <template v-slot:item.issue="{ item }">
         {{ item.issue != null ? item?.issue[0]?.issueTypeDesc : '' }}
       </template>
-      <template v-slot:item.binderMenu="{ item }">
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-btn
-              :icon="mdiDotsVertical"
-              variant="text"
-              v-bind="props"
-            ></v-btn>
-          </template>
-
-          <v-list>
-            <v-list-item v-for="(item, i) in menuItems" :key="i" :value="i">
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+      <template v-slot:item.binderMenu>
+        <EllipsesMenu :menuItems="menuItems" />
       </template>
     </v-data-table-virtual>
   </div>
 </template>
 
 <script setup lang="ts">
-  import shared from '@/components/shared';
-  import { beautifyDate } from '@/filters';
-  import { useCivilFileStore } from '@/stores';
-  import { civilDocumentType } from '@/types/civil/jsonTypes';
-  import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-  import { mdiDotsVertical } from '@mdi/js';
-  import { onMounted, ref } from 'vue';
+    import shared from '@/components/shared';
+import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
+import { beautifyDate } from '@/filters';
+import { useCivilFileStore } from '@/stores';
+import { civilDocumentType } from '@/types/civil/jsonTypes';
+import { CourtDocumentType, DocumentData } from '@/types/shared';
+import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+import { computed, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
   const civilFileStore = useCivilFileStore();
   const selectedItems = defineModel<civilDocumentType[]>();
   const sortBy = ref([{ key: 'fileSeqNo', order: 'desc' }] as const);
+  const selectedType = ref<string>();
+const menuItems = [{ title: 'Add to binder' }];
   const headers = [
     { key: 'data-table-group' },
     {
@@ -128,39 +130,22 @@
       width: '2%',
     },
   ];
-  const menuItems = [{ title: 'Add to binder' }];
+  const documentTypes = ref<any[]>([
+    ...new Map(
+      props.documents.map((doc) => [
+        doc.documentTypeCd,
+        { title: doc.documentTypeDescription, value: doc.documentTypeCd },
+      ])
+    ).values(),
+  ]);
+  const filterByType = (item: any) =>
+    !selectedType.value ||
+    item.documentTypeCd?.toLowerCase() === selectedType.value?.toLowerCase();
 
-  // This is code ported over from 'CriminalDocumentsView.vue' to keep file viewing capability
+  const filteredDocuments = computed(() => props.documents.filter(filterByType));
+
+  // This is code ported over from 'civil/CivilDocumentsView.vue' to keep file viewing capability
   // This will eventually be deprecated in favor of Nutrient PDF viewing functionality
-  //   const cellClick = (eventData) => {
-  //         const documentType =
-  //           eventData.value == 'CourtSummary'
-  //             ? CourtDocumentType.CSR
-  //             : CourtDocumentType.Civil;
-  //         const documentData: DocumentData = {
-  //           appearanceDate: eventData.item.appearanceDate,
-  //           appearanceId: eventData.item.appearanceId,
-  //           dateFiled: eventData.item.dateFiled,
-  //           documentDescription: eventData.item.documentType,
-  //           documentId: eventData.item.documentId,
-  //           fileId: civilFileStore.civilFileInformation.fileNumber,
-  //           fileNumberText:
-  //             civilFileStore.civilFileInformation.detailsData.fileNumberTxt,
-  //           courtClass:
-  //             civilFileStore.civilFileInformation.detailsData.courtClassCd,
-  //           courtLevel:
-  //             civilFileStore.civilFileInformation.detailsData.courtLevelCd,
-  //           location:
-  //             civilFileStore.civilFileInformation.detailsData
-  //               .homeLocationAgencyName,
-  //         };
-  //         shared.openDocumentsPdf(documentType, documentData);
-  //       };
-  const stored = ref();
-  onMounted(() => {
-    stored.value = civilFileStore.civilFileInformation.documentsInfo;
-  });
-
   const cellClick = (eventData) => {
     const documentType =
       eventData.item.documentTypeCd == 'CSR'
