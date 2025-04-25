@@ -2,6 +2,7 @@ import {
   CourtRoomsJsonInfoType,
   IconStyleType,
   UserInfo,
+  LookupCode
 } from '@/types/common';
 import { defineStore } from 'pinia';
 
@@ -20,6 +21,7 @@ export const useCommonStore = defineStore('CommonStore', {
     statusStyle: '',
     iconStyles: [] as IconStyleType[],
     courtRoomsAndLocations: [] as CourtRoomsJsonInfoType[],
+    roles: [] as LookupCode[],
     enableArchive: false,
   }),
   actions: {
@@ -34,6 +36,12 @@ export const useCommonStore = defineStore('CommonStore', {
     },
     updateCourtRoomsAndLocations(newCourtRoomsAndLocations) {
       this.setCourtRoomsAndLocations(newCourtRoomsAndLocations);
+    },
+    setRoles(roles): void {
+      this.roles = roles;
+    },
+    updateRoles(newRoles): void {
+      this.setRoles(newRoles);
     },
     setDisplayName(displayName): void {
       this.displayName = displayName;

@@ -1,9 +1,11 @@
 import { beautifyDate } from '@/filters';
 import { AuthService } from '@/services/AuthService';
+import { LookupService } from '@/services/LookupService';
 import { useCommonStore } from '@/stores';
 import { CommonStore } from '@/stores/CommonStore';
 import { civilAppearancesListType } from '@/types/civil';
 import { civilApprDetailType } from '@/types/civil/jsonTypes';
+import { LookupCode } from '@/types/common';
 import { criminalAppearancesListType } from '@/types/criminal';
 import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
 import { inject } from 'vue';
@@ -201,3 +203,18 @@ export const formatFromFullname = (fullName: string): string => {
 
   return lastName.trim() && givenNames.trim() ? name + `, ${givenNames}` : name;
 };
+
+export const getRoles = async (): Promise<LookupCode[] | undefined> => {
+  const commonStore = useCommonStore();
+  const lookupService = inject<LookupService>('lookupService');
+  const roles = commonStore.roles.length
+    ? commonStore.roles
+    : await lookupService?.getRoleTypes();
+
+  commonStore.setRoles(roles);
+
+  return roles;
+};
+
+export const getLookupShortDescription = (code: string, lookupCodes: LookupCode[]) =>
+  lookupCodes?.find((role) => role.code === code)?.shortDesc;

@@ -11,4 +11,8 @@ export class LookupService {
   async getCourtClasses(): Promise<LookupCode[]> {
     return await this.httpService.get<LookupCode[]>('api/codes/court/classes');
   }
+
+  getRoleTypes(): Promise<LookupCode[]> {
+    return this.httpService.get<LookupCode[]>('api/codes/roles');
+  }
 }

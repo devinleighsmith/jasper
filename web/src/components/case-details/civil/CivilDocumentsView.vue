@@ -62,9 +62,17 @@
           </div>
         </v-chip-group>
       </template>
-      <!-- To do, show all full roleType descriptions -->
       <template v-slot:item.filedBy="{ item }">
-        {{ item.filedBy != null ? item?.filedBy[0]?.roleTypeCode : '' }}
+        <span v-for="(role, index) in item.filedBy" :key="index">
+          <span v-if="role.roleTypeCode">
+            <v-skeleton-loader type="text" :loading="rolesLoading">
+              {{
+                roles ? getLookupShortDescription(role.roleTypeCode, roles) : ''
+              }}
+              <span v-if="index < item.filedBy.length - 1">, </span>
+            </v-skeleton-loader>
+          </span>
+        </span>
       </template>
       <!-- Grabbing the first in array until pending questions are resolved-->
       <template v-slot:item.issue="{ item }">
@@ -81,19 +89,28 @@
   import shared from '@/components/shared';
   import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
   import { beautifyDate } from '@/filters';
+  import { LookupService } from '@/services/LookupService';
   import { useCivilFileStore } from '@/stores';
   import { civilDocumentType } from '@/types/civil/jsonTypes';
+  import { LookupCode } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-  import { computed, ref } from 'vue';
+  import { getLookupShortDescription, getRoles } from '@/utils/utils';
+  import { computed, inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
   const civilFileStore = useCivilFileStore();
+  const lookupService = inject<LookupService>('lookupService');
   const selectedItems = defineModel<civilDocumentType[]>();
   const sortBy = ref([{ key: 'fileSeqNo', order: 'desc' }] as const);
   const selectedType = ref<string>();
   const menuItems = [{ title: 'Add to binder' }];
+  const rolesLoading = ref(false);
+  const roles = ref<LookupCode[]>();
+  if (!lookupService) {
+    throw new Error('Services is undefined.');
+  }
   const headers = [
     { key: 'data-table-group' },
     {
@@ -141,7 +158,15 @@
     !selectedType.value ||
     item.documentTypeCd?.toLowerCase() === selectedType.value?.toLowerCase();
 
-  const filteredDocuments = computed(() => props.documents.filter(filterByType));
+  const filteredDocuments = computed(() =>
+    props.documents.filter(filterByType)
+  );
+
+  onMounted(async () => {
+    rolesLoading.value = true;
+    roles.value = await getRoles();
+    rolesLoading.value = false;
+  });
 
   // This is code ported over from 'civil/CivilDocumentsView.vue' to keep file viewing capability
   // This will eventually be deprecated in favor of Nutrient PDF viewing functionality
