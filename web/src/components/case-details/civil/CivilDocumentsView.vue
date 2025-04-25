@@ -69,7 +69,6 @@
               {{
                 roles ? getLookupShortDescription(role.roleTypeCode, roles) : ''
               }}
-              <span v-if="index < item.filedBy.length - 1">, </span>
             </v-skeleton-loader>
           </span>
         </span>
@@ -87,30 +86,25 @@
 
 <script setup lang="ts">
   import shared from '@/components/shared';
-  import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
-  import { beautifyDate } from '@/filters';
-  import { LookupService } from '@/services/LookupService';
-  import { useCivilFileStore } from '@/stores';
-  import { civilDocumentType } from '@/types/civil/jsonTypes';
-  import { LookupCode } from '@/types/common';
-  import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-  import { getLookupShortDescription, getRoles } from '@/utils/utils';
-  import { computed, inject, onMounted, ref } from 'vue';
+import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
+import { beautifyDate } from '@/filters';
+import { useCivilFileStore } from '@/stores';
+import { civilDocumentType } from '@/types/civil/jsonTypes';
+import { LookupCode } from '@/types/common';
+import { CourtDocumentType, DocumentData } from '@/types/shared';
+import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+import { getLookupShortDescription, getRoles } from '@/utils/utils';
+import { computed, onMounted, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
   const civilFileStore = useCivilFileStore();
-  const lookupService = inject<LookupService>('lookupService');
   const selectedItems = defineModel<civilDocumentType[]>();
   const sortBy = ref([{ key: 'fileSeqNo', order: 'desc' }] as const);
   const selectedType = ref<string>();
   const menuItems = [{ title: 'Add to binder' }];
   const rolesLoading = ref(false);
   const roles = ref<LookupCode[]>();
-  if (!lookupService) {
-    throw new Error('Services is undefined.');
-  }
   const headers = [
     { key: 'data-table-group' },
     {

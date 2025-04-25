@@ -204,6 +204,18 @@ export const formatFromFullname = (fullName: string): string => {
   return lastName.trim() && givenNames.trim() ? name + `, ${givenNames}` : name;
 };
 
+/**
+ * Retrieves the list of roles, either from the common store if already available,
+ * or by fetching them using the lookup service. The roles are then stored in the
+ * common store for future use.
+ *
+ * @returns {Promise<LookupCode[] | undefined>} A promise that resolves to an array of roles
+ * (of type `LookupCode[]`) or `undefined` if the lookup service is unavailable.
+ *
+ * @remarks
+ * - This function uses the `useCommonStore` to access and update the roles in the common store.
+ * - It relies on dependency injection to obtain the `lookupService` for fetching role types.
+ */
 export const getRoles = async (): Promise<LookupCode[] | undefined> => {
   const commonStore = useCommonStore();
   const lookupService = inject<LookupService>('lookupService');
@@ -216,5 +228,12 @@ export const getRoles = async (): Promise<LookupCode[] | undefined> => {
   return roles;
 };
 
+/**
+ * Retrieves the short description of a lookup code from a list of lookup codes.
+ *
+ * @param code - The code to search for in the list of lookup codes.
+ * @param lookupCodes - An array of lookup codes to search within.
+ * @returns The short description (`shortDesc`) of the matching lookup code, or `undefined` if no match is found.
+ */
 export const getLookupShortDescription = (code: string, lookupCodes: LookupCode[]) =>
   lookupCodes?.find((role) => role.code === code)?.shortDesc;
