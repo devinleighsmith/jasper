@@ -44,18 +44,13 @@
         <v-btn-secondary text="View shared folder" />
       </v-col>
     </v-row>
-    <v-window
-      v-if="isCriminal"
-      mandatory
-      continuous
-      v-model="selectedTab"
-      class="mt-3"
-    >
+    <v-window mandatory continuous v-model="selectedTab" class="mt-3">
       <v-window-item value="documents">
-        <DocumentsView :participants="participants" />
+        <CriminalDocumentsView v-if="isCriminal" :participants="criminalDetails.participant" />
+        <CivilDocumentsView v-else :documents="civilDetails.document" />
       </v-window-item>
       <v-window-item value="appearances">
-        <AppearancesView :appearances="appearances" />
+        <AppearancesView v-if="isCriminal" :appearances="criminalDetails.appearances?.apprDetail" />
       </v-window-item>
       <v-window-item value="sentence">
         <!-- <SentenceOrderDetailsView /> -->
@@ -65,32 +60,32 @@
 </template>
 
 <script setup lang="ts">
-  import { civilFileDetailsType } from '@/types/civil/jsonTypes';
+  import CivilDocumentsView from '@/components/case-details/civil/CivilDocumentsView.vue';
+  import CriminalDocumentsView from '@/components/case-details/criminal/CriminalDocumentsView.vue';
+  import {
+    civilFileDetailsType,
+  } from '@/types/civil/jsonTypes';
+  import { DivisionEnum } from '@/types/common/index';
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
   import { fileDetailsType } from '@/types/shared';
   import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
-  import { DivisionEnum } from '@/types/common/index';
   import AppearancesView from './AppearancesView.vue';
-  import DocumentsView from './DocumentsView.vue';
 
   const props = defineProps<{
     details: fileDetailsType;
     activityClassCd: string;
   }>();
+  
   const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);
   const selectedTab = ref('documents');
-  let appearances: any[];
-  let participants: any[];
+  const criminalDetails = ref<criminalFileDetailsType>({} as criminalFileDetailsType);
+  const civilDetails = ref<civilFileDetailsType>({} as civilFileDetailsType);
 
-  if (isCriminal) {
-    const criminalDetails = props.details as criminalFileDetailsType;
-    appearances = criminalDetails.appearances?.apprDetail;
-    participants = criminalDetails.participant;
+  if (isCriminal.value) {
+    criminalDetails.value = props.details as criminalFileDetailsType;
   } else {
-    const civilDetails = props.details as civilFileDetailsType;
-    appearances = civilDetails.appearances?.apprDetail;
-    participants = [];
+    civilDetails.value = props.details as civilFileDetailsType;
   }
 </script>
 

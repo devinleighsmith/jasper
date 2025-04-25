@@ -1,9 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import DocumentsView from 'CMP/case-details/common/DocumentsView.vue';
+import DocumentsView from 'CMP/case-details/criminal/CriminalDocumentsView.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-describe('DocumentsView.vue', () => {
+describe('CriminalDocumentsView.vue', () => {
   let wrapper: any;
   let mockParticipantOne: any;
   let mockParticipantTwo: any;
