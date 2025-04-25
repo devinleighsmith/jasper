@@ -1,6 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { useCommonStore } from '@/stores';
 import CivilDocumentsView from 'CMP/case-details/civil/CivilDocumentsView.vue';
 
 vi.mock('@/stores', () => ({
@@ -14,10 +15,15 @@ vi.mock('@/stores', () => ({
             },
         },
     })),
+    useCommonStore: vi.fn(() => ({
+        roles: [{}],
+        setRoles: vi.fn(() => ({})),
+    }))
 }));
 
 describe('CivilDocumentsView.vue', () => {
     let wrapper: any;
+    let commonStore: any;
     const mockDocuments = [
         {
             civilDocumentId: '1',
@@ -44,6 +50,10 @@ describe('CivilDocumentsView.vue', () => {
         wrapper = shallowMount(CivilDocumentsView, {
             props: { documents: mockDocuments },
         });
+        commonStore = {
+            setRoles: vi.fn(),
+          };
+        (useCommonStore as any).mockReturnValue(commonStore);
     });
 
     it('renders the component correctly', () => {
