@@ -1,7 +1,12 @@
 <template>
   <v-menu>
     <template v-slot:activator="{ props }">
-      <v-btn :icon="mdiDotsVertical" variant="text" v-bind="props" />
+      <v-btn
+        color="info"
+        :icon="mdiDotsVertical"
+        variant="text"
+        v-bind="props"
+      />
     </template>
 
     <v-list>
