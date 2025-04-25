@@ -58,7 +58,7 @@ namespace Scv.Api.Controllers
                 Code = level.Code
             });
             
-            return Ok(roles);
+            return Ok(rolesList);
         }
     }
 }
