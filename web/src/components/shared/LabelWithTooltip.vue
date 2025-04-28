@@ -1,7 +1,17 @@
 <template>
-  <v-tooltip :disabled="!showTooltip">
+  <v-tooltip
+    :disabled="!showTooltip"
+    interactive
+    :location="location || defaultLocation"
+  >
     <template #activator="{ props }">
-      <span v-bind="props">{{ value }}</span>
+      <span
+        v-bind="props"
+        :class="{
+          'has-tooltip': showTooltip,
+        }"
+        >{{ value }}</span
+      >
     </template>
 
     <div class="d-flex flex-column">
@@ -12,12 +22,15 @@
   </v-tooltip>
 </template>
 <script setup lang="ts">
+  import { Anchor } from '@/types/common';
   import { computed } from 'vue';
 
   const props = defineProps<{
     values: string[];
+    location?: Anchor;
   }>();
 
+  const defaultLocation = Anchor.End;
   const value = computed(() =>
     props.values.length > 1
       ? `${props.values[0]} +${props.values.length - 1}`

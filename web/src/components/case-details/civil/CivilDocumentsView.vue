@@ -73,9 +73,12 @@
           </span>
         </span>
       </template>
-      <!-- Grabbing the first in array until pending questions are resolved-->
       <template v-slot:item.issue="{ item }">
-        {{ item.issue != null ? item?.issue[0]?.issueTypeDesc : '' }}
+        <LabelWithTooltip
+          v-if="item.issue?.length > 0"
+          :values="item.issue.map((issue) => issue.issueTypeDesc)"
+          :location="Anchor.Top"
+        />
       </template>
       <template v-slot:item.binderMenu>
         <EllipsesMenu :menuItems="menuItems" />
@@ -86,15 +89,16 @@
 
 <script setup lang="ts">
   import shared from '@/components/shared';
-import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
-import { beautifyDate } from '@/filters';
-import { useCivilFileStore } from '@/stores';
-import { civilDocumentType } from '@/types/civil/jsonTypes';
-import { LookupCode } from '@/types/common';
-import { CourtDocumentType, DocumentData } from '@/types/shared';
-import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-import { getLookupShortDescription, getRoles } from '@/utils/utils';
-import { computed, onMounted, ref } from 'vue';
+  import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
+  import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
+  import { beautifyDate } from '@/filters';
+  import { useCivilFileStore } from '@/stores';
+  import { civilDocumentType } from '@/types/civil/jsonTypes';
+  import { Anchor, LookupCode } from '@/types/common';
+  import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { getLookupShortDescription, getRoles } from '@/utils/utils';
+  import { computed, onMounted, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
@@ -186,3 +190,9 @@ import { computed, onMounted, ref } from 'vue';
     shared.openDocumentsPdf(documentType, documentData);
   };
 </script>
+
+<style scoped>
+  .v-chip {
+    cursor: default;
+  }
+</style>
