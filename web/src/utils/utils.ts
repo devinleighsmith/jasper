@@ -221,7 +221,7 @@ export const getRoles = async (): Promise<LookupCode[] | undefined> => {
   const lookupService = inject<LookupService>('lookupService');
   const roles = commonStore.roles.length
     ? commonStore.roles
-    : await lookupService?.getRoleTypes();
+    : await lookupService?.getRoles();
 
   commonStore.setRoles(roles);
 
@@ -235,5 +235,7 @@ export const getRoles = async (): Promise<LookupCode[] | undefined> => {
  * @param lookupCodes - An array of lookup codes to search within.
  * @returns The short description (`shortDesc`) of the matching lookup code, or `undefined` if no match is found.
  */
-export const getLookupShortDescription = (code: string, lookupCodes: LookupCode[]) =>
-  lookupCodes?.find((role) => role.code === code)?.shortDesc;
+export const getLookupShortDescription = (
+  code: string,
+  lookupCodes: LookupCode[]
+) => lookupCodes?.find((role) => role.code === code)?.shortDesc;
