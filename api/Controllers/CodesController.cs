@@ -40,5 +40,25 @@ namespace Scv.Api.Controllers
 
             return Ok(classesList);
         }
+
+        /// <summary>
+        /// Gets Role information
+        /// </summary>
+        /// <returns>Role Lookups</returns>
+        [HttpGet]
+        [Route("roles")]
+        public async Task<ActionResult<List<LookupCode>>> GetRoles()
+        {
+            var roles = await _lookupService.GetRoles();
+
+            var rolesList = roles.Select(level => new LookupCode
+            {
+                LongDesc = level.LongDesc,
+                ShortDesc = level.ShortDesc,
+                Code = level.Code
+            });
+            
+            return Ok(rolesList);
+        }
     }
 }

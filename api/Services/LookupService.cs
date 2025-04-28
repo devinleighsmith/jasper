@@ -183,7 +183,7 @@ namespace Scv.Api.Services
                 async () => await _lookupClient.CodesDocumentsGetAsync());
         }
 
-        private async Task<CodeLookup> GetRoles()
+        public async Task<CodeLookup> GetRoles()
         {
             return await GetDataFromCache("Roles",
                 async () => await _lookupClient.CodesRolesGetAsync());
