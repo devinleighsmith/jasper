@@ -74,16 +74,16 @@
 
 <script setup lang="ts">
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
-import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
-import { ApprDetailType } from '@/types/shared';
-import {
-  extractTime,
-  formatDateToDDMMMYYYY,
-  hoursMinsFormatter,
-} from '@/utils/dateUtils';
-import { formatToFullName } from '@/utils/utils';
-import { mdiHeadphones } from '@mdi/js';
-import { computed, ref } from 'vue';
+  import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
+  import { ApprDetailType } from '@/types/shared';
+  import {
+    extractTime,
+    formatDateToDDMMMYYYY,
+    hoursMinsFormatter,
+  } from '@/utils/dateUtils';
+  import { formatToFullName } from '@/utils/utils';
+  import { mdiHeadphones } from '@mdi/js';
+  import { computed, ref } from 'vue';
 
   const props = defineProps<{
     appearances: ApprDetailType[];
@@ -114,15 +114,15 @@ import { computed, ref } from 'vue';
     },
     ...(props.isCriminal
       ? [
-        {
-        title: 'ACCUSED',
-        key: 'name',
-        value: (item) =>
-          item.lastNm && item.givenNm
-          ? item.lastNm + ', ' + item.givenNm
-          : '',
-        },
-      ]
+          {
+            title: 'ACCUSED',
+            key: 'name',
+            value: (item) =>
+              item.lastNm && item.givenNm
+                ? item.lastNm + ', ' + item.givenNm
+                : '',
+          },
+        ]
       : []),
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
@@ -141,12 +141,12 @@ import { computed, ref } from 'vue';
     { title: 'ACTIVITY', key: 'activity' },
     ...(props.isCriminal
       ? [
-        {
-        title: 'ACCUSED',
-        key: 'name',
-        value: (item) => formatToFullName(item.lastNm, item.givenNm),
-        },
-      ]
+          {
+            title: 'ACCUSED',
+            key: 'name',
+            value: (item) => formatToFullName(item.lastNm, item.givenNm),
+          },
+        ]
       : []),
 
     { title: 'STATUS', key: 'appearanceStatusCd' },

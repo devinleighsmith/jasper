@@ -177,34 +177,10 @@ export interface crownType {
 }
 
 export interface criminalApprDetailType extends ApprDetailType, PersonType {
-  historyYN: string;
-  appearanceId: string;
-  appearanceDt: string;
-  appearanceTm: string;
-  appearanceReasonCd: string;
-  appearanceReasonDsc?: string;
-  courtLocation?: string;
-  courtAgencyId: string;
-  courtRoomCd: string;
-  judgeFullNm: string;
-  judgeInitials: string;
   counselFullNm: string;
-  estimatedTimeHour: string;
-  estimatedTimeMin: string;
-  partOfTrialYN: string;
-  appearanceStatusCd: string;
   partId: string;
   profSeqNo: string;
   orgNm: string;
-  appearanceResultCd: string;
-  appearanceCcn: string;
-  supplementalEquipmentTxt: string;
-  securityRestrictionTxt: string;
-  outOfTownJudgeTxt: string;
-  additionalProperties: AdditionalProperties;
-  additionalProp1: {};
-  additionalProp2: {};
-  additionalProp3: {};
 }
 
 export interface criminalAppearancesType {
