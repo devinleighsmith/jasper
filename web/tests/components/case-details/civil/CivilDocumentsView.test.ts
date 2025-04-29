@@ -71,6 +71,8 @@ describe('CivilDocumentsView.vue', () => {
     it('displays the correct number of filtered documents', async () => {
         const header = wrapper.find('.text-h5');
 
+        expect(header.text()).toContain('All Documents (2)');
+
         wrapper.vm.selectedType = 'CSR';
 
         await nextTick();

@@ -8,7 +8,14 @@
         placeholder="All documents"
         hide-details
         :items="documentTypes"
-      />
+      >
+        <template v-slot:item="{ props: itemProps, item }">
+          <v-list-item
+            v-bind="itemProps"
+            :title="item.title + ' (' + typeCount(item.raw) + ')'"
+          ></v-list-item>
+        </template>
+      </v-select>
     </v-col>
   </v-row>
   <div
@@ -158,6 +165,9 @@
   const filteredDocuments = computed(() =>
     props.documents.filter(filterByType)
   );
+
+  const typeCount = (type: any): number => 
+    props.documents.filter((doc) => doc.documentTypeCd === type.value).length;
 
   onMounted(async () => {
     rolesLoading.value = true;
