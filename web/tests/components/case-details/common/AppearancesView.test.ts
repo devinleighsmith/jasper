@@ -41,6 +41,7 @@ describe('AppearancesView.vue', () => {
           activity: 'Trial',
         },
       ],
+      isCriminal: true,
     };
   });
 
@@ -91,4 +92,53 @@ describe('AppearancesView.vue', () => {
     );
     expect(appearances.length).toBe(1);
   });
+
+  it('renders correct table headers for criminal appearances', () => {
+    const wrapper: any = mount(AppearancesView, { props });
+
+    const expectedHeaderKeys = [
+      "appearanceDt",
+      "DARS",
+      "appearanceReasonCd",
+      "appearanceTm",
+      "courtLocation",
+      "judgeFullNm",
+      "name",
+      "appearanceStatusCd",
+    ];
+    const headerKeys = wrapper.vm.pastHeaders.map((header: any) => header.key);
+
+    expect(headerKeys).toEqual(expectedHeaderKeys);
+  });
+
+  it('renders correct table headers for civil appearances', () => {
+    props.isCriminal = false;
+    const wrapper: any = mount(AppearancesView, { props });
+
+    const expectedHeaderKeys = [
+      "appearanceDt",
+      "DARS",
+      "appearanceReasonCd",
+      "appearanceTm",
+      "courtLocation",
+      "judgeFullNm",
+      "appearanceStatusCd",
+    ];
+    const headerKeys = wrapper.vm.pastHeaders.map((header: any) => header.key);
+
+    expect(headerKeys).toEqual(expectedHeaderKeys);
+  });
+
+  it.each([
+    { isCriminal: true, shouldExist: true },
+    { isCriminal: false, shouldExist: false },
+  ])(
+    'renders appearances filters based on isCriminal prop',
+    ({ isCriminal, shouldExist }) => {
+      props.isCriminal = isCriminal;
+      const wrapper = mount(AppearancesView, { props });
+
+      expect(wrapper.find('name-filter').exists()).toBe(shouldExist);
+    }
+  );
 });
