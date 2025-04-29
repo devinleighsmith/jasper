@@ -75,7 +75,7 @@
 <script setup lang="ts">
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
 import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
-import { apprDetailType } from '@/types/shared';
+import { ApprDetailType } from '@/types/shared';
 import {
   extractTime,
   formatDateToDDMMMYYYY,
@@ -86,7 +86,7 @@ import { mdiHeadphones } from '@mdi/js';
 import { computed, ref } from 'vue';
 
   const props = defineProps<{
-    appearances: apprDetailType[];
+    appearances: ApprDetailType[];
     isCriminal: boolean;
   }>();
   const pastHeaders = [
@@ -94,7 +94,7 @@ import { computed, ref } from 'vue';
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
-      sortRaw: (a: apprDetailType, b: apprDetailType) =>
+      sortRaw: (a: ApprDetailType, b: ApprDetailType) =>
         new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
       width: '13%',
     },
@@ -162,14 +162,14 @@ import { computed, ref } from 'vue';
       selectedAccused.value;
   const futureAppearances = computed(() =>
     props.appearances
-      ?.filter((app: apprDetailType) => new Date(app?.appearanceDt) > now)
+      ?.filter((app: ApprDetailType) => new Date(app?.appearanceDt) > now)
       .filter((app) =>
         props.isCriminal ? filterByAccused(app as criminalApprDetailType) : true
       )
   );
   const pastAppearances = computed(() =>
     props.appearances
-      ?.filter((app: apprDetailType) => new Date(app?.appearanceDt) <= now)
+      ?.filter((app: ApprDetailType) => new Date(app?.appearanceDt) <= now)
       .filter((app) =>
         props.isCriminal ? filterByAccused(app as criminalApprDetailType) : true
       )

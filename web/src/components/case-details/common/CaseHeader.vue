@@ -75,13 +75,13 @@
   import { civilFileDetailsType } from '@/types/civil/jsonTypes';
   import { DivisionEnum } from '@/types/common/index';
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-  import { fileDetailsType } from '@/types/shared';
+  import { FileDetailsType } from '@/types/shared';
   import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
   import AppearancesView from './AppearancesView.vue';
 
   const props = defineProps<{
-    details: fileDetailsType;
+    details: FileDetailsType;
     activityClassCd: string;
   }>();
 

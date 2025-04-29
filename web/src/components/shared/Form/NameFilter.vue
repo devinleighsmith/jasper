@@ -10,13 +10,13 @@
 </template>
 
 <script setup lang="ts">
-  import { personType } from '@/types/criminal/jsonTypes';
+  import { PersonType } from '@/types/criminal/jsonTypes';
   import { formatToFullName } from '@/utils/utils';
   import { computed } from 'vue';
 
   const props = defineProps({
     people: {
-      type: Array<personType>,
+      type: Array<PersonType>,
       required: true,
     },
     label: {

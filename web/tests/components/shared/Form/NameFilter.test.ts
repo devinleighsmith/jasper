@@ -1,10 +1,10 @@
 import { shallowMount } from '@vue/test-utils';
 import { describe, it, expect } from 'vitest';
 import NameFilter from 'CMP/shared/Form/NameFilter.vue';
-import { personType } from '@/types/criminal/jsonTypes';
+import { PersonType } from '@/types/criminal/jsonTypes';
 
 describe('NameFilter.vue', () => {
-  const mockPeople: personType[] = [
+  const mockPeople: PersonType[] = [
     { lastNm: 'Doe', givenNm: 'John' },
     { lastNm: 'Smith', givenNm: 'Jane' },
     { lastNm: 'Doe', givenNm: 'John' }, // Duplicate to test unique names

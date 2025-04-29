@@ -1,7 +1,6 @@
 import { civilFiledByType } from '@/types/courtlist/jsonTypes';
-import { fileDetailsType } from '@/types/shared';
+import { FileDetailsType } from '@/types/shared';
 import { AdditionalProperties } from '../../common';
-import { apprDetailType } from '../../shared';
 
 export interface partyAliasType {
   nameTypeCd: string;
@@ -145,12 +144,71 @@ export interface civilHearingRestrictionType {
   additionalProp2: {};
   additionalProp3: {};
 }
+export interface PersonType {
+  givenNm: string;
+  lastNm: string;
+}
 
-export interface civilApprDetailType extends apprDetailType {
+export interface criminalApprDetailType extends PersonType {
+  historyYN: string;
+  appearanceId: string;
+  appearanceDt: string;
+  appearanceTm: string;
+  appearanceReasonCd: string;
+  appearanceReasonDsc?: string;
+  courtLocation?: string;
+  courtAgencyId: string;
+  courtRoomCd: string;
+  judgeFullNm: string;
+  judgeInitials: string;
+  counselFullNm: string;
+  estimatedTimeHour: string;
+  estimatedTimeMin: string;
+  partOfTrialYN: string;
+  appearanceStatusCd: string;
+  partId: string;
+  profSeqNo: string;
+  orgNm: string;
+  appearanceResultCd: string;
+  appearanceCcn: string;
+  supplementalEquipmentTxt: string;
+  securityRestrictionTxt: string;
+  outOfTownJudgeTxt: string;
+  additionalProperties: AdditionalProperties;
+  additionalProp1: {};
+  additionalProp2: {};
+  additionalProp3: {};
+}
+
+export interface civilApprDetailType extends PersonType {
+  historyYN: string;
+  appearanceId: string;
+  appearanceDt: string;
+  appearanceTm: string;
+  appearanceReasonCd: string;
+  courtAgencyId: string;
+  courtRoomCd: string;
+  judgeFullNm: string;
+  judgeInitials: string;
+  estimatedTimeHour: string;
+  estimatedTimeMin: string;
+  partOfTrialYN: string;
+  appearanceStatusCd: string;
+  appearanceResultCd: string;
+  appearanceCcn: string;
   documentTypeCd: string;
   documentTypeDsc?: string;
   appearanceResultDsc?: string;
+  appearanceReasonDsc?: string;
+  courtLocation?: string;
   documentRecCount: string;
+  supplementalEquipmentTxt: string;
+  securityRestrictionTxt: string;
+  outOfTownJudgeTxt: string;
+  additionalProperties: AdditionalProperties;
+  additionalProp1: {};
+  additionalProp2: {};
+  additionalProp3: {};
 }
 
 export interface civilAppearancesType {
@@ -165,7 +223,7 @@ export interface civilAppearancesType {
   additionalProp3: {};
 }
 
-export interface civilFileDetailsType extends fileDetailsType {
+export interface civilFileDetailsType extends FileDetailsType {
   physicalFileId: string;
   socTxt: string;
   sealedYN: string;
@@ -179,5 +237,4 @@ export interface civilFileDetailsType extends fileDetailsType {
   document: civilDocumentType[];
   referenceDocument: civilReferenceDocumentJsonType[];
   hearingRestriction: civilHearingRestrictionType[];
-  appearances: civilAppearancesType;
 }

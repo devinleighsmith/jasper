@@ -26,7 +26,7 @@ export enum CourtDocumentType {
   CivilZip,
 }
 
-export interface fileDetailsType {
+export interface FileDetailsType {
   responseCd: string;
   responseMessageTxt: string;
   fileNumberTxt: string;
@@ -34,7 +34,7 @@ export interface fileDetailsType {
   courtClassDescription: string;
   courtLevelCd: string;
   courtLevelDescription: string;
-  appearances: appearancesType;
+  appearances: AppearancesType;
   activityClassCd: string;
   activityClassDesc: string;
   homeLocationAgenId: string;
@@ -43,19 +43,19 @@ export interface fileDetailsType {
   homeLocationRegionName: string;
 }
 
-export interface appearancesType {
+export interface AppearancesType {
   responseCd: string;
   responseMessageTxt: string;
   futureRecCount: string;
   historyRecCount: string;
-  apprDetail: apprDetailType[];
+  apprDetail: ApprDetailType[];
   additionalProperties: AdditionalProperties;
   additionalProp1: {};
   additionalProp2: {};
   additionalProp3: {};
 }
 
-export interface apprDetailType {
+export interface ApprDetailType {
   historyYN: string;
   appearanceId: string;
   appearanceDt: string;
@@ -82,7 +82,7 @@ export interface apprDetailType {
   additionalProp3: {};
 }
 
-export interface personType {
+export interface PersonType {
   givenNm: string;
   lastNm: string;
 }
