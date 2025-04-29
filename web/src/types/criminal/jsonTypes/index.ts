@@ -1,5 +1,6 @@
 import { AdditionalProperties } from '../../common';
 import { fileDetailsType } from '@/types/shared';
+import { apprDetailType } from '../../shared';
 
 export interface countSentenceType {
   judgesRecommendation: string;
@@ -175,35 +176,11 @@ export interface crownType {
   givenNm: string;
 }
 
-export interface criminalApprDetailType extends personType {
-  historyYN: string;
-  appearanceId: string;
-  appearanceDt: string;
-  appearanceTm: string;
-  appearanceReasonCd: string;
-  appearanceReasonDsc?: string;
-  courtLocation?: string;
-  courtAgencyId: string;
-  courtRoomCd: string;
-  judgeFullNm: string;
-  judgeInitials: string;
+export interface criminalApprDetailType extends apprDetailType, personType {
   counselFullNm: string;
-  estimatedTimeHour: string;
-  estimatedTimeMin: string;
-  partOfTrialYN: string;
-  appearanceStatusCd: string;
   partId: string;
   profSeqNo: string;
   orgNm: string;
-  appearanceResultCd: string;
-  appearanceCcn: string;
-  supplementalEquipmentTxt: string;
-  securityRestrictionTxt: string;
-  outOfTownJudgeTxt: string;
-  additionalProperties: AdditionalProperties;
-  additionalProp1: {};
-  additionalProp2: {};
-  additionalProp3: {};
 }
 
 export interface criminalAppearancesType {

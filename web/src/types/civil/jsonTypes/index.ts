@@ -1,6 +1,7 @@
 import { civilFiledByType } from '@/types/courtlist/jsonTypes';
 import { fileDetailsType } from '@/types/shared';
 import { AdditionalProperties } from '../../common';
+import { apprDetailType } from '../../shared';
 
 export interface partyAliasType {
   nameTypeCd: string;
@@ -145,35 +146,11 @@ export interface civilHearingRestrictionType {
   additionalProp3: {};
 }
 
-export interface civilApprDetailType {
-  historyYN: string;
-  appearanceId: string;
-  appearanceDt: string;
-  appearanceTm: string;
-  appearanceReasonCd: string;
-  courtAgencyId: string;
-  courtRoomCd: string;
-  judgeFullNm: string;
-  judgeInitials: string;
-  estimatedTimeHour: string;
-  estimatedTimeMin: string;
-  partOfTrialYN: string;
-  appearanceStatusCd: string;
-  appearanceResultCd: string;
-  appearanceCcn: string;
+export interface civilApprDetailType extends apprDetailType {
   documentTypeCd: string;
   documentTypeDsc?: string;
   appearanceResultDsc?: string;
-  appearanceReasonDsc?: string;
-  courtLocation?: string;
   documentRecCount: string;
-  supplementalEquipmentTxt: string;
-  securityRestrictionTxt: string;
-  outOfTownJudgeTxt: string;
-  additionalProperties: AdditionalProperties;
-  additionalProp1: {};
-  additionalProp2: {};
-  additionalProp3: {};
 }
 
 export interface civilAppearancesType {
