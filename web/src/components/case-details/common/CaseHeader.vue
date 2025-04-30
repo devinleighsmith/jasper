@@ -46,11 +46,21 @@
     </v-row>
     <v-window mandatory continuous v-model="selectedTab" class="mt-3">
       <v-window-item value="documents">
-        <CriminalDocumentsView v-if="isCriminal" :participants="criminalDetails.participant" />
+        <CriminalDocumentsView
+          v-if="isCriminal"
+          :participants="criminalDetails.participant"
+        />
         <CivilDocumentsView v-else :documents="civilDetails.document" />
       </v-window-item>
       <v-window-item value="appearances">
-        <AppearancesView v-if="isCriminal" :appearances="criminalDetails.appearances?.apprDetail" />
+        <AppearancesView
+          :appearances="
+            isCriminal
+              ? criminalDetails.appearances?.apprDetail
+              : civilDetails.appearances?.apprDetail
+          "
+          :isCriminal="isCriminal"
+        />
       </v-window-item>
       <v-window-item value="sentence">
         <!-- <SentenceOrderDetailsView /> -->
@@ -62,24 +72,24 @@
 <script setup lang="ts">
   import CivilDocumentsView from '@/components/case-details/civil/CivilDocumentsView.vue';
   import CriminalDocumentsView from '@/components/case-details/criminal/CriminalDocumentsView.vue';
-  import {
-    civilFileDetailsType,
-  } from '@/types/civil/jsonTypes';
+  import { civilFileDetailsType } from '@/types/civil/jsonTypes';
   import { DivisionEnum } from '@/types/common/index';
   import { criminalFileDetailsType } from '@/types/criminal/jsonTypes';
-  import { fileDetailsType } from '@/types/shared';
+  import { FileDetailsType } from '@/types/shared';
   import { mdiCalendar, mdiScaleBalance, mdiTextBoxOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
   import AppearancesView from './AppearancesView.vue';
 
   const props = defineProps<{
-    details: fileDetailsType;
+    details: FileDetailsType;
     activityClassCd: string;
   }>();
-  
+
   const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);
   const selectedTab = ref('documents');
-  const criminalDetails = ref<criminalFileDetailsType>({} as criminalFileDetailsType);
+  const criminalDetails = ref<criminalFileDetailsType>(
+    {} as criminalFileDetailsType
+  );
   const civilDetails = ref<civilFileDetailsType>({} as civilFileDetailsType);
 
   if (isCriminal.value) {

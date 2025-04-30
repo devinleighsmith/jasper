@@ -2,7 +2,11 @@
   <v-row>
     <v-col cols="9" />
     <v-col>
-      <name-filter v-model="selectedAccused" :people="appearances" />
+      <NameFilter
+        v-if="isCriminal"
+        v-model="selectedAccused"
+        :people="appearances"
+      />
     </v-col>
   </v-row>
   <div
@@ -71,6 +75,7 @@
 <script setup lang="ts">
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
+  import { ApprDetailType } from '@/types/shared';
   import {
     extractTime,
     formatDateToDDMMMYYYY,
@@ -79,15 +84,17 @@
   import { formatToFullName } from '@/utils/utils';
   import { mdiHeadphones } from '@mdi/js';
   import { computed, ref } from 'vue';
-  import NameFilter from '@/components/shared/Form/NameFilter.vue';
 
-  const props = defineProps<{ appearances: criminalApprDetailType[] }>();
+  const props = defineProps<{
+    appearances: ApprDetailType[];
+    isCriminal: boolean;
+  }>();
   const pastHeaders = [
     {
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
-      sortRaw: (a: criminalApprDetailType, b: criminalApprDetailType) =>
+      sortRaw: (a: ApprDetailType, b: ApprDetailType) =>
         new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
       width: '13%',
     },
@@ -105,12 +112,18 @@
         // Check for empty string with comma, this seems to be very common
         item.judgeFullNm && item.judgeFullNm !== ', ' ? item.judgeFullNm : '',
     },
-    {
-      title: 'ACCUSED',
-      key: 'name',
-      value: (item) =>
-        item.lastNm && item.givenNm ? item.lastNm + ', ' + item.givenNm : '',
-    },
+    ...(props.isCriminal
+      ? [
+          {
+            title: 'ACCUSED',
+            key: 'name',
+            value: (item) =>
+              item.lastNm && item.givenNm
+                ? item.lastNm + ', ' + item.givenNm
+                : '',
+          },
+        ]
+      : []),
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
   const futureHeaders = [
@@ -126,11 +139,16 @@
     },
     { title: 'LOCATION ROOM', key: 'courtLocation' },
     { title: 'ACTIVITY', key: 'activity' },
-    {
-      title: 'ACCUSED',
-      key: 'name',
-      value: (item) => formatToFullName(item.lastNm, item.givenNm),
-    },
+    ...(props.isCriminal
+      ? [
+          {
+            title: 'ACCUSED',
+            key: 'name',
+            value: (item) => formatToFullName(item.lastNm, item.givenNm),
+          },
+        ]
+      : []),
+
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
 
@@ -144,16 +162,16 @@
       selectedAccused.value;
   const futureAppearances = computed(() =>
     props.appearances
-      ?.filter(
-        (app: criminalApprDetailType) => new Date(app?.appearanceDt) > now
+      ?.filter((app: ApprDetailType) => new Date(app?.appearanceDt) > now)
+      .filter((app) =>
+        props.isCriminal ? filterByAccused(app as criminalApprDetailType) : true
       )
-      .filter(filterByAccused)
   );
   const pastAppearances = computed(() =>
     props.appearances
-      ?.filter(
-        (app: criminalApprDetailType) => new Date(app?.appearanceDt) <= now
+      ?.filter((app: ApprDetailType) => new Date(app?.appearanceDt) <= now)
+      .filter((app) =>
+        props.isCriminal ? filterByAccused(app as criminalApprDetailType) : true
       )
-      .filter(filterByAccused)
   );
 </script>

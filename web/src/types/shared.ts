@@ -1,3 +1,5 @@
+import { AdditionalProperties } from '@/types/common';
+
 export interface DocumentData {
   appearanceDate?: string;
   appearanceId?: string;
@@ -24,7 +26,7 @@ export enum CourtDocumentType {
   CivilZip,
 }
 
-export interface fileDetailsType {
+export interface FileDetailsType {
   responseCd: string;
   responseMessageTxt: string;
   fileNumberTxt: string;
@@ -32,10 +34,55 @@ export interface fileDetailsType {
   courtClassDescription: string;
   courtLevelCd: string;
   courtLevelDescription: string;
+  appearances: AppearancesType;
   activityClassCd: string;
   activityClassDesc: string;
   homeLocationAgenId: string;
   homeLocationAgencyName: string;
   homeLocationAgencyCode: string;
   homeLocationRegionName: string;
+}
+
+export interface AppearancesType {
+  responseCd: string;
+  responseMessageTxt: string;
+  futureRecCount: string;
+  historyRecCount: string;
+  apprDetail: ApprDetailType[];
+  additionalProperties: AdditionalProperties;
+  additionalProp1: {};
+  additionalProp2: {};
+  additionalProp3: {};
+}
+
+export interface ApprDetailType {
+  historyYN: string;
+  appearanceId: string;
+  appearanceDt: string;
+  appearanceTm: string;
+  appearanceReasonCd: string;
+  courtAgencyId: string;
+  courtRoomCd: string;
+  judgeFullNm: string;
+  judgeInitials: string;
+  estimatedTimeHour: string;
+  estimatedTimeMin: string;
+  partOfTrialYN: string;
+  appearanceStatusCd: string;
+  appearanceResultCd: string;
+  appearanceReasonDsc?: string;
+  appearanceCcn: string;
+  courtLocation?: string;
+  supplementalEquipmentTxt: string;
+  securityRestrictionTxt: string;
+  outOfTownJudgeTxt: string;
+  additionalProperties: AdditionalProperties;
+  additionalProp1: {};
+  additionalProp2: {};
+  additionalProp3: {};
+}
+
+export interface PersonType {
+  givenNm: string;
+  lastNm: string;
 }
