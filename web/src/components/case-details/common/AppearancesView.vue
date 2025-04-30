@@ -2,7 +2,7 @@
   <v-row>
     <v-col cols="9" />
     <v-col>
-      <name-filter
+      <NameFilter
         v-if="isCriminal"
         v-model="selectedAccused"
         :people="appearances"
