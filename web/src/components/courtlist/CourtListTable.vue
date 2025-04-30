@@ -71,8 +71,8 @@
 <script setup lang="ts">
   import { CourtListAppearance } from '@/types/courtlist';
   import { PcssCounsel } from '@/types/criminal';
-  import { hoursMinsFormatter } from '@/utils/dateUtils';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
+  import { hoursMinsFormatter } from '@/utils/dateUtils';
   import { mdiFileDocumentEditOutline, mdiNotebookEditOutline } from '@mdi/js';
   import { ref } from 'vue';
 
@@ -102,10 +102,9 @@
     { title: 'COUNSEL', key: 'counsel' },
     { title: 'CROWN', key: 'crown' },
     {
-      title: 'CASE AGE',
+      title: 'CASE AGE (days)',
       key: 'caseAgeDays',
-      value: (item: CourtListAppearance) =>
-        item.caseAgeDays ? item.caseAgeDays + 'd' : '',
+      value: (item: CourtListAppearance) => item.caseAgeDays ?? '',
     },
     { title: 'NOTES', key: 'actions', sortable: false },
   ]);
@@ -146,5 +145,4 @@
     const [firstName, lastName] = name.split(' ');
     return `${lastName}, ${firstName}`;
   };
-
 </script>

@@ -106,7 +106,7 @@ describe('CriminalSummary.vue', () => {
     expect(wrapper.findAll('v-row')?.at(1)?.find('v-col').text()).toBe('Crown');
     expect(
       wrapper.findAll('v-row')?.at(2)?.findAll('v-col')?.at(1)?.text()
-    ).toBe('100 days');
+    ).toBe('100');
   });
 
   it('renders correct text when more than one particpant', () => {

@@ -22,8 +22,8 @@
       <v-col>{{ crownName }}</v-col>
     </v-row>
     <v-row class="mx-1 mb-1">
-      <v-col cols="6" class="data-label">Case Age</v-col>
-      <v-col>{{ details.caseAgeDays }} days</v-col>
+      <v-col cols="6" class="data-label">Case Age (days)</v-col>
+      <v-col>{{ details.caseAgeDays }}</v-col>
     </v-row>
   </v-card>
 </template>
