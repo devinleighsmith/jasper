@@ -138,7 +138,7 @@ describe('AppearancesView.vue', () => {
       props.isCriminal = isCriminal;
       const wrapper = mount(AppearancesView, { props });
 
-      expect(wrapper.find('name-filter').exists()).toBe(shouldExist);
+      expect(wrapper.find('NameFilter').exists()).toBe(shouldExist);
     }
   );
 });
