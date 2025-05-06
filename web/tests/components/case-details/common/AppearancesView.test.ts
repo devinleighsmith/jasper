@@ -97,6 +97,7 @@ describe('AppearancesView.vue', () => {
     const wrapper: any = mount(AppearancesView, { props });
 
     const expectedHeaderKeys = [
+      "data-table-expand",
       "appearanceDt",
       "DARS",
       "appearanceReasonCd",
@@ -116,6 +117,7 @@ describe('AppearancesView.vue', () => {
     const wrapper: any = mount(AppearancesView, { props });
 
     const expectedHeaderKeys = [
+      "data-table-expand",
       "appearanceDt",
       "DARS",
       "appearanceReasonCd",

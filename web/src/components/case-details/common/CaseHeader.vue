@@ -34,7 +34,6 @@
             value="sentence"
             border="md"
             rounded="lg"
-            disabled
           >
             Sentence/order details
           </v-tab>
@@ -60,9 +59,11 @@
               : civilDetails.appearances?.apprDetail
           "
           :isCriminal="isCriminal"
+          :fileNumber="fileId"
         />
       </v-window-item>
       <v-window-item value="sentence">
+        <Nutrient />
         <!-- <SentenceOrderDetailsView /> -->
       </v-window-item>
     </v-window>
@@ -83,8 +84,9 @@
   const props = defineProps<{
     details: FileDetailsType;
     activityClassCd: string;
+    fileId: string;
   }>();
-
+  //console.log(props.fileId);
   const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);
   const selectedTab = ref('documents');
   const criminalDetails = ref<criminalFileDetailsType>(

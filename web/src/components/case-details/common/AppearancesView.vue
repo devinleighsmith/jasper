@@ -39,7 +39,31 @@
       height="400"
       item-value="appearanceId"
       fixed-header
+      show-expand
     >
+      <template
+        v-slot:item.data-table-expand="{
+          internalItem,
+          isExpanded,
+          toggleExpand,
+        }"
+      >
+        <v-icon
+          color="primary"
+          :icon="isExpanded(internalItem) ? mdiChevronUp : mdiChevronDown"
+          @click="toggleExpand(internalItem)"
+        />
+      </template>
+      <template v-slot:expanded-row="{ columns, item }">
+        <tr>
+          <td :colspan="columns.length" class="py-2">
+            <CivilAppearanceDetails v-if="!isCriminal" :fileId="fileNumber" :appearanceId="item.appearanceId"/>
+          </td>
+        </tr>
+      </template>
+      <template v-slot:item.appearanceDt="{ value }">
+        <span> {{ value }} </span>
+      </template>
       <template v-slot:item.DARS="{ item }">
         <v-icon
           v-if="item.appearanceStatusCd === 'SCHD'"
@@ -74,6 +98,7 @@
 
 <script setup lang="ts">
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
+  import CivilAppearanceDetails from '@/components/case-details/civil/appearances/CivilAppearanceDetails.vue';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
   import { ApprDetailType } from '@/types/shared';
   import {
@@ -82,14 +107,18 @@
     hoursMinsFormatter,
   } from '@/utils/dateUtils';
   import { formatToFullName } from '@/utils/utils';
-  import { mdiHeadphones } from '@mdi/js';
+  import { mdiHeadphones, mdiChevronDown, mdiChevronUp } from '@mdi/js';
   import { computed, ref } from 'vue';
 
   const props = defineProps<{
     appearances: ApprDetailType[];
     isCriminal: boolean;
+    fileNumber: string;
   }>();
   const pastHeaders = [
+    {
+      key: 'data-table-expand',
+    },
     {
       title: 'DATE',
       key: 'appearanceDt',
