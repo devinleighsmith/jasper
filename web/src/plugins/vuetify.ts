@@ -68,5 +68,8 @@ export default createVuetify({
       showSelect: true,
       returnObject: true,
     },
+    VDataTableVirtual: {
+      hover: true,
+    },
   },
 });

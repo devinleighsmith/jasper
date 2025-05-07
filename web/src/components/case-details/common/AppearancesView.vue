@@ -55,9 +55,13 @@
         />
       </template>
       <template v-slot:expanded-row="{ columns, item }">
-        <tr>
+        <tr style="background-color: var(--bg-light-gray)">
           <td :colspan="columns.length" class="py-2">
-            <CivilAppearanceDetails v-if="!isCriminal" :fileId="fileNumber" :appearanceId="item.appearanceId"/>
+            <CivilAppearanceDetails
+              v-if="!isCriminal"
+              :fileId="fileNumber"
+              :appearanceId="item.appearanceId"
+            />
           </td>
         </tr>
       </template>
@@ -97,8 +101,8 @@
 </template>
 
 <script setup lang="ts">
-  import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
   import CivilAppearanceDetails from '@/components/case-details/civil/appearances/CivilAppearanceDetails.vue';
+  import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
   import { ApprDetailType } from '@/types/shared';
   import {
@@ -107,7 +111,7 @@
     hoursMinsFormatter,
   } from '@/utils/dateUtils';
   import { formatToFullName } from '@/utils/utils';
-  import { mdiHeadphones, mdiChevronDown, mdiChevronUp } from '@mdi/js';
+  import { mdiChevronDown, mdiChevronUp, mdiHeadphones } from '@mdi/js';
   import { computed, ref } from 'vue';
 
   const props = defineProps<{

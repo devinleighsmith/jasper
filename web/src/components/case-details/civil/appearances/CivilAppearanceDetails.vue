@@ -8,13 +8,21 @@
   <v-card-text>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="documents">
-        <ScheduledDocuments />
+        <v-skeleton-loader
+          class="my-0"
+          type="table"
+          :height="200"
+          color="var(--bg-light-gray)"
+          :loading="loading"
+        >
+          <ScheduledDocuments :documents="details.document" />
+        </v-skeleton-loader>
       </v-tabs-window-item>
 
       <v-tabs-window-item value="binder"> Binder </v-tabs-window-item>
 
       <v-tabs-window-item value="parties">
-        <ScheduledParties />
+        <ScheduledParties :parties="details.party" />
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card-text>
@@ -24,6 +32,7 @@
   import ScheduledDocuments from '@/components/case-details/civil/appearances/ScheduledDocuments.vue';
   import ScheduledParties from '@/components/case-details/civil/appearances/ScheduledParties.vue';
   import { FilesService } from '@/services/FilesService';
+  import { CivilAppearanceDetails } from '@/types/civil/jsonTypes';
   import { inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{
@@ -31,24 +40,29 @@
     appearanceId: string;
   }>();
   const filesService = inject<FilesService>('filesService');
-  const details = ref();
+  const tab = ref('documents');
+  const details = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
+  const pcssDetails = ref();
+  const loading = ref(false);
   if (!filesService) {
     throw new Error('Files service is undefined.');
   }
 
-  //console.log(props.fileId);
-  //console.log(props.appearanceId);
   onMounted(async () => {
+    loading.value = true;
     details.value = await filesService.civilAppearanceDetails(
       props.fileId,
       props.appearanceId
     );
-    console.log(details);
+    // pcssDetais.value = await filesService.PCSScivilAppearanceDetails(
+    //   props.fileId,
+    //   props.appearanceId
+    // );
+    loading.value = false;
   });
-  const tab = ref('documents');
 </script>
 
-<style>
+<style scoped>
   .v-tabs {
     flex: 10;
   }

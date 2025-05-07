@@ -1,42 +1,44 @@
 <template>
-    <v-data-table-virtual
+  <v-data-table-virtual
     v-if="true"
+    class="partyTable"
     :headers
-    :items
-    :sort-by="sortBy"
-    class="pb-3"
+    :items="parties"
     item-value="appearanceId"
-    >
-    </v-data-table-virtual>
+  >
+    <template v-slot:item.role="{ item }">
+      <span v-for="(role, index) in item.partyRole" :key="index">
+        <span v-if="role.roleTypeDsc">
+          {{ role.roleTypeDsc }}
+        </span>
+      </span>
+    </template>
+  </v-data-table-virtual>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { PartyDetails } from '@/types/civil/jsonTypes/index';
 
-  const tab = ref('one');
-
+  const props = defineProps<{
+    parties: PartyDetails[];
+  }>();
+  console.log(props.parties);
   const headers = [
-    { title: 'SEQ', key: 'title', align: 'start', sortable: true },
-    { title: 'DOCUMENT TYPE', key: 'director' },
-    { title: 'ACT', key: 'genre' },
-    { title: 'DATE FILED', key: 'year', align: 'end' },
-    { title: 'FILED BY', key: 'runtime', align: 'end' },
-    { title: 'RESULTS', key: 'runtime', align: 'end' },
-    { title: 'ISSUES', key: 'runtime', align: 'end' },
+    { title: 'NAME', key: 'fullName' },
+    { title: 'ROLE', key: 'role' },
+    { title: 'CURRENT COUNSEL', key: 'counsel' },
   ];
-  const items = [
-    {
-      title: 'The Shawshank Redemption',
-      director: 'Frank Darabont',
-      genre: 'Drama',
-      year: 1994,
-      runtime: 142,
-      details: {
-        synopsis:
-          'Two imprisoned men bond over years, finding solace and redemption through acts of decency.',
-        cast: ['Tim Robbins', 'Morgan Freeman'],
-        rating: 3.5,
-      },
-    },
-  ];
+  //   [
+  //     {
+  //         "roleTypeCd": "APP",
+  //         "roleTypeDsc": "Applicant"
+  //     }
+  // ]
 </script>
+
+<style scoped>
+  .partyTable {
+    background-color: var(--bg-light-gray) !important;
+    padding-bottom: 2rem !important;
+  }
+</style>

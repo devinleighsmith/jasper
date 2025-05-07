@@ -151,7 +151,7 @@ namespace Scv.Api.Controllers
         /// <returns>CivilAppearanceDetail</returns>
         [HttpGet]
         [Route("pcss/civil/{fileId}/appearance-detail/{appearanceId}")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetPCSSCivilAppearanceDetails(string fileId, string appearanceId)
+        public async Task<ActionResult<object>> GetPCSSCivilAppearanceDetails(string fileId, string appearanceId)
         {
             if (User.IsVcUser())
             {
@@ -165,16 +165,9 @@ namespace Scv.Api.Controllers
                     return Forbid();
             }
 
-            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceAsync(fileId, appearanceId, User.IsVcUser());
-            if (civilAppearanceDetail == null)
-                throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
+            var details = await _filesService.FileAppearanceDetails(fileId, appearanceId);
 
-            // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
-            // Only Provincial files can be accessed in JASPER
-            if (User.IsSupremeUser() && civilAppearanceDetail.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.P)
-                return Forbid();
-
-            return Ok(civilAppearanceDetail);
+            return Ok(details);
         }
 
         /// <summary>

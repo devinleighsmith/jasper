@@ -1,42 +1,47 @@
 <template>
-    <v-data-table-virtual
+  <v-data-table-virtual
+    class="documentsTable"
     v-if="true"
     :headers
-    :items
-    :sort-by="sortBy"
-    class="pb-3"
+    :items="documents"
     item-value="appearanceId"
-    >
-    </v-data-table-virtual>
+  >
+    <template v-slot:item.activity="{ item }">
+      <div v-for="info in item.documentSupport" :key="info.actCd">
+        {{ info.actCd }}
+      </div>
+    </template>
+  </v-data-table-virtual>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { civilDocumentType } from '@/types/civil/jsonTypes/index';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
 
-  const tab = ref('one');
+  const props = defineProps<{
+    documents: civilDocumentType[];
+  }>();
 
   const headers = [
-    { title: 'SEQ', key: 'title', align: 'start', sortable: true },
-    { title: 'DOCUMENT TYPE', key: 'director' },
-    { title: 'ACT', key: 'genre' },
-    { title: 'DATE FILED', key: 'year', align: 'end' },
-    { title: 'FILED BY', key: 'runtime', align: 'end' },
-    { title: 'RESULTS', key: 'runtime', align: 'end' },
-    { title: 'ISSUES', key: 'runtime', align: 'end' },
-  ];
-  const items = [
+    { title: 'SEQ', key: 'fileSeqNo' },
+    { title: 'DOCUMENT TYPE', key: 'documentTypeDescription' },
+    { title: 'ACT', key: 'activity' },
     {
-      title: 'The Shawshank Redemption',
-      director: 'Frank Darabont',
-      genre: 'Drama',
-      year: 1994,
-      runtime: 142,
-      details: {
-        synopsis:
-          'Two imprisoned men bond over years, finding solace and redemption through acts of decency.',
-        cast: ['Tim Robbins', 'Morgan Freeman'],
-        rating: 3.5,
-      },
+      title: 'DATE FILED',
+      key: 'filedDt',
+      value: (item) => formatDateToDDMMMYYYY(item.filedDt),
+      sortRaw: (a: civilDocumentType, b: civilDocumentType) =>
+        new Date(a.filedDt).getTime() - new Date(b.filedDt).getTime(),
     },
+    { title: 'FILED BY', key: 'filedByName' },
+    { title: 'RESULTS', key: 'runtime' },
+    { title: 'ISSUES', key: 'issues' },
   ];
 </script>
+
+<style scoped>
+  .documentsTable {
+    background-color: var(--bg-light-gray) !important;
+    padding-bottom: 2rem !important;
+  }
+</style>

@@ -86,7 +86,7 @@
     activityClassCd: string;
     fileId: string;
   }>();
-  //console.log(props.fileId);
+  
   const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);
   const selectedTab = ref('documents');
   const criminalDetails = ref<criminalFileDetailsType>(
