@@ -25,16 +25,10 @@ export class FilesService {
       queryParams
     );
   }
-  //civil/{fileId}/appearance-detail/{appearanceId}
+  
   async civilAppearanceDetails(fileId: string, appearanceId: string): Promise<CivilAppearanceDetails> {
     return this.httpService.get<any>(
       `${this.baseUrl}/civil/${fileId}/appearance-detail/${appearanceId}`
-    );
-  }
-
-  async PCSScivilAppearanceDetails(fileId: string, appearanceId: string): Promise<any> {
-    return this.httpService.get<any>(
-      `${this.baseUrl}/pcss/civil/${fileId}/appearance-detail/${appearanceId}`
     );
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <v-data-table-virtual
-    class="partyTable"
+    class="party-table"
     :headers
     :items="parties"
     item-value="appearanceId"
@@ -42,7 +42,7 @@
 </script>
 
 <style scoped>
-  .partyTable {
+  .party-table {
     background-color: var(--bg-light-gray) !important;
     padding-bottom: 2rem !important;
   }

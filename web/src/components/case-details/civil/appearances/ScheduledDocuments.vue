@@ -1,6 +1,6 @@
 <template>
   <v-data-table-virtual
-    class="documentsTable"
+    class="documents-table"
     :headers
     :items="documents"
     item-value="appearanceId"
@@ -48,7 +48,7 @@
 </script>
 
 <style scoped>
-  .documentsTable {
+  .documents-table {
     background-color: var(--bg-light-gray) !important;
     padding-bottom: 2rem !important;
   }
