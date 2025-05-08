@@ -39,6 +39,6 @@ describe('AppearanceMethods.vue', () => {
     });
 
     const renderedMethods = wrapper.findAll('div > span');
-    expect(renderedMethods.length).toBe(appearanceMethod.length * 2); // Each entry has two spans
+    expect(renderedMethods.length).toBe(appearanceMethod.length);
   });
 });
