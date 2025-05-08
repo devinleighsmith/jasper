@@ -143,33 +143,6 @@ namespace Scv.Api.Controllers
             return Ok(civilAppearanceDetail);
         }
 
-                /// <summary>
-        /// Gets detailed information regarding an appearance given civil file id and appearance id.
-        /// </summary>
-        /// <param name="fileId"></param>
-        /// <param name="appearanceId"></param>
-        /// <returns>CivilAppearanceDetail</returns>
-        [HttpGet]
-        [Route("pcss/civil/{fileId}/appearance-detail/{appearanceId}")]
-        public async Task<ActionResult<object>> GetPCSSCivilAppearanceDetails(string fileId, string appearanceId)
-        {
-            if (User.IsVcUser())
-            {
-                if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
-                    return Forbid();
-
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-                if (civilFileDetailResponse?.PhysicalFileId == null)
-                    throw new NotFoundException("Couldn't find civil file with this id.");
-                if (civilFileDetailResponse.SealedYN != "N")
-                    return Forbid();
-            }
-
-            var details = await _filesService.FileAppearanceDetails(fileId, appearanceId);
-
-            return Ok(details);
-        }
-
         /// <summary>
         /// Gets court summary report for a given appearance id.
         /// </summary>
