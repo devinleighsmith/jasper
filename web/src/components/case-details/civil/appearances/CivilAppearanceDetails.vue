@@ -3,6 +3,9 @@
     <v-tab value="documents">Scheduled Documents</v-tab>
     <v-tab disabled value="binder">Judicial Binder</v-tab>
     <v-tab value="parties">Scheduled Parties</v-tab>
+    <v-tab value="methods" v-if="details.appearanceMethod?.length"
+      >Appearance Methods</v-tab
+    >
   </v-tabs>
 
   <v-card-text>
@@ -14,27 +17,19 @@
         color="var(--bg-light-gray)"
         :loading="loading"
       >
-        <div v-if="details?.appearanceMethod?.length">
-          <div><h5>Appearance Methods:</h5></div>
-          <span v-for="method in details?.appearanceMethod">
-            <div>
-              <span>
-                {{
-                  `${method.roleTypeDesc} appearing by ${method.appearanceMethodDesc}`
-                }}
-              </span>
-            </div>
-          </span>
-        </div>
-        <div>
-          <v-tabs-window-item value="documents">
-            <ScheduledDocuments :documents="details.document" />
-          </v-tabs-window-item>
-        </div>
+        <v-tabs-window-item value="documents">
+          <ScheduledDocuments :documents="details.document" />
+        </v-tabs-window-item>
         <v-tabs-window-item value="binder"> Binder </v-tabs-window-item>
 
         <v-tabs-window-item value="parties">
           <ScheduledParties :parties="details.party" />
+        </v-tabs-window-item>
+        <v-tabs-window-item
+          v-if="details.appearanceMethod?.length"
+          value="methods"
+        >
+          <AppearanceMethods :appearanceMethod="details.appearanceMethod" />
         </v-tabs-window-item>
       </v-skeleton-loader>
     </v-tabs-window>
@@ -42,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+  import AppearanceMethods from '@/components/case-details/civil/appearances/AppearanceMethods.vue';
   import ScheduledDocuments from '@/components/case-details/civil/appearances/ScheduledDocuments.vue';
   import ScheduledParties from '@/components/case-details/civil/appearances/ScheduledParties.vue';
   import { FilesService } from '@/services/FilesService';
@@ -52,15 +48,14 @@
     fileId: string;
     appearanceId: string;
   }>();
+
   const filesService = inject<FilesService>('filesService');
   const tab = ref('documents');
   const details = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
-  const pcssDetails = ref();
   const loading = ref(false);
   if (!filesService) {
     throw new Error('Files service is undefined.');
   }
-  //roleTypeDesc 'appearing by' appearanceMethodDesc
 
   onMounted(async () => {
     loading.value = true;
@@ -68,10 +63,6 @@
       props.fileId,
       props.appearanceId
     );
-    // pcssDetais.value = await filesService.PCSScivilAppearanceDetails(
-    //   props.fileId,
-    //   props.appearanceId
-    // );
     loading.value = false;
   });
 </script>
