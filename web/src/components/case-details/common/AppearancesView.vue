@@ -161,6 +161,9 @@
   ];
   const futureHeaders = [
     {
+      key: 'data-table-expand',
+    },
+    {
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),

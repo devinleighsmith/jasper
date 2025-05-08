@@ -7,23 +7,36 @@
 
   <v-card-text>
     <v-tabs-window v-model="tab">
-      <v-tabs-window-item value="documents">
-        <v-skeleton-loader
-          class="my-0"
-          type="table"
-          :height="200"
-          color="var(--bg-light-gray)"
-          :loading="loading"
-        >
-          <ScheduledDocuments :documents="details.document" />
-        </v-skeleton-loader>
-      </v-tabs-window-item>
+      <v-skeleton-loader
+        class="my-0"
+        type="table"
+        :height="200"
+        color="var(--bg-light-gray)"
+        :loading="loading"
+      >
+        <div v-if="details?.appearanceMethod?.length">
+          <div><h5>Appearance Methods:</h5></div>
+          <span v-for="method in details?.appearanceMethod">
+            <div>
+              <span>
+                {{
+                  `${method.roleTypeDesc} appearing by ${method.appearanceMethodDesc}`
+                }}
+              </span>
+            </div>
+          </span>
+        </div>
+        <div>
+          <v-tabs-window-item value="documents">
+            <ScheduledDocuments :documents="details.document" />
+          </v-tabs-window-item>
+        </div>
+        <v-tabs-window-item value="binder"> Binder </v-tabs-window-item>
 
-      <v-tabs-window-item value="binder"> Binder </v-tabs-window-item>
-
-      <v-tabs-window-item value="parties">
-        <ScheduledParties :parties="details.party" />
-      </v-tabs-window-item>
+        <v-tabs-window-item value="parties">
+          <ScheduledParties :parties="details.party" />
+        </v-tabs-window-item>
+      </v-skeleton-loader>
     </v-tabs-window>
   </v-card-text>
 </template>
@@ -47,6 +60,7 @@
   if (!filesService) {
     throw new Error('Files service is undefined.');
   }
+  //roleTypeDesc 'appearing by' appearanceMethodDesc
 
   onMounted(async () => {
     loading.value = true;
@@ -65,5 +79,8 @@
 <style scoped>
   .v-tabs {
     flex: 10;
+  }
+  .v-skeleton-loader {
+    display: block;
   }
 </style>

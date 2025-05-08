@@ -2,7 +2,6 @@ import { civilFiledByType } from '@/types/courtlist/jsonTypes';
 import { FileDetailsType } from '@/types/shared';
 import { AdditionalProperties } from '../../common';
 import { ApprDetailType } from '../../shared';
-import { documentType } from '@/types/criminal/jsonTypes';
 
 export interface partyAliasType {
   nameTypeCd: string;
@@ -16,12 +15,7 @@ export interface partyAliasType {
 
 export interface partyCounselType {
   counselId: string;
-  fullNm: string;
-  phoneNumberTxt: string;
-  additionalProperties: AdditionalProperties;
-  additionalProp1: {};
-  additionalProp2: {};
-  additionalProp3: {};
+  counselFullName: string;
 }
 
 export interface partyType {
@@ -188,19 +182,19 @@ export interface civilAppearancesType {
 }
 
 export interface CivilAppearanceDetails {
-    physicalFileId: string;
-    agencyId: string;
-    appearanceId: string;
-    courtRoomCd: string;
-    fileNumberTxt: string;
-    appearanceDt: string;
-    appearanceReasonCd: string;
-    appearanceReasonDesc: string;
-    adjudicator: Record<string, unknown>;
-    party: partyType[];
-    document: civilDocumentType[];
-    appearanceMethod: Record<string, unknown>[];
-    courtLevelCd: string;
+  physicalFileId: string;
+  agencyId: string;
+  appearanceId: string;
+  courtRoomCd: string;
+  fileNumberTxt: string;
+  appearanceDt: string;
+  appearanceReasonCd: string;
+  appearanceReasonDesc: string;
+  adjudicator: Record<string, unknown>;
+  party: PartyDetails[];
+  document: civilDocumentType[];
+  appearanceMethod: Record<string, unknown>[];
+  courtLevelCd: string;
 }
 
 export interface civilFileDetailsType extends FileDetailsType {

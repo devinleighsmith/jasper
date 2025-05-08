@@ -1,7 +1,6 @@
 <template>
   <v-data-table-virtual
     class="documentsTable"
-    v-if="true"
     :headers
     :items="documents"
     item-value="appearanceId"
@@ -11,20 +10,29 @@
         {{ info.actCd }}
       </div>
     </template>
+    <template v-slot:item.issue="{ item }">
+      <LabelWithTooltip
+        v-if="item.issue?.length > 0"
+        :values="item.issue.map((issue) => issue.issueTypeDesc)"
+        :location="Anchor.Top"
+      />
+    </template>
   </v-data-table-virtual>
 </template>
 
 <script setup lang="ts">
+  import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
   import { civilDocumentType } from '@/types/civil/jsonTypes/index';
+  import { Anchor } from '@/types/common';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
 
-  const props = defineProps<{
+  defineProps<{
     documents: civilDocumentType[];
   }>();
 
   const headers = [
     { title: 'SEQ', key: 'fileSeqNo' },
-    { title: 'DOCUMENT TYPE', key: 'documentTypeDescription' },
+    { title: 'DOCUMENT TYPE', key: 'category' },
     { title: 'ACT', key: 'activity' },
     {
       title: 'DATE FILED',
@@ -35,7 +43,7 @@
     },
     { title: 'FILED BY', key: 'filedByName' },
     { title: 'RESULTS', key: 'runtime' },
-    { title: 'ISSUES', key: 'issues' },
+    { title: 'ISSUES', key: 'issue' },
   ];
 </script>
 
