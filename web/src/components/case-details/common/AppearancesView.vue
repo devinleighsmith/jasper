@@ -55,7 +55,7 @@
         />
       </template>
       <template v-slot:expanded-row="{ columns, item }">
-        <tr style="background-color: var(--bg-light-gray)">
+        <tr style="background-color: var(--bg-very-light-gray)">
           <td :colspan="columns.length" class="py-2">
             <CivilAppearanceDetails
               v-if="!isCriminal"

@@ -14,7 +14,7 @@
         class="my-0"
         type="table"
         :height="200"
-        color="var(--bg-light-gray)"
+        color="var(--bg-very-light-gray)"
         :loading="loading"
       >
         <v-tabs-window-item value="documents">
