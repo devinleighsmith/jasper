@@ -59,6 +59,7 @@
               : civilDetails.appearances?.apprDetail
           "
           :isCriminal="isCriminal"
+          :fileNumber="fileId"
         />
       </v-window-item>
       <v-window-item value="sentence">
@@ -86,8 +87,9 @@
   const props = defineProps<{
     details: FileDetailsType;
     activityClassCd: string;
+    fileId: string;
   }>();
-
+  
   const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);
   const selectedTab = ref('documents');
   const criminalDetails = ref<criminalFileDetailsType>(

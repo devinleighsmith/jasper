@@ -61,6 +61,7 @@
             <CaseHeader
               :details="details"
               :activityClassCd="details.activityClassCd"
+              :fileId="fileId"
             />
           </v-col>
         </v-row>
@@ -175,6 +176,7 @@
       const errorText = ref('');
       const loading = ref(false);
       const fileNumber = ref('');
+      const fileId = ref('');
 
       const partiesJson = ref<partyType[]>([]);
       const adjudicatorRestrictionsJson = ref<civilHearingRestrictionType[]>(
@@ -280,6 +282,7 @@
                   showSealedWarning.value = true;
                 }
                 details.value = data;
+                fileId.value = data.physicalFileId;
                 isDataReady.value = true;
               } else errorCode.value = 200;
             } else if (errorCode.value == 0) errorCode.value = 200;
@@ -723,6 +726,7 @@
         isSealed,
         docIsSealed,
         fileNumber,
+        fileId,
         loading,
         details,
         adjudicatorRestrictions: adjudicatorRestrictionsInfo.value,

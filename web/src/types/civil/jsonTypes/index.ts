@@ -15,12 +15,7 @@ export interface partyAliasType {
 
 export interface partyCounselType {
   counselId: string;
-  fullNm: string;
-  phoneNumberTxt: string;
-  additionalProperties: AdditionalProperties;
-  additionalProp1: {};
-  additionalProp2: {};
-  additionalProp3: {};
+  counselFullName: string;
 }
 
 export interface partyType {
@@ -39,6 +34,23 @@ export interface partyType {
   additionalProp1: {};
   additionalProp2: {};
   additionalProp3: {};
+}
+
+export interface PartyRoleType {
+  roleTypeCd: string;
+  roleTypeDsc: string;
+}
+
+export interface PartyDetails {
+  fullName: string;
+  partyId: string;
+  lastNm: string;
+  givenNm: string;
+  courtParticipantId: string;
+  counsel: partyCounselType[];
+  representative: Record<string, unknown>[];
+  legalRepresentative: Record<string, unknown>[];
+  partyRole: PartyRoleType[];
 }
 
 export interface civilDocumentIssueType {
@@ -167,6 +179,22 @@ export interface civilAppearancesType {
   additionalProp1: {};
   additionalProp2: {};
   additionalProp3: {};
+}
+
+export interface CivilAppearanceDetails {
+  physicalFileId: string;
+  agencyId: string;
+  appearanceId: string;
+  courtRoomCd: string;
+  fileNumberTxt: string;
+  appearanceDt: string;
+  appearanceReasonCd: string;
+  appearanceReasonDesc: string;
+  adjudicator: Record<string, unknown>;
+  party: PartyDetails[];
+  document: civilDocumentType[];
+  appearanceMethod: Record<string, unknown>[];
+  courtLevelCd: string;
 }
 
 export interface civilFileDetailsType extends FileDetailsType {
