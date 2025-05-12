@@ -13,6 +13,8 @@
   --bg-green: #2e8540;
   --bg-purple: #79368f;
   --bg-white: #ffffff;
+  --bg-off-white: #f9f9f9;
+  --bg-translucent-black: rgba(0, 0, 0, 0.05);
 
   /* Border colors */
   --border-blue: #4092c1;
