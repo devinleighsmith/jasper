@@ -215,16 +215,11 @@
 
 <style scoped>
   :deep() tr:has(+ tr.expanded) {
-    background-color: var(--bg-very-light-gray);
-    border: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
-    border-bottom: 0;
+    background-color: var(--bg-very-light-gray) !important;
+    border: thin solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+    border-bottom: 0 !important;
   }
   :deep() tr:has(+ tr.expanded) > td {
-    border-bottom: 0;
-  }
-  .expanded {
-    background-color: var(--bg-off-white);
-    border: thin solid rgba(var(--v-border-color), var(--v-border-opacity));
-    border-top: 0;
+    border-bottom: 0 !important;
   }
 </style>
