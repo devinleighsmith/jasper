@@ -37,7 +37,7 @@
     "jquery": "^3.7.1",
     "lodash": "^4.17.21",
     "pinia": "^3.0.2",
-    "pinia-plugin-persistedstate": "^4.2.0",
+    "pinia-plugin-persistedstate": "^4.3.0",
     "regenerator-runtime": "^0.14.1",
     "splunk-logging": "^0.11.1",
     "style-loader": "^4.0.0",
