@@ -35,11 +35,11 @@
       :headers="type === 'future' ? futureHeaders : pastHeaders"
       :items="appearances"
       :sort-by="sortBy"
-      class="my-3"
-      height="400"
+      :height="pastAppearances.length && futureAppearances.length ? 400 : 800"
       item-value="appearanceId"
       fixed-header
       show-expand
+      variant="hover"
     >
       <template
         v-slot:item.data-table-expand="{
@@ -55,8 +55,8 @@
         />
       </template>
       <template v-slot:expanded-row="{ columns, item }">
-        <tr style="background-color: var(--bg-very-light-gray)">
-          <td :colspan="columns.length" class="py-2">
+        <tr class="expanded">
+          <td :colspan="columns.length">
             <CivilAppearanceDetails
               v-if="!isCriminal"
               :fileId="fileNumber"
@@ -119,6 +119,7 @@
     isCriminal: boolean;
     fileNumber: string;
   }>();
+
   const pastHeaders = [
     {
       key: 'data-table-expand',
@@ -211,3 +212,14 @@
       )
   );
 </script>
+
+<style scoped>
+  :deep() tr:has(+ tr.expanded) {
+    background-color: var(--bg-very-light-gray) !important;
+    border: thin solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+    border-bottom: 0 !important;
+  }
+  :deep() tr:has(+ tr.expanded) > td {
+    border-bottom: 0 !important;
+  }
+</style>

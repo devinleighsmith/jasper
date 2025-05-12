@@ -25,3 +25,13 @@ select {
   display: flex !important;
   align-items: center !important;
 }
+
+tbody tr:nth-of-type(odd) {
+  background-color: var(--bg-translucent-black);
+}
+
+.expanded {
+  background-color: var(--bg-off-white) !important;
+  border: thin solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
+  border-top: 0 !important;
+}
