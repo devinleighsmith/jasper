@@ -1,7 +1,7 @@
 <template>
   <v-tabs v-model="tab" align-tabs="start" slider-color="primary">
     <v-tab value="charges">Charges</v-tab>
-    <v-tab value="methods">Appearance methods</v-tab>
+    <v-tab value="methods">Appearance Methods</v-tab>
     <v-tab value="counsel" v-if="isPast">Current Counsel</v-tab>
   </v-tabs>
 
@@ -21,7 +21,7 @@
           <AppearanceMethods :appearanceMethods="details.appearanceMethods" />
         </v-tabs-window-item>
         <v-tabs-window-item value="counsel">
-          <AppearanceCounsel />
+          <AppearanceCounsel v-if="isPast" />
         </v-tabs-window-item>
       </v-skeleton-loader>
     </v-tabs-window>
