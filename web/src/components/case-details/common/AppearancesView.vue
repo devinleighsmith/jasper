@@ -9,8 +9,8 @@
       />
     </v-col>
   </v-row>
-  <template v-if="pastAppearances.length || futureAppearances.length">
     <div
+      v-if="pastAppearances.length || futureAppearances.length"
       v-for="(appearances, type) in {
         past: pastAppearances,
         future: futureAppearances,
@@ -108,8 +108,7 @@
         </template>
       </v-data-table-virtual>
     </div>
-  </template>
-  <template v-else>
+  <div v-else>
     <v-card class="my-6" color="var(--bg-gray)" elevation="0">
       <v-card-text>
         <v-row align="center" no-gutters>
@@ -123,7 +122,7 @@
       no-data-text="No appearances"
     >
     </v-data-table-virtual>
-  </template>
+  </div>
 </template>
 
 <script setup lang="ts">
