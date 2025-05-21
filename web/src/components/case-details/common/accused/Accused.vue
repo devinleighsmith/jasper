@@ -44,6 +44,10 @@
       <v-col>{{ counselName }}</v-col>
     </v-row>
     <v-row class="mx-1 mt-2">
+      <v-col cols="6" class="data-label">Age/Notice</v-col>
+      <v-col> {{ ageNotice }} </v-col>
+    </v-row>
+    <v-row class="mx-1 mt-2">
       <v-col cols="6" class="data-label">Counsel Desig. Filed</v-col>
       <v-col>{{ accused.designatedCounselYN }}</v-col>
     </v-row>
@@ -77,6 +81,7 @@
     accused: criminalParticipantType;
     appearances: any;
   }>();
+  const ageNotice = ref('No');
   const showBanModal = ref(false);
   const counselName = computed(() =>
     props.accused.counselLastNm && props.accused.counselGivenNm
