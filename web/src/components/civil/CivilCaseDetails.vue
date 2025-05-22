@@ -50,12 +50,11 @@
       >
         <v-row>
           <v-col cols="3" style="overflow-y: auto">
-            <civil-side-panel-v2
+            <CivilSidePanel
               v-if="isDataReady && details"
               :details="details"
               :adjudicatorRestrictions="adjudicatorRestrictions"
             />
-            <civil-side-panel-v1 v-if="isDataReady" />
           </v-col>
           <v-col>
             <CaseHeader
@@ -90,11 +89,10 @@
 </template>
 
 <script lang="ts">
-  import CivilSidePanelV2 from '@/components/case-details/civil/CivilSidePanel.vue';
   import CaseHeader from '@/components/case-details/common/CaseHeader.vue';
   // In the process of deprecating in favor of @/components/case-details/CriminalSidePanel.vue
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
-  import CivilSidePanelV1 from '@/components/civil/CivilSidePanel.vue';
+  import CivilSidePanel from '@/components/civil/CivilSidePanel.vue';
   import { beautifyDate } from '@/filters';
   import { HttpService } from '@/services/HttpService';
   import {
@@ -139,7 +137,6 @@
 
   export default defineComponent({
     components: {
-      CivilSidePanelV2,
       CourtFilesSelector,
       CustomOverlay,
       CaseHeader,
