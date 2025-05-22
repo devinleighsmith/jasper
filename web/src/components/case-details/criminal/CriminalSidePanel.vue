@@ -1,15 +1,17 @@
 <template>
-  <CriminalSummary v-if="details" :details />
-  <adjudicator-restrictions-panel
-    v-if="adjudicatorRestrictions?.length > 0"
-    :adjudicatorRestrictions
-  />
-  <accused-panel
-    v-if="details"
-    :accused="details.participant"
-    :courtClassCd="details.courtClassCd"
-    :appearances
-  />
+  <div class="scrollable">
+    <CriminalSummary v-if="details" :details />
+    <adjudicator-restrictions-panel
+      v-if="adjudicatorRestrictions?.length > 0"
+      :adjudicatorRestrictions
+    />
+    <accused-panel
+      v-if="details"
+      :accused="details.participant"
+      :courtClassCd="details.courtClassCd"
+      :appearances
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
