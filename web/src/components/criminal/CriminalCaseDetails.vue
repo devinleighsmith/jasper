@@ -80,45 +80,45 @@
 
 <script lang="ts">
   import CaseHeader from '@/components/case-details/common/CaseHeader.vue';
-import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
-import CriminalSidePanel from '@/components/case-details/criminal/CriminalSidePanel.vue';
-import { beautifyDate } from '@/filters';
-import { HttpService } from '@/services/HttpService';
-import {
-  useCommonStore,
-  useCourtFileSearchStore,
-  useCriminalFileStore,
-} from '@/stores';
-import {
-  AdjudicatorRestrictionsInfoType,
-  ArchiveInfoType,
-  DocumentRequestsInfoType,
-} from '@/types/common';
-import {
-  bansInfoType,
-  chargesInfoType,
-  participantListInfoType,
-  ropRequestsInfoType,
-} from '@/types/criminal';
-import {
-  criminalFileDetailsType,
-  criminalHearingRestrictionType,
-  criminalParticipantType,
-} from '@/types/criminal/jsonTypes';
-import { CourtDocumentType, DocumentData } from '@/types/shared';
-import { getSingleValue } from '@/utils/utils';
-import base64url from 'base64url';
-import {
-  computed,
-  defineComponent,
-  inject,
-  onMounted,
-  ref,
-  watch,
-} from 'vue';
-import { useRoute } from 'vue-router';
-import CustomOverlay from '../CustomOverlay.vue';
-import shared from '../shared';
+  import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
+  import CriminalSidePanel from '@/components/case-details/criminal/CriminalSidePanel.vue';
+  import { beautifyDate } from '@/filters';
+  import { HttpService } from '@/services/HttpService';
+  import {
+    useCommonStore,
+    useCourtFileSearchStore,
+    useCriminalFileStore,
+  } from '@/stores';
+  import {
+    AdjudicatorRestrictionsInfoType,
+    ArchiveInfoType,
+    DocumentRequestsInfoType,
+  } from '@/types/common';
+  import {
+    bansInfoType,
+    chargesInfoType,
+    participantListInfoType,
+    ropRequestsInfoType,
+  } from '@/types/criminal';
+  import {
+    criminalFileDetailsType,
+    criminalHearingRestrictionType,
+    criminalParticipantType,
+  } from '@/types/criminal/jsonTypes';
+  import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { getSingleValue } from '@/utils/utils';
+  import base64url from 'base64url';
+  import {
+    computed,
+    defineComponent,
+    inject,
+    onMounted,
+    ref,
+    watch,
+  } from 'vue';
+  import { useRoute } from 'vue-router';
+  import CustomOverlay from '../CustomOverlay.vue';
+  import shared from '../shared';
 
   enum DecodeCourtLevel {
     'P' = 0,
