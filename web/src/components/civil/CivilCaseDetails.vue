@@ -90,7 +90,6 @@
 
 <script lang="ts">
   import CaseHeader from '@/components/case-details/common/CaseHeader.vue';
-  // In the process of deprecating in favor of @/components/case-details/CriminalSidePanel.vue
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
   import CivilSidePanel from '@/components/civil/CivilSidePanel.vue';
   import { beautifyDate } from '@/filters';
