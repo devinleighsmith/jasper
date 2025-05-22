@@ -137,6 +137,7 @@
   export default defineComponent({
     components: {
       CourtFilesSelector,
+      CivilSidePanel,
       CustomOverlay,
       CaseHeader,
     },
