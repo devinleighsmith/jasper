@@ -43,7 +43,10 @@
       <v-col cols="6" class="data-label">Counsel</v-col>
       <v-col>{{ counselName }}</v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <v-row
+      class="mx-1 mt-2"
+      v-if="courtClassCd == getEnumName(CourtClassEnum, CourtClassEnum.Y)"
+    >
       <v-col cols="6" class="data-label">Age/Notice</v-col>
       <v-col> {{ ageNotice }} </v-col>
     </v-row>
@@ -70,9 +73,13 @@
 
 <script setup lang="ts">
   import FileMarkers from '@/components/shared/FileMarkers.vue';
-  import { FileMarkerEnum } from '@/types/common';
-  import { criminalParticipantType } from '@/types/criminal/jsonTypes';
+  import { CourtClassEnum, FileMarkerEnum } from '@/types/common';
+  import {
+    ClAgeNotice,
+    criminalParticipantType,
+  } from '@/types/criminal/jsonTypes';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { getEnumName } from '@/utils/utils';
   import { mdiInformationSlabCircleOutline } from '@mdi/js';
   import { computed, defineProps, ref } from 'vue';
   import Bans from './Bans.vue';
@@ -80,8 +87,19 @@
   const props = defineProps<{
     accused: criminalParticipantType;
     appearances: any;
+    courtClassCd: string;
   }>();
-  const ageNotice = ref('No');
+  
+  const ageNotice = computed(() => {
+    const notices = props.accused.ageNotice ?? [];
+    const hasNoticeTo = (notices as ClAgeNotice[]).some(
+      (notice) => notice.eventTypeDsc === 'Notice to'
+    );
+    const hasProofOfAge = (notices as ClAgeNotice[]).some(
+      (notice) => notice.eventTypeDsc === 'Proof of Age'
+    );
+    return hasNoticeTo && hasProofOfAge ? 'Yes' : 'No';
+  });
   const showBanModal = ref(false);
   const counselName = computed(() =>
     props.accused.counselLastNm && props.accused.counselGivenNm
