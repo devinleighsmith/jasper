@@ -35,3 +35,14 @@ tbody tr:nth-of-type(odd) {
   border: thin solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
   border-top: 0 !important;
 }
+
+.scrollable {
+  max-height: 80vh !important;
+  overflow-y: auto !important;
+  scrollbar-color: transparent transparent !important;
+  scrollbar-width: thin !important;
+  --scrollbar-background: var(--styled-scrollbar-background, var(--shreddit-content-background)) !important;
+}
+.scrollable:hover {
+    scrollbar-color: var(--color-neutral-border) transparent !important;
+}

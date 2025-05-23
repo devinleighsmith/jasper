@@ -1,11 +1,13 @@
 <template>
-  <CivilSummary :details />
-  <AdjudicatorRestrictionsPanel
-    v-if="adjudicatorRestrictions?.length > 0"
-    :adjudicatorRestrictions
-  />
-  <PartiesPanel :courtClassCd="details.courtClassCd" :parties />
-  <ChildrenPanel v-if="children.length > 0" :children />
+  <div class="scrollable">
+    <CivilSummary :details />
+    <AdjudicatorRestrictionsPanel
+      v-if="adjudicatorRestrictions?.length > 0"
+      :adjudicatorRestrictions
+    />
+    <PartiesPanel :courtClassCd="details.courtClassCd" :parties />
+    <ChildrenPanel v-if="children.length > 0" :children />
+  </div>
 </template>
 <script setup lang="ts">
   import { civilFileDetailsType } from '@/types/civil/jsonTypes';
