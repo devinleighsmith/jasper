@@ -22,12 +22,11 @@
       >
         <v-row style="display: flex; flex-wrap: nowrap">
           <v-col cols="3" style="overflow-y: auto">
-            <criminal-side-panel-v2
+            <CriminalSidePanel
               v-if="isDataReady && details"
               :details="details"
               :adjudicatorRestrictions="adjudicatorRestrictions"
             />
-            <criminal-side-panel-v1 v-if="isDataReady" />
           </v-col>
 
           <v-col class="px-0" style="overflow: auto">
@@ -82,9 +81,7 @@
 <script lang="ts">
   import CaseHeader from '@/components/case-details/common/CaseHeader.vue';
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
-  import CriminalSidePanelV2 from '@/components/case-details/criminal/CriminalSidePanel.vue';
-  // In the process of deprecating in favor of @/components/case-details/CriminalSidePanel.vue
-  import CriminalSidePanelV1 from '@/components/criminal/CriminalSidePanel.vue';
+  import CriminalSidePanel from '@/components/case-details/criminal/CriminalSidePanel.vue';
   import { beautifyDate } from '@/filters';
   import { HttpService } from '@/services/HttpService';
   import {
@@ -152,9 +149,8 @@
   export default defineComponent({
     components: {
       CourtFilesSelector,
-      CriminalSidePanelV1,
       CustomOverlay,
-      CriminalSidePanelV2,
+      CriminalSidePanel,
       CaseHeader,
     },
     setup() {
