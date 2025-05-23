@@ -90,6 +90,8 @@
     courtClassCd: string;
   }>();
   
+  // How we consider AgeNotice to be 'Yes' or 'No' could possibly be subject to change,
+  // we are just pending more information on the requirements.
   const ageNotice = computed(() => {
     const notices = props.accused.ageNotice ?? [];
     const hasNoticeTo = (notices as ClAgeNotice[]).some(
