@@ -135,7 +135,6 @@ namespace Scv.Api.Services.Files
             var fileContent = await fileContentTask;
             var appearances = await appearancesTask;
 
-            ClCriminalCourtList criminalCourtListFileDetail = default;
             IEnumerable<ClCriminalCourtList> criminalCourtLists = default;
 
             if (appearances != null && appearances.ApprDetail.Count != 0)
@@ -146,7 +145,6 @@ namespace Scv.Api.Services.Files
                     var agencyId = await _locationService.GetLocationAgencyIdentifier(fileDetail.HomeLocationAgenId);
                     var courtList = await _cache.GetOrAddAsync($"CriminalCourtList-{agencyId}-{latestAppearance.CourtRoomCd}-{latestAppearance.AppearanceDt}-{fileDetail.FileNumberTxt}-{_requestAgencyIdentifierId}",
                         () => CourtList(agencyId, latestAppearance.CourtRoomCd, latestAppearance.AppearanceDt, fileDetail.FileNumberTxt));
-                    criminalCourtListFileDetail = courtList.CriminalCourtList.FirstOrDefault(c => c.FileNumberText == fileDetail.FileNumberTxt);
                     criminalCourtLists = courtList.CriminalCourtList;
                 }
             }
