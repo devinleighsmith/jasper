@@ -1,7 +1,7 @@
 <template>
-  <v-card variant="text" class="mb-4">
+  <v-card variant="text" class="my-2">
     <v-row>
-      <v-col class="pb-0">
+      <v-col>
         <v-chip
           variant="flat"
           rounded="lg"
@@ -12,17 +12,17 @@
         </v-chip>
       </v-col>
     </v-row>
-    <v-row v-if="showAlias">
+    <v-row v-if="showAlias" class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Alias</v-col>
       <v-col>
         <LabelWithTooltip :values="aliases" />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Role</v-col>
       <v-col>{{ party.roleTypeDescription }}</v-col>
     </v-row>
-    <v-row>
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Counsel</v-col>
       <v-col>
         <LabelWithTooltip :values="counselNames" />

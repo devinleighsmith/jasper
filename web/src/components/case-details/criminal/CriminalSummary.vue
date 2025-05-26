@@ -1,21 +1,30 @@
 <template>
   <h5 class="my-1">Case Details</h5>
   <v-card color="var(--bg-gray)" flat>
-    <div class="m-3 d-flex align-center">
-      <DivisionBadge division="Criminal" :activityClassDesc :courtClassCd />
+    <div class="mx-2 d-flex align-center pt-2">
+      <DivisionBadge
+        division="Criminal"
+        :activityClassDesc
+        :courtClassCd
+        class="my-0"
+      />
       <span v-if="bansExist"><b style="color: var(--text-red)">BAN</b></span>
     </div>
-    <v-card-title style="text-wrap: wrap">{{ names }}</v-card-title>
-    <v-card-subtitle>{{ location }}</v-card-subtitle>
-    <v-row class="mx-1 mt-2">
+    <v-card-item>
+      <v-card-title class="my-0" style="text-wrap: wrap">
+        {{ names }}
+      </v-card-title>
+      <v-card-subtitle>{{ location }}</v-card-subtitle>
+    </v-card-item>
+    <v-row class="mx-3" dense>
       <v-col cols="6" class="data-label">Proceeded</v-col>
       <v-col> {{ proceeded }}</v-col>
     </v-row>
-    <v-row class="mx-1">
+    <v-row class="mx-3" dense>
       <v-col cols="6" class="data-label">Crown</v-col>
       <v-col>{{ crownName }}</v-col>
     </v-row>
-    <v-row class="mx-1 mb-1">
+    <v-row class="mx-3 pb-1" dense>
       <v-col cols="6" class="data-label">Case Age (days)</v-col>
       <v-col>{{ details.caseAgeDays }}</v-col>
     </v-row>

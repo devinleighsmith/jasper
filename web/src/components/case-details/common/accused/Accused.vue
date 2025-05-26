@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="text" class="my-3 pb-5">
+  <v-card variant="text" class="my-2">
     <v-row>
       <v-col cols="12">
         <v-chip
@@ -13,12 +13,12 @@
         </v-chip>
       </v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <v-row class="mx-1 mt-0">
       <v-col cols="12">
         <FileMarkers class-override="mr-2" :markers="fileMarkers" />
       </v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Ban</v-col>
       <v-col>
         <div v-for="(bans, banType, index) in groupedBans" :key="banType">
@@ -35,15 +35,15 @@
         </div>
       </v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">DOB</v-col>
       <v-col>{{ formatDateToDDMMMYYYY(accused.birthDt) }}</v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Counsel</v-col>
       <v-col>{{ counselName }}</v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Counsel Desig. Filed</v-col>
       <v-col>{{ accused.designatedCounselYN }}</v-col>
     </v-row>
@@ -56,7 +56,7 @@
       <v-col cols="6" class="data-label">Plea</v-col>
       <v-col></v-col>
     </v-row> -->
-    <v-row class="mx-1 mt-2">
+    <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Appearances</v-col>
       <v-col>{{ appearances.length }}</v-col>
     </v-row>
