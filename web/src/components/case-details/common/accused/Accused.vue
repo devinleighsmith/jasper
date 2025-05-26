@@ -50,7 +50,6 @@
       <v-col cols="6" class="data-label">Age/Notice</v-col>
       <v-col> {{ ageNotice }} </v-col>
     </v-row>
-    <v-row class="mx-1 mt-2">
     <v-row class="mx-1 mt-0">
       <v-col cols="6" class="data-label">Counsel Desig. Filed</v-col>
       <v-col>{{ accused.designatedCounselYN }}</v-col>
