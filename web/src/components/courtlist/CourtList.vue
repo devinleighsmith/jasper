@@ -79,6 +79,7 @@
   const search = ref('');
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
+  const documentUrls = ref<string[]>([]);
   const selectedItems = ref([]);
   const pdfStore = usePDFViewerStore();
   const cardTablePairings = ref<
@@ -199,9 +200,6 @@
         uniqueMap.set(key, obj);
       });
     });
-
-    // Prepare document URLs for PDF Viewer
-    const documentUrls = ref<string[]>([]);
 
     uniqueMap.forEach((value, key) => {
       let queryParams: Record<string, any> = {
