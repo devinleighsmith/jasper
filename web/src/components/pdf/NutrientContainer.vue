@@ -5,31 +5,36 @@
 </template>
 
 <script setup>
-  import { usePDFStore } from '@/stores';
-  import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+  import { usePDFViewerStore } from '@/stores';
+  import {
+    onBeforeMount,
+    onMounted,
+    onUnmounted,
+    ref,
+    useTemplateRef,
+  } from 'vue';
 
-  const pdfStore = usePDFStore();
+  const pdfStore = usePDFViewerStore();
   const containerRef = useTemplateRef('pdf-container');
   const loading = ref(false);
   const configuration = {
-    initialViewState: new PSPDFKit.ViewState({
-      sidebarMode: PSPDFKit.SidebarMode.THUMBNAILS,
+    initialViewState: new NutrientViewer.ViewState({
+      sidebarMode: NutrientViewer.SidebarMode.THUMBNAILS,
     }),
   };
-  const emit = defineEmits(['loaded']);
 
   async function loadNutrient() {
     loading.value = true;
 
-    const instance = await NutrientViewer.load({
+    const instance = await PSPDFKit.load({
       container: containerRef.value,
-      document: pdfStore.currentUrls[0],
+      document: pdfStore.documentUrls[0],
       headless: true,
     });
 
     // We skip the first index since we used it to load the nutrient viewer.
     const documentBlobs = await Promise.all(
-      pdfStore.currentUrls
+      pdfStore.documentUrls
         .slice(1)
         .map((url) => fetch(url).then((result) => result.blob()))
     );
@@ -44,13 +49,12 @@
           treatImportedDocumentAsOnePage: false,
           document: blob,
         };
-
         // Retrieve page count of the merged document to calculate page index
         // of the next imported document. This can be skipped for the last
         // operation since we don't care how large the last document is.
         if (idx < documentBlobs.length - 1) {
           const documentInstance = await NutrientViewer.load({
-            //...configuration,
+            ...configuration,
             document: await blob.arrayBuffer(),
             headless: true,
           });
@@ -64,8 +68,9 @@
     const mergedDocument = await instance.exportPDFWithOperations(
       mergeDocumentOperations
     );
-
+    // We set our own loader to false, nutrient's internal loader can take it from here
     loading.value = false;
+
     NutrientViewer.load({
       ...configuration,
       container: containerRef.value,
@@ -73,18 +78,17 @@
     });
   }
 
-  const preloadNutrient = async () => {
+  onBeforeMount(() => {
+    // Preload the nutrient viewer
     if (NutrientViewer) {
       NutrientViewer.preloadWorker({
         container: '',
         document: '',
       });
     }
-  };
+  });
 
-  // Lifecycle hooks
   onMounted(() => {
-    //preloadNutrient();
     loadNutrient();
   });
 
