@@ -17,4 +17,4 @@ export { useCourtFileSearchStore } from './CourtFileSearchStore';
 export { useCourtListStore } from './CourtListStore';
 export { useCriminalFileStore } from './CriminalFileStore';
 export { useSnackbarStore } from './SnackbarStore';
-export { usePDFStore } from './PDFStore';
+export { usePDFViewerStore } from './PDFViewerStore';
