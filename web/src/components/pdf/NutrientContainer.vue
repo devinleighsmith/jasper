@@ -6,13 +6,7 @@
 
 <script setup>
   import { usePDFViewerStore } from '@/stores';
-  import {
-    onBeforeMount,
-    onMounted,
-    onUnmounted,
-    ref,
-    useTemplateRef,
-  } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
   const pdfStore = usePDFViewerStore();
   const containerRef = useTemplateRef('pdf-container');
@@ -78,16 +72,6 @@
     });
   }
 
-  onBeforeMount(() => {
-    // Preload the nutrient viewer
-    if (NutrientViewer) {
-      NutrientViewer.preloadWorker({
-        container: '',
-        document: '',
-      });
-    }
-  });
-
   onMounted(() => {
     loadNutrient();
   });
@@ -98,6 +82,7 @@
     if (container && NutrientViewer) {
       NutrientViewer.unload(container);
     }
+    pdfStore.clearUrls();
   });
 </script>
 

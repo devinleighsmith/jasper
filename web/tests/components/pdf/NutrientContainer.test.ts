@@ -1,23 +1,30 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import NutrientContainer from 'CMP/pdf/NutrientContainer.vue';
+import { setActivePinia, createPinia } from 'pinia'
 
-vi.mock('@/stores', () => ({
-  usePDFViewerStore: () => ({
-    documentUrls: ['url1.pdf', 'url2.pdf', 'url3.pdf'],
-  }),
-}));
+const mockDocumentUrls = ['url1.pdf', 'url2.pdf', 'url3.pdf'];
 
 const mockLoad = vi.fn();
 const mockUnload = vi.fn();
-const mockPreloadWorker = vi.fn();
+
+// Mock store
+vi.mock('@/stores/PDFViewerStore', () => {
+  return {
+    usePDFViewerStore: vi.fn(() => ({
+      get documentUrls() {
+        return mockDocumentUrls;
+      },
+      clearUrls: vi.fn(),
+    })),
+  };
+});
 
 globalThis.NutrientViewer = {
   ViewState: vi.fn().mockImplementation(() => ({})),
   SidebarMode: { THUMBNAILS: 'thumbnails' },
   load: mockLoad,
-  unload: mockUnload,
-  preloadWorker: mockPreloadWorker,
+  unload: mockUnload
 };
 
 describe('NutrientContainer.vue', () => {
@@ -25,6 +32,7 @@ describe('NutrientContainer.vue', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    setActivePinia(createPinia());
 
     // Mock global fetch to avoid real network requests
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -56,9 +64,6 @@ describe('NutrientContainer.vue', () => {
     expect(wrapper.findComponent({ name: 'v-skeleton-loader' }).exists()).toBe(true);
   });
 
-  it('calls NutrientViewer.preloadWorker on beforeMount', () => {
-    expect(mockPreloadWorker).toHaveBeenCalled();
-  });
   it('expect load to be called initally with first document', () => {
     expect(globalThis.NutrientViewer.load).toHaveBeenCalledWith(
       expect.objectContaining({document: 'url1.pdf'})
