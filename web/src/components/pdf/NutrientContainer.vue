@@ -26,7 +26,7 @@
   async function loadNutrient() {
     loading.value = true;
 
-    const instance = await PSPDFKit.load({
+    const instance = await NutrientViewer.load({
       container: containerRef.value,
       document: pdfStore.documentUrls[0],
       headless: true,
