@@ -1,16 +1,23 @@
 <template>
   <v-progress-linear v-if="loading" indeterminate />
   <v-skeleton-loader v-if="loading" :loading="loading" type="ossein" />
+  <v-row class="py-12" v-if="emptyStore">
+    <v-col>
+      <p class="text-center mx-auto">No documents available to display.</p>
+    </v-col>
+  </v-row>
+
   <div v-show="!loading" ref="pdf-container" class="pdf-container" />
 </template>
 
 <script setup>
   import { usePDFViewerStore } from '@/stores';
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+  import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
   const pdfStore = usePDFViewerStore();
   const containerRef = useTemplateRef('pdf-container');
   const loading = ref(false);
+  const emptyStore = ref(false);
   const configuration = {
     initialViewState: new NutrientViewer.ViewState({
       sidebarMode: NutrientViewer.SidebarMode.THUMBNAILS,
@@ -19,8 +26,19 @@ import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
   async function loadNutrient() {
     loading.value = true;
+    emptyStore.value = false;
 
+    if (!pdfStore.documentUrls.length) {
+      loading.value = false;
+      emptyStore.value = true;
+      return;
+    }
+    return pdfStore.documentUrls.length === 1 ? loadSingle() : loadMultiple();
+  }
+
+  async function loadMultiple() {
     const instance = await NutrientViewer.load({
+      ...configuration,
       container: containerRef.value,
       document: pdfStore.documentUrls[0],
       headless: true,
@@ -62,13 +80,29 @@ import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
     const mergedDocument = await instance.exportPDFWithOperations(
       mergeDocumentOperations
     );
+
     // We set our own loader to false, nutrient's internal loader can take it from here
     loading.value = false;
 
-    NutrientViewer.load({
+    await NutrientViewer.load({
       ...configuration,
       container: containerRef.value,
       document: mergedDocument,
+    });
+  }
+
+  async function loadSingle() {
+    const documentBlob = await fetch(pdfStore.documentUrls[0]).then((result) =>
+      result.blob()
+    );
+    const documentBuffer = await documentBlob.arrayBuffer();
+    // We set our own loader to false, nutrient's internal loader can take it from here
+    loading.value = false;
+
+    await NutrientViewer.load({
+      ...configuration,
+      container: containerRef.value,
+      document: documentBuffer,
     });
   }
 
@@ -88,7 +122,7 @@ import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 <style scoped>
   .pdf-container {
-    height: 100vh;
+    height: 90vh;
   }
   .v-skeleton-loader {
     height: 100%;

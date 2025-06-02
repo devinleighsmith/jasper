@@ -175,6 +175,7 @@
   });
 
   const onGenerateClick = (reportType: 'Daily' | 'Additions') => {
+    documentUrls.value = [];
     // Prepare unique combinations to generate report(s)
     const uniqueMap = new Map<
       string,
@@ -218,6 +219,7 @@
 
       documentUrls.value.push(courtListService.generateReportUrl(queryParams));
     });
+
     pdfStore.addUrls({
       urls: documentUrls.value,
     });
