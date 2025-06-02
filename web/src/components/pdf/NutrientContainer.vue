@@ -24,7 +24,7 @@
     }),
   };
 
-  async function loadNutrient() {
+  const loadNutrient = () => {
     loading.value = true;
     emptyStore.value = false;
 
@@ -34,9 +34,9 @@
       return;
     }
     return pdfStore.documentUrls.length === 1 ? loadSingle() : loadMultiple();
-  }
+  };
 
-  async function loadMultiple() {
+  const loadMultiple = async () => {
     const instance = await NutrientViewer.load({
       ...configuration,
       container: containerRef.value,
@@ -89,9 +89,9 @@
       container: containerRef.value,
       document: mergedDocument,
     });
-  }
+  };
 
-  async function loadSingle() {
+  const loadSingle = async () => {
     const documentBlob = await fetch(pdfStore.documentUrls[0]).then((result) =>
       result.blob()
     );
@@ -104,7 +104,7 @@
       container: containerRef.value,
       document: documentBuffer,
     });
-  }
+  };
 
   onMounted(() => {
     loadNutrient();
