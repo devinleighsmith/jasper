@@ -11,6 +11,7 @@ namespace Scv.Db.Contexts
         public DbSet<Role> Roles { get; init; }
         public DbSet<Group> Groups { get; init; }
         public DbSet<User> Users { get; init; }
+        public DbSet<Binder> Binders { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -31,13 +32,14 @@ namespace Scv.Db.Contexts
             modelBuilder.Entity<Permission>();
             modelBuilder.Entity<Role>();
             modelBuilder.Entity<Group>();
-
             modelBuilder.Entity<User>(u =>
             {
                 u.HasKey(u => u.Id);
                 u.HasIndex(u => u.Email).IsUnique();
                 u.ToCollection("users");
             });
+            modelBuilder.Entity<Tag>(t => t.HasKey(jb => jb.Id));
+            modelBuilder.Entity<Binder>(jb => jb.HasKey(jb => jb.Id));
         }
     }
 }

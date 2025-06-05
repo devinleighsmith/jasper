@@ -181,10 +181,12 @@ namespace Scv.Api.Infrastructure.Authentication
                             var userDto = await userService.GetWithPermissionsAsync(context.Principal.Email());
                             if (userDto != null)
                             {
-                                var permissionsClaims = userDto.Permissions.Select(p => new Claim(CustomClaimTypes.JasperPermission, p));
+                                claims.Add(new Claim(CustomClaimTypes.UserId, userDto.Id));
+
+                                var permissionsClaims = userDto.Permissions.Select(p => new Claim(CustomClaimTypes.Permission, p));
                                 claims.AddRange(permissionsClaims);
 
-                                var rolesClaims = userDto.Roles.Select(r => new Claim(CustomClaimTypes.JasperRole, r));
+                                var rolesClaims = userDto.Roles.Select(r => new Claim(CustomClaimTypes.Role, r));
                                 claims.AddRange(rolesClaims);
                             }
                         }
