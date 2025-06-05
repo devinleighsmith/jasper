@@ -15,13 +15,7 @@
       <tr>
         <td class="pa-0" style="height: 1rem" :colspan="columns.length">
           <v-banner
-            :class="
-              item.value === 'Family'
-                ? 'family-table-banner'
-                : item.value === 'Small Claims'
-                  ? 'small-claims-table-banner'
-                  : 'table-banner'
-            "
+            :class="bannerClasses[item.value] || 'table-banner'"
             :ref="
               () => {
                 if (!isGroupOpen(item)) toggleGroup(item);
@@ -34,64 +28,27 @@
       </tr>
     </template>
     <template v-slot:item.icons="{ item }">
-      <v-tooltip
-        v-if="item.isComplete"
-        text="Appearance is complete, one or more of the charges has a recorded result"
-        location="top"
-      >
-        <template v-slot:activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiCheck"
-            color="primary"
-            size="large"
-          />
-        </template>
-      </v-tooltip>
+      <template v-if="item.isComplete">
+        <TooltipIcon
+          text="Appearance is complete, one or more of the charges has a recorded result"
+          :icon="mdiCheck"
+        />
+      </template>
 
-      <v-tooltip
-        v-else-if="item.appearanceStatusCd === 'CNCL'"
-        text="Cancelled"
-        location="top"
-      >
-        <template v-slot:activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiTrashCanOutline"
-            color="primary"
-            size="large"
-          />
-        </template>
-      </v-tooltip>
+      <template v-else-if="item.appearanceStatusCd === 'CNCL'">
+        <TooltipIcon text="Cancelled" :icon="mdiTrashCanOutline" />
+      </template>
 
-      <v-tooltip
-        v-else-if="item.appearanceStatusCd === 'UNCF'"
-        text="Unconfirmed"
-        location="top"
-      >
-        <template v-slot:activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiWeatherNight"
-            color="primary"
-            size="large"
-          />
-        </template>
-      </v-tooltip>
-      <v-tooltip
-        v-if="item.homeLocationNm"
-        :text="'Court file home location: ' + item.homeLocationNm"
-        location="top"
-      >
-        <template v-slot:activator="{ props }">
-          <v-icon
-            v-bind="props"
-            :icon="mdiHomeOutline"
-            color="primary"
-            size="large"
-          />
-        </template>
-      </v-tooltip>
+      <template v-else-if="item.appearanceStatusCd === 'UNCF'">
+        <TooltipIcon text="Unconfirmed" :icon="mdiCircleHalfFull" />
+      </template>
+
+      <template v-if="item.homeLocationNm">
+        <TooltipIcon
+          :text="'Court file home location: ' + item.homeLocationNm"
+          :icon="mdiHomeOutline"
+        />
+      </template>
     </template>
     <template v-slot:item.estimatedTime="{ item }">
       {{ hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin) }}
@@ -171,23 +128,28 @@
 <script setup lang="ts">
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import ActionBar from '@/components/shared/table/ActionBar.vue';
+  import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
   import { hoursMinsFormatter } from '@/utils/dateUtils';
   import { getEnumName } from '@/utils/utils';
   import {
     mdiCheck,
+    mdiCircleHalfFull,
     mdiFileDocumentEditOutline,
     mdiFileDocumentMultipleOutline,
     mdiFileDocumentOutline,
     mdiHomeOutline,
     mdiNotebookEditOutline,
     mdiTrashCanOutline,
-    mdiWeatherNight,
   } from '@mdi/js';
   import { computed, ref } from 'vue';
 
   const selected = defineModel<string[]>('selectedItems');
+  const bannerClasses = {
+    Family: 'family-table-banner',
+    'Small Claims': 'small-claims-table-banner',
+  };
   const sortBy = ref([
     { key: 'appearanceSequenceNumber', order: 'asc' },
   ] as const);
