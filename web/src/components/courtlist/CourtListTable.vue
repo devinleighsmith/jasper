@@ -6,10 +6,93 @@
     :items="data"
     :headers
     :search="search"
+    :group-by
     item-value="appearanceId"
     items-per-page="100"
     class="pb-5"
   >
+    <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
+      <tr>
+        <td class="pa-0" style="height: 1rem" :colspan="columns.length">
+          <v-banner
+            :class="
+              item.value === 'Family'
+                ? 'family-table-banner'
+                : item.value === 'Small Claims'
+                  ? 'small-claims-table-banner'
+                  : 'table-banner'
+            "
+            :ref="
+              () => {
+                if (!isGroupOpen(item)) toggleGroup(item);
+              }
+            "
+          >
+            {{ item.value }}
+          </v-banner>
+        </td>
+      </tr>
+    </template>
+    <template v-slot:item.icons="{ item }">
+      <v-tooltip
+        v-if="item.isComplete"
+        text="Appearance is complete, one or more of the charges has a recorded result"
+        location="top"
+      >
+        <template v-slot:activator="{ props }">
+          <v-icon
+            v-bind="props"
+            :icon="mdiCheck"
+            color="primary"
+            size="large"
+          />
+        </template>
+      </v-tooltip>
+
+      <v-tooltip
+        v-else-if="item.appearanceStatusCd === 'CNCL'"
+        text="Cancelled"
+        location="top"
+      >
+        <template v-slot:activator="{ props }">
+          <v-icon
+            v-bind="props"
+            :icon="mdiTrashCanOutline"
+            color="primary"
+            size="large"
+          />
+        </template>
+      </v-tooltip>
+
+      <v-tooltip
+        v-else-if="item.appearanceStatusCd === 'UNCF'"
+        text="Unconfirmed"
+        location="top"
+      >
+        <template v-slot:activator="{ props }">
+          <v-icon
+            v-bind="props"
+            :icon="mdiWeatherNight"
+            color="primary"
+            size="large"
+          />
+        </template>
+      </v-tooltip>
+      <v-tooltip
+        v-if="item.homeLocationNm"
+        :text="'Court file home location: ' + item.homeLocationNm"
+        location="top"
+      >
+        <template v-slot:activator="{ props }">
+          <v-icon
+            v-bind="props"
+            :icon="mdiHomeOutline"
+            color="primary"
+            size="large"
+          />
+        </template>
+      </v-tooltip>
+    </template>
     <template v-slot:item.estimatedTime="{ item }">
       {{ hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin) }}
     </template>
@@ -65,23 +148,65 @@
     </template>
     <template v-slot:bottom />
   </v-data-table>
+  <ActionBar :selected="selected">
+    <v-btn
+      size="large"
+      class="mx-2"
+      :prepend-icon="mdiFileDocumentMultipleOutline"
+      style="letter-spacing: 0.001rem"
+    >
+      View document bundle
+    </v-btn>
+    <v-btn
+      size="large"
+      class="mx-2"
+      :prepend-icon="mdiFileDocumentOutline"
+      style="letter-spacing: 0.001rem"
+    >
+      View case details
+    </v-btn>
+  </ActionBar>
 </template>
 
 <script setup lang="ts">
   import FileMarkers from '@/components/shared/FileMarkers.vue';
+  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
   import { hoursMinsFormatter } from '@/utils/dateUtils';
   import { getEnumName } from '@/utils/utils';
-  import { mdiFileDocumentEditOutline, mdiNotebookEditOutline } from '@mdi/js';
-  import { ref } from 'vue';
+  import {
+    mdiCheck,
+    mdiFileDocumentEditOutline,
+    mdiFileDocumentMultipleOutline,
+    mdiFileDocumentOutline,
+    mdiHomeOutline,
+    mdiNotebookEditOutline,
+    mdiTrashCanOutline,
+    mdiWeatherNight,
+  } from '@mdi/js';
+  import { computed, ref } from 'vue';
 
   const selected = defineModel<string[]>('selectedItems');
   const sortBy = ref([
     { key: 'appearanceSequenceNumber', order: 'asc' },
   ] as const);
 
-  defineProps<{
+  const groupBy = ref([
+    {
+      key: 'courtClassStyle',
+      order: 'asc' as const,
+    },
+  ]);
+
+  const data = computed(() =>
+    props.data.map((item) => ({
+      ...item,
+      courtClassStyle: getCourtClass(item.courtClassCd),
+    }))
+  );
+
+  const props = defineProps<{
     data: CourtListAppearance[];
     search: string;
   }>();
@@ -93,7 +218,17 @@
       key: 'appearanceSequenceNumber',
     },
     { title: 'FILE #', key: 'courtFileNumber' },
-    { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
+    {
+      title: '',
+      key: 'icons',
+      width: '3%',
+      sortable: false,
+    },
+    {
+      title: 'ACCUSED/PARTIES',
+      key: 'accusedNm',
+      value: (item: CourtListAppearance) => item.accusedNm || item.styleOfCause,
+    },
     { title: 'TIME', key: 'appearanceTm' },
     { title: 'EST.', key: 'estimatedTime' },
     { title: 'ROOM', key: 'courtRoomCd' },
@@ -106,7 +241,7 @@
       key: 'caseAgeDays',
       value: (item: CourtListAppearance) => item.caseAgeDays ?? '',
     },
-    { title: 'NOTES', key: 'actions', sortable: false },
+    { title: 'NOTES', key: 'actions', width: '5%', sortable: false },
   ]);
 
   const renderTooltip = (items: any[], additionalItem?: string) => {
@@ -220,5 +355,29 @@
     }
 
     return [];
+  };
+
+  /**
+   * Retrieves the CSS class name to represent a CourtClass
+   * @param courtClassCd The court class code
+   * @returns class name
+   */
+  const getCourtClass = (courtClassCd: string): string => {
+    switch (courtClassCd) {
+      case getEnumName(CourtClassEnum, CourtClassEnum.A):
+        return 'Criminal - Adult';
+      case getEnumName(CourtClassEnum, CourtClassEnum.Y):
+        return 'Youth';
+      case getEnumName(CourtClassEnum, CourtClassEnum.T):
+        return 'Tickets';
+      case getEnumName(CourtClassEnum, CourtClassEnum.C):
+      case getEnumName(CourtClassEnum, CourtClassEnum.L):
+      case getEnumName(CourtClassEnum, CourtClassEnum.M):
+        return 'Small Claims';
+      case getEnumName(CourtClassEnum, CourtClassEnum.F):
+        return 'Family';
+      default:
+        return 'Unknown';
+    }
   };
 </script>
