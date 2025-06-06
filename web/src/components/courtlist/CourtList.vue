@@ -46,7 +46,6 @@
       >
         <court-list-card :cardInfo="pairing.card" />
         <court-list-table
-          v-model:selectedItems="selectedItems"
           :search="search"
           :data="pairing.table"
         />
@@ -80,7 +79,6 @@
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
   const documentUrls = ref<string[]>([]);
-  const selectedItems = ref([]);
   const pdfStore = usePDFViewerStore();
   const cardTablePairings = ref<
     {

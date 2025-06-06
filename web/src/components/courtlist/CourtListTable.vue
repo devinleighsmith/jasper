@@ -34,7 +34,6 @@
           :icon="mdiCheck"
         />
       </template>
-
       <template v-else-if="item.appearanceStatusCd === 'CNCL'">
         <TooltipIcon text="Cancelled" :icon="mdiTrashCanOutline" />
       </template>
@@ -105,29 +104,12 @@
     </template>
     <template v-slot:bottom />
   </v-data-table>
-  <ActionBar :selected="selected">
-    <v-btn
-      size="large"
-      class="mx-2"
-      :prepend-icon="mdiFileDocumentMultipleOutline"
-      style="letter-spacing: 0.001rem"
-    >
-      View document bundle
-    </v-btn>
-    <v-btn
-      size="large"
-      class="mx-2"
-      :prepend-icon="mdiFileDocumentOutline"
-      style="letter-spacing: 0.001rem"
-    >
-      View case details
-    </v-btn>
-  </ActionBar>
+  <CourtListTableActionBarGroup :selected />
 </template>
 
 <script setup lang="ts">
+  import CourtListTableActionBarGroup from '@/components/courtlist/CourtListTableActionBarGroup.vue';
   import FileMarkers from '@/components/shared/FileMarkers.vue';
-  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
@@ -137,15 +119,13 @@
     mdiCheck,
     mdiCircleHalfFull,
     mdiFileDocumentEditOutline,
-    mdiFileDocumentMultipleOutline,
-    mdiFileDocumentOutline,
     mdiHomeOutline,
     mdiNotebookEditOutline,
     mdiTrashCanOutline,
   } from '@mdi/js';
   import { computed, ref } from 'vue';
 
-  const selected = defineModel<string[]>('selectedItems');
+  const selected = ref<CourtListAppearance[]>([]);
   const bannerClasses = {
     Family: 'family-table-banner',
     'Small Claims': 'small-claims-table-banner',
