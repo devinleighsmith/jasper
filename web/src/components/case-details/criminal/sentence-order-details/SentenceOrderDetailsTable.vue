@@ -1,13 +1,12 @@
 <template>
-  <v-data-table
+  <v-data-table-virtual
     :headers
     :group-by
     :items="data"
-    no-data-text="No sentences"
     :show-select="false"
-    hide-default-footer
-    hide-pagination
     :sort-by="sortBy"
+    no-data-text="No sentences"
+    height="800"
   >
     <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
       <tr>
@@ -86,7 +85,7 @@
         </td>
       </tr>
     </template>
-  </v-data-table>
+  </v-data-table-virtual>
 </template>
 <script setup lang="ts">
   import { criminalParticipantType } from '@/types/criminal/jsonTypes';
