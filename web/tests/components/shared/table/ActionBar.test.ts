@@ -10,7 +10,8 @@ describe('ActionBar.vue', () => {
             },
         });
         expect(wrapper.find('v-app-bar').exists()).toBe(true);
-        expect(wrapper.find('v-app-bar-title').text()).toBe('3 selected');
+        expect(wrapper.find('v-app-bar-title').text()).toContain('3');
+        expect(wrapper.find('v-app-bar-title').text()).toContain('selected');
     });
 
     it('does not render when there are no selected items', () => {

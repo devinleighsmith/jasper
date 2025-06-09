@@ -6,10 +6,49 @@
     :items="data"
     :headers
     :search="search"
+    :group-by
     item-value="appearanceId"
     items-per-page="100"
     class="pb-5"
   >
+    <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
+      <tr>
+        <td class="pa-0" style="height: 1rem" :colspan="columns.length">
+          <v-banner
+            :class="bannerClasses[item.value] || 'table-banner'"
+            :ref="
+              () => {
+                if (!isGroupOpen(item)) toggleGroup(item);
+              }
+            "
+          >
+            {{ item.value }}
+          </v-banner>
+        </td>
+      </tr>
+    </template>
+    <template v-slot:item.icons="{ item }">
+      <template v-if="item.isComplete">
+        <TooltipIcon
+          text="Appearance is complete, one or more of the charges has a recorded result"
+          :icon="mdiCheck"
+        />
+      </template>
+      <template v-else-if="item.appearanceStatusCd === 'CNCL'">
+        <TooltipIcon text="Cancelled" :icon="mdiTrashCanOutline" />
+      </template>
+
+      <template v-else-if="item.appearanceStatusCd === 'UNCF'">
+        <TooltipIcon text="Unconfirmed" :icon="mdiCircleHalfFull" />
+      </template>
+
+      <template v-if="item.homeLocationNm">
+        <TooltipIcon
+          :text="'Court file home location: ' + item.homeLocationNm"
+          :icon="mdiHomeOutline"
+        />
+      </template>
+    </template>
     <template v-slot:item.estimatedTime="{ item }">
       {{ hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin) }}
     </template>
@@ -65,23 +104,51 @@
     </template>
     <template v-slot:bottom />
   </v-data-table>
+  <CourtListTableActionBarGroup :selected />
 </template>
 
 <script setup lang="ts">
+  import CourtListTableActionBarGroup from '@/components/courtlist/CourtListTableActionBarGroup.vue';
   import FileMarkers from '@/components/shared/FileMarkers.vue';
+  import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
   import { hoursMinsFormatter } from '@/utils/dateUtils';
-  import { getEnumName } from '@/utils/utils';
-  import { mdiFileDocumentEditOutline, mdiNotebookEditOutline } from '@mdi/js';
-  import { ref } from 'vue';
+  import { getEnumName, getCourtClassLabel } from '@/utils/utils';
+  import {
+    mdiCheck,
+    mdiCircleHalfFull,
+    mdiFileDocumentEditOutline,
+    mdiHomeOutline,
+    mdiNotebookEditOutline,
+    mdiTrashCanOutline,
+  } from '@mdi/js';
+  import { computed, ref } from 'vue';
 
-  const selected = defineModel<string[]>('selectedItems');
+  const selected = ref<CourtListAppearance[]>([]);
+  const bannerClasses = {
+    Family: 'family-table-banner',
+    'Small Claims': 'small-claims-table-banner',
+  };
   const sortBy = ref([
     { key: 'appearanceSequenceNumber', order: 'asc' },
   ] as const);
 
-  defineProps<{
+  const groupBy = ref([
+    {
+      key: 'courtClass',
+      order: 'asc' as const,
+    },
+  ]);
+
+  const data = computed(() =>
+    props.data.map((item) => ({
+      ...item,
+      courtClass: getCourtClassLabel(item.courtClassCd),
+    }))
+  );
+
+  const props = defineProps<{
     data: CourtListAppearance[];
     search: string;
   }>();
@@ -93,7 +160,17 @@
       key: 'appearanceSequenceNumber',
     },
     { title: 'FILE #', key: 'courtFileNumber' },
-    { title: 'ACCUSED/PARTIES', key: 'accusedNm' },
+    {
+      title: '',
+      key: 'icons',
+      width: '3%',
+      sortable: false,
+    },
+    {
+      title: 'ACCUSED/PARTIES',
+      key: 'accusedNm',
+      value: (item: CourtListAppearance) => item.accusedNm || item.styleOfCause,
+    },
     { title: 'TIME', key: 'appearanceTm' },
     { title: 'EST.', key: 'estimatedTime' },
     { title: 'ROOM', key: 'courtRoomCd' },
@@ -106,7 +183,7 @@
       key: 'caseAgeDays',
       value: (item: CourtListAppearance) => item.caseAgeDays ?? '',
     },
-    { title: 'NOTES', key: 'actions', sortable: false },
+    { title: 'NOTES', key: 'actions', width: '5%', sortable: false },
   ]);
 
   const renderTooltip = (items: any[], additionalItem?: string) => {

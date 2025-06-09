@@ -272,3 +272,27 @@ export const getCourtClassStyle = (courtClassCd: string): string => {
       return 'unknown';
   }
 };
+
+/**
+ * Retrieves the label for the associated court-class
+ * @param courtClassCd The court class code
+ * @returns court class label
+ */
+export const getCourtClassLabel = (courtClassCd: string): string => {
+  switch (courtClassCd) {
+    case getEnumName(CourtClassEnum, CourtClassEnum.A):
+      return 'Criminal - Adult';
+    case getEnumName(CourtClassEnum, CourtClassEnum.Y):
+      return 'Youth';
+    case getEnumName(CourtClassEnum, CourtClassEnum.T):
+      return 'Tickets';
+    case getEnumName(CourtClassEnum, CourtClassEnum.C):
+    case getEnumName(CourtClassEnum, CourtClassEnum.L):
+    case getEnumName(CourtClassEnum, CourtClassEnum.M):
+      return 'Small Claims';
+    case getEnumName(CourtClassEnum, CourtClassEnum.F):
+      return 'Family';
+    default:
+      return 'Unknown';
+  }
+};

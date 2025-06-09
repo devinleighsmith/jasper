@@ -17,13 +17,23 @@ select {
   text-decoration-style: dotted;
 }
 
-.table-banner {
-  background-color: var(--bg-blue-500) !important;
+.table-banner,
+.small-claims-table-banner,
+.family-table-banner {
   color: white !important;
   text-transform: uppercase !important;
   height: 1rem !important;
   display: flex !important;
   align-items: center !important;
+}
+.table-banner {
+  background-color: var(--bg-blue-500) !important;
+}
+.family-table-banner {
+  background-color: var(--bg-green-500) !important;
+}
+.small-claims-table-banner {
+  background-color: var(--bg-purple-500) !important;
 }
 
 tbody tr:nth-of-type(odd) {
@@ -44,5 +54,5 @@ tbody tr:nth-of-type(odd) {
   --scrollbar-background: var(--styled-scrollbar-background, var(--shreddit-content-background)) !important;
 }
 .scrollable:hover {
-    scrollbar-color: var(--color-neutral-border) transparent !important;
+  scrollbar-color: var(--color-neutral-border) transparent !important;
 }
