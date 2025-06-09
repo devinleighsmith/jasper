@@ -51,7 +51,7 @@ tbody tr:nth-of-type(odd) {
   overflow-y: auto !important;
   scrollbar-color: transparent transparent !important;
   scrollbar-width: thin !important;
---scrollbar-background: var(--styled-scrollbar-background, var(--shreddit-content-background)) !important;
+  --scrollbar-background: var(--styled-scrollbar-background, var(--shreddit-content-background)) !important;
 }
 .scrollable:hover {
   scrollbar-color: var(--color-neutral-border) transparent !important;
