@@ -33,9 +33,8 @@
 
 <script setup lang="ts">
   import ActionBar from '@/components/shared/table/ActionBar.vue';
-  import { CourtClassEnum } from '@/types/common';
   import { CourtListAppearance } from '@/types/courtlist';
-  import { getEnumName } from '@/utils/utils';
+  import { getCourtClassLabel } from '@/utils/utils';
   import {
     mdiFileDocumentMultipleOutline,
     mdiFileDocumentOutline,
@@ -49,7 +48,7 @@
   const groupedSelections = computed(() => {
     const groups: Record<string, CourtListAppearance[]> = {};
     for (const item of props.selected) {
-      const group = getCourtClass(item.courtClassCd);
+      const group = getCourtClassLabel(item.courtClassCd);
       if (!groups[group]) {
         groups[group] = [];
       }
@@ -57,34 +56,4 @@
     }
     return groups;
   });
-
-  /**
-   * Retrieves the CSS class name to represent a CourtClass
-   * @param courtClassCd The court class code
-   * @returns class name
-   */
-  const getCourtClass = (courtClassCd: string): string => {
-    switch (courtClassCd) {
-      case getEnumName(CourtClassEnum, CourtClassEnum.A):
-        return 'Criminal - Adult';
-      case getEnumName(CourtClassEnum, CourtClassEnum.Y):
-        return 'Youth';
-      case getEnumName(CourtClassEnum, CourtClassEnum.T):
-        return 'Tickets';
-      case getEnumName(CourtClassEnum, CourtClassEnum.C):
-      case getEnumName(CourtClassEnum, CourtClassEnum.L):
-      case getEnumName(CourtClassEnum, CourtClassEnum.M):
-        return 'Small Claims';
-      case getEnumName(CourtClassEnum, CourtClassEnum.F):
-        return 'Family';
-      default:
-        return 'Unknown';
-    }
-  };
 </script>
-
-<style scoped>
-  :deep(.action-bar .header) {
-    bottom: 50px !important;
-  }
-</style>

@@ -136,7 +136,7 @@
 
   const groupBy = ref([
     {
-      key: 'courtClassStyle',
+      key: 'courtClass',
       order: 'asc' as const,
     },
   ]);
@@ -144,7 +144,7 @@
   const data = computed(() =>
     props.data.map((item) => ({
       ...item,
-      courtClassStyle: getCourtClassLabel(item.courtClassCd),
+      courtClass: getCourtClassLabel(item.courtClassCd),
     }))
   );
 
