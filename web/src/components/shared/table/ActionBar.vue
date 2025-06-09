@@ -1,14 +1,24 @@
 <template>
   <div v-if="selected.length">
     <v-app-bar
-      class="table-action-bar"
+      class="action-bar"
       :elevation="2"
       location="bottom"
       color="#183a4a"
       rounded
+      floating
     >
-      <v-app-bar-title class="px-5">
-        {{ selected.length }} selected
+      <v-app-bar-title class="px-2">
+        <span
+          style="display: inline-flex; align-items: center; font-size: 1rem"
+        >
+          {{ selected.length }}&nbsp;
+
+          <template v-if="selectionPrependText">
+            <strong> {{ selectionPrependText }} &nbsp;</strong>
+          </template>
+          selected
+        </span>
       </v-app-bar-title>
       <slot></slot>
     </v-app-bar>
@@ -21,16 +31,22 @@
       type: Array,
       default: true,
     },
+    selectionPrependText: {
+      type: String,
+      required: false,
+    },
   });
 </script>
 
 <style scoped>
-  .table-action-bar {
+  .action-bar {
     border-radius: 70px !important;
     max-width: 50% !important;
     margin: 0 auto !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    margin-bottom: 2.5rem !important;
+    margin-bottom: 1.5rem !important;
+    position: fixed !important;
+    z-index: 2 !important;
   }
 </style>
