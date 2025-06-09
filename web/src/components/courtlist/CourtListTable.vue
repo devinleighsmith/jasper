@@ -114,7 +114,7 @@
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
   import { hoursMinsFormatter } from '@/utils/dateUtils';
-  import { getEnumName } from '@/utils/utils';
+  import { getEnumName, getCourtClassLabel } from '@/utils/utils';
   import {
     mdiCheck,
     mdiCircleHalfFull,
@@ -144,7 +144,7 @@
   const data = computed(() =>
     props.data.map((item) => ({
       ...item,
-      courtClassStyle: getCourtClass(item.courtClassCd),
+      courtClassStyle: getCourtClassLabel(item.courtClassCd),
     }))
   );
 
@@ -297,29 +297,5 @@
     }
 
     return [];
-  };
-
-  /**
-   * Retrieves the CSS class name to represent a CourtClass
-   * @param courtClassCd The court class code
-   * @returns class name
-   */
-  const getCourtClass = (courtClassCd: string): string => {
-    switch (courtClassCd) {
-      case getEnumName(CourtClassEnum, CourtClassEnum.A):
-        return 'Criminal - Adult';
-      case getEnumName(CourtClassEnum, CourtClassEnum.Y):
-        return 'Youth';
-      case getEnumName(CourtClassEnum, CourtClassEnum.T):
-        return 'Tickets';
-      case getEnumName(CourtClassEnum, CourtClassEnum.C):
-      case getEnumName(CourtClassEnum, CourtClassEnum.L):
-      case getEnumName(CourtClassEnum, CourtClassEnum.M):
-        return 'Small Claims';
-      case getEnumName(CourtClassEnum, CourtClassEnum.F):
-        return 'Family';
-      default:
-        return 'Unknown';
-    }
   };
 </script>
