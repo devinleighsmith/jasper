@@ -36,7 +36,12 @@
             :error-messages="searchErrorMessages"
           />
         </v-col>
-        <template v-if="searchCriteria.searchBy === 'fileNumber'">
+        <template
+          v-if="
+            searchCriteria.searchBy === 'fileNumber' &&
+            searchCriteria.isCriminal
+          "
+        >
           <v-col cols="1">
             <v-text-field
               label="Prefix"
@@ -84,7 +89,7 @@
             "
           />
         </v-col>
-        <v-col :cols="searchCriteria.searchBy === 'orgName' ? 2 : ''">
+        <v-col style="max-width: 20rem">
           <v-select
             v-model="selectedDivision"
             label="Division"
@@ -137,7 +142,7 @@
   import { LocationService } from '@/services/LocationService';
   import { LookupService } from '@/services/LookupService';
   import { useCourtFileSearchStore } from '@/stores';
-  import { KeyValueInfo, LookupCode, CourtClassEnum } from '@/types/common';
+  import { CourtClassEnum, KeyValueInfo, LookupCode } from '@/types/common';
   import {
     CourtFileSearchCriteria,
     FileDetail,
@@ -151,7 +156,7 @@
   const SEARCH_RESULT_LIMIT = 100;
 
   const courtFileSearchStore = useCourtFileSearchStore();
-  const defaultLocation = '';
+  const defaultLocation = undefined;
   let searchCriteria: CourtFileSearchCriteria = reactive({
     isCriminal: true,
     isFamily: false,
@@ -358,7 +363,7 @@
   };
 
   const loadClasses = () => {
-    searchCriteria.class = '';
+    searchCriteria.class = null;
     if (selectedDivision.value === 'isCriminal') {
       classOptions.value = classes.value.filter(
         (c) => c.longDesc === CRIMINAL_CODE
