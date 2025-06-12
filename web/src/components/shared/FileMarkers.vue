@@ -1,12 +1,12 @@
 <template>
   <div>
     <v-chip
-      v-for="{ key, description, value, notes } in data"
+      v-for="{ key, description, notes, value } in data"
       :key
       rounded="lg"
       variant="outlined"
       size="small"
-      :class="[classOverride, { selected: value }]"
+      :class="[classOverride, explicit ? { selected: value } : {}]"
       selected-class="selected"
     >
       {{ key }}
@@ -34,6 +34,7 @@
   const props = defineProps<{
     classOverride: string;
     markers: { marker: FileMarkerEnum; value: string; notes?: string[] }[];
+    explicit?: boolean; // If true, show all markers regardless of value
   }>();
 
   const allMarkers = [
@@ -49,17 +50,19 @@
     { marker: FileMarkerEnum.W, description: 'Warrant Issued' },
   ];
 
-  const data = props.markers.map((m) => {
-    const match = allMarkers.find((am) => am.marker === m.marker);
-    return {
-      ...m,
-      ...match,
-      key: Object.entries(FileMarkerEnum).find(
-        ([, val]) => val === m.marker
-      )?.[0],
-      value: m.value === 'Y',
-    };
-  });
+  const data = props.markers
+    .filter((m) => props.explicit || m.value === 'Y')
+    .map((m) => {
+      const match = allMarkers.find((am) => am.marker === m.marker);
+      return {
+        ...match,
+        key: Object.entries(FileMarkerEnum).find(
+          ([, val]) => val === m.marker
+        )?.[0],
+        notes: m.notes,
+        value: m.value === 'Y',
+      };
+    });
 </script>
 <style scoped>
   .v-chip {
