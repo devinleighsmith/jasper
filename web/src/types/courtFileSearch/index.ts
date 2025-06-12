@@ -1,6 +1,6 @@
 import { chargeType } from "../criminal/jsonTypes";
 
-// Intefaces
+// Interfaces
 export interface CourtFileSearchCriteria {
   isCriminal: boolean;
   isFamily: boolean;
@@ -14,7 +14,7 @@ export interface CourtFileSearchCriteria {
   givenName?: string;
   orgName?: string;
   class?: string;
-  fileHomeAgencyId: string;
+  fileHomeAgencyId?: string;
 }
 
 export interface CourtFileSearchResponse {
