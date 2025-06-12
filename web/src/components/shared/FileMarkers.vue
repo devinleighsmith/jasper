@@ -61,5 +61,6 @@
 <style scoped>
   .v-chip {
     cursor: default;
+    padding: 2px;
   }
 </style>
