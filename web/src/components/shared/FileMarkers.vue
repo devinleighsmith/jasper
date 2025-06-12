@@ -1,13 +1,12 @@
 <template>
   <div>
     <v-chip
-      v-for="{ key, description, notes, value } in data"
+      v-for="{ key, description, notes } in data"
       :key
       rounded="lg"
       variant="outlined"
       size="small"
-      :class="[classOverride, explicit ? { selected: value } : {}]"
-      selected-class="selected"
+      :class="classOverride"
     >
       {{ key }}
       <v-tooltip
@@ -34,8 +33,8 @@
   const props = defineProps<{
     classOverride: string;
     markers: { marker: FileMarkerEnum; value: string; notes?: string[] }[];
-    explicit?: boolean; // If true, show all markers regardless of value
   }>();
+  console.log(props.markers);
 
   const allMarkers = [
     { marker: FileMarkerEnum.ADJ, description: '' },
@@ -49,27 +48,19 @@
     { marker: FileMarkerEnum.OTH, description: '' },
     { marker: FileMarkerEnum.W, description: 'Warrant Issued' },
   ];
-
   const data = props.markers
-    .filter((m) => props.explicit || m.value === 'Y')
-    .map((m) => {
-      const match = allMarkers.find((am) => am.marker === m.marker);
-      return {
-        ...match,
-        key: Object.entries(FileMarkerEnum).find(
-          ([, val]) => val === m.marker
-        )?.[0],
-        notes: m.notes,
-        value: m.value === 'Y',
-      };
-    });
+    .filter((m) => m.value === 'Y')
+    .map((m) => ({
+      key: Object.keys(FileMarkerEnum).find(
+        (k) => FileMarkerEnum[k as keyof typeof FileMarkerEnum] === m.marker
+      ),
+      notes: m.notes,
+      description: allMarkers[m.marker]?.description,
+    }));
 </script>
+
 <style scoped>
   .v-chip {
     cursor: default;
-  }
-  .selected {
-    background-color: #183a4a !important;
-    color: white !important;
   }
 </style>
