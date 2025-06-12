@@ -16,7 +16,7 @@ describe('FileMarkers.vue', () => {
     ],
   };
 
-  it('renders markers', async () => {
+  it('renders enabled markers', async () => {
     const wrapper = mount(FileMarkers, { props });
 
     await nextTick();
