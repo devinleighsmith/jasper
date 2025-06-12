@@ -34,7 +34,6 @@
     classOverride: string;
     markers: { marker: FileMarkerEnum; value: string; notes?: string[] }[];
   }>();
-  console.log(props.markers);
 
   const allMarkers = [
     { marker: FileMarkerEnum.ADJ, description: '' },
