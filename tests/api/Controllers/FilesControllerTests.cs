@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidation;
 using JCCommon.Clients.FileServices;
 using JCCommon.Clients.LocationServices;
 using JCCommon.Clients.LookupCodeServices;
@@ -91,11 +92,24 @@ namespace tests.api.Controllers
             var identity = new ClaimsIdentity(claims, "Cookies");
             var principal = new ClaimsPrincipal(identity);
 
-            _service = new FilesService(fileServices.Configuration, fileServicesClient, new Mapper(), lookupService, locationService, new CachingService(), principal, fileServices.LogFactory);
+            _service = new FilesService(
+                fileServices.Configuration,
+                fileServicesClient,
+                new Mapper(),
+                lookupService,
+                locationService,
+                new CachingService(),
+                principal,
+                fileServices.LogFactory);
 
             //TODO fake this.
             var vcCivilFileAccessHandler = new VcCivilFileAccessHandler(new ScvDbContext());
-            _controller = new FilesController(fileServices.Configuration, fileServices.LogFactory.CreateLogger<FilesController>(), _service, vcCivilFileAccessHandler, contextAccessor);
+            _controller = new FilesController(
+                fileServices.Configuration,
+                fileServices.LogFactory.CreateLogger<FilesController>(),
+                _service,
+                vcCivilFileAccessHandler,
+                contextAccessor);
             _controller.ControllerContext = HttpResponseTest.SetupMockControllerContext(fileServices.Configuration);
         }
 

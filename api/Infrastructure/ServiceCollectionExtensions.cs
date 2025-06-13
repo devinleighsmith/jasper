@@ -11,12 +11,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 using Scv.Api.Helpers;
 using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Infrastructure.Encryption;
 using Scv.Api.Infrastructure.Handler;
 using Scv.Api.Models.AccessControlManagement;
+using Scv.Api.Processors;
 using Scv.Api.Services;
 using Scv.Api.Services.Files;
 using Scv.Db.Contexts;
@@ -56,20 +58,24 @@ namespace Scv.Api.Infrastructure
         {
             // Remove checking when the "real" mongo db has been configured
             var connectionString = configuration.GetValue<string>("MONGODB_CONNECTION_STRING");
-            if (string.IsNullOrEmpty(connectionString))
+            var dbName = configuration.GetValue<string>("MONGODB_NAME");
+            if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(dbName))
             {
                 return services;
             }
+
+            services.AddSingleton<IMongoClient>(m => new MongoClient(connectionString));
+            services.AddSingleton(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(dbName));
 
             services.AddScoped<PermissionSeeder>();
             services.AddScoped<RoleSeeder>();
             services.AddScoped<GroupSeeder>();
             services.AddScoped<UserSeeder>();
 
-            services.AddDbContext<JasperDbContext>(options =>
+            services.AddDbContext<JasperDbContext>((serviceProvider, options) =>
             {
-                var dbName = configuration.GetValue<string>("MONGODB_NAME");
-                options.UseMongoDB(connectionString, dbName);
+                var mongoClient = serviceProvider.GetRequiredService<IMongoClient>();
+                options.UseMongoDB(mongoClient, dbName);
             });
 
             services.AddTransient<SeederFactory<JasperDbContext>>();
@@ -138,10 +144,12 @@ namespace Scv.Api.Infrastructure
             var connectionString = configuration.GetValue<string>("MONGODB_CONNECTION_STRING");
             if (!string.IsNullOrEmpty(connectionString))
             {
-                services.AddScoped<IAccessControlManagementService<PermissionDto>, PermissionService>();
-                services.AddScoped<IAccessControlManagementService<RoleDto>, RoleService>();
-                services.AddScoped<IAccessControlManagementService<GroupDto>, GroupService>();
+                services.AddScoped<ICrudService<PermissionDto>, PermissionService>();
+                services.AddScoped<ICrudService<RoleDto>, RoleService>();
+                services.AddScoped<ICrudService<GroupDto>, GroupService>();
                 services.AddScoped<IUserService, UserService>();
+                services.AddScoped<IBinderFactory, BinderFactory>();
+                services.AddScoped<IBinderService, BinderService>();
             }
 
             return services;

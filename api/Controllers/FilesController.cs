@@ -31,34 +31,24 @@ namespace Scv.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
 
-    public class FilesController : ControllerBase
+    public class FilesController(
+        IConfiguration configuration,
+        ILogger<FilesController> logger,
+        FilesService filesService,
+        VcCivilFileAccessHandler vcCivilFileAccessHandler,
+        IHttpContextAccessor httpContextAccessor) : ControllerBase
     {
         #region Variables
 
-        private readonly IConfiguration _configuration;
-        private readonly ILogger<FilesController> _logger;
-        private readonly FilesService _filesService;
-        private readonly CivilFilesService _civilFilesService;
-        private readonly CriminalFilesService _criminalFilesService;
-        private readonly VcCivilFileAccessHandler _vcCivilFileAccessHandler;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly ILogger<FilesController> _logger = logger;
+        private readonly FilesService _filesService = filesService;
+        private readonly CivilFilesService _civilFilesService = filesService.Civil;
+        private readonly CriminalFilesService _criminalFilesService = filesService.Criminal;
+        private readonly VcCivilFileAccessHandler _vcCivilFileAccessHandler = vcCivilFileAccessHandler;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         #endregion Variables
-
-        #region Constructor
-
-        public FilesController(IConfiguration configuration, ILogger<FilesController> logger, FilesService filesService, VcCivilFileAccessHandler vcCivilFileAccessHandler, IHttpContextAccessor httpContextAccessor)
-        {
-            _configuration = configuration;
-            _logger = logger;
-            _filesService = filesService;
-            _civilFilesService = filesService.Civil;
-            _criminalFilesService = filesService.Criminal;
-            _vcCivilFileAccessHandler = vcCivilFileAccessHandler;
-            _httpContextAccessor = httpContextAccessor;
-        }
-
-        #endregion Constructor
 
         #region Actions
 

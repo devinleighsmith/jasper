@@ -39,14 +39,21 @@ namespace Scv.Api.Services.Files
             LocationService locationService,
             IAppCache cache,
             ClaimsPrincipal claimsPrincipal,
-            ILoggerFactory factory
-            )
+            ILoggerFactory factory)
         {
             _filesClient = filesClient;
             _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
             _cache = cache;
             _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(configuration.GetNonEmptyValue("Caching:FileExpiryMinutes")) * 60;
-            Civil = new CivilFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal, factory.CreateLogger<CivilFilesService>());
+            Civil = new CivilFilesService(
+                configuration,
+                filesClient,
+                mapper,
+                lookupService,
+                locationService,
+                _cache,
+                claimsPrincipal,
+                factory.CreateLogger<CivilFilesService>());
             Criminal = new CriminalFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal);
 
             _applicationCode = claimsPrincipal.ApplicationCode();
