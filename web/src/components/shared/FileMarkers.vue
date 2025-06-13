@@ -1,13 +1,12 @@
 <template>
   <div>
     <v-chip
-      v-for="{ key, description, value, notes } in data"
+      v-for="{ key, description, notes } in data"
       :key
       rounded="lg"
       variant="outlined"
       size="small"
-      :class="[classOverride, { selected: value }]"
-      selected-class="selected"
+      :class="classOverride"
     >
       {{ key }}
       <v-tooltip
@@ -48,25 +47,20 @@
     { marker: FileMarkerEnum.OTH, description: '' },
     { marker: FileMarkerEnum.W, description: 'Warrant Issued' },
   ];
-
-  const data = props.markers.map((m) => {
-    const match = allMarkers.find((am) => am.marker === m.marker);
-    return {
-      ...m,
-      ...match,
-      key: Object.entries(FileMarkerEnum).find(
-        ([, val]) => val === m.marker
-      )?.[0],
-      value: m.value === 'Y',
-    };
-  });
+  const data = props.markers
+    .filter((m) => m.value === 'Y')
+    .map((m) => ({
+      key: Object.keys(FileMarkerEnum).find(
+        (k) => FileMarkerEnum[k as keyof typeof FileMarkerEnum] === m.marker
+      ),
+      notes: m.notes,
+      description: allMarkers[m.marker]?.description,
+    }));
 </script>
+
 <style scoped>
   .v-chip {
     cursor: default;
-  }
-  .selected {
-    background-color: #183a4a !important;
-    color: white !important;
+    padding: 2px;
   }
 </style>

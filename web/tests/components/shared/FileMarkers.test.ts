@@ -16,16 +16,14 @@ describe('FileMarkers.vue', () => {
     ],
   };
 
-  it('renders markers', async () => {
+  it('renders enabled markers', async () => {
     const wrapper = mount(FileMarkers, { props });
 
     await nextTick();
 
     const chips = wrapper.findAll('v-chip');
-    const selectedChips = wrapper.findAll('v-chip.selected');
 
-    expect(chips.length).toBe(4); // W, IC, DO, INT
-    expect(selectedChips.length).toBe(2); // W, INT
+    expect(chips.length).toBe(2); // W, DO
     expect(chips[0].classes()).toContain('pt-1');
   });
 
@@ -37,11 +35,11 @@ describe('FileMarkers.vue', () => {
     const tooltips = wrapper.findAll('v-tooltip');
     const descriptions = tooltips.map((tooltip) => tooltip.text());
 
-    expect(tooltips.length).toBe(4);
+    expect(tooltips.length).toBe(2); // W, DO
     expect(descriptions).toContain('Warrant Issued');
-    expect(descriptions).toContain('In Custody');
+    expect(descriptions).not.toContain('In Custody');
     expect(descriptions).toContain('Detention Order');
-    expect(descriptions).toContain('Interpreter Required');
+    expect(descriptions).not.toContain('Interpreter Required');
   });
 
   it('renders child divs when there are multiple notes', async () => {
@@ -54,7 +52,7 @@ describe('FileMarkers.vue', () => {
         markers: [
           {
             marker: FileMarkerEnum.ADJ,
-            value: '',
+            value: 'Y',
             notes: [fakeNote1, fakeNote2, fakeNote3],
           },
         ],
