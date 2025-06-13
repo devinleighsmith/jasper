@@ -70,7 +70,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/pdf-viewer',
     name: 'NutrientContainer',
-    component: () => import('@/components/pdf/NutrientContainer.vue'),
+    component: () => import('@/components/documents/NutrientContainer.vue'),
   },
 ];
 

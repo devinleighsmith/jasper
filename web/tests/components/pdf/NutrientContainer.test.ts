@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
-import NutrientContainer from 'CMP/pdf/NutrientContainer.vue';
+import NutrientContainer from 'CMP/documents/NutrientContainer.vue';
 import { setActivePinia, createPinia } from 'pinia'
 
 const mockDocumentUrls = ['url1.pdf', 'url2.pdf', 'url3.pdf'];

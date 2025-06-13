@@ -1,5 +1,6 @@
 import { CourtDocumentType, DocumentData } from '@/types/shared';
 import { splunkLog } from '@/utils/utils';
+import { usePDFViewerStore } from '@/stores';
 import { v4 as uuidv4 } from 'uuid';
 
 export default {
@@ -18,10 +19,11 @@ export default {
       }
     });
   },
-  openDocumentsPdf(
+  renderDocumentUrl(
     documentType: CourtDocumentType,
-    documentData: DocumentData
-  ): void {
+    documentData: DocumentData,
+    correlationId: string
+  ): string {
     const fileName = this.generateFileName(documentType, documentData).replace(
       /\//g,
       '_'
@@ -30,22 +32,17 @@ export default {
     const documentId = documentData.documentId
       ? this.convertToBase64Url(documentData.documentId)
       : documentData.documentId;
-    const correlationId = uuidv4();
 
     switch (documentType) {
       case CourtDocumentType.CSR:
-        window.open(
-          `${import.meta.env.BASE_URL}api/files/civil/court-summary-report/${
+        return `${import.meta.env.BASE_URL}api/files/civil/court-summary-report/${
             documentData.appearanceId
           }/${encodeURIComponent(fileName)}?vcCivilFileId=${
             documentData.fileId
           }`
-        );
-        break;
       case CourtDocumentType.ROP:
-        window.open(
-          `${
-            import.meta.env.BASE_URL
+        return `${
+          import.meta.env.BASE_URL
           }api/files/criminal/record-of-proceedings/${
             documentData.partId
           }/${encodeURIComponent(fileName)}?profSequenceNumber=${
@@ -53,23 +50,46 @@ export default {
           }&courtLevelCode=${documentData.courtLevel}&courtClassCode=${
             documentData.courtClass
           }`
-        );
-        break;
       default:
-        this.openRequestedTab(
-          `${
+          return `${
             import.meta.env.BASE_URL
           }api/files/document/${documentId}/${encodeURIComponent(
             fileName
           )}?isCriminal=${isCriminal}&fileId=${
             documentData.fileId
-          }&CorrelationId=${correlationId}`,
-          correlationId
-        );
-        break;
+          }&CorrelationId=${correlationId}`;
     }
   },
+  openDocumentsPdf(
+    documentType: CourtDocumentType,
+    documentData: DocumentData
+  ): void {
+    const correlationId = uuidv4();
+    const url = this.renderDocumentUrl(documentType, documentData, correlationId);
+    if(documentType !== CourtDocumentType.ROP && documentType !== CourtDocumentType.CSR) {
+      this.openRequestedTab(url, correlationId);
+    }else{
+      window.open(url);
+    }
+  },
+  openMergedDocumentsPdf(
+    documents: [documentType: CourtDocumentType, documentData: DocumentData][]
+  ): void {
+    if (!documents || documents.length === 0) return;
 
+    const pdfStore = usePDFViewerStore();
+    var documentsUrls: string[] = [];
+    documents.forEach(([documentType, documentData]) => {
+      const correlationId = uuidv4();
+      const url = this.renderDocumentUrl(documentType, documentData, correlationId);
+      documentsUrls.push(url);
+    });
+    pdfStore.addUrls({
+      urls: documentsUrls,
+    });
+    
+    window.open('/pdf-viewer', 'pdf-viewer');
+  },
   generateFileName(
     documentType: CourtDocumentType,
     documentData: DocumentData
