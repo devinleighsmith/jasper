@@ -90,7 +90,7 @@
       </template>
     </v-data-table-virtual>
   </div>
-  <ActionBar v-if="selectedItems.length > 1" :selected="selectedItems">
+  <ActionBar v-if="showActionbar" :selected="selectedItems">
     <v-btn
       size="large"
       class="mx-2"
@@ -103,7 +103,10 @@
   </ActionBar>
 </template>
 <script setup lang="ts">
- import { prepareDocumentData, getCriminalDocumentType } from '@/components/documents/DocumentUtils';
+  import {
+    getCriminalDocumentType,
+    prepareDocumentData,
+  } from '@/components/documents/DocumentUtils';
   import shared from '@/components/shared';
   import NameFilter from '@/components/shared/Form/NameFilter.vue';
   import ActionBar from '@/components/shared/table/ActionBar.vue';
@@ -119,6 +122,9 @@
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
   const selectedItems = ref<documentType[]>([]);
+  const showActionbar = computed<boolean>(() =>
+    selectedItems.value.filter((item) => item.imageId).length > 1
+  );
   const sortBy = ref([{ key: 'issueDate', order: 'desc' }] as const);
   const selectedCategory = ref<string>();
   const selectedAccused = ref<string>();
@@ -198,11 +204,14 @@
   ];
 
   const openIndividualDocument = (data: documentType) =>
-    shared.openDocumentsPdf(getCriminalDocumentType(data), prepareDocumentData(data));
+    shared.openDocumentsPdf(
+      getCriminalDocumentType(data),
+      prepareDocumentData(data)
+    );
 
   const openMergedDocuments = () => {
     const documents: [CourtDocumentType, DocumentData][] = [];
-    selectedItems.value.forEach((item) => {
+    selectedItems.value.filter((item) => item.imageId).forEach((item) => {
       const documentType = getCriminalDocumentType(item);
       const documentData = prepareDocumentData(item);
       documents.push([documentType, documentData]);

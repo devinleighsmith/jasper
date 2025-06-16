@@ -44,51 +44,65 @@
       headless: true,
     });
 
-    // We skip the first index since we used it to load the nutrient viewer.
+    // Fetch all remaining documents as blobs
     const documentBlobs = await Promise.all(
       pdfStore.documentUrls
         .slice(1)
         .map((url) => fetch(url).then((result) => result.blob()))
     );
-    // We need to keep track of the target page index for the imported document.
-    let afterPageIndex = instance.totalPageCount - 1;
 
-    const mergeDocumentOperations = await Promise.all(
-      documentBlobs.map(async (blob, idx) => {
-        const operation = {
-          type: 'importDocument',
-          afterPageIndex,
-          treatImportedDocumentAsOnePage: false,
-          document: blob,
-        };
-        // Retrieve page count of the merged document to calculate page index
-        // of the next imported document. This can be skipped for the last
-        // operation since we don't care how large the last document is.
-        if (idx < documentBlobs.length - 1) {
-          const documentInstance = await NutrientViewer.load({
-            ...configuration,
-            document: await blob.arrayBuffer(),
-            headless: true,
-          });
-          afterPageIndex += documentInstance.totalPageCount - 1;
-          NutrientViewer.unload(documentInstance);
-        }
-        return operation;
-      })
-    );
+    // Track the starting page index for each document
+    let pageIndices = [0]; // First document always starts at 0
+    let afterPageIndex = instance.totalPageCount;
+    // Prepare merge operations
+    const mergeDocumentOperations = [];
+    for (const element of documentBlobs) {
+      const blob = element;
+      const documentInstance = await NutrientViewer.load({
+        ...configuration,
+        document: await blob.arrayBuffer(),
+        headless: true,
+      });
+      pageIndices.push(afterPageIndex);
+      mergeDocumentOperations.push({
+        type: 'importDocument',
+        afterPageIndex: afterPageIndex - 1, // Insert after the last page (zero-based)
+        treatImportedDocumentAsOnePage: false,
+        document: blob,
+      });
+      afterPageIndex += documentInstance.totalPageCount;
+      NutrientViewer.unload(documentInstance);
+    }
 
     const mergedDocument = await instance.exportPDFWithOperations(
       mergeDocumentOperations
     );
 
-    // We set our own loader to false, nutrient's internal loader can take it from here
     loading.value = false;
-
-    await NutrientViewer.load({
+    // Load merged document and set outline
+    const mergedInstance = await NutrientViewer.load({
       ...configuration,
       container: containerRef.value,
       document: mergedDocument,
     });
+    //pageIndices.push(afterPageIndex + 1);
+    // += mergedInstance.totalPageCount;
+
+    // Build outline for each document's starting page
+    const outline = NutrientViewer.Immutable.List(
+      pdfStore.documentUrls.map(
+        (url, idx) =>
+          new NutrientViewer.OutlineElement({
+            action: new NutrientViewer.Actions.GoToAction({
+              pageIndex: pageIndices[idx],
+            }),
+            children: NutrientViewer.Immutable.List([]),
+            title: `Document ${idx + 1}`,
+          })
+      )
+    );
+
+    mergedInstance.setDocumentOutline(outline);
   };
 
   const loadSingle = async () => {
