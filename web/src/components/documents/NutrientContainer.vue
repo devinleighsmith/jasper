@@ -85,8 +85,6 @@
       container: containerRef.value,
       document: mergedDocument,
     });
-    //pageIndices.push(afterPageIndex + 1);
-    // += mergedInstance.totalPageCount;
 
     // Build outline for each document's starting page
     const outline = NutrientViewer.Immutable.List(
