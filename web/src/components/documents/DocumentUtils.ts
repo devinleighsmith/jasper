@@ -1,5 +1,5 @@
 import { beautifyDate } from '@/filters';
-import { useCriminalFileStore } from '@/stores';
+import { useCriminalFileStore, useCivilFileStore } from '@/stores';
 import { civilDocumentType } from '@/types/civil/jsonTypes';
 import { documentType } from '@/types/criminal/jsonTypes';
 import { CourtDocumentType, DocumentData } from '@/types/shared';
@@ -28,6 +28,25 @@ export const prepareDocumentData = (data) => {
     location:
       criminalFileStore.criminalFileInformation.detailsData
         .homeLocationAgencyName,
+  };
+  return documentData;
+};
+
+export const prepareCivilDocumentData = (data) => {
+  const civilFileStore = useCivilFileStore();
+  const documentData: DocumentData = {
+    appearanceDate: beautifyDate(data.lastAppearanceDt),
+    appearanceId:
+      data.appearanceId ?? data.civilDocumentId,
+    dateFiled: beautifyDate(data.filedDt),
+    documentDescription: data.documentTypeCd,
+    documentId: data.civilDocumentId,
+    fileId: civilFileStore.civilFileInformation.fileNumber,
+    fileNumberText: data.documentTypeDescription,
+    courtClass: civilFileStore.civilFileInformation.detailsData.courtClassCd,
+    courtLevel: civilFileStore.civilFileInformation.detailsData.courtLevelCd,
+    location:
+      civilFileStore.civilFileInformation.detailsData.homeLocationAgencyName,
   };
   return documentData;
 };

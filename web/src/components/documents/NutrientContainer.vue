@@ -44,7 +44,7 @@
       headless: true,
     });
 
-    // Fetch all remaining documents as blobs
+    // We skip the first index since we used it to load the nutrient viewer.
     const documentBlobs = await Promise.all(
       pdfStore.documentUrls
         .slice(1)
