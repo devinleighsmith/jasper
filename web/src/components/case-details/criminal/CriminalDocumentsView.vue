@@ -104,7 +104,7 @@
 <script setup lang="ts">
   import {
     getCriminalDocumentType,
-    prepareDocumentData,
+    prepareCriminalDocumentData,
   } from '@/components/documents/DocumentUtils';
   import shared from '@/components/shared';
   import NameFilter from '@/components/shared/Form/NameFilter.vue';
@@ -205,7 +205,7 @@
   const openIndividualDocument = (data: documentType) =>
     shared.openDocumentsPdf(
       getCriminalDocumentType(data),
-      prepareDocumentData(data)
+      prepareCriminalDocumentData(data)
     );
 
   const openMergedDocuments = () => {
@@ -214,7 +214,7 @@
       .filter((item) => item.imageId)
       .forEach((item) => {
         const documentType = getCriminalDocumentType(item);
-        const documentData = prepareDocumentData(item);
+        const documentData = prepareCriminalDocumentData(item);
         documents.push([documentType, documentData]);
       });
 

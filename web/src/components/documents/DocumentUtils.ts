@@ -1,5 +1,5 @@
 import { beautifyDate } from '@/filters';
-import { useCriminalFileStore, useCivilFileStore } from '@/stores';
+import { useCivilFileStore, useCriminalFileStore } from '@/stores';
 import { civilDocumentType } from '@/types/civil/jsonTypes';
 import { documentType } from '@/types/criminal/jsonTypes';
 import { CourtDocumentType, DocumentData } from '@/types/shared';
@@ -7,7 +7,7 @@ import { CourtDocumentType, DocumentData } from '@/types/shared';
 const ROP = 'rop';
 const CSR = 'CSR';
 
-export const prepareDocumentData = (data) => {
+export const prepareCriminalDocumentData = (data) => {
   const criminalFileStore = useCriminalFileStore();
   const documentData: DocumentData = {
     courtClass:
