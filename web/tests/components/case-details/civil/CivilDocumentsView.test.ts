@@ -79,4 +79,28 @@ describe('CivilDocumentsView.vue', () => {
 
         expect(header.text()).toContain('All Documents (1)');
     });
+
+    it('renders action-bar when two or more documents with imageIds are selected', async () => {
+        wrapper.vm.selectedItems = [mockDocuments[0], mockDocuments[0]];
+
+        await nextTick();
+
+        expect(wrapper.findComponent({ name: 'ActionBar' }).exists()).toBe(true);
+    });
+
+    it('does not render action-bar when two or more documents without imageIds are selected', async () => {
+        wrapper.vm.selectedItems = [{}, {}];
+
+        await nextTick();
+
+        expect(wrapper.findComponent({ name: 'ActionBar' }).exists()).toBe(false);
+    });
+
+    it('does not render action-bar when one document with imageId is selected', async () => {
+        wrapper.vm.selectedItems = [mockDocuments[0]];
+
+        await nextTick();
+
+        expect(wrapper.findComponent({ name: 'ActionBar' }).exists()).toBe(false);
+    });
 });
