@@ -24,7 +24,7 @@ vi.mock('@/stores', () => ({
 
 describe('DocumentUtils', () => {
   describe('prepareDocumentData', () => {
-    it('should prepare document data for ROP category', () => {
+    it('should prepare criminal document data for ROP category', () => {
       const data = {
         date: '2024-01-01',
         imageId: 'img-1',
@@ -33,7 +33,7 @@ describe('DocumentUtils', () => {
         partId: 10,
         profSeqNo: 20,
       };
-      const result = DocumentUtils.prepareDocumentData(data);
+      const result = DocumentUtils.prepareCriminalDocumentData(data);
       expect(result).toEqual({
         courtClass: 'CR',
         courtLevel: 'P',
@@ -48,7 +48,7 @@ describe('DocumentUtils', () => {
       });
     });
 
-    it('should prepare document data for non-ROP category', () => {
+    it('should prepare criminal document data for non-ROP category', () => {
       const data = {
         date: '2024-02-02',
         imageId: 'img-2',
@@ -57,7 +57,7 @@ describe('DocumentUtils', () => {
         partId: 11,
         profSeqNo: 21,
       };
-      const result = DocumentUtils.prepareDocumentData(data);
+      const result = DocumentUtils.prepareCriminalDocumentData(data);
       expect(result.documentDescription).toBe('Other Type');
     });
   });

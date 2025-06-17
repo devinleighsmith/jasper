@@ -78,7 +78,7 @@ export default {
     if (!documents || documents.length === 0) return;
 
     const pdfStore = usePDFViewerStore();
-    var documentsUrls: string[] = [];
+    let documentsUrls: string[] = [];
     documents.forEach(([documentType, documentData]) => {
       const correlationId = uuidv4();
       const url = this.renderDocumentUrl(documentType, documentData, correlationId);
