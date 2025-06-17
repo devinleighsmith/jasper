@@ -20,7 +20,7 @@
   const emptyStore = ref(false);
   const configuration = {
     initialViewState: new NutrientViewer.ViewState({
-      sidebarMode: NutrientViewer.SidebarMode.THUMBNAILS,
+      sidebarMode: NutrientViewer.SidebarMode.DOCUMENT_OUTLINE,
     }),
   };
 

@@ -50,7 +50,6 @@
       :sort-by="sortBy"
       :group-by
       show-select
-      item-value="id"
       return-object
       class="my-3"
       height="400"
@@ -122,8 +121,8 @@
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
   const selectedItems = ref<documentType[]>([]);
-  const showActionbar = computed<boolean>(() =>
-    selectedItems.value.filter((item) => item.imageId).length > 1
+  const showActionbar = computed<boolean>(
+    () => selectedItems.value.filter((item) => item.imageId).length > 1
   );
   const sortBy = ref([{ key: 'issueDate', order: 'desc' }] as const);
   const selectedCategory = ref<string>();
@@ -211,11 +210,13 @@
 
   const openMergedDocuments = () => {
     const documents: [CourtDocumentType, DocumentData][] = [];
-    selectedItems.value.filter((item) => item.imageId).forEach((item) => {
-      const documentType = getCriminalDocumentType(item);
-      const documentData = prepareDocumentData(item);
-      documents.push([documentType, documentData]);
-    });
+    selectedItems.value
+      .filter((item) => item.imageId)
+      .forEach((item) => {
+        const documentType = getCriminalDocumentType(item);
+        const documentData = prepareDocumentData(item);
+        documents.push([documentType, documentData]);
+      });
 
     shared.openMergedDocumentsPdf(documents);
   };

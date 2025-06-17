@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import DocumentsView from 'CMP/case-details/criminal/CriminalDocumentsView.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 
 describe('CriminalDocumentsView.vue', () => {
   let wrapper: any;
@@ -117,5 +118,29 @@ describe('CriminalDocumentsView.vue', () => {
   ])('formats document type correctly for %o', (input, expected) => {
     const formattedType = wrapper.vm.formatType(input);
     expect(formattedType).toBe(expected);
+  });
+
+  it('renders action-bar when two or more documents with imageIds are selected', async () => {
+    wrapper.vm.selectedItems = [mockParticipantOne.document[0], mockParticipantTwo.document[0]];
+
+    await nextTick();
+
+     expect(wrapper.findComponent({ name: 'ActionBar' }).exists()).toBe(true);
+  });
+
+  it('does not render action-bar when two or more documents without imageIds are selected', async () => {
+    wrapper.vm.selectedItems = [{}, {}];
+
+    await nextTick();
+
+     expect(wrapper.findComponent({ name: 'ActionBar' }).exists()).toBe(false);
+  });
+
+    it('does not render action-bar when one document with imageId is selected', async () => {
+    wrapper.vm.selectedItems = [mockParticipantOne.document[0]];
+
+    await nextTick();
+
+     expect(wrapper.findComponent({ name: 'ActionBar' }).exists()).toBe(false);
   });
 });
