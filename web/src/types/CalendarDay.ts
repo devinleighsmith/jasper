@@ -1,3 +1,4 @@
+import { CalendarDayActivity } from './CalendarDayActivity';
 import { JudicialCalendarAssignment } from './JudicialCalendarAssignment';
 
 export interface CalendarDay {
@@ -23,4 +24,10 @@ export interface CalendarDay {
   hasAdjudicatorIssues: boolean;
   haveJudgeDetails: any[];
   assignment: JudicialCalendarAssignment;
+  activities: any[];
+}
+
+export interface CalendarDayV2 {
+  date: string;
+  activities: CalendarDayActivity[];
 }

@@ -16,24 +16,45 @@ namespace Scv.Api.Controllers
     [Authorize(AuthenticationSchemes = "SiteMinder, OpenIdConnect", Policy = nameof(ProviderAuthorizationHandler))]
     [Route("api/[controller]")]
     [ApiController]
-    public class DashboardController : ControllerBase
+    public class DashboardController(JudicialCalendarService judicialCalendarService, IMapper mapper, IDashboardService dashboardService) : ControllerBase
     {
         #region Variables
 
-        private readonly JudicialCalendarService _judicialCalendarService;
-        private readonly IMapper _mapper;
+        private readonly JudicialCalendarService _judicialCalendarService = judicialCalendarService;
+        private readonly IMapper _mapper = mapper;
+        private readonly IDashboardService _dashboardService = dashboardService;
+
+        /// <summary>
+        /// Hard-coded judge id
+        /// </summary>
+        public const int TEST_JUDGE_ID = 229;
 
         #endregion Variables
 
-        #region Constructor
+        #region Methods
 
-        public DashboardController(JudicialCalendarService judicialCalendarService, IMapper mapper)
+        /// <summary>
+        /// Retrieves the schedule of the currently logged on user
+        /// </summary>
+        /// <param name="startDate">The start date of the schedule.</param>
+        /// <param name="endDate">The end date of the schedule.</param>
+        /// <param name="todaysDate">The today's date to easily override current date for demo/testing purposes.</param>
+        /// <returns>The user schedule based on start and end dates.</returns>
+        [HttpGet]
+        [Route("my-schedule")]
+        public async Task<IActionResult> GetMySchedule(string startDate, string endDate, string todaysDate = null)
         {
-            _judicialCalendarService = judicialCalendarService;
-            _mapper = mapper;
-        }
+            // Temp code to easily override the current date. 
+            var currentDate = string.IsNullOrEmpty(todaysDate) ? DateTime.Now.ToShortDateString() : todaysDate;
 
-        #endregion Constructor
+            var result = await _dashboardService.GetMyScheduleAsync(TEST_JUDGE_ID, currentDate, startDate, endDate);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { error = result.Errors });
+            }
+
+            return Ok(result);
+        }
 
         /// <summary>
         /// Retrieves the events for the specified month.
@@ -62,12 +83,9 @@ namespace Scv.Api.Controllers
                 CalendarSchedule calendarSchedule = new CalendarSchedule();
                 var isMySchedule = string.IsNullOrWhiteSpace(locationIds);
 
-                // Test Judge Id
-                var judgeId = 190;
-
                 // Get "Judge's Calendar" when no LocationIds provided. Otherwise, get all judge's calendar for the provided LocationIds.
                 var calendars = isMySchedule
-                    ? [await _judicialCalendarService.GetJudgeCalendarAsync(judgeId, startDate, endDate)]
+                    ? [await _judicialCalendarService.GetJudgeCalendarAsync(TEST_JUDGE_ID, startDate, endDate)]
                     : await _judicialCalendarService.JudicialCalendarsGetAsync(locationIds, startDate, endDate);
 
                 // check if the calendar is empty and return empty schedule - do we need it at all?
@@ -79,7 +97,7 @@ namespace Scv.Api.Controllers
                 var calendarDays = calendars.SelectMany(cd => _mapper.Map<List<CalendarDay>>(cd)).ToList();
                 if (isMySchedule)
                 {
-                    calendarDays = calendarDays.Where(t => t.Assignment != null && t.Assignment.JudgeId == judgeId).ToList();
+                    calendarDays = calendarDays.Where(t => t.Assignment != null && t.Assignment.JudgeId == TEST_JUDGE_ID).ToList();
                 }
                 calendarSchedule.Schedule = calendarDays;
 
@@ -142,6 +160,8 @@ namespace Scv.Api.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+
+        #endregion Methods
 
         #region Helpers
 
