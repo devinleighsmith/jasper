@@ -45,6 +45,7 @@
       :headers="headers"
       :items="filteredDocuments"
       :sort-by="sortBy"
+      return-object
       item-value="civilDocumentId"
       show-select
       class="my-3"
@@ -54,7 +55,7 @@
         <a
           v-if="item.imageId"
           href="javascript:void(0)"
-          @click="cellClick({ item })"
+          @click="openIndividualDocument(item)"
         >
           {{ item.documentTypeDescription }}
         </a>
@@ -92,24 +93,41 @@
       </template> -->
     </v-data-table-virtual>
   </div>
+  <ActionBar v-if="showActionbar" :selected="selectedItems">
+    <v-btn
+      size="large"
+      class="mx-2"
+      :prepend-icon="mdiFileDocumentMultipleOutline"
+      style="letter-spacing: 0.001rem"
+      @click="openMergedDocuments()"
+    >
+      View together
+    </v-btn>
+  </ActionBar>
 </template>
 
 <script setup lang="ts">
+  import {
+    getCivilDocumentType,
+    prepareCivilDocumentData,
+  } from '@/components/documents/DocumentUtils';
   import shared from '@/components/shared';
   import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
-  import { beautifyDate } from '@/filters';
-  import { useCivilFileStore } from '@/stores';
+  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import { civilDocumentType } from '@/types/civil/jsonTypes';
   import { Anchor, LookupCode } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { getLookupShortDescription, getRoles } from '@/utils/utils';
+  import { mdiFileDocumentMultipleOutline } from '@mdi/js';
   import { computed, onMounted, ref } from 'vue';
 
   const props = defineProps<{ documents: civilDocumentType[] }>();
 
-  const civilFileStore = useCivilFileStore();
-  const selectedItems = defineModel<civilDocumentType[]>();
+  const selectedItems = ref<civilDocumentType[]>([]);
+  const showActionbar = computed<boolean>(
+    () => selectedItems.value.filter((item) => item.imageId).length > 1
+  );
   const sortBy = ref([{ key: 'fileSeqNo', order: 'desc' }] as const);
   const selectedType = ref<string>();
   const menuItems = [{ title: 'Add to binder' }];
@@ -175,28 +193,21 @@
     rolesLoading.value = false;
   });
 
-  // This is code ported over from 'civil/CivilDocumentsView.vue' to keep file viewing capability
-  // This will eventually be deprecated in favor of Nutrient PDF viewing functionality
-  const cellClick = (eventData) => {
-    const documentType =
-      eventData.item.documentTypeCd == 'CSR'
-        ? CourtDocumentType.CSR
-        : CourtDocumentType.Civil;
-    const documentData: DocumentData = {
-      appearanceDate: beautifyDate(eventData.item.lastAppearanceDt),
-      appearanceId:
-        eventData.item.appearanceId ?? eventData.item.civilDocumentId,
-      dateFiled: beautifyDate(eventData.item.filedDt),
-      documentDescription: eventData.item.documentTypeCd,
-      documentId: eventData.item.civilDocumentId,
-      fileId: civilFileStore.civilFileInformation.fileNumber,
-      fileNumberText: eventData.item.documentTypeDescription,
-      courtClass: civilFileStore.civilFileInformation.detailsData.courtClassCd,
-      courtLevel: civilFileStore.civilFileInformation.detailsData.courtLevelCd,
-      location:
-        civilFileStore.civilFileInformation.detailsData.homeLocationAgencyName,
-    };
-    shared.openDocumentsPdf(documentType, documentData);
+  const openIndividualDocument = (data: civilDocumentType) =>
+    shared.openDocumentsPdf(
+      getCivilDocumentType(data),
+      prepareCivilDocumentData(data)
+    );
+  const openMergedDocuments = () => {
+    const documents: [CourtDocumentType, DocumentData][] = [];
+    selectedItems.value
+      .filter((item) => item.imageId)
+      .forEach((item) => {
+        const documentType = getCivilDocumentType(item);
+        const documentData = prepareCivilDocumentData(item);
+        documents.push([documentType, documentData]);
+      });
+    shared.openMergedDocumentsPdf(documents);
   };
 </script>
 

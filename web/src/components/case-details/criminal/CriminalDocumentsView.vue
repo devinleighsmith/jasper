@@ -50,6 +50,7 @@
       :sort-by="sortBy"
       :group-by
       show-select
+      return-object
       class="my-3"
       height="400"
     >
@@ -78,7 +79,7 @@
         <a
           v-if="item.imageId"
           href="javascript:void(0)"
-          @click="cellClick({ item })"
+          @click="openIndividualDocument(item)"
         >
           {{ formatType(item) }}
         </a>
@@ -88,12 +89,26 @@
       </template>
     </v-data-table-virtual>
   </div>
+  <ActionBar v-if="showActionbar" :selected="selectedItems">
+    <v-btn
+      size="large"
+      class="mx-2"
+      :prepend-icon="mdiFileDocumentMultipleOutline"
+      style="letter-spacing: 0.001rem"
+      @click="openMergedDocuments()"
+    >
+      View together
+    </v-btn>
+  </ActionBar>
 </template>
 <script setup lang="ts">
+  import {
+    getCriminalDocumentType,
+    prepareCriminalDocumentData,
+  } from '@/components/documents/DocumentUtils';
   import shared from '@/components/shared';
   import NameFilter from '@/components/shared/Form/NameFilter.vue';
-  import { beautifyDate } from '@/filters';
-  import { useCriminalFileStore } from '@/stores';
+  import ActionBar from '@/components/shared/table/ActionBar.vue';
   import {
     criminalParticipantType,
     documentType,
@@ -101,11 +116,14 @@
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { formatFromFullname } from '@/utils/utils';
+  import { mdiFileDocumentMultipleOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
-  const selectedItems = defineModel<criminalParticipantType[]>();
-  const criminalFileStore = useCriminalFileStore();
+  const selectedItems = ref<documentType[]>([]);
+  const showActionbar = computed<boolean>(
+    () => selectedItems.value.filter((item) => item.imageId).length > 1
+  );
   const sortBy = ref([{ key: 'issueDate', order: 'desc' }] as const);
   const selectedCategory = ref<string>();
   const selectedAccused = ref<string>();
@@ -184,35 +202,22 @@
     },
   ];
 
-  // This is code ported over from 'CriminalDocumentsView.vue' to keep file viewing capability
-  // This will eventually be deprecated in favor of Nutrient PDF viewing functionality
-  const cellClick = (data) => {
-    const ropDescription = 'Record of Proceedings';
-    const documentType =
-      data.item?.category?.toLowerCase() === 'rop'
-        ? CourtDocumentType.ROP
-        : CourtDocumentType.Criminal;
-    const documentData: DocumentData = {
-      courtClass:
-        criminalFileStore.criminalFileInformation.detailsData.courtClassCd,
-      courtLevel:
-        criminalFileStore.criminalFileInformation.detailsData.courtLevelCd,
-      dateFiled: beautifyDate(data.item.date),
-      documentId: data.item?.imageId,
-      documentDescription:
-        data.item?.category?.toLowerCase() === 'rop'
-          ? ropDescription
-          : data.item?.documentTypeDescription,
-      fileId: criminalFileStore.criminalFileInformation.fileNumber,
-      fileNumberText:
-        criminalFileStore.criminalFileInformation.detailsData.fileNumberTxt,
-      partId: data.item?.partId,
-      profSeqNo: data.item?.profSeqNo,
-      location:
-        criminalFileStore.criminalFileInformation.detailsData
-          .homeLocationAgencyName,
-    };
+  const openIndividualDocument = (data: documentType) =>
+    shared.openDocumentsPdf(
+      getCriminalDocumentType(data),
+      prepareCriminalDocumentData(data)
+    );
 
-    shared.openDocumentsPdf(documentType, documentData);
+  const openMergedDocuments = () => {
+    const documents: [CourtDocumentType, DocumentData][] = [];
+    selectedItems.value
+      .filter((item) => item.imageId)
+      .forEach((item) => {
+        const documentType = getCriminalDocumentType(item);
+        const documentData = prepareCriminalDocumentData(item);
+        documents.push([documentType, documentData]);
+      });
+
+    shared.openMergedDocumentsPdf(documents);
   };
 </script>

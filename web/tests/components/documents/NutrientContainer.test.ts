@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
-import NutrientContainer from 'CMP/pdf/NutrientContainer.vue';
+import NutrientContainer from 'CMP/documents/NutrientContainer.vue';
 import { setActivePinia, createPinia } from 'pinia'
-
 const mockDocumentUrls = ['url1.pdf', 'url2.pdf', 'url3.pdf'];
 
-const mockLoad = vi.fn();
+const mockLoad = vi.fn().mockImplementation(() => ({setDocumentOutline: vi.fn().mockImplementation(() => ({}))}));
 const mockUnload = vi.fn();
 
 // Mock store
@@ -23,6 +22,13 @@ vi.mock('@/stores/PDFViewerStore', () => {
 globalThis.NutrientViewer = {
   ViewState: vi.fn().mockImplementation(() => ({})),
   SidebarMode: { THUMBNAILS: 'thumbnails' },
+  Immutable: {
+    List: vi.fn().mockImplementation((items: any[]) => items),
+  },
+  Actions: {
+    GoToAction: vi.fn().mockImplementation(() => ({})),
+  },
+  OutlineElement: vi.fn().mockImplementation(() => ({})),
   load: mockLoad,
   unload: mockUnload
 };
@@ -42,10 +48,12 @@ describe('NutrientContainer.vue', () => {
 
     // Mock NutrientViewer.load to resolve with a fake instance
     (globalThis.NutrientViewer.load as any).mockImplementation(({ document }: { document?: string | ArrayBuffer } = {}) => {
-      if (typeof document !== 'string' && document instanceof ArrayBuffer) {
-        return Promise.resolve({ totalPageCount: 3, exportPDFWithOperations: vi.fn().mockResolvedValue('mergedDocument') });
-      }
-      return Promise.resolve({ totalPageCount: 2, exportPDFWithOperations: vi.fn().mockResolvedValue('mergedDocument') });
+      const mergedInstance = {
+        totalPageCount: typeof document !== 'string' && document instanceof ArrayBuffer ? 3 : 2,
+        exportPDFWithOperations: vi.fn().mockResolvedValue('mergedDocument'),
+        setDocumentOutline: vi.fn()
+      };
+      return Promise.resolve(mergedInstance);
     });
 
     wrapper = mount(NutrientContainer, {
