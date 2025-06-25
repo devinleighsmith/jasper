@@ -1,5 +1,5 @@
 <template>
-  <v-data-table
+  <v-data-table-virtual
     v-model="selected"
     must-sort
     :sort-by="sortBy"
@@ -7,8 +7,8 @@
     :headers
     :search="search"
     :group-by
-    :return-object="false"
-    item-value="appearanceId"
+    :return-object="true"
+    show-select
     items-per-page="100"
     class="pb-5"
   >
@@ -124,13 +124,11 @@
       <v-icon :icon="mdiNotebookEditOutline" size="large" />
       <v-icon :icon="mdiFileDocumentEditOutline" size="large" />
     </template>
-    <template v-slot:bottom />
-  </v-data-table>
+  </v-data-table-virtual>
   <CourtListTableActionBarGroup :selected />
 </template>
 
 <script setup lang="ts">
-  import CourtListCriminalDetails from '@/components/courtlist/CourtListCriminalDetails.vue';
   import CourtListTableActionBarGroup from '@/components/courtlist/CourtListTableActionBarGroup.vue';
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
@@ -179,9 +177,7 @@
   );
 
   const headers = ref([
-    {
-      key: 'data-table-expand',
-    },
+    { key: 'data-table-expand' },
     { key: 'data-table-group' },
     {
       title: '#',
