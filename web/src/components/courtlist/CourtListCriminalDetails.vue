@@ -18,21 +18,6 @@
           </v-data-table-virtual>
         </v-card>
       </v-col>
-      <v-col>
-        <v-card title="Case Summary" variant="flat">
-          <v-card-text>
-            <v-row>
-              <v-col cols="6" class="data-label">No of appearances</v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6" class="data-label">Elections</v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6" class="data-label">Bail status</v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -64,7 +49,6 @@
     fileId: string;
     appearanceId: string;
     partId: string;
-    seqNo: string;
   }>();
 
   const filesService = inject<FilesService>('filesService');
