@@ -63,8 +63,8 @@
     { title: 'COUNT', key: 'printSeqNo' },
     { title: 'CRIMINAL CODE', key: 'statuteSectionDsc' },
     { title: 'DESCRIPTION', key: 'statuteDsc' },
-    { title: 'LAST RESULTS', key: 'appearanceResultDesc' }, // double check if correct
-    { title: 'PLEA', key: 'printSeqNo' }, // ???
+    { title: 'LAST RESULTS', key: 'appearanceResultDesc' },
+    { title: 'PLEA', key: '' }, // Awaiting more info on clAppearanceCount 
     { title: 'FINDINGS', key: 'findingDsc' },
   ]);
 
