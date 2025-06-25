@@ -236,10 +236,21 @@ namespace Scv.Api.Services.Files
 
         #region Criminal Details
 
-        private List<CriminalDocument> GetInitiatingDocuments(ICollection<CfcDocument> documents)
+        private static List<CriminalDocument> GetInitiatingDocuments(ICollection<CfcDocument> documents)
         {
             return documents?.Where(doc => doc?.DocmClassification == "Initiating" && !string.IsNullOrEmpty(doc.ImageId))
-                .Select(a => new CriminalDocument { IssueDate = a.IssueDate, ImageId = a.ImageId }).ToList();
+                .Select(doc =>
+                    new CriminalDocument
+                    {
+                        IssueDate = doc.IssueDate,
+                        ImageId = doc.ImageId,
+                        DocmClassification = doc.DocmClassification,
+                        DocmDispositionDsc = doc.DocmDispositionDsc,
+                        DocmFormDsc = doc.DocmFormDsc,
+                        DocmFormId = doc.DocmFormId,
+                        DocmId = doc.DocmId,
+                        DocumentPageCount = doc.DocumentPageCount
+                    }).ToList();
         }
 
         private async Task<CriminalFileAppearances> PopulateDetailsAppearancesAsync(string fileId, FutureYN? future, HistoryYN? history)
