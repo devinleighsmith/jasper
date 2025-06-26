@@ -13,11 +13,13 @@
       <h3 class="px-2 py-2">Search Results</h3>
     </v-banner>
     <v-skeleton-loader type="table" :loading="isSearching">
-      <v-data-table
+      <v-data-table-virtual
         v-model="selectedItems"
+        show-select
         :group-by
         :items-per-page="maxItemsPerPage"
         :headers
+        :return-object="true"
         :items="searchResults"
         :item-value="idSelector"
       >
@@ -43,8 +45,7 @@
             </td>
           </tr>
         </template>
-        <template v-slot:bottom />
-      </v-data-table>
+      </v-data-table-virtual>
     </v-skeleton-loader>
     <action-bar :selected="selectedItems" @clicked="handleViewFilesClick">
       <v-btn
@@ -145,6 +146,15 @@
       title: 'Next appearance',
       key: 'nextApprDt',
       value: (item: FileDetail) => `${beautifyDate(item.nextApprDt)}`,
+      sortRaw: (a: FileDetail, b: FileDetail) => {
+        const aTime = a.nextApprDt
+          ? new Date(a.nextApprDt).getTime()
+          : Number.MIN_VALUE;
+        const bTime = b.nextApprDt
+          ? new Date(b.nextApprDt).getTime()
+          : Number.MIN_VALUE;
+        return aTime - bTime;
+      },
     },
     { title: 'OW', key: 'warrantyYN' },
     { title: 'IC', key: 'inCustodyYN' },

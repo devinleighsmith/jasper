@@ -42,13 +42,9 @@
       show-expand
       variant="hover"
     >
-      <template
-        v-slot:item.data-table-expand="{
-          internalItem,
-          isExpanded,
-          toggleExpand,
-        }"
-      >
+    <template
+      v-slot:item.data-table-expand="{ internalItem, isExpanded, toggleExpand }"
+    >
         <v-icon
           color="primary"
           :icon="isExpanded(internalItem) ? mdiChevronUp : mdiChevronDown"

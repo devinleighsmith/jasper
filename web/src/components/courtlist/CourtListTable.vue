@@ -1,5 +1,5 @@
 <template>
-  <v-data-table
+  <v-data-table-virtual
     v-model="selected"
     must-sort
     :sort-by="sortBy"
@@ -7,10 +7,32 @@
     :headers
     :search="search"
     :group-by
-    item-value="appearanceId"
+    :return-object="true"
+    show-select
     items-per-page="100"
     class="pb-5"
   >
+    <template
+      v-slot:item.data-table-expand="{ internalItem, isExpanded, toggleExpand }"
+    >
+      <v-icon
+        color="primary"
+        :icon="isExpanded(internalItem) ? mdiChevronUp : mdiChevronDown"
+        @click="toggleExpand(internalItem)"
+      />
+    </template>
+    <template v-slot:expanded-row="{ columns, item }">
+      <tr class="expanded">
+        <td :colspan="columns.length">
+          <CourtListCriminalDetails
+            :fileId="item.justinNo"
+            :appearanceId="item.appearanceId"
+            :partId="item.profPartId"
+            :seqNo="item.appearanceSequenceNumber"
+          />
+        </td>
+      </tr>
+    </template>
     <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
       <tr>
         <td class="pa-0" style="height: 1rem" :colspan="columns.length">
@@ -102,8 +124,7 @@
       <v-icon :icon="mdiNotebookEditOutline" size="large" />
       <v-icon :icon="mdiFileDocumentEditOutline" size="large" />
     </template>
-    <template v-slot:bottom />
-  </v-data-table>
+  </v-data-table-virtual>
   <CourtListTableActionBarGroup :selected />
 </template>
 
@@ -114,9 +135,11 @@
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
   import { hoursMinsFormatter } from '@/utils/dateUtils';
-  import { getEnumName, getCourtClassLabel } from '@/utils/utils';
+  import { getCourtClassLabel, getEnumName } from '@/utils/utils';
   import {
     mdiCheck,
+    mdiChevronDown,
+    mdiChevronUp,
     mdiCircleHalfFull,
     mdiFileDocumentEditOutline,
     mdiHomeOutline,
@@ -141,6 +164,11 @@
     },
   ]);
 
+  const props = defineProps<{
+    data: CourtListAppearance[];
+    search: string;
+  }>();
+
   const data = computed(() =>
     props.data.map((item) => ({
       ...item,
@@ -148,12 +176,8 @@
     }))
   );
 
-  const props = defineProps<{
-    data: CourtListAppearance[];
-    search: string;
-  }>();
-
   const headers = ref([
+    { key: 'data-table-expand' },
     { key: 'data-table-group' },
     {
       title: '#',
