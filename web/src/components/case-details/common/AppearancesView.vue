@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-  import CivilAppearanceDetails from '@/components/case-details/civil/appearances/CivilAppearanceDetails.vue';
+  import CivilAppearanceDetails from '@/components/civil/CivilAppearanceDetails.vue';
   import CriminalAppearanceDetails from '@/components/case-details/criminal/appearances/CriminalAppearanceDetails.vue';
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';

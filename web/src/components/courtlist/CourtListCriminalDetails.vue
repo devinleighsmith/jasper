@@ -2,14 +2,14 @@
   <v-skeleton-loader class="p-3" type="card" :loading="loading">
     <v-row v-if="details.appearanceMethods?.length">
       <v-col cols="6">
-        <v-card title="Appearance Methods" class="p-2" variant="flat">
+        <v-card title="Appearance Methods" variant="flat">
           <AppearanceMethods :appearanceMethod="details.appearanceMethods" />
         </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <v-card title="Key Documents" class="p-2" variant="flat">
+        <v-card title="All Documents" variant="flat">
           <v-data-table-virtual
             :items="details.initiatingDocuments"
             :headers="documentHeaders"

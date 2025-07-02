@@ -25,10 +25,15 @@
       <tr class="expanded">
         <td :colspan="columns.length">
           <CourtListCriminalDetails
+            v-if="item.courtDivisionCd === DivisionEnum.R"
             :fileId="item.justinNo"
             :appearanceId="item.appearanceId"
             :partId="item.profPartId"
-            :seqNo="item.appearanceSequenceNumber"
+          />
+          <CivilAppearanceDetails
+            v-else
+            :fileId="item.physicalFileId"
+            :appearanceId="item.appearanceId"
           />
         </td>
       </tr>
@@ -129,6 +134,7 @@
 </template>
 
 <script setup lang="ts">
+  import CivilAppearanceDetails from '@/components/civil/CivilAppearanceDetails.vue';
   import CourtListTableActionBarGroup from '@/components/courtlist/CourtListTableActionBarGroup.vue';
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
