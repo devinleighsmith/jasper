@@ -64,7 +64,7 @@
     { title: 'CRIMINAL CODE', key: 'statuteSectionDsc' },
     { title: 'DESCRIPTION', key: 'statuteDsc' },
     { title: 'LAST RESULTS', key: 'appearanceResultDesc' },
-    { title: 'PLEA', key: '' }, // Awaiting more info on clAppearanceCount
+    { title: 'PLEA', key: '' }, // Awaiting more info on clAppearanceCount 
     { title: 'FINDINGS', key: 'findingDsc' },
   ]);
 
