@@ -2,7 +2,7 @@
   <v-skeleton-loader class="p-3" type="card" :loading="loading">
     <v-row v-if="details.appearanceMethods?.length">
       <v-col cols="6">
-        <v-card title="Appearance Methods" class="p-2" variant="flat">
+        <v-card title="Appearance Methods" variant="flat">
           <AppearanceMethods :appearanceMethod="details.appearanceMethods" />
         </v-card>
       </v-col>
@@ -37,13 +37,13 @@
 
 <script setup lang="ts">
   import AppearanceMethods from '@/components/case-details/civil/appearances/AppearanceMethods.vue';
-import { FilesService } from '@/services/FilesService';
-import {
-  CriminalAppearanceDetails,
-  CriminalDocument,
-} from '@/types/criminal/jsonTypes';
-import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-import { inject, onMounted, ref } from 'vue';
+  import { FilesService } from '@/services/FilesService';
+  import {
+    CriminalAppearanceDetails,
+    CriminalDocument,
+  } from '@/types/criminal/jsonTypes';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{
     fileId: string;
@@ -64,7 +64,7 @@ import { inject, onMounted, ref } from 'vue';
     { title: 'CRIMINAL CODE', key: 'statuteSectionDsc' },
     { title: 'DESCRIPTION', key: 'statuteDsc' },
     { title: 'LAST RESULTS', key: 'appearanceResultDesc' },
-    { title: 'PLEA', key: '' }, // Awaiting more info on clAppearanceCount 
+    { title: 'PLEA', key: '' }, // Awaiting more info on clAppearanceCount
     { title: 'FINDINGS', key: 'findingDsc' },
   ]);
 
