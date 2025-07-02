@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import CivilAppearanceDetails from 'CMP/case-details/civil/appearances/CivilAppearanceDetails.vue';
+import CivilAppearanceDetails from 'CMP/civil/CivilAppearanceDetails.vue';
 import { FilesService } from '@/services/FilesService';
 
 vi.mock('@/services/FilesService');

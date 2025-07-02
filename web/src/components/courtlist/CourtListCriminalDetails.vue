@@ -9,7 +9,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-card title="Key Documents" class="p-2" variant="flat">
+        <v-card title="All Documents" variant="flat">
           <v-data-table-virtual
             :items="details.initiatingDocuments"
             :headers="documentHeaders"
@@ -37,13 +37,13 @@
 
 <script setup lang="ts">
   import AppearanceMethods from '@/components/case-details/civil/appearances/AppearanceMethods.vue';
-  import { FilesService } from '@/services/FilesService';
-  import {
-    CriminalAppearanceDetails,
-    CriminalDocument,
-  } from '@/types/criminal/jsonTypes';
-  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-  import { inject, onMounted, ref } from 'vue';
+import { FilesService } from '@/services/FilesService';
+import {
+  CriminalAppearanceDetails,
+  CriminalDocument,
+} from '@/types/criminal/jsonTypes';
+import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+import { inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{
     fileId: string;

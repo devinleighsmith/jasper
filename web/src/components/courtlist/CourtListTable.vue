@@ -134,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-  import CivilAppearanceDetails from '@/components/case-details/civil/appearances/CivilAppearanceDetails.vue';
+  import CivilAppearanceDetails from '@/components/civil/CivilAppearanceDetails.vue';
   import CourtListTableActionBarGroup from '@/components/courtlist/CourtListTableActionBarGroup.vue';
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
