@@ -48,7 +48,6 @@
   import SheriffCommentsDialog from './SheriffCommentsDialog.vue';
 
   const props = defineProps<{ details: civilFileDetailsType }>();
-  console.log(props.details);
   const showSheriffCommentsModal = ref(false);
 
   const division = props.details.courtClassDescription;
