@@ -218,13 +218,13 @@
 
       onMounted(() => {
         loading.value = true;
-        criminalFileStore.criminalFileInformation.fileNumber = getSingleValue(
-          route.params.fileNumber
-        );
+        const routFileNumber = getSingleValue(route.params.fileNumber);
+        criminalFileStore.criminalFileInformation.fileNumber = routFileNumber;
         criminalFileStore.updateCriminalFile(
           criminalFileStore.criminalFileInformation
         );
         getFileDetails();
+        fileNumber.value = routFileNumber;
         loading.value = false;
       });
 
