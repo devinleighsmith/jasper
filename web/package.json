@@ -28,7 +28,7 @@
     "@fullcalendar/vue3": "^6.1.17",
     "@nutrient-sdk/viewer": "^1.4.1",
     "@types/underscore": "^1.13.0",
-    "@vitejs/plugin-basic-ssl": "^2.0.0",
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
     "axios": "^1.10.0",
     "base64url": "^3.0.1",
     "bootstrap": "^4.3.1",
