@@ -406,6 +406,38 @@ namespace Scv.Api.Services
             return results;
         }
 
+        public virtual async Task<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection> GetJudgeCourtListAppearances(int judgeId, DateTime date)
+        {
+            var results = await _searchDateClient.GetJudgeCourtListAppearancesAsync(judgeId, date.ToString("dd-MMM-yyyy"));
+            if(results is null || results.Items is null || results.Items.Count == 0)
+                return results;
+            // Remove adjudicator entries that do not match judgeId
+            var anyToRemove = results.Items
+                .SelectMany(r => r.CourtRoomDetails)
+                .SelectMany(dtls => dtls.AdjudicatorDetails)
+                .FirstOrDefault(d => d.AdjudicatorId != judgeId);
+            if (anyToRemove is null)
+                return results;
+                
+            var amPm = anyToRemove.AmPm;
+            
+            foreach (var r in results.Items)
+            {
+                // Should only ever be one match
+                var match = r.CourtActivityDetails.FirstOrDefault(d => d.CourtSittingCd == amPm);
+                if (match is not null)
+                {
+                    r.CourtActivityDetails?.Remove(match);
+                }
+                
+                _ = r.CourtRoomDetails.FirstOrDefault(a => a.AdjudicatorDetails.Remove(anyToRemove));
+                r.Appearances = [.. r.Appearances?.Where(app => !app.AppearanceTm.Contains(amPm))];
+            }
+
+            return results;
+        }
+
+
         #endregion Criminal
 
         #endregion Populating Methods

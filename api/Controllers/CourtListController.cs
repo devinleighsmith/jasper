@@ -45,6 +45,22 @@ namespace Scv.Api.Controllers
         }
 
         /// <summary>
+        /// Gets the currently logged in Judge's court list.
+        /// </summary>
+        /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
+        /// <returns>CourtList</returns>
+        [HttpGet]
+        [Route("court-list/me")]
+        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetMyCourtList(DateTime proceeding)
+        {
+            const int TEST_JUDGE_ID = 232;
+
+            var courtList = await _courtListService.GetJudgeCourtListAppearances(TEST_JUDGE_ID, proceeding);
+
+            return Ok(courtList);
+        }
+
+        /// <summary>
         /// Generates a Court List PDF report.
         /// </summary>
         /// <param name="request">Criteria to generate the pdf report</param>

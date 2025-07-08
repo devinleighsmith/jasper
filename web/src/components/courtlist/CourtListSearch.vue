@@ -7,7 +7,7 @@
             <v-col cols="3">
               <v-select
                 v-model="selectedCourtLocation"
-                :disabled="!searchAllowed"
+                :disabled="!searchAllowed || schedule === 'my_schedule'"
                 @update:modelValue="selectedCourtRoom = ''"
                 :items="locationsAndCourtRooms"
                 return-object
@@ -25,7 +25,7 @@
             <v-col cols="2">
               <v-select
                 v-model="selectedCourtRoom"
-                :disabled="!searchAllowed"
+                :disabled="!searchAllowed || schedule === 'my_schedule'"
                 :items="
                   selectedCourtLocation
                     ? selectedCourtLocation.courtRooms
@@ -52,6 +52,7 @@
               <v-btn-toggle
                 v-model="schedule"
                 :disabled="!searchAllowed"
+                border="sm"
                 rounded="xl"
                 group
                 mandatory
@@ -59,13 +60,14 @@
                 <v-btn
                   :color="schedule === 'my_schedule' ? `${GREEN}` : ''"
                   value="my_schedule"
-                  disabled
+                  @click="scheduleChanged"
                 >
                   My Schedule
                 </v-btn>
                 <v-btn
                   :color="schedule === 'room_schedule' ? `${GREEN}` : ''"
                   value="room_schedule"
+                  @click="scheduleChanged"
                 >
                   Room Schedule
                 </v-btn>
@@ -91,6 +93,7 @@
 
 <script setup lang="ts">
   import { LocationService } from '@/services';
+  import { CourtListService } from '@/services/CourtListService';
   import { HttpService } from '@/services/HttpService';
   import { useCommonStore, useCourtListStore } from '@/stores';
   import { useSnackbarStore } from '@/stores/SnackbarStore';
@@ -140,6 +143,7 @@
   });
   const selectedCourtLocation = ref<LocationInfo>();
   const httpService = inject<HttpService>('httpService');
+  const courtListService = inject<CourtListService>('courtListService');
   const locationsAndCourtRooms = ref<LocationInfo[]>();
   const locationsService = inject<LocationService>('locationService');
   const snackBarStore = useSnackbarStore();
@@ -178,39 +182,37 @@
     isLocationDataMounted.value = true;
   };
 
-  const getCourtListDetails = () => {
-    if (!selectedCourtLocation.value) {
-      return;
-    }
+  const getCourtListDetails = async () => {
     isDataReady.value = false;
     isMounted.value = false;
     isSearching.value = true;
 
-    // todo: extract to service layer
-    httpService
-      .get<courtListType>(
-        'api/courtlist/court-list?agencyId=' +
-          selectedCourtLocation.value.locationId.toString() +
-          '&roomCode=' +
-          selectedCourtRoom.value +
-          '&proceeding=' +
-          shortHandDate.value
-      )
-      .then((Response) => Response)
-      .then((data) => {
-        if (data) {
-          courtListStore.courtListInformation.detailsData = data;
-        }
-        emit('courtListSearched', data);
-      })
-      .finally(() => {
-        isMounted.value = true;
-        searchAllowed.value = true;
-        isDataReady.value = true;
-        isSearching.value = false;
-        formSubmit.value = false;
-        setupAutoRefresh();
-      });
+    let data: courtListType | undefined;
+    if (schedule.value === 'room_schedule') {
+      data = await courtListService?.getCourtList(
+        selectedCourtLocation.value.locationId.toString(),
+        selectedCourtRoom.value,
+        shortHandDate.value
+      );
+    } else {
+      data = await courtListService?.getMyCourtList(shortHandDate.value);
+    }
+    if (data) {
+      courtListStore.courtListInformation.detailsData = data;
+    }
+    emit('courtListSearched', data);
+    isMounted.value = true;
+    searchAllowed.value = true;
+    isDataReady.value = true;
+    isSearching.value = false;
+    formSubmit.value = false;
+    setupAutoRefresh();
+  };
+  const scheduleChanged = () => {
+    selectedCourtLocation.value = undefined;
+    selectedCourtRoom.value = '';
+    errors.isMissingLocation = false;
+    errors.isMissingRoom = false;
   };
 
   const validateForm = () => {

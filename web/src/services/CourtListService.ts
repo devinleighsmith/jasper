@@ -1,3 +1,4 @@
+import { courtListType } from '@/types/courtlist/jsonTypes';
 import { HttpService } from './HttpService';
 
 export class CourtListService {
@@ -12,5 +13,33 @@ export class CourtListService {
       url: 'api/courtlist/generate-report',
       params,
     });
+  }
+
+  async getCourtList(
+    agencyId: string | number,
+    roomCode: string,
+    proceeding: string
+  ): Promise<courtListType> {
+    const url = `api/courtlist/court-list`;
+    const params = {
+      agencyId: agencyId.toString(),
+      roomCode,
+      proceeding,
+    };
+    return this.httpService.client
+      .get<courtListType>(url, { params })
+      .then((res) => res.data);
+  }
+
+  async getMyCourtList(
+    proceeding: string
+  ): Promise<courtListType> {
+    const url = `api/courtlist/court-list/me`;
+    const params = {
+      proceeding,
+    };
+    return this.httpService.client
+      .get<courtListType>(url, { params })
+      .then((res) => res.data);
   }
 }
