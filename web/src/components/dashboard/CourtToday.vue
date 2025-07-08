@@ -75,7 +75,9 @@
           </v-slide-group-item>
         </v-slide-group>
       </div>
-      <v-btn-tertiary>Today's court list</v-btn-tertiary>
+      <v-btn-tertiary :to="{ name: 'CourtList', query: { date: today.date } }"
+        >Today's court list</v-btn-tertiary
+      >
     </div>
   </v-banner>
 </template>
@@ -114,5 +116,10 @@
   }
   .divider {
     border-right: 0.125rem solid var(--border-gray-500);
+  }
+
+  .v-btn:hover {
+    color: var(--text-white-500) !important;
+    text-decoration: none;
   }
 </style>
