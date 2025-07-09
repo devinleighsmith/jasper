@@ -7,7 +7,7 @@
             <v-col cols="3">
               <v-select
                 v-model="selectedCourtLocation"
-                :disabled="!searchAllowed || schedule === 'my_schedule'"
+                :disabled="!searchAllowed || schedule === MY_SCHEDULE"
                 @update:modelValue="selectedCourtRoom = ''"
                 :items="locationsAndCourtRooms"
                 return-object
@@ -25,7 +25,7 @@
             <v-col cols="2">
               <v-select
                 v-model="selectedCourtRoom"
-                :disabled="!searchAllowed || schedule === 'my_schedule'"
+                :disabled="!searchAllowed || schedule === MY_SCHEDULE"
                 :items="
                   selectedCourtLocation
                     ? selectedCourtLocation.courtRooms
@@ -58,15 +58,15 @@
                 mandatory
               >
                 <v-btn
-                  :color="schedule === 'my_schedule' ? `${GREEN}` : ''"
-                  value="my_schedule"
+                  :color="schedule === MY_SCHEDULE ? `${GREEN}` : ''"
+                  :value=MY_SCHEDULE
                   @click="scheduleChanged"
                 >
                   My Schedule
                 </v-btn>
                 <v-btn
-                  :color="schedule === 'room_schedule' ? `${GREEN}` : ''"
-                  value="room_schedule"
+                  :color="schedule === ROOM_SCHEDULE ? `${GREEN}` : ''"
+                  :value="ROOM_SCHEDULE"
                   @click="scheduleChanged"
                 >
                   Room Schedule
@@ -129,10 +129,12 @@
   const TEN_MINUTES = 600000;
   const NINE_MINUTES = 540000;
   const ONE_MINUTE = 60000;
+  const MY_SCHEDULE = 'my_schedule';
+  const ROOM_SCHEDULE = 'room_schedule';
   const courtRefreshInterval = TEN_MINUTES;
   const warningRefreshInterval = NINE_MINUTES;
   const warningTime = ONE_MINUTE;
-  const schedule = ref('my_schedule');
+  const schedule = ref(MY_SCHEDULE);
   const shortHandDate = computed(() =>
     date.value ? date.value.toISOString().substring(0, 10) : ''
   );
@@ -187,7 +189,7 @@
     isSearching.value = true;
 
     let data: courtListType | undefined;
-    if (schedule.value === 'room_schedule') {
+    if (schedule.value === ROOM_SCHEDULE) {
       data = await courtListService?.getCourtList(
         selectedCourtLocation.value.locationId.toString(),
         selectedCourtRoom.value,
@@ -215,7 +217,7 @@
   };
 
   const validateForm = () => {
-    if (schedule.value === 'my_schedule') {
+    if (schedule.value === MY_SCHEDULE) {
       return true;
     }
     errors.isMissingLocation = !selectedCourtLocation.value;
