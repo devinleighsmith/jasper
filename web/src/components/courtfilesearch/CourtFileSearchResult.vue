@@ -52,6 +52,11 @@
         <template #item.sealStatusCd="{ item }">
           <span v-if="item.sealStatusCd != 'NA'" class="sealed">(Sealed)</span>
         </template>
+        <template #item.participant="{ item }">
+          <a href="#" @click.prevent="emitFilesViewed(item)">
+            {{ [...new Set(item.participant.map((p) => p.fullNm))].join('; ') }}
+          </a>
+        </template>
       </v-data-table-virtual>
     </v-skeleton-loader>
     <ActionBar :selected="selectedItems" @clicked="handleViewFilesClick">
@@ -124,8 +129,6 @@
     {
       title: 'Accused / Parties',
       key: 'participant',
-      value: (item: FileDetail) =>
-        `${[...new Set(item.participant.map((p) => p.fullNm))].join('; ')}`,
     },
     {
       title: 'Class',
@@ -183,26 +186,24 @@
         );
   });
 
-  function getFormattedFileNumber(detail: FileDetail) {
-    return `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
-  }
+  const getFormattedFileNumber = (detail: FileDetail) =>
+    `${detail.ticketSeriesTxt ?? ''}${detail.fileNumberTxt}${detail.mdocSeqNo ? '-' + detail.mdocSeqNo : ''}${detail.mdocRefTypeCd ? '-' + detail.mdocRefTypeCd : ''}`;
+  
 
   const getLocation = (fileHomeAgencyId: string) =>
     props.courtRooms.find((room) => room.code === fileHomeAgencyId)?.name || '';
-
   const getClass = (courtClassCd: string) =>
     props.classes.find((lookup) => lookup.code === courtClassCd)?.shortDesc ||
     '';
 
-  function handleViewFilesClick() {
-    const files = (selectedItems.value ?? []).map(
-      (c) =>
-        ({
-          key: c[idSelector.value],
-          value: getFormattedFileNumber(c),
-        }) as KeyValueInfo
-    );
+  const handleViewFilesClick = () => emitFilesViewed(selectedItems.value ?? []);
 
+  function emitFilesViewed(details: FileDetail | FileDetail[]) {
+    const items = Array.isArray(details) ? details : [details];
+    const files = items.map((c) => ({
+      key: c[idSelector.value],
+      value: getFormattedFileNumber(c),
+    })) as KeyValueInfo[];
     emit('files-viewed', files);
   }
 </script>
