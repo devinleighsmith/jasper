@@ -47,23 +47,20 @@
     // Appends the Court List icon next to the day's date
     const date = formatDateInstanceToDDMMMYYYY(info.date);
     const data = props.data.find((d) => d.date === date);
-
-    if (!data || data.activities.length === 0 || !data.showCourtList) {
-      return;
-    }
-
-    const locationIds = [
-      ...new Set(data.activities.map((a) => a.locationId)),
-    ].join(',');
-
     const dayTop = info.el.querySelector('.fc-daygrid-day-top');
-    if (!dayTop) {
+
+    if (
+      !data ||
+      data.activities.length === 0 ||
+      !data.showCourtList ||
+      !dayTop
+    ) {
       return;
     }
 
     const link = document.createElement('a');
     link.className = 'court-list';
-    link.href = `/list?locationIds=${locationIds}&date=${date}`;
+    link.href = `/court-list?date=${date}`;
     link.title = 'View Court List';
 
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
