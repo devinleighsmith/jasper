@@ -120,7 +120,6 @@
   const GREEN = '#62d3a4';
   const commonStore = useCommonStore();
   const courtListStore = useCourtListStore();
-  const isLoading = ref(false);
   const isDataReady = ref(false);
   const isMounted = ref(false);
   const isLocationDataMounted = ref(false);
@@ -133,7 +132,7 @@
   const courtRefreshInterval = TEN_MINUTES;
   const warningRefreshInterval = NINE_MINUTES;
   const warningTime = ONE_MINUTE;
-  const schedule = ref('room_schedule');
+  const schedule = ref('my_schedule');
   const shortHandDate = computed(() =>
     date.value ? date.value.toISOString().substring(0, 10) : ''
   );
@@ -169,9 +168,9 @@
     throw new Error('Service is undefined.');
   }
 
-  onMounted(async () => {
-    await getListOfAvailableCourts();
-    isLoading.value = false;
+  onMounted(() => {
+    searchForCourtList();
+    getListOfAvailableCourts();
   });
 
   onUnmounted(() => clearTimers());

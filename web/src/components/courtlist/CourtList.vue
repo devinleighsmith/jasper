@@ -45,10 +45,7 @@
         class="w-100"
       >
         <court-list-card :cardInfo="pairing.card" />
-        <court-list-table
-          :search="search"
-          :data="pairing.table"
-        />
+        <court-list-table :search="search" :data="pairing.table" />
       </template>
       <court-list-table-search-dialog
         v-model:showDialog="showDialog"
@@ -139,23 +136,23 @@
     if (!data?.items?.length) {
       return;
     }
-    // As of right now the cards will only ever have 1 location/room pairing.
-    // If there are multiple `items` then that means there is more than 1 judge
-    // in this location/room pairing on this given day.
+
     data.items.forEach((courtList: any) => {
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
-      const card = {} as CourtListCardInfo;
-      const appearances = courtList.appearances as CourtListAppearance[];
-      card.fileCount = courtList.casesTarget;
-      card.activity = courtList.activityDsc;
-      card.presider = adjudicatorDetails?.adjudicatorNm;
-      card.courtListRoom = courtRoomDetails.courtRoomCd;
-      card.courtListLocationID = courtList.locationId;
-      card.courtListLocation = courtList.locationNm;
-      card.amPM = adjudicatorDetails?.amPm;
+      if (adjudicatorDetails) {
+        const card = {} as CourtListCardInfo;
+        const appearances = courtList.appearances as CourtListAppearance[];
+        card.fileCount = courtList.casesTarget;
+        card.activity = courtList.activityDsc;
+        card.presider = adjudicatorDetails?.adjudicatorNm;
+        card.courtListRoom = courtRoomDetails.courtRoomCd;
+        card.courtListLocationID = courtList.locationId;
+        card.courtListLocation = courtList.locationNm;
+        card.amPM = adjudicatorDetails?.amPm;
 
-      cardTablePairings.value.push({ card, table: appearances });
+        cardTablePairings.value.push({ card, table: appearances });
+      }
     });
   };
 
