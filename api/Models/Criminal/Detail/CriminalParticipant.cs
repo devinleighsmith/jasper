@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JCCommon.Clients.FileServices;
 
 namespace Scv.Api.Models.Criminal.Detail
@@ -8,10 +9,12 @@ namespace Scv.Api.Models.Criminal.Detail
     /// </summary>
     public class CriminalParticipant : JCCommon.Clients.FileServices.CriminalParticipant
     {
+        private static readonly string[] _keyDocumentCategories = ["BAIL", "ROP", "INITIATING"];
+
         public CriminalParticipant()
         {
-            Count = new List<CriminalCount>();
-            Ban = new List<CriminalBan>();
+            Count = [];
+            Ban = [];
         }
 
         public string FullName => GivenNm != null && LastNm != null
@@ -22,6 +25,8 @@ namespace Scv.Api.Models.Criminal.Detail
         /// Custom class to extend.
         /// </summary>
         public ICollection<CriminalDocument> Document { get; set; }
+
+        public IEnumerable<CriminalDocument> KeyDocuments => Document.Where(dmt =>_keyDocumentCategories.Contains(dmt.Category?.ToUpper()));
 
         /// <summary>
         /// Can only be set to true, cannot be set to false and have the fields reappear.
@@ -53,7 +58,7 @@ namespace Scv.Api.Models.Criminal.Detail
         /// Extended, with PartId.
         /// </summary>
         public List<CriminalBan> Ban { get; set; }
-        
+
         public ICollection<ClAgeNotice> AgeNotice { get; set; }
 
         private bool? _hideJustinCounsel;
