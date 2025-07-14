@@ -60,17 +60,13 @@
                 <v-btn
                   :color="schedule === MY_SCHEDULE ? `${GREEN}` : ''"
                   :value=MY_SCHEDULE
-                  @click="scheduleChanged"
-                >
-                  My Schedule
-                </v-btn>
+                  text="My Schedule"
+                />
                 <v-btn
                   :color="schedule === ROOM_SCHEDULE ? `${GREEN}` : ''"
                   :value="ROOM_SCHEDULE"
-                  @click="scheduleChanged"
-                >
-                  Room Schedule
-                </v-btn>
+                  text="Room Schedule"
+                />
               </v-btn-toggle>
             </v-col>
             <v-col>
@@ -149,6 +145,7 @@
   let searchInterval: NodeJS.Timeout;
   let warningInterval: NodeJS.Timeout;
 
+  watch(schedule, () => scheduleChanged());
   watch(
     appliedDate,
     (newValue, oldValue) => {
