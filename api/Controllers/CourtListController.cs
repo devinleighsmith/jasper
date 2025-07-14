@@ -18,6 +18,7 @@ namespace Scv.Api.Controllers
     {
         #region Variables
 
+        private readonly int TEST_JUDGE_ID = 229;
         private readonly CourtListService _courtListService = courtListService;
         private readonly IValidator<CourtListReportRequest> _reportValidator = reportValidator;
 
@@ -37,8 +38,6 @@ namespace Scv.Api.Controllers
         [Route("court-list")]
         public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(string agencyId, string roomCode, DateTime proceeding)
         {
-            const int TEST_JUDGE_ID = 190;
-
             var courtList = await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);
 
             return Ok(courtList);
@@ -53,8 +52,6 @@ namespace Scv.Api.Controllers
         [Route("court-list/me")]
         public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetMyCourtList(DateTime proceeding)
         {
-            const int TEST_JUDGE_ID = 232;
-
             var courtList = await _courtListService.GetJudgeCourtListAppearances(TEST_JUDGE_ID, proceeding);
 
             return Ok(courtList);

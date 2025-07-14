@@ -413,20 +413,20 @@ namespace Scv.Api.Services
                 return results;
             // Remove adjudicator entries that do not match judgeId
             var anyToRemove = results.Items
-                .SelectMany(r => r.CourtRoomDetails)
-                .SelectMany(dtls => dtls.AdjudicatorDetails)
-                .FirstOrDefault(d => d.AdjudicatorId != judgeId);
+                .SelectMany(rslt => rslt.CourtRoomDetails)
+                .SelectMany(crd => crd.AdjudicatorDetails)
+                .FirstOrDefault(dtl => dtl.AdjudicatorId != judgeId);
             if (anyToRemove is null)
                 return results;
 
             // In the very rare case two judges are assignment the same location, court room and date
             // we need to remove the irrelevant adjudicator data
-            foreach (var r in results.Items)
+            foreach (var result in results.Items)
             {
                 // Should only at most be one match
-                r.CourtActivityDetails?.Remove(r.CourtActivityDetails.FirstOrDefault(dtl => dtl.CourtSittingCd == anyToRemove.AmPm));
-                _ = r.CourtRoomDetails.FirstOrDefault(a => a.AdjudicatorDetails.Remove(anyToRemove));
-                r.Appearances = [.. r.Appearances?.Where(app => !app.AppearanceTm.Contains(anyToRemove.AmPm))];
+                result.CourtActivityDetails?.Remove(result.CourtActivityDetails.FirstOrDefault(dtl => dtl.CourtSittingCd == anyToRemove.AmPm));
+                _ = result.CourtRoomDetails.FirstOrDefault(a => a.AdjudicatorDetails.Remove(anyToRemove));
+                result.Appearances = [.. result.Appearances?.Where(app => !app.AppearanceTm.Contains(anyToRemove.AmPm))];
             }
 
             return results;

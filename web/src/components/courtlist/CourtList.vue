@@ -66,16 +66,21 @@
   } from '@/utils/dateUtils';
   import { parseQueryStringToString } from '@/utils/utils';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
-  import { computed, inject, onMounted, provide, ref, watch } from 'vue';
+  import { computed, inject, provide, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import CourtListSearch from './CourtListSearch.vue';
   import CourtListTable from './CourtListTable.vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
+  const route = useRoute();
+  const router = useRouter();
   const errorCode = ref(0);
   const searchingRequest = ref(false);
   const isLoading = ref(false);
-  const selectedDate = ref(new Date());
+  const selectedDate = ref(
+    parseDDMMMYYYYToDate(parseQueryStringToString(route.query.date)) ??
+      new Date()
+  );
   const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
   const search = ref('');
@@ -130,15 +135,6 @@
         })
       : ''
   );
-
-  const route = useRoute();
-  const router = useRouter();
-
-  onMounted(() => {
-    const dateParam = parseQueryStringToString(route.query.date);
-    const date = parseDDMMMYYYYToDate(dateParam);
-    selectedDate.value = date ?? selectedDate.value;
-  });
 
   watch(selectedDate, (newValue) => {
     if (!route.query.date) {
