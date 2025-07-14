@@ -35,7 +35,6 @@ namespace Scv.Api.Controllers
         /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
         /// <returns>CourtList</returns>
         [HttpGet]
-        [Route("/")]
         public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(string agencyId, string roomCode, DateTime proceeding)
         {
             var courtList = await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);

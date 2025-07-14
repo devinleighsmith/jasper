@@ -94,7 +94,6 @@
 <script setup lang="ts">
   import { LocationService } from '@/services';
   import { CourtListService } from '@/services/CourtListService';
-  import { HttpService } from '@/services/HttpService';
   import { useCommonStore, useCourtListStore } from '@/stores';
   import { useSnackbarStore } from '@/stores/SnackbarStore';
   import { LocationInfo } from '@/types/courtlist';
@@ -143,7 +142,6 @@
     isMissingLocation: false,
   });
   const selectedCourtLocation = ref<LocationInfo>();
-  const httpService = inject<HttpService>('httpService');
   const courtListService = inject<CourtListService>('courtListService');
   const locationsAndCourtRooms = ref<LocationInfo[]>();
   const locationsService = inject<LocationService>('locationService');
@@ -165,10 +163,6 @@
   watch([selectedCourtRoom, schedule, selectedCourtLocation, date], () =>
     setupAutoRefresh()
   );
-
-  if (!httpService) {
-    throw new Error('Service is undefined.');
-  }
 
   onMounted(() => {
     searchForCourtList();
