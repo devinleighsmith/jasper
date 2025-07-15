@@ -26,7 +26,7 @@ jobs:
 
     strategy:
       matrix:
-        node-major-version: [18]
+        node-major-version: [22]
         node-minor-version: [x]
 
     steps:
