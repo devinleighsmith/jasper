@@ -1,5 +1,5 @@
 # Define ARG at the top level
-ARG NODE_VERSION=10
+ARG NODE_VERSION=22
 ARG WEB_BASE_HREF=/
 ARG NGINX_RUNTIME_SRC=./nginx-runtime
 ARG VUE_ON_NGINX_SRC=./vue-on-nginx
