@@ -1,5 +1,4 @@
-import { LocationService } from '@/services';
-import { HttpService } from '@/services/HttpService';
+import { LocationService, CourtListService } from '@/services';
 import { useCommonStore, useCourtListStore } from '@/stores';
 import { mount } from '@vue/test-utils';
 import CourtListSearch from 'CMP/courtlist/CourtListSearch.vue';
@@ -9,7 +8,6 @@ import { nextTick } from 'vue';
 import { setActivePinia, createPinia } from 'pinia'
 
 vi.mock('@/stores');
-vi.mock('@/services/HttpService');
 vi.mock('@/services');
 
 describe('CourtListSearch.vue', () => {
@@ -22,7 +20,7 @@ describe('CourtListSearch.vue', () => {
   let commonStore: any;
   let courtListStore: any;
   let locationService: any;
-  let httpService: any;
+  let courtListService: any;
 
   beforeEach(() => {
     vi.useFakeTimers()
@@ -45,19 +43,20 @@ describe('CourtListSearch.vue', () => {
         },
       ]),
     };
-    httpService = {
-      get: vi.fn().mockResolvedValue(Promise.resolve({}))
+    courtListService = {
+      getCourtList: vi.fn().mockResolvedValue(Promise.resolve({})),
+      getMyCourtList: vi.fn().mockResolvedValue(Promise.resolve({}))
     };
 
     (useCommonStore as any).mockReturnValue(commonStore);
     (useCourtListStore as any).mockReturnValue(courtListStore);
     (LocationService as any).mockReturnValue(locationService);
-    (HttpService as any).mockReturnValue(httpService);
+    (CourtListService as any).mockReturnValue(courtListService);
 
     wrapper = mount(CourtListSearch, {
       global: {
         provide: {
-          httpService,
+          courtListService,
           locationService,
         },
       },
@@ -116,8 +115,8 @@ describe('CourtListSearch.vue', () => {
     wrapper.vm.schedule = 'room_schedule';
 
     await wrapper.vm.searchForCourtList();
-    expect(httpService.get).toHaveBeenCalledWith(
-      'api/courtlist/court-list?agencyId=1&roomCode=Room 1&proceeding=2023-01-01'
+    expect(courtListService.getCourtList).toHaveBeenCalledWith(
+      "1", "Room 1", "2023-01-01"
     );
     await nextTick();
 
@@ -183,8 +182,8 @@ describe('CourtListSearch.vue', () => {
 
     await vi.advanceTimersByTimeAsync(TEN_MINUTES);
 
-    expect(httpService.get).toHaveBeenCalledWith(
-      'api/courtlist/court-list?agencyId=1&roomCode=Room 1&proceeding=2023-01-01'
+    expect(courtListService.getCourtList).toHaveBeenCalledWith(
+      "1", "Room 1", "2023-01-01"
     );
   });
 });
