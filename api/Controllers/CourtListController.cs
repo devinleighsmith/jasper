@@ -35,26 +35,14 @@ namespace Scv.Api.Controllers
         /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
         /// <returns>CourtList</returns>
         [HttpGet]
-        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(string agencyId, string roomCode, DateTime proceeding)
+        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(DateTime proceeding, string agencyId = null, string roomCode = null)
         {
-            var courtList = await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);
+            var result = (agencyId == null && roomCode == null)
+                ? await _courtListService.GetJudgeCourtListAppearances(TEST_JUDGE_ID, proceeding)
+                : await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);
 
-            return Ok(courtList);
-        }
-
-        /// <summary>
-        /// Gets the currently logged in Judge's court list.
-        /// </summary>
-        /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
-        /// <returns>CourtList</returns>
-        [HttpGet]
-        [Route("my-court-list")]
-        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetMyCourtList(DateTime proceeding)
-        {
-            var courtList = await _courtListService.GetJudgeCourtListAppearances(TEST_JUDGE_ID, proceeding);
-
-            return Ok(courtList);
-        }
+            return Ok(result);
+        }   
 
         /// <summary>
         /// Generates a Court List PDF report.

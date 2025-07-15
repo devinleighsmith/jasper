@@ -16,24 +16,14 @@ export class CourtListService {
   }
 
   async getCourtList(
-    agencyId: string | number,
-    roomCode: string,
+    agencyId: string | null,
+    roomCode: string | null,
     proceeding: string
   ): Promise<courtListType> {
     const url = `api/courtlist`;
     const params = {
-      agencyId: agencyId.toString(),
+      agencyId: agencyId,
       roomCode,
-      proceeding,
-    };
-    return this.httpService.client
-      .get<courtListType>(url, { params })
-      .then((res) => res.data);
-  }
-
-  async getMyCourtList(proceeding: string): Promise<courtListType> {
-    const url = `api/courtlist/my-court-list`;
-    const params = {
       proceeding,
     };
     return this.httpService.client

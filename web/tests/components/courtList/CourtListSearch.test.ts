@@ -115,7 +115,9 @@ describe('CourtListSearch.vue', () => {
     wrapper.vm.schedule = 'room_schedule';
 
     await wrapper.vm.searchForCourtList();
-    expect(courtListService.getCourtList).toHaveBeenCalled();
+    expect(courtListService.getCourtList).toHaveBeenCalledWith(
+      "1", "Room 1", "2023-01-01"
+    );
     await nextTick();
 
     expect(courtListStore.courtListInformation.detailsData).toEqual({});
@@ -180,6 +182,8 @@ describe('CourtListSearch.vue', () => {
 
     await vi.advanceTimersByTimeAsync(TEN_MINUTES);
 
-    expect(courtListService.getMyCourtList).toHaveBeenCalled();
+    expect(courtListService.getCourtList).toHaveBeenCalledWith(
+      "1", "Room 1", "2023-01-01"
+    );
   });
 });

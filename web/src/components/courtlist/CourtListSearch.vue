@@ -178,17 +178,12 @@
     isDataReady.value = false;
     isMounted.value = false;
     isSearching.value = true;
-
-    let data: courtListType | undefined;
-    if (schedule.value === ROOM_SCHEDULE) {
-      data = await courtListService?.getCourtList(
-        selectedCourtLocation.value.locationId.toString(),
-        selectedCourtRoom.value,
-        shortHandDate.value
-      );
-    } else {
-      data = await courtListService?.getMyCourtList(shortHandDate.value);
-    }
+    const data = await courtListService?.getCourtList(
+      selectedCourtLocation?.value?.locationId ? selectedCourtLocation.value.locationId.toString() : null,
+      selectedCourtRoom?.value,
+      shortHandDate.value
+    );
+    
     if (data) {
       courtListStore.courtListInformation.detailsData = data;
     }
