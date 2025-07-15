@@ -93,7 +93,6 @@
   import { useCommonStore, useCourtListStore } from '@/stores';
   import { useSnackbarStore } from '@/stores/SnackbarStore';
   import { LocationInfo } from '@/types/courtlist';
-  import { courtListType } from '@/types/courtlist/jsonTypes';
   import { mdiClose } from '@mdi/js';
   import {
     computed,
