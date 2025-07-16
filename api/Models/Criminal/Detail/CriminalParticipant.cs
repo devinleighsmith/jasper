@@ -9,6 +9,7 @@ namespace Scv.Api.Models.Criminal.Detail
     /// </summary>
     public class CriminalParticipant : JCCommon.Clients.FileServices.CriminalParticipant
     {
+        // Hardcoded for now, will be eventually replaced with values from PCSS
         private static readonly string[] _keyDocumentCategories = ["BAIL", "ROP", "INITIATING"];
 
         public CriminalParticipant()
