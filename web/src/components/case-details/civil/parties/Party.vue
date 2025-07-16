@@ -34,7 +34,7 @@
   import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
   import { partyType } from '@/types/civil/jsonTypes';
   import { CourtClassEnum } from '@/types/common';
-  import { formatToFullName } from '@/utils/utils';
+  import { formatToFullName, getEnumName } from '@/utils/utils';
   import { computed } from 'vue';
 
   const props = defineProps<{
@@ -43,15 +43,24 @@
   }>();
 
   // Alias is only visible for Small Claims
-  const showAlias = props.courtClassCd === CourtClassEnum[CourtClassEnum.C];
+  const smallClaims = [
+    getEnumName(CourtClassEnum, CourtClassEnum.C),
+    getEnumName(CourtClassEnum, CourtClassEnum.M),
+    getEnumName(CourtClassEnum, CourtClassEnum.L),
+  ];
+
+  const showAlias =
+    smallClaims.includes(props.courtClassCd) &&
+    props.party.aliases &&
+    props.party.aliases.length > 0;
   const counselNames =
     props.party.selfRepresentedYN === 'Y'
       ? ['Self-Represented']
-      : (props.party.counsel?.map((c) => c.fullNm) ?? []);
+      : (props.party.counsel?.map((c) => c.counselFullName) ?? []);
   const aliases =
     props.party.aliases?.map((a) =>
       a.surnameNm && a.firstGivenNm
-        ? `${a.surnameNm?.toUpperCase()}, ${a.firstGivenNm} ${a.secondGivenNm ?? ''} ${a.thirdGivenNm ?? ''}`
+        ? `${a.surnameNm?.toUpperCase()}, ${a.firstGivenNm} ${a.secondGivenNm ?? ''} ${a.thirdGivenNm ?? ''}`.trim()
         : a.organizationNm
     ) ?? [];
 

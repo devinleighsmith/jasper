@@ -11,7 +11,7 @@ on:
 
 env:
   WORKING_DIRECTORY: ./aws
-  NODE_VERSION: 20
+  NODE_VERSION: 22
   GITHUB_IMAGE_REPO: ghcr.io/bcgov/jasper
   
 jobs:

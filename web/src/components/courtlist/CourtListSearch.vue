@@ -7,7 +7,7 @@
             <v-col cols="3">
               <v-select
                 v-model="selectedCourtLocation"
-                :disabled="!searchAllowed"
+                :disabled="!searchAllowed || schedule === MY_SCHEDULE"
                 @update:modelValue="selectedCourtRoom = ''"
                 :items="locationsAndCourtRooms"
                 return-object
@@ -25,7 +25,7 @@
             <v-col cols="2">
               <v-select
                 v-model="selectedCourtRoom"
-                :disabled="!searchAllowed"
+                :disabled="!searchAllowed || schedule === MY_SCHEDULE"
                 :items="
                   selectedCourtLocation
                     ? selectedCourtLocation.courtRooms
@@ -52,23 +52,21 @@
               <v-btn-toggle
                 v-model="schedule"
                 :disabled="!searchAllowed"
+                border="sm"
                 rounded="xl"
                 group
                 mandatory
               >
                 <v-btn
-                  :color="schedule === 'my_schedule' ? `${GREEN}` : ''"
-                  value="my_schedule"
-                  disabled
-                >
-                  My Schedule
-                </v-btn>
+                  :color="schedule === MY_SCHEDULE ? `${GREEN}` : ''"
+                  :value=MY_SCHEDULE
+                  text="My Schedule"
+                />
                 <v-btn
-                  :color="schedule === 'room_schedule' ? `${GREEN}` : ''"
-                  value="room_schedule"
-                >
-                  Room Schedule
-                </v-btn>
+                  :color="schedule === ROOM_SCHEDULE ? `${GREEN}` : ''"
+                  :value="ROOM_SCHEDULE"
+                  text="Room Schedule"
+                />
               </v-btn-toggle>
             </v-col>
             <v-col>
@@ -91,11 +89,10 @@
 
 <script setup lang="ts">
   import { LocationService } from '@/services';
-  import { HttpService } from '@/services/HttpService';
+  import { CourtListService } from '@/services/CourtListService';
   import { useCommonStore, useCourtListStore } from '@/stores';
   import { useSnackbarStore } from '@/stores/SnackbarStore';
   import { LocationInfo } from '@/types/courtlist';
-  import { courtListType } from '@/types/courtlist/jsonTypes';
   import { mdiClose } from '@mdi/js';
   import {
     computed,
@@ -117,7 +114,6 @@
   const GREEN = '#62d3a4';
   const commonStore = useCommonStore();
   const courtListStore = useCourtListStore();
-  const isLoading = ref(false);
   const isDataReady = ref(false);
   const isMounted = ref(false);
   const isLocationDataMounted = ref(false);
@@ -127,10 +123,12 @@
   const TEN_MINUTES = 600000;
   const NINE_MINUTES = 540000;
   const ONE_MINUTE = 60000;
+  const MY_SCHEDULE = 'my_schedule';
+  const ROOM_SCHEDULE = 'room_schedule';
   const courtRefreshInterval = TEN_MINUTES;
   const warningRefreshInterval = NINE_MINUTES;
   const warningTime = ONE_MINUTE;
-  const schedule = ref('room_schedule');
+  const schedule = ref(MY_SCHEDULE);
   const shortHandDate = computed(() =>
     date.value ? date.value.toISOString().substring(0, 10) : ''
   );
@@ -139,13 +137,14 @@
     isMissingLocation: false,
   });
   const selectedCourtLocation = ref<LocationInfo>();
-  const httpService = inject<HttpService>('httpService');
+  const courtListService = inject<CourtListService>('courtListService');
   const locationsAndCourtRooms = ref<LocationInfo[]>();
   const locationsService = inject<LocationService>('locationService');
   const snackBarStore = useSnackbarStore();
   let searchInterval: NodeJS.Timeout;
   let warningInterval: NodeJS.Timeout;
 
+  watch(schedule, () => scheduleChanged());
   watch(
     appliedDate,
     (newValue, oldValue) => {
@@ -161,13 +160,9 @@
     setupAutoRefresh()
   );
 
-  if (!httpService) {
-    throw new Error('Service is undefined.');
-  }
-
-  onMounted(async () => {
-    await getListOfAvailableCourts();
-    isLoading.value = false;
+  onMounted(() => {
+    searchForCourtList();
+    getListOfAvailableCourts();
   });
 
   onUnmounted(() => clearTimers());
@@ -178,43 +173,36 @@
     isLocationDataMounted.value = true;
   };
 
-  const getCourtListDetails = () => {
-    if (!selectedCourtLocation.value) {
-      return;
-    }
+  const getCourtListDetails = async () => {
     isDataReady.value = false;
     isMounted.value = false;
     isSearching.value = true;
-
-    // todo: extract to service layer
-    httpService
-      .get<courtListType>(
-        'api/courtlist/court-list?agencyId=' +
-          selectedCourtLocation.value.locationId.toString() +
-          '&roomCode=' +
-          selectedCourtRoom.value +
-          '&proceeding=' +
-          shortHandDate.value
-      )
-      .then((Response) => Response)
-      .then((data) => {
-        if (data) {
-          courtListStore.courtListInformation.detailsData = data;
-        }
-        emit('courtListSearched', data);
-      })
-      .finally(() => {
-        isMounted.value = true;
-        searchAllowed.value = true;
-        isDataReady.value = true;
-        isSearching.value = false;
-        formSubmit.value = false;
-        setupAutoRefresh();
-      });
+    const data = await courtListService?.getCourtList(
+      selectedCourtLocation?.value?.locationId ? selectedCourtLocation.value.locationId.toString() : null,
+      selectedCourtRoom?.value,
+      shortHandDate.value
+    );
+    
+    if (data) {
+      courtListStore.courtListInformation.detailsData = data;
+    }
+    emit('courtListSearched', data);
+    isMounted.value = true;
+    searchAllowed.value = true;
+    isDataReady.value = true;
+    isSearching.value = false;
+    formSubmit.value = false;
+    setupAutoRefresh();
+  };
+  const scheduleChanged = () => {
+    selectedCourtLocation.value = undefined;
+    selectedCourtRoom.value = '';
+    errors.isMissingLocation = false;
+    errors.isMissingRoom = false;
   };
 
   const validateForm = () => {
-    if (schedule.value === 'my_schedule') {
+    if (schedule.value === MY_SCHEDULE) {
       return true;
     }
     errors.isMissingLocation = !selectedCourtLocation.value;

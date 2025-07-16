@@ -18,6 +18,7 @@ namespace Scv.Api.Controllers
     {
         #region Variables
 
+        private readonly int TEST_JUDGE_ID = 229;
         private readonly CourtListService _courtListService = courtListService;
         private readonly IValidator<CourtListReportRequest> _reportValidator = reportValidator;
 
@@ -34,15 +35,14 @@ namespace Scv.Api.Controllers
         /// <param name="proceeding">The proceeding date in the format YYYY-MM-dd</param>
         /// <returns>CourtList</returns>
         [HttpGet]
-        [Route("court-list")]
-        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(string agencyId, string roomCode, DateTime proceeding)
+        public async Task<ActionResult<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection>> GetCourtList(DateTime proceeding, string agencyId = null, string roomCode = null)
         {
-            const int TEST_JUDGE_ID = 190;
+            var result = (agencyId == null && roomCode == null)
+                ? await _courtListService.GetJudgeCourtListAppearances(TEST_JUDGE_ID, proceeding)
+                : await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);
 
-            var courtList = await _courtListService.GetCourtListAppearances(agencyId, TEST_JUDGE_ID, roomCode, proceeding);
-
-            return Ok(courtList);
-        }
+            return Ok(result);
+        }   
 
         /// <summary>
         /// Generates a Court List PDF report.

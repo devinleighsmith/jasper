@@ -406,6 +406,33 @@ namespace Scv.Api.Services
             return results;
         }
 
+        public virtual async Task<PCSSCommon.Models.ActivityClassUsage.ActivityAppearanceResultsCollection> GetJudgeCourtListAppearances(int judgeId, DateTime date)
+        {
+            var results = await _searchDateClient.GetJudgeCourtListAppearancesAsync(judgeId, date.ToString("dd-MMM-yyyy"));
+            if (results?.Items is null)
+                return results;
+            // Remove adjudicator entries that do not match judgeId
+            var anyToRemove = results.Items
+                .SelectMany(rslt => rslt.CourtRoomDetails)
+                .SelectMany(crd => crd.AdjudicatorDetails)
+                .FirstOrDefault(dtl => dtl.AdjudicatorId != judgeId);
+            if (anyToRemove is null)
+                return results;
+
+            // In the very rare case two judges are assignment the same location, court room and date
+            // we need to remove the irrelevant adjudicator data
+            foreach (var result in results.Items)
+            {
+                // Should only at most be one match
+                result.CourtActivityDetails?.Remove(result.CourtActivityDetails.FirstOrDefault(dtl => dtl.CourtSittingCd == anyToRemove.AmPm));
+                _ = result.CourtRoomDetails.FirstOrDefault(a => a.AdjudicatorDetails.Remove(anyToRemove));
+                result.Appearances = [.. result.Appearances?.Where(app => !app.AppearanceTm.Contains(anyToRemove.AmPm))];
+            }
+
+            return results;
+        }
+
+
         #endregion Criminal
 
         #endregion Populating Methods

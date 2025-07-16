@@ -1,5 +1,5 @@
 # Use base Node image for building
-ARG NODE_VERSION=20
+ARG NODE_VERSION=22
 
 FROM node:${NODE_VERSION} AS build
 

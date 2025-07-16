@@ -66,16 +66,21 @@
   } from '@/utils/dateUtils';
   import { parseQueryStringToString } from '@/utils/utils';
   import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
-  import { computed, inject, onMounted, provide, ref, watch } from 'vue';
+  import { computed, inject, provide, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import CourtListSearch from './CourtListSearch.vue';
   import CourtListTable from './CourtListTable.vue';
   import CourtListTableSearch from './CourtListTableSearch.vue';
 
+  const route = useRoute();
+  const router = useRouter();
   const errorCode = ref(0);
   const searchingRequest = ref(false);
   const isLoading = ref(false);
-  const selectedDate = ref(new Date());
+  const selectedDate = ref(
+    parseDDMMMYYYYToDate(parseQueryStringToString(route.query.date)) ??
+      new Date()
+  );
   const appliedDate = ref<Date | null>(null);
   const showDropdown = ref(false);
   const search = ref('');
@@ -131,15 +136,6 @@
       : ''
   );
 
-  const route = useRoute();
-  const router = useRouter();
-
-  onMounted(() => {
-    const dateParam = parseQueryStringToString(route.query.date);
-    const date = parseDDMMMYYYYToDate(dateParam);
-    selectedDate.value = date ?? selectedDate.value;
-  });
-
   watch(selectedDate, (newValue) => {
     if (!route.query.date) {
       return;
@@ -163,23 +159,23 @@
     if (!data?.items?.length) {
       return;
     }
-    // As of right now the cards will only ever have 1 location/room pairing.
-    // If there are multiple `items` then that means there is more than 1 judge
-    // in this location/room pairing on this given day.
+
     data.items.forEach((courtList: any) => {
       const courtRoomDetails = courtList.courtRoomDetails[0];
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
-      const card = {} as CourtListCardInfo;
-      const appearances = courtList.appearances as CourtListAppearance[];
-      card.fileCount = courtList.casesTarget;
-      card.activity = courtList.activityDsc;
-      card.presider = adjudicatorDetails?.adjudicatorNm;
-      card.courtListRoom = courtRoomDetails.courtRoomCd;
-      card.courtListLocationID = courtList.locationId;
-      card.courtListLocation = courtList.locationNm;
-      card.amPM = adjudicatorDetails?.amPm;
+      if (adjudicatorDetails) {
+        const card = {} as CourtListCardInfo;
+        const appearances = courtList.appearances as CourtListAppearance[];
+        card.fileCount = courtList.casesTarget;
+        card.activity = courtList.activityDsc;
+        card.presider = adjudicatorDetails?.adjudicatorNm;
+        card.courtListRoom = courtRoomDetails.courtRoomCd;
+        card.courtListLocationID = courtList.locationId;
+        card.courtListLocation = courtList.locationNm;
+        card.amPM = adjudicatorDetails?.amPm;
 
-      cardTablePairings.value.push({ card, table: appearances });
+        cardTablePairings.value.push({ card, table: appearances });
+      }
     });
   };
 
