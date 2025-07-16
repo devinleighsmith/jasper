@@ -37,9 +37,7 @@
       <v-card-text>
         <v-row align="center" no-gutters>
           <v-col class="text-h5" cols="6">
-            {{
-              type === 'keyDocuments' ? 'Key Documents' : 'All Documents'
-            }}
+            {{ type === 'keyDocuments' ? 'Key Documents' : 'All Documents' }}
             ({{ documents.length }})
           </v-col>
         </v-row>
@@ -149,7 +147,7 @@
   const unfilteredDocuments = computed(
     () =>
       props.participants?.flatMap((participant) =>
-        participant.document?.map((doc, idx) => ({
+        participant.document?.map((doc) => ({
           ...doc,
           fullName: participant.fullName || '',
           profSeqNo: participant.profSeqNo,
@@ -165,7 +163,7 @@
   const unfilteredKeyDocuments = computed(
     () =>
       props.participants?.flatMap((participant) =>
-        participant.keyDocuments?.map((doc, idx) => ({
+        (participant.keyDocuments || []).map((doc) => ({
           ...doc,
           fullName: participant.fullName || '',
           profSeqNo: participant.profSeqNo,
@@ -177,8 +175,6 @@
         }))
       ) || []
   );
-
-  console.log(unfilteredKeyDocuments.value);
 
   const documents = computed(() =>
     unfilteredDocuments.value.filter(filterByCategory).filter(filterByAccused)
