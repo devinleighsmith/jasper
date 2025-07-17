@@ -125,6 +125,7 @@ export interface PersonType {
 export interface criminalParticipantType extends PersonType {
   fullName: string;
   document: documentType[];
+  keyDocuments: documentType[];
   hideJustinCounsel: boolean;
   count: countType[];
   ban: banType[];

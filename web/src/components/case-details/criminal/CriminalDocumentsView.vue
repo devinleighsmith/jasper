@@ -23,7 +23,7 @@
   </v-row>
   <div
     v-for="(documents, type) in {
-      // keyDocuments: keyDocuments,
+      keyDocuments: keyDocuments,
       documents: documents,
     }"
     :key="type"
@@ -36,9 +36,10 @@
     >
       <v-card-text>
         <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6"
-            >All Documents ({{ documents.length }})</v-col
-          >
+          <v-col class="text-h5" cols="6">
+            {{ type === 'keyDocuments' ? 'Key Documents' : 'All Documents' }}
+            ({{ documents.length }})
+          </v-col>
         </v-row>
       </v-card-text>
     </v-card>
@@ -52,7 +53,7 @@
       show-select
       return-object
       class="my-3"
-      height="400"
+      style="max-height: 50vh; overflow: auto"
     >
       <template
         v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }"
@@ -150,13 +151,38 @@
           ...doc,
           fullName: participant.fullName || '',
           profSeqNo: participant.profSeqNo,
-          id: crypto.randomUUID(),
+          id:
+            doc.category +
+            participant.fullName +
+            doc.partId +
+            participant.profSeqNo,
+        }))
+      ) || []
+  );
+
+  const unfilteredKeyDocuments = computed(
+    () =>
+      props.participants?.flatMap((participant) =>
+        (participant.keyDocuments || []).map((doc) => ({
+          ...doc,
+          fullName: participant.fullName || '',
+          profSeqNo: participant.profSeqNo,
+          id:
+            doc.category +
+            participant.fullName +
+            doc.partId +
+            participant.profSeqNo,
         }))
       ) || []
   );
 
   const documents = computed(() =>
     unfilteredDocuments.value.filter(filterByCategory).filter(filterByAccused)
+  );
+  const keyDocuments = computed(() =>
+    unfilteredKeyDocuments.value
+      .filter(filterByCategory)
+      .filter(filterByAccused)
   );
 
   const categoryCount = (category: string): number => {

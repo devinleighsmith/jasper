@@ -9,22 +9,24 @@ describe('CriminalDocumentsView.vue', () => {
   let mockParticipantOne: any;
   let mockParticipantTwo: any;
   let mockParticipants: any[];
+  let mockDocumentOne: any;
 
   beforeEach(() => {
+    mockDocumentOne = 
+      {
+        issueDate: '2023-01-01',
+        documentTypeDescription: 'Type A',
+        category: 'rop',
+        documentPageCount: 5,
+        imageId: '123',
+      };
     mockParticipantOne = {
       fullName: 'John Doe',
       lastNm: 'Doe',
       givenNm: 'John',
       profSeqNo: 1,
-      document: [
-        {
-          issueDate: '2023-01-01',
-          documentTypeDescription: 'Type A',
-          category: 'rop',
-          documentPageCount: 5,
-          imageId: '123',
-        },
-      ],
+      document: [mockDocumentOne],
+      keyDocuments: [],
     };
     mockParticipantTwo = {
       fullName: 'Jane Smith',
@@ -50,13 +52,31 @@ describe('CriminalDocumentsView.vue', () => {
     });
   });
 
-  it('renders only documents section', () => {
+  it('renders only all documents table when no key documents', () => {
     const sections = wrapper.findAll('v-card-text .text-h5');
     const tables = wrapper.findAll('v-data-table-virtual');
 
     expect(tables).toHaveLength(1);
-    expect(sections).toHaveLength(1);
-    expect(sections[0].text()).toContain('All Documents');
+    expect(sections).toHaveLength(2);
+    expect(sections[0].text()).toContain('Key Documents');
+    expect(sections[1].text()).toContain('All Documents');
+  });
+
+  it('renders both all and key document tables', () => {
+    mockParticipants[0].keyDocuments.push(mockDocumentOne);
+    const wrapper = shallowMount(DocumentsView, {
+      props: {
+        participants: mockParticipants,
+      },
+    });
+
+    const sections = wrapper.findAll('v-card-text .text-h5');
+    const tables = wrapper.findAll('v-data-table-virtual');
+
+    expect(tables).toHaveLength(2);
+    expect(sections).toHaveLength(2);
+    expect(sections[0].text()).toContain('Key Documents');
+    expect(sections[1].text()).toContain('All Documents');
   });
 
   it('renders correct all documents header with correct count', () => {
@@ -67,8 +87,20 @@ describe('CriminalDocumentsView.vue', () => {
       },
     });
     const sections = wrapper.findAll('v-card-text .text-h5');
-    expect(sections).toHaveLength(1);
-    expect(sections[0].text()).toBe('All Documents (3)');
+    expect(sections).toHaveLength(2);
+    expect(sections[1].text()).toBe('All Documents (3)');
+  });
+
+  it('renders correct key documents header with correct count', () => {
+    mockParticipants[0].keyDocuments.push(mockDocumentOne);
+    const wrapper = shallowMount(DocumentsView, {
+      props: {
+        participants: mockParticipants,
+      },
+    });
+    const sections = wrapper.findAll('v-card-text .text-h5');
+    expect(sections).toHaveLength(2);
+    expect(sections[0].text()).toBe('Key Documents (1)');
   });
 
   it('does not render table when no documents', () => {
