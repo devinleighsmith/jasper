@@ -250,6 +250,9 @@
   };
 
   const removeDocumentFromBinder = async (documentId: string) => {
+    if(!currentBinder.value?.documents) {
+      return;
+    }
     currentBinder.value.documents = currentBinder.value?.documents.filter(
       (d) => d.documentId !== documentId
     );
@@ -258,6 +261,9 @@
   };
 
   const deleteCurrentBinder = async () => {
+    if(!currentBinder.value?.id) {
+      return;
+    }
     isBinderLoading.value = true;
     await binderService.deleteBinder(currentBinder.value.id);
     currentBinder.value = { id: null, labels, documents: [] } as Binder;
