@@ -149,6 +149,12 @@
       title: 'ISSUES',
       key: 'issue',
     },
+    {
+      title: 'ACTIONS',
+      key: 'binderMenu',
+      align: 'end' as const,
+      sortable: false,
+    },
   ];
   const labels = {
     ['physicalFileId']: props.fileId,

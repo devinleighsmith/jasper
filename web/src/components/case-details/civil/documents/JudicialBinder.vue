@@ -41,7 +41,7 @@
       <v-data-table-virtual
         item-value="civilDocumentId"
         class="my-3"
-        :headers
+        :headers="baseHeaders"
         :items="binderDocuments"
         hide-default-footer
         show-select
@@ -103,7 +103,6 @@
   import { DataTableHeader } from '@/types/shared';
   import { getLookupShortDescription } from '@/utils/utils';
   import { mdiDragVertical, mdiNotebookOutline } from '@mdi/js';
-  import { BinderDocument } from '@/types';
   import ConfirmButton from '@/components/shared/ConfirmButton.vue';
 
   const props = defineProps<{
@@ -118,16 +117,6 @@
     openIndividualDocument: (data: civilDocumentType) => void;
     deleteBinder: () => void;
   }>();
-
-  const headers = [
-    ...props.baseHeaders,
-    {
-      title: 'ACTIONS',
-      key: 'binderMenu',
-      align: 'end' as const,
-      sortable: false,
-    },
-  ];
 
   const removeFromBinder = (item: civilDocumentType) => {
     return [
