@@ -112,12 +112,15 @@ namespace tests.api.Controllers
             config.Apply(new LocationMapping());
             var mapper = new Mapper(config);
 
+            var mockDocCatService = new Mock<IDocumentCategoryService>();
+
             // Services setup
             var mockLookupService = new Mock<LookupService>(
                 MockBehavior.Strict,
                 mockConfig.Object,
                 mockLookupCodeServicesClient.Object,
-                cachingService);
+                cachingService,
+                mockDocCatService.Object);
             var mockLocationService = new Mock<LocationService>(
                 MockBehavior.Strict,
                 mockConfig.Object,
