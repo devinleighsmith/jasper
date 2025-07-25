@@ -46,4 +46,14 @@ describe('JudicialBinder.vue', () => {
     expect(alertEl.exists()).toBe(true);
     expect(tableEl.exists()).toBe(true);
   });
+
+  it('renders confirm button', () => {
+    const wrapper = mount(JudicialBinder, {
+      props: mockProps,
+    });
+
+    const confirmButton = wrapper.findComponent({name: 'ConfirmButton'});
+    
+    expect(confirmButton.exists()).toBe(true);
+  });
 });

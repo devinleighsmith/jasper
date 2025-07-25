@@ -1,20 +1,11 @@
 <template>
   <v-btn-secondary @click="show = true"> {{ buttonText }} </v-btn-secondary>
   <v-dialog v-model="show" width="auto">
-    <v-card
-      max-width="400"
-      prepend-icon="mdi-update"
-      :text="infoText"
-      :title="buttonText"
-    >
-      <template v-slot:actions>
-        <v-btn-tertiary
-          class="ms-auto"
-          :text="confirmText"
-          @click="confirmAction()"
-        />
+    <v-card max-width="400" :text="infoText" :title="buttonText" class="p-3">
+      <v-card-actions class="justify-start">
+        <v-btn-tertiary :text="confirmText" @click="confirmAction()" />
         <v-btn-secondary text="No, cancel" @click="show = false" />
-      </template>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
