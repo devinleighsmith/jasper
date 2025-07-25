@@ -38,72 +38,125 @@
       />
     </div>
     <div class="jb-table overflow-y-auto">
-      <v-data-table-virtual
-        item-value="civilDocumentId"
-        class="my-3"
-        :headers="baseHeaders"
-        :items="binderDocuments"
-        hide-default-footer
-        show-select
-      >
-        <template v-slot:item.documentTypeDescription="{ item }">
-          <a
-            v-if="item.imageId"
-            href="javascript:void(0)"
-            @click="openIndividualDocument(item)"
-          >
-            {{ item.documentTypeDescription }}
-          </a>
-          <span v-else>
-            {{ item.documentTypeDescription }}
-          </span>
-        </template>
-        <template v-slot:item.activity="{ item }">
-          <v-chip-group>
-            <div v-for="info in item.documentSupport" :key="info.actCd">
-              <v-chip rounded="lg">{{ info.actCd }}</v-chip>
-            </div>
-          </v-chip-group>
-        </template>
-        <template v-slot:item.filedBy="{ item }">
-          <span v-for="(role, index) in item.filedBy" :key="index">
-            <span v-if="role.roleTypeCode">
-              <v-skeleton-loader
-                class="bg-transparent"
-                type="text"
-                :loading="rolesLoading"
+      <v-table :headers="headers" :items="binderDocuments">
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th
+                id="table-header"
+                v-for="header in headers"
+                :key="header.value"
               >
-                {{
-                  roles
-                    ? getLookupShortDescription(role.roleTypeCode, roles)
-                    : ''
-                }}
-              </v-skeleton-loader>
-            </span>
-          </span>
+                {{ header.title }}
+              </th>
+            </tr>
+          </thead>
+          <draggable
+            v-model="draggableItems"
+            item-key="civilDocumentId"
+            tag="tbody"
+            handle=".handle"
+            @change="dropped"
+          >
+            <template #item="{ element }">
+              <tr>
+                <!-- Handle Column -->
+                <td>
+                  <!-- drag handle column -->
+                  <v-icon
+                    style="cursor: move"
+                    class="handle"
+                    :icon="mdiDragVertical"
+                  />
+                </td>
+                <!-- Sequence Number column -->
+                <td>
+                  {{ element.fileSeqNo }}
+                </td>
+                <td>
+                  <!-- documentTypeDescription column -->
+                  <a
+                    v-if="element.imageId"
+                    href="javascript:void(0)"
+                    @click="props.openIndividualDocument(element)"
+                  >
+                    {{ element.documentTypeDescription }}
+                  </a>
+                  <span v-else>
+                    {{ element.documentTypeDescription }}
+                  </span>
+                </td>
+                <td>
+                  <!-- activity column -->
+                  <v-chip-group>
+                    <div
+                      v-for="info in element.documentSupport"
+                      :key="info.actCd"
+                    >
+                      <v-chip rounded="lg">{{ info.actCd }}</v-chip>
+                    </div>
+                  </v-chip-group>
+                </td>
+                <!-- date files column -->
+                <td>
+                  {{ formatDateToDDMMMYYYY(element.filedDt) }}
+                </td>
+                <td>
+                  <!-- filedBy column -->
+                  <span v-for="(role, index) in element.filedBy" :key="index">
+                    <span v-if="role.roleTypeCode">
+                      <v-skeleton-loader
+                        class="bg-transparent"
+                        type="text"
+                        :loading="props.rolesLoading"
+                      >
+                        {{
+                          props.roles
+                            ? getLookupShortDescription(
+                                role.roleTypeCode,
+                                props.roles
+                              )
+                            : ''
+                        }}
+                      </v-skeleton-loader>
+                    </span>
+                  </span>
+                </td>
+                <td>
+                  <!-- issue column -->
+                  <LabelWithTooltip
+                    v-if="element.issue?.length > 0"
+                    :values="element.issue.map((issue) => issue.issueTypeDesc)"
+                    :location="Anchor.Top"
+                  />
+                </td>
+                <td>
+                  <!-- binderMenu column -->
+                  <EllipsesMenu :menuItems="removeFromBinder(element)" />
+                </td>
+              </tr>
+            </template>
+          </draggable>
         </template>
-        <template v-slot:item.issue="{ item }">
-          <LabelWithTooltip
-            v-if="item.issue?.length > 0"
-            :values="item.issue.map((issue) => issue.issueTypeDesc)"
-            :location="Anchor.Top"
-          />
-        </template>
-        <template v-slot:item.binderMenu="{ item }">
-          <EllipsesMenu :menuItems="removeFromBinder(item)" />
-        </template>
-      </v-data-table-virtual>
+      </v-table>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
+  import { ref } from 'vue';
+  import { mdiDrag } from '@mdi/js';
+  import draggable from 'vuedraggable';
+  // import { VueDraggableNext } from 'vue-draggable-next';
   import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
   import { civilDocumentType } from '@/types/civil/jsonTypes';
   import { Anchor, LookupCode } from '@/types/common';
   import { DataTableHeader } from '@/types/shared';
   import { getLookupShortDescription } from '@/utils/utils';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { mdiDragVertical, mdiNotebookOutline } from '@mdi/js';
   import ConfirmButton from '@/components/shared/ConfirmButton.vue';
+  import { watch } from 'vue';
 
   const props = defineProps<{
     isBinderLoading: boolean;
@@ -118,6 +171,44 @@
     deleteBinder: () => void;
   }>();
 
+  const emit = defineEmits<
+    (
+      e: 'update:reordered',
+      value: {
+        oldIndex: number;
+        newIndex: number;
+        document: civilDocumentType;
+      }
+    ) => void
+  >();
+
+  const draggableItems = ref<civilDocumentType[]>([...props.binderDocuments]);
+
+  watch(
+    () => props.binderDocuments,
+    (newVal) => {
+      draggableItems.value = [...newVal];
+    },
+    { immediate: true, deep: true }
+  );
+
+  const test = [
+    { id: 1, name: 'Abby', sport: 'basket' },
+    { id: 2, name: 'Brooke', sport: 'foot' },
+    { id: 3, name: 'Courtenay', sport: 'volley' },
+    { id: 4, name: 'David', sport: 'rugby' },
+  ];
+
+  const headers = [
+    {
+      title: '',
+      key: 'drag',
+      align: 'start' as const,
+      sortable: false,
+    },
+    ...props.baseHeaders,
+  ];
+
   const removeFromBinder = (item: civilDocumentType) => {
     return [
       {
@@ -127,6 +218,12 @@
       },
     ];
   };
+  const dropped = (event) =>
+    emit('update:reordered', {
+      oldIndex: event.moved.oldIndex,
+      newIndex: event.moved.newIndex,
+      document: event.moved.element,
+    });
 </script>
 <style>
   .jb-table {
