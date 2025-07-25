@@ -28,7 +28,7 @@
     v-if="documents?.length"
     :model-value="selectedItems"
     @update:model-value="handleSelectedItemsChange"
-    :headers="headers"
+    :headers="baseHeaders"
     :items="documents"
     :sort-by="sortBy"
     return-object
@@ -109,16 +109,6 @@
     defineEmits<
       (e: 'update:selectedItems', value: civilDocumentType[]) => void
     >();
-
-  const headers = [
-    ...props.baseHeaders,
-    {
-      title: 'ACTIONS',
-      key: 'binderMenu',
-      align: 'end' as const,
-      sortable: false,
-    },
-  ];
 
   const handleSelectedItemsChange = (newItems) => {
     emit('update:selectedItems', [...newItems]);

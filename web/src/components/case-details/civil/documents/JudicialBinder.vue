@@ -30,15 +30,21 @@
     </v-alert>
     <div class="d-flex justify-end my-3">
       <v-btn-secondary class="mr-3" text="View Binder"></v-btn-secondary>
-      <v-btn-secondary text="Delete Binder"></v-btn-secondary>
+      <ConfirmButton
+        buttonText="Delete Judicial Binder"
+        infoText="Are you sure you want to delete your Judicial Binder? This will not delete any documents."
+        confirmText="Yes, delete"
+        :confirmAction="deleteBinder"
+      />
     </div>
     <div class="jb-table overflow-y-auto">
       <v-data-table-virtual
-        :show-select="false"
+        item-value="civilDocumentId"
         class="my-3"
         :headers="baseHeaders"
         :items="binderDocuments"
         hide-default-footer
+        show-select
       >
         <template v-slot:item.documentTypeDescription="{ item }">
           <a
@@ -83,26 +89,44 @@
             :location="Anchor.Top"
           />
         </template>
+        <template v-slot:item.binderMenu="{ item }">
+          <EllipsesMenu :menuItems="removeFromBinder(item)" />
+        </template>
       </v-data-table-virtual>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+  import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
   import { civilDocumentType } from '@/types/civil/jsonTypes';
   import { Anchor, LookupCode } from '@/types/common';
   import { DataTableHeader } from '@/types/shared';
   import { getLookupShortDescription } from '@/utils/utils';
   import { mdiDragVertical, mdiNotebookOutline } from '@mdi/js';
+  import ConfirmButton from '@/components/shared/ConfirmButton.vue';
 
-  defineProps<{
+  const props = defineProps<{
     isBinderLoading: boolean;
     courtClassCdStyle: string;
     rolesLoading: boolean;
     roles: LookupCode[];
     baseHeaders: DataTableHeader[];
     binderDocuments: civilDocumentType[];
+    selectedItems: civilDocumentType[];
+    removeDocumentFromBinder: (documentId: string) => void;
     openIndividualDocument: (data: civilDocumentType) => void;
+    deleteBinder: () => void;
   }>();
+
+  const removeFromBinder = (item: civilDocumentType) => {
+    return [
+      {
+        title: 'Remove from binder',
+        action: () => props.removeDocumentFromBinder(item.civilDocumentId),
+        enable: true,
+      },
+    ];
+  };
 </script>
 <style>
   .jb-table {
