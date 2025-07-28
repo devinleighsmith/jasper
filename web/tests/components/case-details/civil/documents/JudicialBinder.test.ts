@@ -39,7 +39,7 @@ describe('JudicialBinder.vue', () => {
     const loader = wrapper.find('v-skeleton-loader');
     const jbContainerEl = wrapper.find('[data-testid="jb-container"]');
     const alertEl = wrapper.find('v-alert');
-    const tableEl = wrapper.find('v-data-table-virtual');
+    const tableEl = wrapper.find('v-table');
 
     expect(loader.exists()).toBe(false);
     expect(jbContainerEl.exists()).toBe(true);
