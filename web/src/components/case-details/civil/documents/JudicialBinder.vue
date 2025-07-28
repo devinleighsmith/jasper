@@ -56,25 +56,32 @@
             item-key="civilDocumentId"
             tag="tbody"
             handle=".handle"
+            :component-data="{
+              tag: 'ul',
+              type: 'transition-group',
+              name: !drag ? 'flip-list' : null,
+            }"
+            v-bind="dragOptions"
             @change="dropped"
+            @start="drag = true"
+            @end="drag = false"
           >
             <template #item="{ element }">
               <tr>
-                <!-- Handle Column -->
+                <!-- Handle column -->
                 <td>
-                  <!-- drag handle column -->
                   <v-icon
                     style="cursor: move"
                     class="handle"
                     :icon="mdiDragVertical"
                   />
                 </td>
-                <!-- Sequence Number column -->
+                <!-- SequenceNumber column -->
                 <td>
                   {{ element.fileSeqNo }}
                 </td>
                 <td>
-                  <!-- documentTypeDescription column -->
+                  <!-- Type Description column -->
                   <a
                     v-if="element.imageId"
                     href="javascript:void(0)"
@@ -87,7 +94,7 @@
                   </span>
                 </td>
                 <td>
-                  <!-- activity column -->
+                  <!-- Activity column -->
                   <v-chip-group>
                     <div
                       v-for="info in element.documentSupport"
@@ -97,12 +104,12 @@
                     </div>
                   </v-chip-group>
                 </td>
-                <!-- date files column -->
+                <!-- Date Filed column -->
                 <td>
                   {{ formatDateToDDMMMYYYY(element.filedDt) }}
                 </td>
                 <td>
-                  <!-- filedBy column -->
+                  <!-- Filed By column -->
                   <span v-for="(role, index) in element.filedBy" :key="index">
                     <span v-if="role.roleTypeCode">
                       <v-skeleton-loader
@@ -123,7 +130,7 @@
                   </span>
                 </td>
                 <td>
-                  <!-- issue column -->
+                  <!-- Issues column -->
                   <LabelWithTooltip
                     v-if="element.issue?.length > 0"
                     :values="element.issue.map((issue) => issue.issueTypeDesc)"
@@ -131,7 +138,7 @@
                   />
                 </td>
                 <td>
-                  <!-- binderMenu column -->
+                  <!-- Actions column -->
                   <EllipsesMenu :menuItems="removeFromBinder(element)" />
                 </td>
               </tr>
@@ -144,19 +151,16 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { mdiDrag } from '@mdi/js';
   import draggable from 'vuedraggable';
-  // import { VueDraggableNext } from 'vue-draggable-next';
+  import ConfirmButton from '@/components/shared/ConfirmButton.vue';
   import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
   import { civilDocumentType } from '@/types/civil/jsonTypes';
   import { Anchor, LookupCode } from '@/types/common';
   import { DataTableHeader } from '@/types/shared';
-  import { getLookupShortDescription } from '@/utils/utils';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { getLookupShortDescription } from '@/utils/utils';
   import { mdiDragVertical, mdiNotebookOutline } from '@mdi/js';
-  import ConfirmButton from '@/components/shared/ConfirmButton.vue';
-  import { watch } from 'vue';
+  import { watch, ref } from 'vue';
 
   const props = defineProps<{
     isBinderLoading: boolean;
@@ -183,6 +187,13 @@
   >();
 
   const draggableItems = ref<civilDocumentType[]>([...props.binderDocuments]);
+  const drag = ref(false);
+  const dragOptions = {
+    animation: 200,
+    group: 'description',
+    disabled: false,
+    ghostClass: 'ghost',
+  };
 
   watch(
     () => props.binderDocuments,
@@ -191,13 +202,6 @@
     },
     { immediate: true, deep: true }
   );
-
-  const test = [
-    { id: 1, name: 'Abby', sport: 'basket' },
-    { id: 2, name: 'Brooke', sport: 'foot' },
-    { id: 3, name: 'Courtenay', sport: 'volley' },
-    { id: 4, name: 'David', sport: 'rugby' },
-  ];
 
   const headers = [
     {
@@ -209,15 +213,15 @@
     ...props.baseHeaders,
   ];
 
-  const removeFromBinder = (item: civilDocumentType) => {
-    return [
+  const removeFromBinder = (item: civilDocumentType) => 
+    [
       {
         title: 'Remove from binder',
         action: () => props.removeDocumentFromBinder(item.civilDocumentId),
         enable: true,
       },
     ];
-  };
+
   const dropped = (event) =>
     emit('update:reordered', {
       oldIndex: event.moved.oldIndex,
