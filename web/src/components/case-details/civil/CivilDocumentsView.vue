@@ -30,6 +30,7 @@
     :deleteBinder="deleteCurrentBinder"
     :baseHeaders="headers"
     :selectedItems="selectedBinderItems"
+    @update:reordered="(documentData) => handleReordering(documentData)"
   />
 
   <AllDocuments
@@ -323,6 +324,18 @@
 
     selectedItems.value = [];
     await saveBinder();
+  };
+
+  const handleReordering =  (documentData) => {
+    if(!currentBinder.value?.documents){
+      return;
+    }
+    const docs = currentBinder.value.documents;
+    const [moved] = docs.splice(documentData.oldIndex, 1);
+    docs.splice(documentData.newIndex, 0, moved);
+    // Update order property for each document
+    docs.forEach((doc, idx) => (doc.order = idx));
+    return saveBinder();
   };
 </script>
 

@@ -38,72 +38,129 @@
       />
     </div>
     <div class="jb-table overflow-y-auto">
-      <v-data-table-virtual
-        item-value="civilDocumentId"
-        class="my-3"
-        :headers="baseHeaders"
-        :items="binderDocuments"
-        hide-default-footer
-        show-select
-      >
-        <template v-slot:item.documentTypeDescription="{ item }">
-          <a
-            v-if="item.imageId"
-            href="javascript:void(0)"
-            @click="openIndividualDocument(item)"
-          >
-            {{ item.documentTypeDescription }}
-          </a>
-          <span v-else>
-            {{ item.documentTypeDescription }}
-          </span>
-        </template>
-        <template v-slot:item.activity="{ item }">
-          <v-chip-group>
-            <div v-for="info in item.documentSupport" :key="info.actCd">
-              <v-chip rounded="lg">{{ info.actCd }}</v-chip>
-            </div>
-          </v-chip-group>
-        </template>
-        <template v-slot:item.filedBy="{ item }">
-          <span v-for="(role, index) in item.filedBy" :key="index">
-            <span v-if="role.roleTypeCode">
-              <v-skeleton-loader
-                class="bg-transparent"
-                type="text"
-                :loading="rolesLoading"
+      <v-table :headers="headers" :items="binderDocuments">
+        <template v-slot:default>
+          <thead>
+            <tr>
+              <th
+                id="table-header"
+                v-for="header in headers"
+                :key="header.value"
               >
-                {{
-                  roles
-                    ? getLookupShortDescription(role.roleTypeCode, roles)
-                    : ''
-                }}
-              </v-skeleton-loader>
-            </span>
-          </span>
+                {{ header.title }}
+              </th>
+            </tr>
+          </thead>
+          <draggable
+            v-model="draggableItems"
+            item-key="civilDocumentId"
+            tag="tbody"
+            handle=".handle"
+            :component-data="{
+              tag: 'ul',
+              type: 'transition-group',
+              name: !drag ? 'flip-list' : null,
+            }"
+            v-bind="dragOptions"
+            @change="dropped"
+            @start="drag = true"
+            @end="drag = false"
+          >
+            <template #item="{ element }">
+              <tr>
+                <!-- Handle column -->
+                <td>
+                  <v-icon
+                    style="cursor: move"
+                    class="handle"
+                    :icon="mdiDragVertical"
+                  />
+                </td>
+                <!-- SequenceNumber column -->
+                <td>
+                  {{ element.fileSeqNo }}
+                </td>
+                <td>
+                  <!-- Type Description column -->
+                  <a
+                    v-if="element.imageId"
+                    href="javascript:void(0)"
+                    @click="props.openIndividualDocument(element)"
+                  >
+                    {{ element.documentTypeDescription }}
+                  </a>
+                  <span v-else>
+                    {{ element.documentTypeDescription }}
+                  </span>
+                </td>
+                <td>
+                  <!-- Activity column -->
+                  <v-chip-group>
+                    <div
+                      v-for="info in element.documentSupport"
+                      :key="info.actCd"
+                    >
+                      <v-chip rounded="lg">{{ info.actCd }}</v-chip>
+                    </div>
+                  </v-chip-group>
+                </td>
+                <!-- Date Filed column -->
+                <td>
+                  {{ formatDateToDDMMMYYYY(element.filedDt) }}
+                </td>
+                <td>
+                  <!-- Filed By column -->
+                  <span v-for="(role, index) in element.filedBy" :key="index">
+                    <span v-if="role.roleTypeCode">
+                      <v-skeleton-loader
+                        class="bg-transparent"
+                        type="text"
+                        :loading="props.rolesLoading"
+                      >
+                        {{
+                          props.roles
+                            ? getLookupShortDescription(
+                                role.roleTypeCode,
+                                props.roles
+                              )
+                            : ''
+                        }}
+                      </v-skeleton-loader>
+                    </span>
+                  </span>
+                </td>
+                <td>
+                  <!-- Issues column -->
+                  <LabelWithTooltip
+                    v-if="element.issue?.length > 0"
+                    :values="element.issue.map((issue) => issue.issueTypeDesc)"
+                    :location="Anchor.Top"
+                  />
+                </td>
+                <td>
+                  <!-- Actions column -->
+                  <EllipsesMenu :menuItems="removeFromBinder(element)" />
+                </td>
+              </tr>
+            </template>
+          </draggable>
         </template>
-        <template v-slot:item.issue="{ item }">
-          <LabelWithTooltip
-            v-if="item.issue?.length > 0"
-            :values="item.issue.map((issue) => issue.issueTypeDesc)"
-            :location="Anchor.Top"
-          />
-        </template>
-        <template v-slot:item.binderMenu="{ item }">
-          <EllipsesMenu :menuItems="removeFromBinder(item)" />
-        </template>
-      </v-data-table-virtual>
+      </v-table>
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
+  import draggable from 'vuedraggable';
+  import ConfirmButton from '@/components/shared/ConfirmButton.vue';
   import EllipsesMenu from '@/components/shared/EllipsesMenu.vue';
   import { civilDocumentType } from '@/types/civil/jsonTypes';
   import { Anchor, LookupCode } from '@/types/common';
   import { DataTableHeader } from '@/types/shared';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { getLookupShortDescription } from '@/utils/utils';
   import { mdiDragVertical, mdiNotebookOutline } from '@mdi/js';
-  import ConfirmButton from '@/components/shared/ConfirmButton.vue';
+  import { watch, ref } from 'vue';
 
   const props = defineProps<{
     isBinderLoading: boolean;
@@ -118,15 +175,59 @@
     deleteBinder: () => void;
   }>();
 
-  const removeFromBinder = (item: civilDocumentType) => {
-    return [
+  const emit = defineEmits<
+    (
+      e: 'update:reordered',
+      value: {
+        oldIndex: number;
+        newIndex: number;
+        document: civilDocumentType;
+      }
+    ) => void
+  >();
+
+  const draggableItems = ref<civilDocumentType[]>([...props.binderDocuments]);
+  const drag = ref(false);
+  const dragOptions = {
+    animation: 200,
+    group: 'description',
+    disabled: false,
+    ghostClass: 'ghost',
+  };
+
+  watch(
+    () => props.binderDocuments,
+    (newVal) => {
+      draggableItems.value = [...newVal];
+    },
+    { immediate: true, deep: true }
+  );
+
+  const headers = [
+    {
+      title: '',
+      key: 'drag',
+      align: 'start' as const,
+      sortable: false,
+    },
+    ...props.baseHeaders,
+  ];
+
+  const removeFromBinder = (item: civilDocumentType) => 
+    [
       {
         title: 'Remove from binder',
         action: () => props.removeDocumentFromBinder(item.civilDocumentId),
         enable: true,
       },
     ];
-  };
+
+  const dropped = (event) =>
+    emit('update:reordered', {
+      oldIndex: event.moved.oldIndex,
+      newIndex: event.moved.newIndex,
+      document: event.moved.element,
+    });
 </script>
 <style>
   .jb-table {
