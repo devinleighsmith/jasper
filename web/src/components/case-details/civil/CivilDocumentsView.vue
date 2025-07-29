@@ -26,7 +26,11 @@
     :rolesLoading
     :roles="roles ?? []"
     :openIndividualDocument
+    :removeDocumentFromBinder
+    :deleteBinder="deleteCurrentBinder"
     :baseHeaders="headers"
+    :selectedItems="selectedBinderItems"
+    @update:reordered="(documentData) => handleReordering(documentData)"
   />
 
   <AllDocuments
@@ -106,6 +110,7 @@
   }
 
   const selectedItems = ref<civilDocumentType[]>([]);
+  const selectedBinderItems = ref<civilDocumentType[]>([]);
   const showActionbar = computed<boolean>(() => selectedItems.value.length > 1);
   const enableViewTogether = computed<boolean>(
     () => selectedItems.value.filter((d) => d.imageId).length > 1
@@ -145,7 +150,18 @@
       title: 'ISSUES',
       key: 'issue',
     },
+    {
+      title: 'ACTIONS',
+      key: 'binderMenu',
+      align: 'end' as const,
+      sortable: false,
+    },
   ];
+  const labels = {
+    ['physicalFileId']: props.fileId,
+    ['courtClassCd']: props.courtClassCd,
+    ['judgeId']: commonStore.userInfo?.userId,
+  };
 
   const documentTypes = ref<any[]>([
     ...new Map(
@@ -207,6 +223,8 @@
       prepareCivilDocumentData(data)
     );
 
+    // Todo, parts of these binder operation methods should be moved to a 
+    // shared binder space, that way the code is not repeated
   const openMergedDocuments = () => {
     const documents: [CourtDocumentType, DocumentData][] = [];
     selectedItems.value
@@ -220,12 +238,6 @@
   };
 
   const loadBinder = async () => {
-    const labels = {
-      ['physicalFileId']: props.fileId,
-      ['courtClassCd']: props.courtClassCd,
-      ['judgeId']: commonStore.userInfo?.userId,
-    };
-
     // Get binders associated to the current user. In Phase 1, we are supporting 1 binder per case per user.
     const binders = await binderService.getBinders(labels);
 
@@ -242,6 +254,27 @@
     } as BinderDocument);
 
     await saveBinder();
+  };
+
+  const removeDocumentFromBinder = async (documentId: string) => {
+    if(!currentBinder.value?.documents) {
+      return;
+    }
+    currentBinder.value.documents = currentBinder.value?.documents.filter(
+      (d) => d.documentId !== documentId
+    );
+
+    await saveBinder();
+  };
+
+  const deleteCurrentBinder = async () => {
+    if(!currentBinder.value?.id) {
+      return;
+    }
+    isBinderLoading.value = true;
+    await binderService.deleteBinder(currentBinder.value.id);
+    currentBinder.value = { id: null, labels, documents: [] } as Binder;
+    isBinderLoading.value = false;
   };
 
   const saveBinder = async () => {
@@ -291,6 +324,18 @@
 
     selectedItems.value = [];
     await saveBinder();
+  };
+
+  const handleReordering =  (documentData) => {
+    if(!currentBinder.value?.documents){
+      return;
+    }
+    const docs = currentBinder.value.documents;
+    const [moved] = docs.splice(documentData.oldIndex, 1);
+    docs.splice(documentData.newIndex, 0, moved);
+    // Update order property for each document
+    docs.forEach((doc, idx) => (doc.order = idx));
+    return saveBinder();
   };
 </script>
 

@@ -1,14 +1,12 @@
-﻿using LazyCache;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using JCCommon.Clients.LookupCodeServices;
+using LazyCache;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 using Scv.Api.Helpers;
 using Scv.Api.Helpers.ContractResolver;
-using Scv.Api.Helpers.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using JCCommon.Clients.LookupCodeServices;
 using CodeLookup = System.Collections.Generic.ICollection<JCCommon.Clients.LookupCodeServices.LookupCode>;
 
 namespace Scv.Api.Services
@@ -21,8 +19,8 @@ namespace Scv.Api.Services
         #region Variables
 
         private readonly IAppCache _cache;
-        private readonly IConfiguration _configuration;
         private readonly LookupCodeServicesClient _lookupClient;
+        private readonly IDocumentCategoryService _dcService;
 
         #endregion Variables
 
@@ -32,10 +30,14 @@ namespace Scv.Api.Services
 
         #region Constructor
 
-        public LookupService(IConfiguration configuration, LookupCodeServicesClient lookupClient, IAppCache cache)
+        public LookupService(
+            IConfiguration configuration,
+            LookupCodeServicesClient lookupClient,
+            IAppCache cache,
+            IDocumentCategoryService dcService)
         {
-            _configuration = configuration;
             _lookupClient = lookupClient;
+            _dcService = dcService;
             _cache = cache;
             _cache.DefaultCachePolicy.DefaultCacheDurationSeconds = int.Parse(configuration.GetNonEmptyValue("Caching:LookupExpiryMinutes")) * 60;
             SetupLookupServicesClient();
@@ -280,25 +282,29 @@ namespace Scv.Api.Services
         public async Task<string> GetHearingRestrictionDescription(string code) => FindLongDescriptionFromCode(await GetHearingRestrictions(), code);
 
         /// <summary>
-        /// Reads from the configuration for the document category.
+        /// Retrieves the Document Category based from code or docm class
         /// </summary>
         /// <param name="documentCode"></param>
         /// <param name="docmClassification"></param>
-        /// <returns>string</returns>
-        public string GetDocumentCategory(string documentCode, string docmClassification = null)
+        /// <returns></returns>
+        public async Task<string> GetDocumentCategory(string documentCode, string docmClassification = null)
         {
-            var configurationSections =
-                _configuration.GetSection("DocumentCategories").Get<Dictionary<string, string>>() ??
-                throw new ConfigurationException("Couldn't not build dictionary based on DocumentCategories");
+            var documentCategories = await _dcService.GetAllAsync();
 
-            if (!String.IsNullOrEmpty(documentCode))
+            if (!string.IsNullOrWhiteSpace(documentCode))
             {
-                var categoryFromConfig =
-                    configurationSections.FirstOrDefault(cs => cs.Value.Split(",").Contains(documentCode)).Key;
-                return categoryFromConfig;
+                var category = documentCategories
+                    .FirstOrDefault(cs => cs.Value
+                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                        .Select(cs => cs.Trim())
+                        .Contains(documentCode));
+                return category?.Name;
             }
 
-            return configurationSections.Keys.Contains(docmClassification, StringComparer.OrdinalIgnoreCase) ? docmClassification : null;
+            return documentCategories
+                .Any(dc => string.Equals(dc.Name, docmClassification, StringComparison.OrdinalIgnoreCase))
+                    ? docmClassification
+                    : null;
         }
 
         #endregion Lookup Methods

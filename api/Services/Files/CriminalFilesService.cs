@@ -14,7 +14,6 @@ using Scv.Api.Models.Criminal.AppearanceDetail;
 using Scv.Api.Models.Criminal.Appearances;
 using Scv.Api.Models.Criminal.Detail;
 using Scv.Api.Models.Search;
-using Scv.Api.Helpers;
 using Scv.Db.Models;
 using CriminalAppearanceDetail = Scv.Api.Models.Criminal.AppearanceDetail.CriminalAppearanceDetail;
 using CriminalAppearanceMethod = Scv.Api.Models.Criminal.AppearanceDetail.CriminalAppearanceMethod;
@@ -154,7 +153,7 @@ namespace Scv.Api.Services.Files
                 return null;
 
             var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
-            var documents = PopulateDetailDocuments(fileContent);
+            var documents = await PopulateDetailDocuments(fileContent);
             detail = await PopulateBaseDetail(detail);
             detail.Appearances = appearances;
             detail.Witness = await PopulateDetailWitnesses(detail);
@@ -299,39 +298,44 @@ namespace Scv.Api.Services.Files
             return criminalCount;
         }
 
-        private List<CriminalDocument> PopulateDetailDocuments(CriminalFileContent criminalFileContent)
+        private async Task<List<CriminalDocument>> PopulateDetailDocuments(CriminalFileContent criminalFileContent)
         {
-            return criminalFileContent.AccusedFile.SelectMany(ac =>
+            var documents = await Task.WhenAll(criminalFileContent.AccusedFile.Select(async ac => await GetCriminalDocuments(ac)));
+            return [.. documents.SelectMany(docs => docs)];
+        }
+
+        private async Task<ICollection<CriminalDocument>> GetCriminalDocuments(CfcAccusedFile ac)
+        {
+            var criminalDocuments = _mapper.Map<List<CriminalDocument>>(ac.Document);
+
+            //Create ROPs.
+            if (ac.Appearance != null && ac.Appearance.Count != 0)
             {
-                var criminalDocuments = _mapper.Map<List<CriminalDocument>>(ac.Document);
-
-                //Create ROPs.
-                if (ac.Appearance != null && ac.Appearance.Any())
+                criminalDocuments.Insert(0, new CriminalDocument
                 {
-                    criminalDocuments.Insert(0, new CriminalDocument
-                    {
-                        DocumentTypeDescription = "Record of Proceedings",
-                        ImageId = ac.PartId,
-                        Category = "rop",
-                        PartId = ac.PartId,
-                        HasFutureAppearance = ac.Appearance?.Any(a =>
-                            a?.AppearanceDate != null && DateTime.Parse(a.AppearanceDate) >= DateTime.Today)
-                    });
-                }
+                    DocumentTypeDescription = "Record of Proceedings",
+                    ImageId = ac.PartId,
+                    Category = "rop",
+                    PartId = ac.PartId,
+                    HasFutureAppearance = ac.Appearance?.Any(a =>
+                        a?.AppearanceDate != null && DateTime.Parse(a.AppearanceDate) >= DateTime.Today)
+                });
+            }
 
-                //Populate extra fields.
-                foreach (var document in criminalDocuments)
-                {
-                    document.Category = string.IsNullOrEmpty(document.Category) ? _lookupService.GetDocumentCategory(document.DocmFormId, document.DocmClassification) : document.Category;
-                    document.DocumentTypeDescription = document.DocmFormDsc;
-                    document.PartId = string.IsNullOrEmpty(ac.PartId) ? null : ac.PartId;
-                    document.DocmId = string.IsNullOrEmpty(document.DocmId) ? null : document.DocmId;
-                    document.ImageId = string.IsNullOrEmpty(document.ImageId) ? null : document.ImageId;
-                    document.HasFutureAppearance = ac.Appearance?.Any(a =>
-                        a?.AppearanceDate != null && DateTime.Parse(a.AppearanceDate) >= DateTime.Today);
-                }
-                return criminalDocuments;
-            }).ToList();
+            //Populate extra fields.
+            foreach (var document in criminalDocuments)
+            {
+                document.Category = string.IsNullOrEmpty(document.Category)
+                    ? await _lookupService.GetDocumentCategory(document.DocmFormId, document.DocmClassification)
+                    : document.Category;
+                document.DocumentTypeDescription = document.DocmFormDsc;
+                document.PartId = string.IsNullOrEmpty(ac.PartId) ? null : ac.PartId;
+                document.DocmId = string.IsNullOrEmpty(document.DocmId) ? null : document.DocmId;
+                document.ImageId = string.IsNullOrEmpty(document.ImageId) ? null : document.ImageId;
+                document.HasFutureAppearance = ac.Appearance?.Any(a =>
+                    a?.AppearanceDate != null && DateTime.Parse(a.AppearanceDate) >= DateTime.Today);
+            }
+            return criminalDocuments;
         }
 
         private async Task<ICollection<CriminalWitness>> PopulateDetailWitnesses(RedactedCriminalFileDetailResponse detail)

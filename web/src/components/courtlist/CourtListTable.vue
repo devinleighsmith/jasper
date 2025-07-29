@@ -38,6 +38,11 @@
         </td>
       </tr>
     </template>
+    <template #item.accusedNm="{ item }">
+      <a href="#" @click.prevent="viewCaseDetails(item)">
+        {{ item.accusedNm || item.styleOfCause }}
+      </a>
+    </template>
     <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
       <tr>
         <td class="pa-0" style="height: 1rem" :colspan="columns.length">
@@ -139,6 +144,7 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
+  import { useCourtFileSearchStore } from '@/stores';
   import { CourtClassEnum, DivisionEnum, FileMarkerEnum } from '@/types/common';
   import { CourtListAppearance, PcssCounsel } from '@/types/courtlist';
   import { hoursMinsFormatter } from '@/utils/dateUtils';
@@ -179,6 +185,7 @@
       courtClass: getCourtClassLabel(item.courtClassCd),
     }))
   );
+  const courtFileSearchStore = useCourtFileSearchStore();
 
   const headers = ref([
     { key: 'data-table-expand' },
@@ -197,7 +204,6 @@
     {
       title: 'ACCUSED/PARTIES',
       key: 'accusedNm',
-      value: (item: CourtListAppearance) => item.accusedNm || item.styleOfCause,
     },
     { title: 'TIME', key: 'appearanceTm' },
     { title: 'EST.', key: 'estimatedTime' },
@@ -325,5 +331,17 @@
     }
 
     return [];
+  };
+
+  const viewCaseDetails = (item: CourtListAppearance) => {
+    const isCriminal = item.courtDivisionCd === DivisionEnum.R;
+    const number = isCriminal ? item.justinNo : item.physicalFileId;
+    const caseDetailUrl = `/${isCriminal ? 'criminal-file' : 'civil-file'}/${number}`;
+    courtFileSearchStore.addFilesForViewing({
+      searchCriteria: {},
+      searchResults: [],
+      files: [{ key: number, value: item.courtFileNumber }],
+    });
+    window.open(caseDetailUrl);
   };
 </script>

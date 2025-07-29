@@ -39,11 +39,21 @@ describe('JudicialBinder.vue', () => {
     const loader = wrapper.find('v-skeleton-loader');
     const jbContainerEl = wrapper.find('[data-testid="jb-container"]');
     const alertEl = wrapper.find('v-alert');
-    const tableEl = wrapper.find('v-data-table-virtual');
+    const tableEl = wrapper.find('v-table');
 
     expect(loader.exists()).toBe(false);
     expect(jbContainerEl.exists()).toBe(true);
     expect(alertEl.exists()).toBe(true);
     expect(tableEl.exists()).toBe(true);
+  });
+
+  it('renders confirm button', () => {
+    const wrapper = mount(JudicialBinder, {
+      props: mockProps,
+    });
+
+    const confirmButton = wrapper.findComponent({name: 'ConfirmButton'});
+    
+    expect(confirmButton.exists()).toBe(true);
   });
 });
