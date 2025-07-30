@@ -9,7 +9,7 @@ namespace Scv.Api.Helpers.Documents;
 /// <summary>
 /// Provides methods to resolve key criminal documents based on specific categories and dispositions.
 /// </summary>
-public class KeyDocumentResolver
+public static class KeyDocumentResolver
 {
     // Key categories are unique to JASPER
     private static readonly string[] _keyCategories = ["ROP", "INITIATING"];
@@ -28,7 +28,7 @@ public class KeyDocumentResolver
     {
         if (!documents.Any())
         {
-            return default;
+            return [];
         }
         var nonBails = documents.Where(dmt => _keyCategories.Contains(dmt.Category?.ToUpper() ?? dmt.DocmClassification?.ToUpper()));
         var bails = documents
