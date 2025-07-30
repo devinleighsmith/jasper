@@ -5,13 +5,12 @@ using Scv.Api.Models.Criminal.Detail;
 
 namespace Scv.Api.Helpers.Documents;
 
-
 /// <summary>
 /// Provides methods to resolve key criminal documents based on specific categories and dispositions.
 /// </summary>
 public static class KeyDocumentResolver
 {
-    // Key categories are unique to JASPER
+    // Key documents and their categories are unique to JASPER
     private static readonly string[] _keyCategories = ["ROP", "INITIATING"];
     private static readonly string _perfected = "PERFECTED";
     private static readonly string _bail = "BAIL";

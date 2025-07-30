@@ -77,16 +77,25 @@
         {{ formatCategory(item) }}
       </template>
       <template v-slot:item.documentTypeDescription="{ item }">
-        <a
-          v-if="item.imageId"
-          href="javascript:void(0)"
-          @click="openIndividualDocument(item)"
-        >
-          {{ formatType(item) }}
-        </a>
-        <span v-else>
-          {{ formatType(item) }}
-        </span>
+        <v-row>
+          <v-col>
+            <a
+              v-if="item.imageId"
+              href="javascript:void(0)"
+              @click="openIndividualDocument(item)"
+            >
+              {{ formatType(item) }}
+            </a>
+            <span v-else>
+              {{ formatType(item) }}
+            </span>
+          </v-col>
+        </v-row>
+        <v-row v-if="type === 'keyDocuments' && item.category === 'BAIL'">
+          <v-col>
+            {{ item.docmDispositionDsc }} <span class="pl-1" /> {{ formatDateToDDMMMYYYY(item.issueDate) }}
+          </v-col>
+        </v-row>
       </template>
     </v-data-table-virtual>
   </div>
