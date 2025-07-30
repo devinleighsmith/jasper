@@ -20,7 +20,6 @@
               <a
                 v-if="item.imageId"
                 href="javascript:void(0)"
-                @click="openIndividualDocument(item)"
               >
                 {{ formatType(item) }}
               </a>
@@ -50,11 +49,6 @@
 
 <script setup lang="ts">
   import AppearanceMethods from '@/components/case-details/civil/appearances/AppearanceMethods.vue';
-  import {
-    getCriminalDocumentType,
-    prepareCriminalDocumentData,
-  } from '@/components/documents/DocumentUtils';
-  import shared from '@/components/shared';
   import { FilesService } from '@/services/FilesService';
   import {
     CriminalAppearanceDetails,
@@ -91,7 +85,7 @@
     {
       title: 'DATE FILED/ISSUED',
       key: 'issueDate',
-      value: (item: documentType) => formatDateToDDMMMYYYY(item.issueDate),
+      value: (item) => formatDateToDDMMMYYYY(item.issueDate),
     },
     { title: 'DOCUMENT TYPE', key: 'docmFormDsc' },
     {
@@ -121,13 +115,7 @@
   });
 
   const formatType = (item: documentType) =>
-    item.category === 'rop' ? 'Record of Proceedings' : item.docmFormDsc;
-
-  const openIndividualDocument = (data: documentType) =>
-    shared.openDocumentsPdf(
-      getCriminalDocumentType(data),
-      prepareCriminalDocumentData(data)
-    );
+    item.docmClassification === 'rop' ? 'Record of Proceedings' : item.docmFormDsc;
 </script>
 
 <style scoped>

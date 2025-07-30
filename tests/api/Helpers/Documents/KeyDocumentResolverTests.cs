@@ -11,20 +11,16 @@ public class KeyDocumentResolverTest
     [Fact]
     public void GetCriminalKeyDocuments_ReturnsEmpty_WhenNoDocuments()
     {
-        // Arrange
         var documents = Enumerable.Empty<CriminalDocument>();
 
-        // Act
         var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
 
-        // Assert
         Assert.Null(result);
     }
 
     [Fact]
     public void GetCriminalKeyDocuments_ReturnsKeyDocuments_ByCategory()
     {
-        // Arrange
         var documents = new List<CriminalDocument>
         {
             new() { Category = "ROP", IssueDate = "2024-01-01" },
@@ -32,10 +28,8 @@ public class KeyDocumentResolverTest
             new() { Category = "OTHER", IssueDate = "2024-01-03" }
         };
 
-        // Act
         var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
 
-        // Assert
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
@@ -46,17 +40,14 @@ public class KeyDocumentResolverTest
     [Fact]
     public void GetCriminalKeyDocuments_ReturnsPerfectedBailDocument()
     {
-        // Arrange
         var documents = new List<CriminalDocument>
         {
             new() { Category = "BAIL", DocmDispositionDsc = "Perfected", IssueDate = "2024-01-05" },
             new() { Category = "BAIL", DocmDispositionDsc = "Not Perfected", IssueDate = "2024-01-04" }
         };
 
-        // Act
         var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
 
-        // Assert
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Single(resultList);
@@ -66,7 +57,6 @@ public class KeyDocumentResolverTest
     [Fact]
     public void GetCriminalKeyDocuments_ReturnsKeyDocumentsAndPerfectedBail()
     {
-        // Arrange
         var documents = new List<CriminalDocument>
         {
             new() { Category = "ROP", IssueDate = "2024-01-01" },
@@ -74,10 +64,8 @@ public class KeyDocumentResolverTest
             new() { Category = "OTHER", IssueDate = "2024-01-03" }
         };
 
-        // Act
         var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
 
-        // Assert
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
@@ -88,17 +76,14 @@ public class KeyDocumentResolverTest
     [Fact]
     public void GetCriminalKeyDocuments_HandlesNullCategoryAndClassification()
     {
-        // Arrange
         var documents = new List<CriminalDocument>
         {
             new() { Category = null, DocmClassification = "ROP", IssueDate = "2024-01-01" },
             new() { Category = null, DocmClassification = "BAIL", DocmDispositionDsc = "Perfected", IssueDate = "2024-01-02" }
         };
 
-        // Act
         var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
 
-        // Assert
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
