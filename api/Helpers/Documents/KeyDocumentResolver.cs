@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Scv.Api.Models.Criminal.Detail;
+using Scv.Db.Models;
 
 namespace Scv.Api.Helpers.Documents;
 
@@ -10,8 +11,6 @@ namespace Scv.Api.Helpers.Documents;
 /// </summary>
 public static class KeyDocumentResolver
 {
-    // Key documents and their categories are unique to JASPER
-    private static readonly string[] _keyCategories = ["ROP", "INITIATING"];
     private static readonly string _perfected = "PERFECTED";
     private static readonly string _bail = "BAIL";
 
@@ -29,7 +28,7 @@ public static class KeyDocumentResolver
         {
             return [];
         }
-        var nonBails = documents.Where(dmt => _keyCategories.Contains(dmt.Category?.ToUpper() ?? dmt.DocmClassification?.ToUpper()));
+        var nonBails = documents.Where(dmt => DocumentCategory.ALL_DOCUMENT_CATEGORIES.Contains(dmt.Category?.ToUpper() ?? dmt.DocmClassification?.ToUpper()));
         var bails = documents
             .OrderBy(dmt =>
             {
