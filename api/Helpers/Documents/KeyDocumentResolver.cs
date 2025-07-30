@@ -28,7 +28,7 @@ public static class KeyDocumentResolver
         {
             return [];
         }
-        var nonBails = documents.Where(dmt => DocumentCategory.ALL_DOCUMENT_CATEGORIES.Contains(dmt.Category?.ToUpper() ?? dmt.DocmClassification?.ToUpper()));
+        var nonBails = documents.Where(dmt => DocumentCategory.KEY_DOCUMENT_CATEGORIES.Contains(dmt.Category?.ToUpper() ?? dmt.DocmClassification?.ToUpper()));
         var bails = documents
             .OrderBy(dmt =>
             {
