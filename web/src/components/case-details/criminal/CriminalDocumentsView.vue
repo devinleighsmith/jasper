@@ -93,7 +93,7 @@
         </v-row>
         <v-row v-if="type === 'keyDocuments' && item.category === 'BAIL'">
           <v-col>
-            {{ item.docmDispositionDsc }} <span class="pl-1" /> {{ formatDateToDDMMMYYYY(item.issueDate) }}
+            {{ item.docmDispositionDsc }} <span class="pl-2" /> {{ formatDateToDDMMMYYYY(item.issueDate) }}
           </v-col>
         </v-row>
       </template>
