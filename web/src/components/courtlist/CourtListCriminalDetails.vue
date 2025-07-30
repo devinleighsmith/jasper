@@ -9,12 +9,25 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-card title="All Documents" variant="flat">
+        <v-card title="Key Documents" variant="flat">
           <v-data-table-virtual
             :items="details.initiatingDocuments"
-            :headers="documentHeaders"
+            :headers
+            :sortBy
             density="compact"
           >
+            <template v-slot:item.docmFormDsc="{ item }">
+              <a
+                v-if="item.imageId"
+                href="javascript:void(0)"
+                @click="openIndividualDocument(item)"
+              >
+                {{ formatType(item) }}
+              </a>
+              <span v-else>
+                {{ formatType(item) }}
+              </span>
+            </template>
           </v-data-table-virtual>
         </v-card>
       </v-col>
@@ -37,10 +50,15 @@
 
 <script setup lang="ts">
   import AppearanceMethods from '@/components/case-details/civil/appearances/AppearanceMethods.vue';
+  import {
+    getCriminalDocumentType,
+    prepareCriminalDocumentData,
+  } from '@/components/documents/DocumentUtils';
+  import shared from '@/components/shared';
   import { FilesService } from '@/services/FilesService';
   import {
     CriminalAppearanceDetails,
-    CriminalDocument,
+    documentType,
   } from '@/types/criminal/jsonTypes';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { inject, onMounted, ref } from 'vue';
@@ -56,6 +74,7 @@
     {} as CriminalAppearanceDetails
   );
   const loading = ref(false);
+  const sortBy = ref([{ key: 'docmClassification', order: 'desc' }] as const);
   if (!filesService) {
     throw new Error('Files service is undefined.');
   }
@@ -68,14 +87,26 @@
     { title: 'FINDINGS', key: 'findingDsc' },
   ]);
 
-  const documentHeaders = ref([
+  const headers = ref([
     {
-      title: 'DATE SWORN/FILED',
+      title: 'DATE FILED/ISSUED',
       key: 'issueDate',
-      value: (item: CriminalDocument) => formatDateToDDMMMYYYY(item.issueDate),
+      value: (item: documentType) => formatDateToDDMMMYYYY(item.issueDate),
     },
     { title: 'DOCUMENT TYPE', key: 'docmFormDsc' },
-    { title: 'CATEGORY', key: 'docmClassification' },
+    {
+      title: 'CATEGORY',
+      key: 'docmClassification',
+      sortRaw: (a: documentType, b: documentType) => {
+        const order = ['Initiating', 'BAIL', 'ROP'];
+        const getOrder = (cat: string) => {
+          const formatted = cat === 'rop' ? 'ROP' : cat;
+          const idx = order.indexOf(formatted);
+          return idx === -1 ? order.length : idx;
+        };
+        return getOrder(b.docmClassification) - getOrder(a.docmClassification);
+      },
+    },
     { title: 'PAGES', key: 'documentPageCount' },
   ]);
 
@@ -88,6 +119,15 @@
     );
     loading.value = false;
   });
+
+  const formatType = (item: documentType) =>
+    item.category === 'rop' ? 'Record of Proceedings' : item.docmFormDsc;
+
+  const openIndividualDocument = (data: documentType) =>
+    shared.openDocumentsPdf(
+      getCriminalDocumentType(data),
+      prepareCriminalDocumentData(data)
+    );
 </script>
 
 <style scoped>

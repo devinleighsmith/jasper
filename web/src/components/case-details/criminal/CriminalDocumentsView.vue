@@ -21,6 +21,77 @@
       <name-filter v-model="selectedAccused" :people="participants" />
     </v-col>
   </v-row>
+  <!-- <KeyDocuments
+    v-model="selectedItems"
+    :documents
+    :openIndividualDocument="openIndividualDocument"
+  /> -->
+  <!-- <v-card
+    class="my-6"
+    color="var(--bg-gray-500)"
+    elevation="0"
+    v-if="unfilteredDocuments?.length > 0"
+  >
+    <v-card-text>
+      <v-row align="center" no-gutters>
+        <v-col class="text-h5" cols="6">
+          All Documents ({{ documents.length }})
+        </v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
+  <v-data-table-virtual
+    v-if="documents?.length"
+    v-model="selectedItems"
+    :headers="headers"
+    :items="documents"
+    :sort-by="sortBy"
+    :group-by
+    show-select
+    return-object
+    class="my-3"
+    style="max-height: 50vh; overflow: auto"
+  >
+    <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
+      <tr>
+        <td class="pa-0" style="height: 1rem" :colspan="columns.length">
+          <v-banner
+            class="table-banner"
+            :ref="
+              () => {
+                if (!isGroupOpen(item)) toggleGroup(item);
+              }
+            "
+          >
+            {{ formatFromFullname(item.value) }}
+          </v-banner>
+        </td>
+      </tr>
+    </template>
+    <template v-slot:item.category="{ item }">
+      {{ formatCategory(item) }}
+    </template>
+    <template v-slot:item.documentTypeDescription="{ item }">
+      <v-col>
+        <v-row>
+          <a
+            v-if="item.imageId"
+            href="javascript:void(0)"
+            @click="openIndividualDocument(item)"
+          >
+            {{ formatType(item) }}
+          </a>
+          <span v-else>
+            {{ formatType(item) }}
+          </span>
+        </v-row>
+        <v-row v-if="item.documentTypeDescription === 'BAIL'">
+          <v-col> BAIL </v-col>
+        </v-row>
+      </v-col>
+    </template>
+  </v-data-table-virtual> -->
+
   <div
     v-for="(documents, type) in {
       keyDocuments: keyDocuments,
@@ -46,9 +117,9 @@
     <v-data-table-virtual
       v-if="documents?.length"
       v-model="selectedItems"
-      :headers="headers"
+      :headers="type === 'documents' ? headers : keyDocumentHeaders"
       :items="documents"
-      :sort-by="sortBy"
+      :sort-by="type === 'documents' ? sortBy : keyDocumentsSortBy"
       :group-by
       show-select
       return-object
@@ -126,6 +197,7 @@
     () => selectedItems.value.filter((item) => item.imageId).length > 1
   );
   const sortBy = ref([{ key: 'issueDate', order: 'desc' }] as const);
+  const keyDocumentsSortBy = ref([{ key: 'category', order: 'desc' }] as const);
   const selectedCategory = ref<string>();
   const selectedAccused = ref<string>();
 
@@ -208,7 +280,7 @@
   const headers = [
     { key: 'data-table-group' },
     {
-      title: 'DATE SWORN/FILED',
+      title: 'DATE FILED/ISSUES',
       key: 'issueDate',
       value: (item) => formatDateToDDMMMYYYY(item.issueDate),
       sortRaw: (a: documentType, b: documentType) =>
@@ -221,6 +293,38 @@
     {
       title: 'CATEGORY',
       key: 'category',
+    },
+    {
+      title: 'PAGES',
+      key: 'documentPageCount',
+    },
+  ];
+
+  const keyDocumentHeaders = [
+    { key: 'data-table-group' },
+    {
+      title: 'DATE FILED/ISSUED',
+      key: 'issueDate',
+      value: (item) => formatDateToDDMMMYYYY(item.issueDate),
+      sortRaw: (a: documentType, b: documentType) =>
+        new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime(),
+    },
+    {
+      title: 'DOCUMENT TYPE',
+      key: 'documentTypeDescription',
+    },
+    {
+      title: 'CATEGORY',
+      key: 'category',
+      sortRaw: (a: documentType, b: documentType) => {
+        const order = ['Initiating', 'BAIL', 'ROP'];
+        const getOrder = (cat: string) => {
+          const formatted = cat === 'rop' ? 'ROP' : cat;
+          const idx = order.indexOf(formatted);
+          return idx === -1 ? order.length : idx;
+        };
+        return getOrder(b.category) - getOrder(a.category);
+      },
     },
     {
       title: 'PAGES',
