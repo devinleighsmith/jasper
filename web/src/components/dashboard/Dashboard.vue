@@ -25,7 +25,9 @@
   import CalendarToolbar from './CalendarToolbar.vue';
   import CourtToday from './CourtToday.vue';
   import MyCalendar from './MyCalendar.vue';
+  import { useCommonStore } from '@/stores';
 
+  const commonStore = useCommonStore();
   const locationsService = inject<LocationService>('locationService');
   const dashboardService = inject<DashboardService>('dashboardService');
 
@@ -35,6 +37,7 @@
 
   const isLoading = ref(true);
   const isCalendarLoading = ref(true);
+  const judgeId = ref(commonStore.userInfo?.judgeId);
 
   let currentCalendarDate = new Date('dd-mm-yyyy');
 
@@ -70,15 +73,28 @@
     await loadCalendarData();
   });
 
+  watch(
+    () => commonStore.userInfo?.judgeId,
+    async (newVal: number) => {
+      judgeId.value = newVal;
+      await loadCalendarData();
+    }
+  );
+
   const loadCalendarData = async () => {
     isCalendarLoading.value = true;
-    const { payload } = await dashboardService.getMySchedule(
-      formatDateInstanceToDDMMMYYYY(startDay),
-      formatDateInstanceToDDMMMYYYY(endDay)
-    );
-
-    todaySchedule.value = payload.today;
-    calendarData.value = [...payload.days];
-    isCalendarLoading.value = false;
+    try {
+      const { payload } = await dashboardService.getMySchedule(
+        formatDateInstanceToDDMMMYYYY(startDay),
+        formatDateInstanceToDDMMMYYYY(endDay),
+        judgeId.value
+      );
+      todaySchedule.value = payload.today;
+      calendarData.value = [...payload.days];
+    } catch (error) {
+      console.error('Failed to load calendar data:', error);
+    } finally {
+      isCalendarLoading.value = false;
+    }
   };
 </script>
