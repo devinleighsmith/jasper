@@ -48,9 +48,6 @@
         <template v-slot:default>
           <thead>
             <tr>
-              <th>
-                <v-checkbox-btn v-model="allSelected" />
-              </th>
               <th
                 id="table-header"
                 v-for="header in headers"
@@ -82,7 +79,7 @@
                   <v-checkbox-btn
                     v-model="selectedBinderItems"
                     :value="element.civilDocumentId"
-                    :input-value="selectedBinderItems.includes(element)"
+                    :input-value="selectedBinderItems?.includes(element)"
                   />
                 </td>
                 <!-- SequenceNumber column -->
@@ -201,7 +198,6 @@
       }
     ) => void
   >();
-  const allSelected = ref(false);
   const selectedBinderItems = defineModel<civilDocumentType[]>();
   const draggableItems = ref<civilDocumentType[]>([...props.binderDocuments]);
   const drag = ref(false);
@@ -219,16 +215,6 @@
     },
     { immediate: true, deep: true }
   );
-  watch(allSelected, (val) => {
-    if (val) {
-      // Use toRaw to convert proxies to plain objects
-      selectedBinderItems.value = props.binderDocuments.map((doc) => toRaw(doc));
-      console.log([...draggableItems.value]);
-      console.log(selectedBinderItems.value);
-    } else {
-      selectedBinderItems.value = [];
-    }
-  });
 
   const headers = [
     ...props.baseHeaders,
