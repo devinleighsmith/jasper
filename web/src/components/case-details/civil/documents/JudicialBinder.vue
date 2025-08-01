@@ -48,7 +48,7 @@
         <template v-slot:default>
           <thead>
             <tr>
-              <th></th>
+              <th id="selectAllHeader"></th>
               <th
                 id="table-header"
                 v-for="header in headers"
@@ -175,7 +175,7 @@
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { getLookupShortDescription } from '@/utils/utils';
   import { mdiDragVertical, mdiNotebookOutline } from '@mdi/js';
-  import { watch, ref, computed, toRaw } from 'vue';
+  import { watch, ref } from 'vue';
 
   const props = defineProps<{
     isBinderLoading: boolean;
