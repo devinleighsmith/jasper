@@ -48,7 +48,7 @@
 
   <ActionBar
     :selected="selectedBinderItems"
-    selectionPrependText="Judicial Binder documents"
+    selectionPrependText="Judicial Binder document/s"
   >
     <v-btn
       size="large"

@@ -48,6 +48,7 @@
         <template v-slot:default>
           <thead>
             <tr>
+              <th></th>
               <th
                 id="table-header"
                 v-for="header in headers"
