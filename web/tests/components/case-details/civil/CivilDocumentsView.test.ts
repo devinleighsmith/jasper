@@ -111,11 +111,21 @@ describe('CivilDocumentsView.vue', () => {
     expect(wrapper.findAllComponents({ name: 'ActionBar' })).toHaveLength(1);
   });
 
-    it('renders one action-bar when one document is selected', async () => {
+  it('renders one action-bar when one document is selected', async () => {
     wrapper.vm.selectedItems = [mockDocuments[0]];
 
     await nextTick();
 
     expect(wrapper.findAllComponents({ name: 'ActionBar' })).toHaveLength(1);
+  });
+
+  it('removeSelectedJudicialDocuments should clear all selected binder items', async () => {
+    wrapper.vm.selectedItems = [{}, {}];
+    wrapper.vm.selectedBinderItems = [mockDocuments[0]];
+    wrapper.vm.removeSelectedJudicialDocuments();
+
+    await nextTick();
+
+    expect(wrapper.vm.selectedBinderItems).toEqual([]);
   });
 });
