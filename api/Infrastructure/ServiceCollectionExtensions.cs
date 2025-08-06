@@ -53,6 +53,8 @@ namespace Scv.Api.Infrastructure
         public static void AddNutrient(this IServiceCollection services)
         {
             LicenseManager licenseManager = new();
+            // For now, use the trial license.
+            // https://www.nutrient.io/sdk/dotnet/getting-started/integrate/#activating-the-trial-license
             licenseManager.RegisterKEY("");
         }
 
@@ -149,57 +151,6 @@ namespace Scv.Api.Infrastructure
             services
                 .AddHttpClient<PCSSPersonServices.PersonServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
                 .AddHttpMessageHandler<TimingHandler>();
-
-            // services
-            //     .AddHttpClient<PCSSLocationServices.LocationServicesClient>(
-            //         typeof(PCSSLocationServices.LocationServicesClient).FullName,
-            //         (client) => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>()
-            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
-            // services
-            //     .AddHttpClient<PCSSCourtCalendarServices.CourtCalendarClientServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>()
-            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
-            // services
-            //     .AddHttpClient<PCSSJudicialCalendarServices.JudicialCalendarServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>()
-            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
-            // services
-            //     .AddHttpClient<PCSSSearchDateServices.SearchDateClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>()
-            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
-            // services
-            //     .AddHttpClient<PCSSFileDetailServices.FileDetailClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>()
-            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
-            // services
-            //     .AddHttpClient<PCSSLookupServices.LookupServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>().ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
-            // services
-            //     .AddHttpClient<PCSSReportServices.ReportServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
-            //     .AddHttpMessageHandler<TimingHandler>()
-            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-            //     {
-            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            //     });
 
             services.AddHttpContextAccessor();
             services.AddTransient(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
