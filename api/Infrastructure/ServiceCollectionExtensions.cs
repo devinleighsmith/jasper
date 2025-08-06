@@ -29,6 +29,7 @@ using Scv.Api.Services.Files;
 using Scv.Db.Contexts;
 using Scv.Db.Repositories;
 using Scv.Db.Seeders;
+using GdPicture14;
 using BasicAuthenticationHeaderValue = JCCommon.Framework.BasicAuthenticationHeaderValue;
 using PCSSConfigServices = PCSSCommon.Clients.ConfigurationServices;
 using PCSSCourtCalendarServices = PCSSCommon.Clients.CourtCalendarServices;
@@ -39,6 +40,7 @@ using PCSSLookupServices = PCSSCommon.Clients.LookupServices;
 using PCSSPersonServices = PCSSCommon.Clients.PersonServices;
 using PCSSReportServices = PCSSCommon.Clients.ReportServices;
 using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
+using Scv.Api.Documents;
 
 namespace Scv.Api.Infrastructure
 {
@@ -47,6 +49,12 @@ namespace Scv.Api.Infrastructure
         const string X_APIGW_KEY_HEADER = "x-api-key";
         const string X_ORIGIN_VERIFY_HEADER = "x-origin-verify";
         const string X_TARGET_APP = "x-target-app";
+
+        public static void AddNutrient(this IServiceCollection services)
+        {
+            LicenseManager licenseManager = new();
+            licenseManager.RegisterKEY("");
+        }
 
         public static IServiceCollection AddMapster(this IServiceCollection services, Action<TypeAdapterConfig> options = null)
         {
@@ -142,6 +150,57 @@ namespace Scv.Api.Infrastructure
                 .AddHttpClient<PCSSPersonServices.PersonServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
                 .AddHttpMessageHandler<TimingHandler>();
 
+            // services
+            //     .AddHttpClient<PCSSLocationServices.LocationServicesClient>(
+            //         typeof(PCSSLocationServices.LocationServicesClient).FullName,
+            //         (client) => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>()
+            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+            // services
+            //     .AddHttpClient<PCSSCourtCalendarServices.CourtCalendarClientServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>()
+            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+            // services
+            //     .AddHttpClient<PCSSJudicialCalendarServices.JudicialCalendarServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>()
+            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+            // services
+            //     .AddHttpClient<PCSSSearchDateServices.SearchDateClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>()
+            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+            // services
+            //     .AddHttpClient<PCSSFileDetailServices.FileDetailClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>()
+            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+            // services
+            //     .AddHttpClient<PCSSLookupServices.LookupServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>().ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+            // services
+            //     .AddHttpClient<PCSSReportServices.ReportServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+            //     .AddHttpMessageHandler<TimingHandler>()
+            //     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            //     {
+            //         ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            //     });
+
             services.AddHttpContextAccessor();
             services.AddTransient(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
             services.AddScoped<FilesService>();
@@ -155,6 +214,8 @@ namespace Scv.Api.Infrastructure
 
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IDocumentCategoryService, DocumentCategoryService>();
+
+            services.AddScoped<IDocumentMerger, DocumentMerger>();
 
             var connectionString = configuration.GetValue<string>("MONGODB_CONNECTION_STRING");
             if (!string.IsNullOrEmpty(connectionString))
