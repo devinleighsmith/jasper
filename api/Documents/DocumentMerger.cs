@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GdPicture14;
@@ -26,17 +27,15 @@ public class DocumentMerger(FilesService filesService) : IDocumentMerger
         using GdPictureDocumentConverter gdpictureConverter = new();
 
         // Retrieve all document streams to merge
-        foreach (var documentRequest in documentRequests)
+        foreach (var documentRequest in documentRequests.Select(dcr => dcr.Data))
         {
             var documentResponseStreamCopy = new MemoryStream();
 
-            // Here we will call the correct strategy,
+            // TODO- Here we will call the correct strategy,
             // which then calls the appropriate api based off the documentRequest type
-            var documentId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(documentRequest.Data.DocumentId));
-            var documentResponse = await _filesService.DocumentAsync(documentId, true, documentRequest.Data.FileId, documentRequest.Data.CorrelationId);
+            var documentId = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(documentRequest.DocumentId));
+            var documentResponse = await _filesService.DocumentAsync(documentId, true, documentRequest.FileId, documentRequest.CorrelationId);
             await documentResponse.Stream.CopyToAsync(documentResponseStreamCopy);
-            // Is this necessary?
-            documentResponseStreamCopy.Position = 0;
             streamsToMerge.Add(documentResponseStreamCopy);
         }
         
@@ -47,36 +46,24 @@ public class DocumentMerger(FilesService filesService) : IDocumentMerger
         {
             throw new Exception($"Failed to merge documents: {mergeResult}");
         }
-        
-        var pageCounts = new List<int>();
+
+        // Calculate page counts and ranges
+        var pageRanges = new List<PageRange>();
+        int currentPage = 0;
         foreach (var docStream in streamsToMerge)
         {
+            docStream.Position = 0;
             using var pdf = new GdPicturePDF();
             pdf.LoadFromStream(docStream, true);
-            //pdf.GetPageCount();
-            pageCounts.Add(pdf.GetPageCount());
+            int pageCount = pdf.GetPageCount();
+            pageRanges.Add(new PageRange { Start = currentPage, End = currentPage + pageCount });
+            currentPage += pageCount;
             pdf.CloseDocument();
         }
 
-        // Calculate start and end page indices for each document
-        var pageRanges = new List<(int Start, int End)>();
-        int currentPage = 0;
-        foreach (var count in pageCounts)
-        {
-            int start = currentPage;
-            int end = currentPage + count;
-            pageRanges.Add((start, end));
-            currentPage = end;
-        }
-
         outputStream.Position = 0;
-        string base64Pdf;
-        using var ms = new MemoryStream();
-        await outputStream.CopyToAsync(ms);
-        base64Pdf = Convert.ToBase64String(ms.ToArray());
-
-        response.Base64Pdf = base64Pdf;
-        response.PageRanges.AddRange(pageRanges);
+        response.Base64Pdf = Convert.ToBase64String(outputStream.ToArray());
+        response.PageRanges = pageRanges;
 
         return response;
     }
