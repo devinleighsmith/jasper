@@ -43,7 +43,7 @@ public class DocumentMerger(FilesService filesService) : IDocumentMerger
         var mergeResult = gdpictureConverter.CombineToPDF(streamsToMerge, outputStream, PdfConformance.PDF);
         if (mergeResult != GdPictureStatus.OK)
         {
-            throw new Exception($"Failed to merge documents: {mergeResult}");
+            throw new InvalidOperationException($"Failed to merge documents: {mergeResult}");
         }
 
         // Calculate page counts and ranges
