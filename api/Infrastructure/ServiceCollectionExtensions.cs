@@ -56,6 +56,8 @@ namespace Scv.Api.Infrastructure
             // For now, use the trial license.
             // https://www.nutrient.io/sdk/dotnet/getting-started/integrate/#activating-the-trial-license
             licenseManager.RegisterKEY("");
+
+            services.AddScoped<IDocumentMerger, DocumentMerger>();
         }
 
         public static IServiceCollection AddMapster(this IServiceCollection services, Action<TypeAdapterConfig> options = null)
@@ -165,8 +167,6 @@ namespace Scv.Api.Infrastructure
 
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IDocumentCategoryService, DocumentCategoryService>();
-
-            services.AddScoped<IDocumentMerger, DocumentMerger>();
 
             var connectionString = configuration.GetValue<string>("MONGODB_CONNECTION_STRING");
             if (!string.IsNullOrEmpty(connectionString))

@@ -21,7 +21,6 @@ public class DocumentMerger(FilesService filesService) : IDocumentMerger
     /// <returns>The merge result</returns>
     public async Task<PdfDocumentResponse> MergeDocuments(PdfDocumentRequest[] documentRequests)
     {
-        PdfDocumentResponse response = new();
         List<Stream> streamsToMerge = [];
 
         using GdPictureDocumentConverter gdpictureConverter = new();
@@ -62,8 +61,12 @@ public class DocumentMerger(FilesService filesService) : IDocumentMerger
         }
 
         outputStream.Position = 0;
-        response.Base64Pdf = Convert.ToBase64String(outputStream.ToArray());
-        response.PageRanges = pageRanges;
+
+        var response = new PdfDocumentResponse
+        {
+            Base64Pdf = Convert.ToBase64String(outputStream.ToArray()),
+            PageRanges = pageRanges
+        };
 
         return response;
     }
