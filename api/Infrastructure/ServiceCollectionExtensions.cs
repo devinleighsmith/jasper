@@ -58,6 +58,8 @@ namespace Scv.Api.Infrastructure
             licenseManager.RegisterKEY("");
 
             services.AddScoped<IDocumentMerger, DocumentMerger>();
+            services.AddScoped<IDocumentRetriever, DocumentRetriever>();
+            services.AddScoped<IDocumentStrategy, FileStrategy>();
         }
 
         public static IServiceCollection AddMapster(this IServiceCollection services, Action<TypeAdapterConfig> options = null)
