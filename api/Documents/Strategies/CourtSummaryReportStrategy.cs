@@ -1,13 +1,11 @@
 using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Scv.Api.Constants;
-using Scv.Api.Documents.Strategies;
 using Scv.Api.Models.Document;
 using Scv.Api.Services.Files;
 
-namespace Scv.Api.Documents;
+namespace Scv.Api.Documents.Strategies;
 
 public class CourtSummaryReportStrategy(FilesService filesService) : IDocumentStrategy
 {

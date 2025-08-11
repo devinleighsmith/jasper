@@ -1,11 +1,10 @@
 using System.IO;
 using System.Threading.Tasks;
-using Scv.Api.Documents.Strategies;
 using Scv.Api.Models.CourtList;
 using Scv.Api.Models.Document;
 using Scv.Api.Services;
 
-namespace Scv.Api.Documents;
+namespace Scv.Api.Documents.Strategies;
 
 public class ReportStrategy(CourtListService courtListService) : IDocumentStrategy
 {

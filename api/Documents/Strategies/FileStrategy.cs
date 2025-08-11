@@ -2,11 +2,10 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
-using Scv.Api.Documents.Strategies;
 using Scv.Api.Models.Document;
 using Scv.Api.Services.Files;
 
-namespace Scv.Api.Documents;
+namespace Scv.Api.Documents.Strategies;
 
 public class FileStrategy(FilesService filesService) : IDocumentStrategy
 {
