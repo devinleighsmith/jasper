@@ -15,7 +15,6 @@ public class CourtSummaryReportStrategy(FilesService filesService) : IDocumentSt
 
     public async Task<MemoryStream> Invoke(PdfDocumentRequestDetails documentRequest)
     {
-        // Report name?
         var documentResponse = await _civilFilesService.CourtSummaryReportAsync(documentRequest.AppearanceId, JustinReportName.CEISR035);
         var result = new MemoryStream(Convert.FromBase64String(documentResponse.ReportContent));
 
