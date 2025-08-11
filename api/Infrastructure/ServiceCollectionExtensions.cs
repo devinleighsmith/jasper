@@ -60,6 +60,9 @@ namespace Scv.Api.Infrastructure
             services.AddScoped<IDocumentMerger, DocumentMerger>();
             services.AddScoped<IDocumentRetriever, DocumentRetriever>();
             services.AddScoped<IDocumentStrategy, FileStrategy>();
+            services.AddScoped<IDocumentStrategy, ROPStrategy>();
+            services.AddScoped<IDocumentStrategy, ReportStrategy>();
+            services.AddScoped<IDocumentStrategy, CourtSummaryReportStrategy>();
         }
 
         public static IServiceCollection AddMapster(this IServiceCollection services, Action<TypeAdapterConfig> options = null)
