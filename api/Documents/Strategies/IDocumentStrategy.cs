@@ -2,7 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Scv.Api.Models.Document;
 
-namespace Scv.Api.Documents;
+namespace Scv.Api.Documents.Strategies;
 
 public interface IDocumentStrategy
 {

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Scv.Api.Constants;
+using Scv.Api.Documents.Strategies;
 using Scv.Api.Models.Document;
 using Scv.Api.Services.Files;
 

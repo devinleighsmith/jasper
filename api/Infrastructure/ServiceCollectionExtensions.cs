@@ -41,6 +41,7 @@ using PCSSPersonServices = PCSSCommon.Clients.PersonServices;
 using PCSSReportServices = PCSSCommon.Clients.ReportServices;
 using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
 using Scv.Api.Documents;
+using Scv.Api.Documents.Strategies;
 
 namespace Scv.Api.Infrastructure
 {
