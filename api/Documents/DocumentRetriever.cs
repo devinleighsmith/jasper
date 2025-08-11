@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Scv.Api.Documents.Strategies;
 using Scv.Api.Models.Document;
 
 namespace Scv.Api.Documents;
