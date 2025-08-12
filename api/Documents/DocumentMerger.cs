@@ -11,9 +11,8 @@ using Scv.Api.Services.Files;
 
 namespace Scv.Api.Documents;
 
-public class DocumentMerger(FilesService filesService, IDocumentRetriever documentRetriever) : IDocumentMerger
+public class DocumentMerger(IDocumentRetriever documentRetriever) : IDocumentMerger
 {
-    private readonly FilesService _filesService = filesService;
     /// <summary>
     /// Merges multiple PDF documents into a single PDF document in base64 format.
     /// </summary>

@@ -8,7 +8,8 @@ namespace Scv.Api.Documents.Strategies;
 
 public class ReportStrategy(CourtListService courtListService) : IDocumentStrategy
 {
-     private readonly CourtListService _courtListService = courtListService;
+    private readonly CourtListService _courtListService = courtListService;
+    
     public DocumentType Type => DocumentType.Report;
 
     public async Task<MemoryStream> Invoke(PdfDocumentRequestDetails documentRequest)
