@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Scv.Api.Documents;
 using Scv.Api.Documents.Strategies;
@@ -12,6 +12,13 @@ namespace tests.api.Documents;
 
 public class DocumentRetrieverTest
 {
+    private readonly Mock<ILogger<DocumentRetriever>> _logger;
+
+    public DocumentRetrieverTest()
+    {
+        _logger = new Mock<ILogger<DocumentRetriever>>();
+    }
+
     [Fact]
     public async Task Retrieve_ValidType_StrategyInvoked_ReturnsMemoryStream()
     {
@@ -21,7 +28,7 @@ public class DocumentRetrieverTest
         };
         var request = new PdfDocumentRequest
         {
-            Type = DocumentType.File.ToString(),
+            Type = DocumentType.File,
             Data = requestData
         };
 
@@ -29,7 +36,7 @@ public class DocumentRetrieverTest
         strategyMock.SetupGet(s => s.Type).Returns(DocumentType.File);
         strategyMock.Setup(s => s.Invoke(requestData)).ReturnsAsync(expectedStream);
 
-        var retriever = new DocumentRetriever([strategyMock.Object]);
+        var retriever = new DocumentRetriever([strategyMock.Object], _logger.Object);
 
         var result = await retriever.Retrieve(request);
 
@@ -38,32 +45,18 @@ public class DocumentRetrieverTest
     }
 
     [Fact]
-    public async Task Retrieve_InvalidType_ThrowsArgumentException()
-    {
-        var request = new PdfDocumentRequest
-        {
-            Type = "NonExistentType",
-            Data = new PdfDocumentRequestDetails { }
-        };
-
-        var retriever = new DocumentRetriever(Array.Empty<IDocumentStrategy>());
-
-        await Assert.ThrowsAsync<ArgumentException>(() => retriever.Retrieve(request));
-    }
-
-    [Fact]
     public async Task Retrieve_NoMatchingStrategy_ThrowsInvalidOperationException()
     {
         var request = new PdfDocumentRequest
         {
-            Type = DocumentType.File.ToString(),
+            Type = DocumentType.File,
             Data = new PdfDocumentRequestDetails { }
         };
 
         var strategyMock = new Mock<IDocumentStrategy>();
         strategyMock.SetupGet(s => s.Type).Returns((DocumentType)99); // Not matching
 
-        var retriever = new DocumentRetriever([strategyMock.Object]);
+        var retriever = new DocumentRetriever([strategyMock.Object], _logger.Object);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => retriever.Retrieve(request));
     }
