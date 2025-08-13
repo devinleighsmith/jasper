@@ -1,3 +1,5 @@
+using System;
+
 namespace Scv.Api.Models.Document;
 
 public class PdfDocumentRequestDetails
@@ -16,4 +18,9 @@ public class PdfDocumentRequestDetails
     public string FileId { get; set; }
     public bool Flatten { get; set; }
     public string CorrelationId { get; set; }
+    public DateTime? Date { get; set; }
+    public int? LocationId { get; set; }
+    public string RoomCode { get; set; }
+    public string AdditionsList { get; set; }
+    public string ReportType { get; set; }
 }
