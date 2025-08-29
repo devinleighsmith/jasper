@@ -261,6 +261,9 @@
     const documents: {
       documentType: DocumentRequestType;
       documentData: DocumentData;
+      memberName: string;
+      documentName: string;
+      caseNumber: string;
     }[] = [];
     const source = isBinder ? selectedBinderItems : selectedItems;
     source.value
@@ -271,7 +274,13 @@
             ? DocumentRequestType.CourtSummary
             : DocumentRequestType.File;
         const documentData = prepareCivilDocumentData(item);
-        documents.push({ documentType, documentData });
+        documents.push({
+          documentType,
+          documentData,
+          memberName: '',
+          documentName: item.documentTypeDescription,
+          caseNumber: documentData.fileNumberText || ''
+        });
       });
     shared.openDocumentsPdfV2(documents);
   };

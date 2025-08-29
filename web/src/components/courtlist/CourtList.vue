@@ -225,6 +225,9 @@
     const documents: {
       documentType: DocumentRequestType;
       documentData: DocumentData;
+      memberName: string;
+      documentName: string;
+      caseNumber: string;
     }[] = [];
     uniqueMap.forEach((value) => {
       let documentData: Record<string, any> = {
@@ -234,7 +237,6 @@
         locationId: value.locationId,
         roomCode: value.courtRoom,
       };
-
       if (value.division === DivisionEnum.R) {
         documentData.reportType = reportType;
       } else if (value.division === DivisionEnum.I) {
@@ -244,6 +246,9 @@
       documents.push({
         documentType: DocumentRequestType.Report,
         documentData,
+        memberName: value.courtRoom,
+        documentName: value.division,
+        caseNumber: value.locationId.toString()
       });
     });
     shared.openDocumentsPdfV2(documents);

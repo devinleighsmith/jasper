@@ -8,7 +8,7 @@ export const usePDFViewerStore = defineStore('PDFViewerStore', {
     storeDocuments: [] as StoreDocument[],
     groupedDocuments: {} as Record<
       string,
-      Record<string, GeneratePdfRequest[]>
+      Record<string, StoreDocument[]>
     >,
   }),
   getters: {
@@ -17,32 +17,24 @@ export const usePDFViewerStore = defineStore('PDFViewerStore', {
   },
   actions: {
     addDocuments(
-      documents: GeneratePdfRequest[],
-      caseNumber: string,
-      userId: string
+      documents: StoreDocument[]
     ): void {
-      if (caseNumber) {
-      }
-      this.documents = [...documents];
+      this.storeDocuments = [...documents];
     },
     addStoreDocument(document: StoreDocument): void {
-      // if (!this.storeDocs.length) {
-      //   this.storeDocs.push(document);
-      //   return;
-      // }
       this.storeDocs.push(document);
 
       if (document.caseNumber) {
-        // Group documents by caseNumber, then by userId
+        // Group documents by caseNumber, then by memberName
         const grouped = this.storeDocs.reduce(
           (acc, doc) => {
             if (!acc[doc.caseNumber]) acc[doc.caseNumber] = {};
-            if (!acc[doc.caseNumber][doc.userId])
-              acc[doc.caseNumber][doc.userId] = [];
-            acc[doc.caseNumber][doc.userId].push(doc.request);
+            if (!acc[doc.caseNumber][doc.memberName])
+              acc[doc.caseNumber][doc.memberName] = [];
+            acc[doc.caseNumber][doc.memberName].push(doc);
             return acc;
           },
-          {} as Record<string, Record<string, GeneratePdfRequest[]>>
+          {} as Record<string, Record<string, StoreDocument[]>>
         );
         this.groupedDocuments = grouped;
       }
@@ -57,5 +49,6 @@ export const usePDFViewerStore = defineStore('PDFViewerStore', {
 export type StoreDocument = {
   request: GeneratePdfRequest;
   caseNumber: string;
-  userId: string;
+  memberName: string;
+  documentName: string;
 };

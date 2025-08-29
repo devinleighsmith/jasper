@@ -11,13 +11,16 @@
 </template>
 
 <script setup lang="ts">
+  import { getCriminalDocumentType } from '@/components/documents/DocumentUtils';
   import {
     GeneratePdfRequest,
     GeneratePdfResponse,
   } from '@/components/documents/models/GeneratePdf';
   import { FilesService } from '@/services/FilesService';
   import { usePDFViewerStore } from '@/stores';
+  import { StoreDocument } from '@/stores/PDFViewerStore';
   import { inject, onMounted, onUnmounted, ref } from 'vue';
+  import { CourtDocumentType } from '@/types/shared';
   //import NutrientViewer from '@/components/documents/NutrientViewer'; // Adjust path as needed
 
   const pdfStore = usePDFViewerStore();
@@ -33,6 +36,7 @@
     }),
     container: '.pdf-container',
   };
+  let documentResponse: GeneratePdfResponse | null = null;
 
   const loadNutrient = async () => {
     loading.value = true;
@@ -47,130 +51,77 @@
   };
 
   const loadMultiple = async () => {
-    // const documentResponse = await filesService.generatePdf(pdfStore.documentRequests);
-    // Flatten all document objects into a single array
     const groupedDocs = pdfStore.groupedDocuments;
-    const allDocs: GeneratePdfRequest[] = [];
+    console.log(groupedDocs);
+    const allDocs: StoreDocument[] = [];
     Object.values(groupedDocs).forEach((userGroup: any) => {
       Object.values(userGroup).forEach((docs) => {
-        allDocs.push(...(docs as any[]));
+        allDocs.push(...(docs as StoreDocument[]));
       });
     });
     console.log('All Docs:', allDocs);
 
-    // Singular call to generatePdf with allDocs
-    const documentResponse = await filesService.generatePdf(allDocs);
+    documentResponse = await filesService.generatePdf(allDocs.map(doc => doc.request));
     loading.value = false;
 
     var instance = await NutrientViewer.load({
       ...configuration,
       document: `data:application/pdf;base64,${documentResponse.base64Pdf}`,
     });
-    configureOutline(instance, documentResponse);
+    configureOutline(instance);
   };
 
-  //   {
-  //     "279899-1": {
-  //         "John Johnson": [
-  //             {
-  //                 "type": 0,
-  //                 "data": {
-  //                 }
-  //             },
-  //             {
-  //                 "type": 0,
-  //                 "data": {
-  //                 }
-  //             }
-  //         ]
-  //     }
-  // }
   const configureOutline = (
     instance: any,
-    documentResponse: GeneratePdfResponse
   ) => {
-    // var indexCount = 0;
-    // const outline = NutrientViewer.Immutable.List(
-    //   Object.entries(pdfStore.groupedDocuments).map(
-    //     ([groupKey, userGroup]: [string, Record<string, GeneratePdfRequest[]>]) =>
-    //       new NutrientViewer.OutlineElement({
-    //         isExpanded: true,
-    //         title: groupKey,
-    //         children: NutrientViewer.Immutable.List(
-    //           Object.entries(userGroup).map(
-    //             ([name, docs]: [string, GeneratePdfRequest[]]) =>
-    //               new NutrientViewer.OutlineElement({
-    //                 isExpanded: true,
-    //                 title: name,
-    //                 children: NutrientViewer.Immutable.List(
-    //                   (docs as GeneratePdfRequest[]).map(
-    //                     (doc) =>
-    //                       new NutrientViewer.OutlineElement({
-    //                         isExpanded: true,
-    //                         title: `Document ${doc.data.documentId}`,
-    //                         action: new NutrientViewer.Actions.GoToAction({
-    //                           pageIndex:
-    //                             documentResponse.pageRanges?.[indexCount++]
-    //                               ?.start ?? 0,
-    //                         }),
-    //                       })
-    //                   )
-    //                 ),
-    //               })
-    //           )
-    //         ),
-    //       })
-    //   )
-    //);
-    
     const indexRef = { current: 0 };
     const outline = NutrientViewer.Immutable.List(
       Object.entries(pdfStore.groupedDocuments).map(([groupKey, userGroup]) =>
-        makeGroupElement(groupKey, userGroup, indexRef, documentResponse)
+        makeCaseElement(groupKey, userGroup, indexRef)
       )
     );
     instance.setDocumentOutline(outline);
   };
 
-  function makeDocElement(doc: GeneratePdfRequest, index: number, documentResponse: any) {
-    return new NutrientViewer.OutlineElement({
-      isExpanded: true,
-      title: `Document ${doc.data.documentId}`,
-      action: new NutrientViewer.Actions.GoToAction({
-        pageIndex: documentResponse.pageRanges?.[index]?.start ?? 0,
-      }),
-    });
-  }
-
-  function makeUserElement(
-    name: string,
-    docs: GeneratePdfRequest[],
-    indexRef: { current: number },
-    documentResponse: any
-  ) {
-    return new NutrientViewer.OutlineElement({
-      isExpanded: true,
-      title: name,
-      children: NutrientViewer.Immutable.List(
-        docs.map(doc => makeDocElement(doc, indexRef.current++, documentResponse))
-      ),
-    });
-  }
-
-  function makeGroupElement(
+  const makeCaseElement = (
     groupKey: string,
-    userGroup: Record<string, GeneratePdfRequest[]>,
-    indexRef: { current: number },
-    documentResponse: any
-  ) {
+    userGroup: Record<string, StoreDocument[]>,
+    indexRef: { current: number }
+  ) => {
     return new NutrientViewer.OutlineElement({
-      isExpanded: true,
-      title: groupKey,
+      title: groupKey, //groupKey,
       children: NutrientViewer.Immutable.List(
         Object.entries(userGroup).map(([name, docs]) =>
-          makeUserElement(name, docs, indexRef, documentResponse)
+          makeMemberElement(name || 'Party', docs, indexRef)
         )
       ),
+    });
+  }
+
+  const makeMemberElement = (
+    memberName: string,
+    docs: StoreDocument[],
+    indexRef: { current: number },
+  ) => {
+    return new NutrientViewer.OutlineElement({
+      title: memberName, //memberName,
+      children: NutrientViewer.Immutable.List(
+        docs.map((doc) =>
+          makeDocElement(doc, indexRef.current++)
+        )
+      ),
+    });
+  }
+
+  const makeDocElement = (
+    doc: StoreDocument,
+    index: number
+  ) => {
+    return new NutrientViewer.OutlineElement({
+      title: doc.documentName, //doc.documentName
+      action: new NutrientViewer.Actions.GoToAction({
+        pageIndex: documentResponse?.pageRanges?.[index]?.start ?? 0,
+      }),
     });
   }
 

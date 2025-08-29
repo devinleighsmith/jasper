@@ -289,6 +289,7 @@
       documentType: DocumentRequestType;
       documentData: DocumentData;
       memberName: string;
+      documentName: string;
     }[] = [];
     selectedItems.value
       .filter((item) => item.imageId)
@@ -302,6 +303,7 @@
           documentType,
           documentData,
           memberName: item.fullName,
+          documentName: documentData.documentDescription || ''
         });
       });
 
