@@ -59,7 +59,7 @@
     );
     loading.value = false;
 
-    var instance = await NutrientViewer.load({
+    let instance = await NutrientViewer.load({
       ...configuration,
       document: `data:application/pdf;base64,${documentResponse.base64Pdf}`,
     });

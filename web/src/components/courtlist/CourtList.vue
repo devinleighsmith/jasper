@@ -61,7 +61,7 @@
   import { usePDFViewerStore } from '@/stores';
   import { DivisionEnum } from '@/types/common';
   import { CourtListAppearance, CourtListCardInfo } from '@/types/courtlist';
-  import { DocumentData, DocumentRequestType } from '@/types/shared';
+  import { DocumentRequestType } from '@/types/shared';
   import {
     formatDateInstanceToDDMMMYYYY,
     parseDDMMMYYYYToDate,
