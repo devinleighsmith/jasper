@@ -96,7 +96,7 @@ export default {
     
     const pdfStore = usePDFViewerStore();
     pdfStore.clearDocuments();
-    documents.map((doc) => {
+    documents.forEach((doc) => {
       pdfStore.addDocument({
         request: {
           type: doc.documentType,
