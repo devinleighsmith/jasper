@@ -48,11 +48,13 @@
   const loadMultiple = async () => {
     const groupedDocs = pdfStore.groupedDocuments;
     const allDocs: StoreDocument[] = [];
-    Object.values(groupedDocs).forEach((userGroup: any) => {
-      Object.values(userGroup).forEach((docs) => {
-        allDocs.push(...(docs as StoreDocument[]));
-      });
-    });
+    Object.values(groupedDocs).forEach(
+      (userGroup: Record<string, StoreDocument[]>) => {
+        Object.values(userGroup).forEach((docs) => {
+          allDocs.push(...(docs as StoreDocument[]));
+        });
+      }
+    );
 
     documentResponse = await filesService.generatePdf(
       allDocs.map((doc) => doc.request)
