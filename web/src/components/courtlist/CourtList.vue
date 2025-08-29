@@ -202,6 +202,7 @@
       string,
       {
         locationId: number;
+        locationName: string;
         date: string;
         division: string;
         class: string;
@@ -212,23 +213,24 @@
       element.table.forEach((data) => {
         const obj = {
           locationId: element.card.courtListLocationID,
+          locationName: element.card.courtListLocation,
           date: data.appearanceDt,
           division: data.courtDivisionCd,
           class: data.courtClassCd,
           courtRoom: data.courtRoomCd,
         };
 
-        const key = `${obj.locationId}|${obj.date}|${obj.division}|${obj.class}|${obj.courtRoom}`;
+        const key = `${obj.locationId}|${obj.locationName}|${obj.date}|${obj.division}|${obj.class}|${obj.courtRoom}`;
         uniqueMap.set(key, obj);
       });
     });
-    const documents: {
+    const documents: Array<{
       documentType: DocumentRequestType;
-      documentData: DocumentData;
+      documentData: Record<string, any>;
       memberName: string;
-      documentName: string;
+      documentName: any;
       caseNumber: string;
-    }[] = [];
+    }> = [];
     uniqueMap.forEach((value) => {
       let documentData: Record<string, any> = {
         courtDivisionCd: value.division,
@@ -247,8 +249,8 @@
         documentType: DocumentRequestType.Report,
         documentData,
         memberName: value.courtRoom,
-        documentName: value.division,
-        caseNumber: value.locationId.toString()
+        documentName: documentData.reportType,
+        caseNumber: value.locationName,
       });
     });
     shared.openDocumentsPdfV2(documents);

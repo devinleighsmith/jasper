@@ -278,7 +278,7 @@
           documentType,
           documentData,
           memberName: '',
-          documentName: item.documentTypeDescription,
+          documentName: item.documentTypeDescription + ' - ' + formatDateToDDMMMYYYY(item.filedDt),
           caseNumber: documentData.fileNumberText || ''
         });
       });

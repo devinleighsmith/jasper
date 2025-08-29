@@ -21,7 +21,6 @@
   import { StoreDocument } from '@/stores/PDFViewerStore';
   import { inject, onMounted, onUnmounted, ref } from 'vue';
   import { CourtDocumentType } from '@/types/shared';
-  //import NutrientViewer from '@/components/documents/NutrientViewer'; // Adjust path as needed
 
   const pdfStore = usePDFViewerStore();
   const filesService = inject<FilesService>('filesService');
@@ -37,6 +36,7 @@
     container: '.pdf-container',
   };
   let documentResponse: GeneratePdfResponse | null = null;
+  let pageIndex = 0;
 
   const loadNutrient = async () => {
     loading.value = true;
@@ -52,14 +52,12 @@
 
   const loadMultiple = async () => {
     const groupedDocs = pdfStore.groupedDocuments;
-    console.log(groupedDocs);
     const allDocs: StoreDocument[] = [];
     Object.values(groupedDocs).forEach((userGroup: any) => {
       Object.values(userGroup).forEach((docs) => {
         allDocs.push(...(docs as StoreDocument[]));
       });
     });
-    console.log('All Docs:', allDocs);
 
     documentResponse = await filesService.generatePdf(allDocs.map(doc => doc.request));
     loading.value = false;
@@ -74,10 +72,9 @@
   const configureOutline = (
     instance: any,
   ) => {
-    const indexRef = { current: 0 };
     const outline = NutrientViewer.Immutable.List(
       Object.entries(pdfStore.groupedDocuments).map(([groupKey, userGroup]) =>
-        makeCaseElement(groupKey, userGroup, indexRef)
+        makeCaseElement(groupKey, userGroup)
       )
     );
     instance.setDocumentOutline(outline);
@@ -86,13 +83,12 @@
   const makeCaseElement = (
     groupKey: string,
     userGroup: Record<string, StoreDocument[]>,
-    indexRef: { current: number }
   ) => {
     return new NutrientViewer.OutlineElement({
-      title: groupKey, //groupKey,
+      title: groupKey,
       children: NutrientViewer.Immutable.List(
         Object.entries(userGroup).map(([name, docs]) =>
-          makeMemberElement(name || 'Party', docs, indexRef)
+          makeMemberElement(name || 'Documents', docs)
         )
       ),
     });
@@ -101,26 +97,24 @@
   const makeMemberElement = (
     memberName: string,
     docs: StoreDocument[],
-    indexRef: { current: number },
   ) => {
     return new NutrientViewer.OutlineElement({
-      title: memberName, //memberName,
+      title: memberName,
       children: NutrientViewer.Immutable.List(
         docs.map((doc) =>
-          makeDocElement(doc, indexRef.current++)
+          makeDocElement(doc)
         )
       ),
     });
   }
 
   const makeDocElement = (
-    doc: StoreDocument,
-    index: number
+    doc: StoreDocument
   ) => {
     return new NutrientViewer.OutlineElement({
-      title: doc.documentName, //doc.documentName
+      title: doc.documentName,
       action: new NutrientViewer.Actions.GoToAction({
-        pageIndex: documentResponse?.pageRanges?.[index]?.start ?? 0,
+        pageIndex: documentResponse?.pageRanges?.[pageIndex++]?.start
       }),
     });
   }
