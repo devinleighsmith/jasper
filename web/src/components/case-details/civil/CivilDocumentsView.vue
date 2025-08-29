@@ -284,13 +284,20 @@
   };
 
   const loadBinder = async () => {
-    // Get binders associated to the current user. In Phase 1, we are supporting 1 binder per case per user.
-    const binders = await binderService.getBinders(labels);
-
-    currentBinder.value =
-      binders && binders.payload.length > 0
-        ? binders.payload[0]
-        : ({ id: null, labels, documents: [] } as Binder);
+    let getBindersResp: ApiResponse<Binder[]> | null = null;
+    try {
+      // Get binders associated to the current user. In Phase 1, we are supporting 1 binder per case per user.
+      getBindersResp = await binderService.getBinders(labels);
+    } catch (error) {
+      console.error(`Error occured while retrieving user's binders: ${error}`);
+    } finally {
+      currentBinder.value =
+        getBindersResp &&
+        getBindersResp.succeeded &&
+        getBindersResp.payload.length > 0
+          ? binders.payload[0]
+          : ({ id: null, labels, documents: [] } as Binder);
+    }
   };
 
   const addDocumentToBinder = async (documentId: string) => {
