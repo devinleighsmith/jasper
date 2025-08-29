@@ -11,16 +11,11 @@
 </template>
 
 <script setup lang="ts">
-  import { getCriminalDocumentType } from '@/components/documents/DocumentUtils';
-  import {
-    GeneratePdfRequest,
-    GeneratePdfResponse,
-  } from '@/components/documents/models/GeneratePdf';
+  import { GeneratePdfResponse } from '@/components/documents/models/GeneratePdf';
   import { FilesService } from '@/services/FilesService';
   import { usePDFViewerStore } from '@/stores';
   import { StoreDocument } from '@/stores/PDFViewerStore';
   import { inject, onMounted, onUnmounted, ref } from 'vue';
-  import { CourtDocumentType } from '@/types/shared';
 
   const pdfStore = usePDFViewerStore();
   const filesService = inject<FilesService>('filesService');
@@ -42,7 +37,7 @@
     loading.value = true;
     emptyStore.value = false;
 
-    if (!pdfStore.documentRequests.length && !pdfStore.storeDocs.length) {
+    if (!pdfStore.documents.length) {
       loading.value = false;
       emptyStore.value = true;
       return;
@@ -59,7 +54,9 @@
       });
     });
 
-    documentResponse = await filesService.generatePdf(allDocs.map(doc => doc.request));
+    documentResponse = await filesService.generatePdf(
+      allDocs.map((doc) => doc.request)
+    );
     loading.value = false;
 
     var instance = await NutrientViewer.load({
@@ -69,9 +66,7 @@
     configureOutline(instance);
   };
 
-  const configureOutline = (
-    instance: any,
-  ) => {
+  const configureOutline = (instance: any) => {
     const outline = NutrientViewer.Immutable.List(
       Object.entries(pdfStore.groupedDocuments).map(([groupKey, userGroup]) =>
         makeCaseElement(groupKey, userGroup)
@@ -82,7 +77,7 @@
 
   const makeCaseElement = (
     groupKey: string,
-    userGroup: Record<string, StoreDocument[]>,
+    userGroup: Record<string, StoreDocument[]>
   ) => {
     return new NutrientViewer.OutlineElement({
       title: groupKey,
@@ -92,32 +87,25 @@
         )
       ),
     });
-  }
+  };
 
-  const makeMemberElement = (
-    memberName: string,
-    docs: StoreDocument[],
-  ) => {
+  const makeMemberElement = (memberName: string, docs: StoreDocument[]) => {
     return new NutrientViewer.OutlineElement({
       title: memberName,
       children: NutrientViewer.Immutable.List(
-        docs.map((doc) =>
-          makeDocElement(doc)
-        )
+        docs.map((doc) => makeDocElement(doc))
       ),
     });
-  }
+  };
 
-  const makeDocElement = (
-    doc: StoreDocument
-  ) => {
+  const makeDocElement = (doc: StoreDocument) => {
     return new NutrientViewer.OutlineElement({
       title: doc.documentName,
       action: new NutrientViewer.Actions.GoToAction({
-        pageIndex: documentResponse?.pageRanges?.[pageIndex++]?.start
+        pageIndex: documentResponse?.pageRanges?.[pageIndex++]?.start,
       }),
     });
-  }
+  };
 
   onMounted(() => {
     loadNutrient();

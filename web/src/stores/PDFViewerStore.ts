@@ -4,29 +4,22 @@ import { defineStore } from 'pinia';
 export const usePDFViewerStore = defineStore('PDFViewerStore', {
   persist: true,
   state: () => ({
-    documents: [] as GeneratePdfRequest[],
-    storeDocuments: [] as StoreDocument[],
+    storedDocuments: [] as StoreDocument[],
     groupedDocuments: {} as Record<
       string,
       Record<string, StoreDocument[]>
     >,
   }),
   getters: {
-    documentRequests: (state) => state.documents,
-    storeDocs: (state) => state.storeDocuments,
+    documents: (state) => state.storedDocuments,
   },
   actions: {
-    addDocuments(
-      documents: StoreDocument[]
-    ): void {
-      this.storeDocuments = [...documents];
-    },
-    addStoreDocument(document: StoreDocument): void {
-      this.storeDocs.push(document);
+    addDocument(document: StoreDocument): void {
+      this.storedDocuments.push(document);
 
       if (document.caseNumber) {
         // Group documents by caseNumber, then by memberName
-        const grouped = this.storeDocs.reduce(
+        const grouped = this.documents.reduce(
           (acc, doc) => {
             if (!acc[doc.caseNumber]) acc[doc.caseNumber] = {};
             if (!acc[doc.caseNumber][doc.memberName])
@@ -40,8 +33,8 @@ export const usePDFViewerStore = defineStore('PDFViewerStore', {
       }
     },
     clearDocuments(): void {
-      this.documents.length = 0;
-      this.storeDocs.length = 0;
+      this.storedDocuments.length = 0;
+      this.groupedDocuments = {};
     },
   },
 });

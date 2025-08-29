@@ -263,7 +263,6 @@
       documentData: DocumentData;
       memberName: string;
       documentName: string;
-      caseNumber: string;
     }[] = [];
     const source = isBinder ? selectedBinderItems : selectedItems;
     source.value
@@ -279,7 +278,6 @@
           documentData,
           memberName: '',
           documentName: item.documentTypeDescription + ' - ' + formatDateToDDMMMYYYY(item.filedDt),
-          caseNumber: documentData.fileNumberText || ''
         });
       });
     shared.openDocumentsPdfV2(documents);

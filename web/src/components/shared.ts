@@ -62,6 +62,8 @@ export default {
         }&CorrelationId=${correlationId}`;
     }
   },
+  // Eventually will be deprecated in favor of opening even
+  // single documents in the nutrient-viewer
   openDocumentsPdf(
     documentType: CourtDocumentType,
     documentData: DocumentData
@@ -95,7 +97,7 @@ export default {
     const pdfStore = usePDFViewerStore();
     pdfStore.clearDocuments();
     documents.map((doc) => {
-      pdfStore.addStoreDocument({
+      pdfStore.addDocument({
         request: {
           type: doc.documentType,
           data: {
@@ -117,7 +119,7 @@ export default {
             reportType: doc.documentData.reportType || '',
           },
         },
-        caseNumber: doc.caseNumber || doc.documentData.fileNumberText,
+        caseNumber: doc.caseNumber || doc.documentData.fileNumberText || 'Case',
         memberName: doc.memberName,
         documentName: doc.documentName,
       });
