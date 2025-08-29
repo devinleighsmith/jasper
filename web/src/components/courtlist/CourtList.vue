@@ -249,7 +249,7 @@
         documentType: DocumentRequestType.Report,
         documentData,
         memberName: value.courtRoom,
-        documentName: documentData.reportType,
+        documentName: documentData.reportType || documentData.date,
         caseNumber: value.locationName,
       });
     });
