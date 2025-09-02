@@ -11,7 +11,7 @@ resource "aws_secretsmanager_secret_version" "file_services_client_secret_value"
     baseUrl  = ""
   })
   lifecycle {
-    ignore_changes = [secret_string]
+    ignore_changes = [secret_string,secret_string_wo]
   }
 
 }
