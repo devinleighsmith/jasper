@@ -32,6 +32,7 @@ resource "aws_docdb_cluster" "mongo_cluster" {
   deletion_protection             = var.delete_protection_enabled
   apply_immediately               = true
   backup_retention_period         = 1
+  enabled_cloudwatch_logs_exports = ["audit", "profiler"]
 
 }
 
