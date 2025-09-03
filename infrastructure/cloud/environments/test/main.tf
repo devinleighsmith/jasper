@@ -72,6 +72,8 @@ module "mongodb" {
   delete_protection_enabled = var.delete_protection_enabled
   mongo_node_count    = var.mongo_node_count
   mongo_instance_type = var.mongo_instance_type
+  mongousername       = var.mongousername
+  app_name            = var.app_name
 }
 
 # Create IAM Roles/Policies

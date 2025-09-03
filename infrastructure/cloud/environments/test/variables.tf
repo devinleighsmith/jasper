@@ -91,3 +91,8 @@ variable mongo_instance_type {
   type        = string
   default     = "db.t3.medium"
 }
+
+variable mongousername {
+  description = "Username for the MongoDB admin user"
+  type        = string
+}
