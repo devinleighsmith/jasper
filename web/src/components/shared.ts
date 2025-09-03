@@ -122,10 +122,56 @@ export default {
         caseNumber: doc.caseNumber || doc.documentData.fileNumberText || 'Case',
         memberName: doc.memberName,
         documentName: doc.documentName,
-      });
+      }, 'caseNumber', 'memberName'); // remove these and instead just reference keyOne keyTwo (which should replace caseNumber and memberName)
     });
     window.open('/pdf-viewer', 'pdf-viewer');
   },
+
+    // openDocumentsPdfV2(
+  //   documents: {
+  //     documentType: DocumentRequestType;
+  //     documentData: DocumentData;
+  //     memberName: string;
+  //     documentName: string;
+  //     caseNumber?: string;
+  //   }[],
+  //   keyOne: string,
+  //   keyTwo: string = ''
+  // ): void {
+  //   if (!documents || documents.length === 0) return;
+    
+  //   const pdfStore = usePDFViewerStore();
+  //   pdfStore.clearDocuments();
+  //   documents.forEach((doc) => {
+  //     pdfStore.addDocument({
+  //       request: {
+  //         type: doc.documentType,
+  //         data: {
+  //           partId: doc.documentData.partId || '',
+  //           profSeqNo: doc.documentData.profSeqNo || '',
+  //           courtLevelCd: doc.documentData.courtLevel || '',
+  //           courtClassCd: doc.documentData.courtClass || '',
+  //           appearanceId: doc.documentData.appearanceId || '',
+  //           documentId: doc.documentData.documentId
+  //             ? this.convertToBase64Url(doc.documentData.documentId)
+  //             : doc.documentData.documentId || '',
+  //           fileId: doc.documentData.fileId || '',
+  //           isCriminal: doc.documentData.isCriminal || false,
+  //           correlationId: uuidv4(),
+  //           courtDivisionCd: doc.documentData.courtDivisionCd || '',
+  //           date: doc.documentData.date,
+  //           locationId: doc.documentData.locationId,
+  //           roomCode: doc.documentData.roomCode || '',
+  //           reportType: doc.documentData.reportType || '',
+  //         },
+  //       },
+  //       caseNumber: doc.caseNumber || doc.documentData.fileNumberText || 'Case',
+  //       memberName: doc.memberName,
+  //       documentName: doc.documentName,
+  //     }, keyOne, keyTwo);
+  //   });
+  //   window.open('/pdf-viewer', 'pdf-viewer');
+  // },
   generateFileName(
     documentType: CourtDocumentType,
     documentData: DocumentData

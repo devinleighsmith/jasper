@@ -24,12 +24,7 @@
   }
   const loading = ref(false);
   const emptyStore = ref(false);
-  const configuration = {
-    initialViewState: new NutrientViewer.ViewState({
-      sidebarMode: NutrientViewer.SidebarMode.DOCUMENT_OUTLINE,
-    }),
-    container: '.pdf-container',
-  };
+  const configuration = { container: '.pdf-container' };
   let documentResponse: GeneratePdfResponse | null = null;
   let pageIndex = 0;
 
@@ -60,44 +55,68 @@
       allDocs.map((doc) => doc.request)
     );
     loading.value = false;
-
+    var outline = configureOutline();
     let instance = await NutrientViewer.load({
       ...configuration,
       document: `data:application/pdf;base64,${documentResponse.base64Pdf}`,
     });
-    configureOutline(instance);
+
+    instance.setDocumentOutline(outline);
+    instance.setViewState((viewState) =>
+      viewState.set('sidebarMode', NutrientViewer.SidebarMode.DOCUMENT_OUTLINE)
+    );
   };
 
-  const configureOutline = (instance: any) => {
+  const configureOutline = (): any => {
     const outline = NutrientViewer.Immutable.List(
       Object.entries(pdfStore.groupedDocuments).map(([groupKey, userGroup]) =>
         makeCaseElement(groupKey, userGroup)
       )
     );
-    instance.setDocumentOutline(outline);
+    return outline;
   };
 
   const makeCaseElement = (
     groupKey: string,
     userGroup: Record<string, StoreDocument[]>
   ) => {
+    const childrenArray: any[] = [];
+    Object.entries(userGroup).forEach(([name, docs]) => {
+      if (name !== '') {
+        childrenArray.push(makeMemberElement(name, docs));
+      } else {
+        makeDocElements(docs).forEach((el: any) => childrenArray.push(el));
+      }
+    });
+    const childrenList = NutrientViewer.Immutable.List(childrenArray);
     return new NutrientViewer.OutlineElement({
       title: groupKey,
-      children: NutrientViewer.Immutable.List(
-        Object.entries(userGroup).map(([name, docs]) =>
-          makeMemberElement(name || 'Documents', docs)
-        )
-      ),
+      isExpanded: true,
+      children: childrenList,
     });
   };
 
   const makeMemberElement = (memberName: string, docs: StoreDocument[]) => {
     return new NutrientViewer.OutlineElement({
       title: memberName,
+      isExpanded: true,
       children: NutrientViewer.Immutable.List(
         docs.map((doc) => makeDocElement(doc))
       ),
     });
+  };
+
+  const makeDocElements = (docs: StoreDocument[]) => {
+    return NutrientViewer.Immutable.List(
+      docs.map((doc) =>
+      new NutrientViewer.OutlineElement({
+        title: doc.documentName,
+        action: new NutrientViewer.Actions.GoToAction({
+        pageIndex: documentResponse?.pageRanges?.[pageIndex++]?.start,
+        }),
+      })
+      )
+    );
   };
 
   const makeDocElement = (doc: StoreDocument) => {
