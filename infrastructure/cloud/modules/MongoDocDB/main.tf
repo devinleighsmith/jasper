@@ -2,7 +2,7 @@
 
 resource "aws_docdb_cluster_parameter_group" "mongo_params" {
   family = "docdb5.0"
-  name   = "${var.environment}-mongo-param-val"
+  name   = "${var.app_name}-mongo-param-val-${var.environment}"
 
   parameter {
     name  = "tls"
@@ -12,7 +12,7 @@ resource "aws_docdb_cluster_parameter_group" "mongo_params" {
 
 
 resource "aws_docdb_subnet_group" "mongo_grp" {
-  name       = "${var.environment}-mongo-subnet-group"
+  name       = "${var.app_name}-mongo-subnet-group-${var.environment}"
   subnet_ids = var.data_subnets_ids
 }
 
@@ -20,9 +20,9 @@ resource "aws_docdb_subnet_group" "mongo_grp" {
 resource "aws_docdb_cluster" "mongo_cluster" {
   skip_final_snapshot             = true
   db_subnet_group_name            = aws_docdb_subnet_group.mongo_grp.name
-  cluster_identifier              = "${var.environment}-mongo-app-cluster"
+  cluster_identifier              = "${var.app_name}-mongo-app-cluster-${var.environment}"
   engine                          = "docdb"
-  master_username                 = "adminmongo"
+  master_username                 = var.mongousername
   manage_master_user_password     = true
   db_cluster_parameter_group_name = aws_docdb_cluster_parameter_group.mongo_params.name
   storage_encrypted               = true
@@ -39,7 +39,7 @@ resource "aws_docdb_cluster" "mongo_cluster" {
 
 resource "aws_docdb_cluster_instance" "mongo_instance" {
   count              = var.mongo_node_count
-  identifier         = "${var.environment}-mongo-instance"
+  identifier         = "${var.app_name}-mongo-instance-${var.environment}"
   cluster_identifier = aws_docdb_cluster.mongo_cluster.id
   instance_class     = var.mongo_instance_type
 }
