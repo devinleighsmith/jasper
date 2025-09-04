@@ -87,9 +87,9 @@ export default {
     documents?: {
       documentType: DocumentRequestType;
       documentData: DocumentData;
-      memberName: string;
+      groupKeyOne: string;
+      groupKeyTwo: string;
       documentName: string;
-      caseNumber?: string;
     }[]
   ): void {
     if (!documents || documents.length === 0) return;
@@ -117,12 +117,13 @@ export default {
             locationId: doc.documentData.locationId,
             roomCode: doc.documentData.roomCode || '',
             reportType: doc.documentData.reportType || '',
+            additionsList: doc.documentData.additionsList || '',
           },
         },
-        caseNumber: doc.caseNumber || doc.documentData.fileNumberText || 'Case',
-        memberName: doc.memberName,
+        groupKeyOne: doc.groupKeyOne,
+        groupKeyTwo: doc.groupKeyTwo,
         documentName: doc.documentName,
-      }, 'caseNumber', 'memberName'); // remove these and instead just reference keyOne keyTwo (which should replace caseNumber and memberName)
+      });
     });
     window.open('/pdf-viewer', 'pdf-viewer');
   },

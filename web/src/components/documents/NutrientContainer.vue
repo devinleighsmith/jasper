@@ -43,6 +43,7 @@
   const loadMultiple = async () => {
     const groupedDocs = pdfStore.groupedDocuments;
     const allDocs: StoreDocument[] = [];
+
     Object.values(groupedDocs).forEach(
       (userGroup: Record<string, StoreDocument[]>) => {
         Object.values(userGroup).forEach((docs) => {
@@ -70,20 +71,20 @@
   const configureOutline = (): any => {
     const outline = NutrientViewer.Immutable.List(
       Object.entries(pdfStore.groupedDocuments).map(([groupKey, userGroup]) =>
-        makeCaseElement(groupKey, userGroup)
+        makeFirstGroup(groupKey, userGroup)
       )
     );
     return outline;
   };
 
-  const makeCaseElement = (
+  const makeFirstGroup = (
     groupKey: string,
     userGroup: Record<string, StoreDocument[]>
   ) => {
     const childrenArray: any[] = [];
     Object.entries(userGroup).forEach(([name, docs]) => {
       if (name !== '') {
-        childrenArray.push(makeMemberElement(name, docs));
+        childrenArray.push(makeSecondGroup(name, docs));
       } else {
         makeDocElements(docs).forEach((el: any) => childrenArray.push(el));
       }
@@ -96,7 +97,7 @@
     });
   };
 
-  const makeMemberElement = (memberName: string, docs: StoreDocument[]) => {
+  const makeSecondGroup = (memberName: string, docs: StoreDocument[]) => {
     return new NutrientViewer.OutlineElement({
       title: memberName,
       isExpanded: true,
