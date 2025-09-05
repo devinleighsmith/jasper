@@ -56,7 +56,7 @@
       allDocs.map((doc) => doc.request)
     );
     loading.value = false;
-    var outline = configureOutline();
+    const outline = configureOutline();
     let instance = await NutrientViewer.load({
       ...configuration,
       document: `data:application/pdf;base64,${documentResponse.base64Pdf}`,
