@@ -7,12 +7,7 @@
           elevation="2"
           style="padding: 1rem"
         >
-          <img
-            class="logo"
-            src="../../assets/jasper-logo.svg"
-            alt="logo"
-            width="63"
-          />
+          <img class="logo" :src="logo" alt="logo" width="63" />
           <v-row justify="center">
             <h2 class="mt-4">Request Access To JASPER:</h2>
           </v-row>
@@ -79,14 +74,15 @@
 </template>
 
 <script setup lang="ts">
+  import logo from '@/assets/jasper-logo.svg?url';
   import { UserService } from '@/services/UserService';
   import { useCommonStore } from '@/stores';
   import { useSnackbarStore } from '@/stores/SnackbarStore';
+  import { CustomAPIError } from '@/types/ApiResponse';
   import { isPositiveInteger } from '@/utils/utils';
   import axios, { AxiosError } from 'axios';
   import _ from 'underscore';
   import { inject, onMounted, ref } from 'vue';
-  import { CustomAPIError } from '@/types/ApiResponse';
 
   const commonStore = useCommonStore();
   const snackBarStore = useSnackbarStore();
