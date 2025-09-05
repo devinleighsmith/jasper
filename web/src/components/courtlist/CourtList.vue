@@ -249,9 +249,9 @@
       documents.push({
         documentType: DocumentRequestType.Report,
         documentData,
-        groupKeyTwo: '',
-        documentName: documentData.reportType || documentData.date,
-        groupKeyOne: value.division === DivisionEnum.R ? 'Criminal' : 'Civil',
+        groupKeyTwo: value.courtRoom,
+        documentName: reportType,
+        groupKeyOne: value.locationName,
       });
     });
     shared.openDocumentsPdfV2(documents);

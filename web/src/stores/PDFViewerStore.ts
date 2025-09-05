@@ -20,10 +20,10 @@ export const usePDFViewerStore = defineStore('PDFViewerStore', {
       if (document.groupKeyOne) {
         const grouped = this.documents.reduce(
           (acc, doc) => {
-            if (!acc[document.groupKeyOne]) acc[document.groupKeyOne] = {};
-            if (!acc[document.groupKeyOne][document.groupKeyTwo])
-              acc[document.groupKeyOne][document.groupKeyTwo] = [];
-            acc[document.groupKeyOne][document.groupKeyTwo].push(doc);
+            if (!acc[doc.groupKeyOne]) acc[doc.groupKeyOne] = {};
+            if (!acc[doc.groupKeyOne][doc.groupKeyTwo])
+              acc[doc.groupKeyOne][doc.groupKeyTwo] = [];
+            acc[doc.groupKeyOne][doc.groupKeyTwo].push(doc);
             return acc;
           },
           {} as Record<string, Record<string, StoreDocument[]>>
