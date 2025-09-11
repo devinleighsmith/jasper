@@ -83,7 +83,7 @@ export default {
       this.openRequestedTab(url, fileName, correlationId);
     } else {
       const newWindow = window.open(url);
-      this.replaceWindowFileName(newWindow, fileName);
+      this.replaceWindowTitle(newWindow, fileName);
     }
   },
   openDocumentsPdfV2(
@@ -128,9 +128,9 @@ export default {
         documentName: doc.documentName,
       });
     });
-    const tabName = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
+    const caseNumbers = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
     const newWindow = window.open('/pdf-viewer', 'pdf-viewer');
-    this.replaceWindowFileName(newWindow, tabName);
+    this.replaceWindowTitle(newWindow, caseNumbers);
   },
 
   generateFileName(
@@ -186,24 +186,24 @@ export default {
           splunkLog(endMsg);
         }
       };
-      this.replaceWindowFileName(windowObjectReference, fileName);
+      this.replaceWindowTitle(windowObjectReference, fileName);
     }
   },
 
-  replaceWindowFileName(newWindow: Window | null, fileName: string) {
+  replaceWindowTitle(newWindow: Window | null, title: string) {
     if(newWindow === null) {
       return null;
     }
     try {
       newWindow.addEventListener('load', function () {
         setTimeout(function () {
-          newWindow.document.title = fileName;
+          newWindow.document.title = title;
         }, 1000);
         setTimeout(function () {
-          newWindow.document.title = fileName;
+          newWindow.document.title = title;
         }, 3000);
         setTimeout(function () {
-          newWindow.document.title = fileName;
+          newWindow.document.title = title;
         }, 5000);
       });
     } catch (e) {
