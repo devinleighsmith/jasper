@@ -26,12 +26,9 @@ export default {
   renderDocumentUrl(
     documentType: CourtDocumentType,
     documentData: DocumentData,
-    correlationId: string
+    correlationId: string,
+    fileName: string
   ): string {
-    const fileName = this.generateFileName(documentType, documentData).replace(
-      /\//g,
-      '_'
-    );
     const isCriminal = documentType == CourtDocumentType.Criminal;
     const documentId = documentData.documentId
       ? this.convertToBase64Url(documentData.documentId)
@@ -69,18 +66,24 @@ export default {
     documentData: DocumentData
   ): void {
     const correlationId = uuidv4();
+    const fileName = this.generateFileName(documentType, documentData).replace(
+      /\//g,
+      '_'
+    );
     const url = this.renderDocumentUrl(
       documentType,
       documentData,
-      correlationId
+      correlationId,
+      fileName
     );
     if (
       documentType !== CourtDocumentType.ROP &&
       documentType !== CourtDocumentType.CSR
     ) {
-      this.openRequestedTab(url, correlationId);
+      this.openRequestedTab(url, fileName, correlationId);
     } else {
-      window.open(url);
+      const newWindow = window.open(url);
+      this.replaceWindowFileName(newWindow, fileName);
     }
   },
   openDocumentsPdfV2(
@@ -93,7 +96,7 @@ export default {
     }[]
   ): void {
     if (!documents || documents.length === 0) return;
-    
+
     const pdfStore = usePDFViewerStore();
     pdfStore.clearDocuments();
     documents.forEach((doc) => {
@@ -125,9 +128,11 @@ export default {
         documentName: doc.documentName,
       });
     });
-    window.open('/pdf-viewer', 'pdf-viewer');
+    const tabName = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
+    const newWindow = window.open('/pdf-viewer', 'pdf-viewer');
+    this.replaceWindowFileName(newWindow, tabName);
   },
-  
+
   generateFileName(
     documentType: CourtDocumentType,
     documentData: DocumentData
@@ -155,7 +160,7 @@ export default {
     }
   },
 
-  openRequestedTab(url, correlationId) {
+  openRequestedTab(url, fileName, correlationId) {
     const start = new Date();
     const startStr = start.toLocaleString('en-US', {
       timeZone: 'America/Vancouver',
@@ -181,6 +186,29 @@ export default {
           splunkLog(endMsg);
         }
       };
+      this.replaceWindowFileName(windowObjectReference, fileName);
     }
+  },
+
+  replaceWindowFileName(newWindow: Window | null, fileName: string) {
+    if(newWindow === null) {
+      return null;
+    }
+    try {
+      newWindow.addEventListener('load', function () {
+        setTimeout(function () {
+          newWindow.document.title = fileName;
+        }, 1000);
+        setTimeout(function () {
+          newWindow.document.title = fileName;
+        }, 3000);
+        setTimeout(function () {
+          newWindow.document.title = fileName;
+        }, 5000);
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    return newWindow;
   },
 };
