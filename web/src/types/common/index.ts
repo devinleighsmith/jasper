@@ -1,5 +1,7 @@
 import { csrRequestsInfoType } from '../civil';
 import { ropRequestsInfoType } from '../criminal';
+import { GeneratePdfResponse } from '@/components/documents/models/GeneratePdf';
+import { Binder } from '@/types';
 
 export interface InputNamesType {
   lastName: string;
@@ -135,4 +137,16 @@ export enum CalendarViewEnum {
   MonthView = 'dayGridMonth',
   TwoWeekView = 'dayGridTwoWeek',
   WeekView = 'dayGridWeek',
+}
+
+export interface AppearanceDocumentRequest {
+  physicalFileId: string;
+  appearanceId: string;
+  participantId: string;
+  courtClassCd: string;
+}
+
+export interface DocumentBundleResponse {
+  binders: Binder[];
+  pdfResponse: GeneratePdfResponse;
 }

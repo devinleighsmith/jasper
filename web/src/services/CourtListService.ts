@@ -1,4 +1,9 @@
+import { ApiResponse } from '@/types/ApiResponse';
 import { courtListType } from '@/types/courtlist/jsonTypes';
+import {
+  CourtListDocumentBundleRequest,
+  CourtListDocumentBundleResponse,
+} from '@/types/courtlist/jsonTypes';
 import { HttpService } from './HttpService';
 
 export class CourtListService {
@@ -31,5 +36,15 @@ export class CourtListService {
     return this.httpService.client
       .get<courtListType>(url, { params })
       .then((res) => res.data);
+  }
+
+  // This is going to be replaced soon
+  async generateCourtListPdf(
+    bundleRequest: CourtListDocumentBundleRequest
+  ): Promise<ApiResponse<CourtListDocumentBundleResponse>> {
+    return this.httpService.post<ApiResponse<CourtListDocumentBundleResponse>>(
+      `api/binders/bundle`,
+      bundleRequest.appearances
+    );
   }
 }

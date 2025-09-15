@@ -139,6 +139,7 @@
   <CourtListTableActionBarGroup
     :selected
     @view-case-details="viewCaseDetails"
+    @view-key-documents="viewKeyDocuments"
   />
 </template>
 
@@ -148,6 +149,11 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
+  import { CourtListService } from '@/services';
+  import {
+    CourtListAppearanceDocumentRequest,
+    CourtListDocumentBundleRequest,
+  } from '@/types/courtlist/jsonTypes';
   import { useCourtFileSearchStore } from '@/stores';
   import {
     CourtClassEnum,
@@ -168,7 +174,8 @@
     mdiNotebookEditOutline,
     mdiTrashCanOutline,
   } from '@mdi/js';
-  import { computed, ref } from 'vue';
+  import shared from '@/components/shared';
+  import { computed, inject, ref } from 'vue';
 
   const selected = ref<CourtListAppearance[]>([]);
 
@@ -187,6 +194,11 @@
     data: CourtListAppearance[];
     search: string;
   }>();
+
+  const courtListService = inject<CourtListService>('courtListService');
+  if (!courtListService) {
+    throw new Error('HttpService is not available!');
+  }
 
   const data = computed(() =>
     props.data.map((item) => ({
@@ -340,6 +352,31 @@
     }
 
     return [];
+  };
+
+  const viewKeyDocuments = async (appearances: CourtListAppearance[]) => {
+    if (appearances.length === 0) {
+      return;
+    }
+
+      appearances.map(
+        (app) =>
+          ({
+            fileId: app.justinNo, 
+            appearanceId: app.appearanceId,
+            participantId: app.profPartId,
+            courtClassCd: app.courtClassCd,
+          }) as CourtListAppearanceDocumentRequest
+      );
+
+    // const request = {
+    //   appearances: Array.from(appearanceRequests),
+    // } as CourtListDocumentBundleRequest;
+
+    shared.openCourtListKeyDocuments(appearances);
+    //console.log(request);
+
+    //var response = await courtListService.generateCourtListPdf(request);
   };
 
   const viewCaseDetails = (selectedItems: CourtListAppearance[]) => {
