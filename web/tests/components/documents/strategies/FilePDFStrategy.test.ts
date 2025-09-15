@@ -21,24 +21,30 @@ const mockAppearanceRequests: appearanceRequest[] = [
     fileNumber: 'FN1',
     fullName: 'John Doe',
     appearance: {
-      fileId: 'F1',
+      physicalFileId: 'F1',
       participantId: 'P1',
+      appearanceId: '',
+      courtClassCd: ''
     },
   },
   {
     fileNumber: 'FN1',
     fullName: 'Jane Doe',
     appearance: {
-      fileId: 'F2',
+      physicalFileId: 'F2',
       participantId: 'P2',
+      appearanceId: '',
+      courtClassCd: ''
     },
   },
   {
     fileNumber: 'FN2',
     fullName: 'Alice Smith',
     appearance: {
-      fileId: 'F3',
+      physicalFileId: 'F3',
       participantId: 'P3',
+      appearanceId: '',
+      courtClassCd: ''
     },
   },
 ];
