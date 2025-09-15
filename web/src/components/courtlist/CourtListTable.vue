@@ -151,8 +151,7 @@
   import { bannerClasses } from '@/constants/bannerClasses';
   import { CourtListService } from '@/services';
   import {
-    CourtListAppearanceDocumentRequest,
-    CourtListDocumentBundleRequest,
+    CourtListAppearanceDocumentRequest
   } from '@/types/courtlist/jsonTypes';
   import { useCourtFileSearchStore } from '@/stores';
   import {
@@ -362,21 +361,14 @@
       appearances.map(
         (app) =>
           ({
-            fileId: app.justinNo, 
+            physicalFileId: app.justinNo, 
             appearanceId: app.appearanceId,
             participantId: app.profPartId,
             courtClassCd: app.courtClassCd,
           }) as CourtListAppearanceDocumentRequest
       );
 
-    // const request = {
-    //   appearances: Array.from(appearanceRequests),
-    // } as CourtListDocumentBundleRequest;
-
     shared.openCourtListKeyDocuments(appearances);
-    //console.log(request);
-
-    //var response = await courtListService.generateCourtListPdf(request);
   };
 
   const viewCaseDetails = (selectedItems: CourtListAppearance[]) => {
