@@ -128,7 +128,7 @@ export class BundlePDFStrategy
     docs: appearanceRequest[],
     apiResponse: ApiResponse<CourtListDocumentBundleResponse>
   ): OutlineItem | null {
-    const fileIds = docs.map((d) => d.appearance.fileId);
+    const fileIds = docs.map((d) => d.appearance.physicalFileId);
     const partIds = docs.map((d) => d.appearance.participantId);
 
     let binders = apiResponse.payload.binders.filter(
