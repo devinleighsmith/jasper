@@ -140,7 +140,7 @@ export default {
   ): void {
     if (!appearances.length) return;
     const bundleStore = useBundleStore();
-    var appearanceRequests = appearances.map(
+    const appearanceRequests = appearances.map(
         (app) =>
           ({
             appearance: {

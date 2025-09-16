@@ -1,6 +1,6 @@
 import { ApiResponse } from '@/types/ApiResponse';
-import { courtListType } from '@/types/courtlist/jsonTypes';
 import {
+  courtListType,
   CourtListDocumentBundleRequest,
   CourtListDocumentBundleResponse,
 } from '@/types/courtlist/jsonTypes';

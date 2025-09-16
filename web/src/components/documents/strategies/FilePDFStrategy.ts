@@ -10,8 +10,8 @@ export class FilePDFStrategy implements PDFViewerStrategy<
   StoreDocument[],
   GeneratePdfResponse 
 > {
-  private pdfStore = usePDFViewerStore();
-  private filesService: FilesService;
+  private readonly pdfStore = usePDFViewerStore();
+  private readonly filesService: FilesService;
   private pageIndex = 0;
 
   constructor() {
@@ -34,7 +34,7 @@ export class FilePDFStrategy implements PDFViewerStrategy<
     const allDocs: StoreDocument[] = [];
     Object.values(rawData).forEach((userGroup: Record<string, StoreDocument[]>) => {
       Object.values(userGroup).forEach((docs) => {
-        allDocs.push(...(docs as StoreDocument[]));
+        allDocs.push(...(docs));
       });
     });
     return allDocs;

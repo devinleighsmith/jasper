@@ -2,7 +2,6 @@ import {
   GeneratePdfRequest,
   GeneratePdfResponse,
 } from '@/components/documents/models/GeneratePdf';
-import { Binder } from '@/types';
 import { CivilAppearanceDetails } from '@/types/civil/jsonTypes/index';
 import { CourtFileSearchResponse } from '@/types/courtFileSearch';
 import { CriminalAppearanceDetails } from '@/types/criminal/jsonTypes/index';
