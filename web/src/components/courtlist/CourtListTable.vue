@@ -149,7 +149,6 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
-  import { CourtListService } from '@/services';
   import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
   import { useCourtFileSearchStore } from '@/stores';
   import {
@@ -191,11 +190,6 @@
     data: CourtListAppearance[];
     search: string;
   }>();
-
-  const courtListService = inject<CourtListService>('courtListService');
-  if (!courtListService) {
-    throw new Error('HttpService is not available!');
-  }
 
   const data = computed(() =>
     props.data.map((item) => ({
