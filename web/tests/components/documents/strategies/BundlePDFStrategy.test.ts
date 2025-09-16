@@ -5,6 +5,7 @@ import { inject } from 'vue';
 import { ApiResponse } from '@/types/ApiResponse';
 import { BinderDocument } from '@/types/BinderDocument';
 import { appearanceRequest } from '@/stores/BundleStore';
+import { BinderService } from '@/services';
 
 vi.mock('@/stores', () => ({
   useBundleStore: vi.fn(),
@@ -13,7 +14,7 @@ vi.mock('vue', () => ({
   inject: vi.fn(),
 }));
 vi.mock('@/services', () => ({
-  CourtListService: vi.fn(),
+  BinderService: vi.fn(),
 }));
 
 const mockAppearanceRequests: appearanceRequest[] = [
@@ -54,8 +55,8 @@ const mockBundleStore = {
   clearBundles: vi.fn(),
 };
 
-const mockCourtListService = {
-  generateCourtListPdf: vi.fn(),
+const mockBinderService = {
+  generateBinderPDF: vi.fn(),
 };
 
 const mockApiResponse: ApiResponse<any> = {
@@ -116,16 +117,16 @@ describe('BundlePDFStrategy', () => {
   beforeEach(() => {
     (useBundleStore as any).mockReturnValue(mockBundleStore);
     (inject as any).mockImplementation((key: string) => {
-      if (key === 'courtListService') return mockCourtListService;
+      if (key === 'binderService') return mockBinderService;
       return undefined;
     });
     mockBundleStore.clearBundles.mockClear();
-    mockCourtListService.generateCourtListPdf.mockClear();
+    mockBinderService.generateBinderPDF.mockClear();
   });
 
-  it('throws error if CourtListService is not injected', () => {
+  it('throws error if BinderService is not injected', () => {
     (inject as any).mockReturnValueOnce(undefined);
-    expect(() => new BundlePDFStrategy()).toThrow('CourtListService is not available!');
+    expect(() => new BundlePDFStrategy()).toThrow('BinderService is not available!');
   });
 
   it('hasData returns true if appearance requests exist', () => {
@@ -149,11 +150,11 @@ describe('BundlePDFStrategy', () => {
     expect(result.appearances[0]).toEqual(mockAppearanceRequests[0].appearance);
   });
 
-  it('generatePDF calls courtListService.generateCourtListPdf', async () => {
+  it('generatePDF calls binderService.generateBinderPDF', async () => {
     const strategy = new BundlePDFStrategy();
-    mockCourtListService.generateCourtListPdf.mockResolvedValue('pdf');
+    mockBinderService.generateBinderPDF.mockResolvedValue('pdf');
     const result = await strategy.generatePDF({ appearances: [] });
-    expect(mockCourtListService.generateCourtListPdf).toHaveBeenCalledWith({ appearances: [] });
+    expect(mockBinderService.generateBinderPDF).toHaveBeenCalledWith({ appearances: [] });
     expect(result).toBe('pdf');
   });
 

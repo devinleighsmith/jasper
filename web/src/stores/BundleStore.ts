@@ -1,17 +1,15 @@
 import { defineStore } from 'pinia';
 import { UUIDTypes } from 'uuid';
 import { Binder } from '@/types/Binder';
-  import {
-    CourtListAppearanceDocumentRequest,
-    CourtListDocumentBundleRequest,
-  } from '@/types/courtlist/jsonTypes';
+import { DocumentBundleRequest } from '@/types/DocumentBundleRequest';
+import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
 
 
 export const useBundleStore = defineStore('BundleStore', {
   persist: true,
   state: () => ({
     bundles: [] as Bundle[],
-    request: {} as CourtListDocumentBundleRequest,
+    request: {} as DocumentBundleRequest,
     appearanceRequests: [] as appearanceRequest[],
   }),
   getters: {
@@ -32,7 +30,7 @@ export const useBundleStore = defineStore('BundleStore', {
         groupKeyOne: '',
         groupKeyTwo: '',
         documentName: '',
-        requests: {} as CourtListDocumentBundleRequest,
+        requests: {} as DocumentBundleRequest,
       });
     },
     addBinder(binder: Binder, bundleId: UUIDTypes): void {
@@ -44,7 +42,7 @@ export const useBundleStore = defineStore('BundleStore', {
     clearBundles(): void {
       this.bundles.length = 0;
       this.appearanceRequests = [];
-      this.request = {} as CourtListDocumentBundleRequest;
+      this.request = {} as DocumentBundleRequest;
     },
   },
 });
@@ -54,12 +52,12 @@ export type Bundle = {
   groupKeyOne: string;
   groupKeyTwo: string;
   documentName: string;
-  requests: CourtListDocumentBundleRequest;
+  requests: DocumentBundleRequest;
   binders: Binder[];
 };
 
 export type appearanceRequest = {
-  appearance: CourtListAppearanceDocumentRequest;
+  appearance: AppearanceDocumentRequest;
   fileNumber: string;
   fullName: string;
 };

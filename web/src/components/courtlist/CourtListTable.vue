@@ -150,9 +150,7 @@
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
   import { CourtListService } from '@/services';
-  import {
-    CourtListAppearanceDocumentRequest
-  } from '@/types/courtlist/jsonTypes';
+  import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
   import { useCourtFileSearchStore } from '@/stores';
   import {
     CourtClassEnum,
@@ -365,7 +363,7 @@
             appearanceId: app.appearanceId,
             participantId: app.profPartId,
             courtClassCd: app.courtClassCd,
-          }) as CourtListAppearanceDocumentRequest
+          }) as AppearanceDocumentRequest
       );
 
     shared.openCourtListKeyDocuments(appearances);

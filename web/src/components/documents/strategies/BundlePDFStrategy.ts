@@ -2,35 +2,33 @@ import {
   OutlineItem,
   PDFViewerStrategy,
 } from '@/components/documents/FileViewer.vue';
-import { CourtListService } from '@/services';
+import { BinderService } from '@/services';
 import { useBundleStore } from '@/stores';
 import { appearanceRequest } from '@/stores/BundleStore';
 import { ApiResponse } from '@/types/ApiResponse';
 import { BinderDocument } from '@/types/BinderDocument';
-import {
-  CourtListDocumentBundleRequest,
-  CourtListDocumentBundleResponse,
-} from '@/types/courtlist/jsonTypes';
+import { DocumentBundleResponse } from '@/types/DocumentBundleResponse';
 import { inject } from 'vue';
+import { DocumentBundleRequest } from '@/types/DocumentBundleRequest';
 
 export class BundlePDFStrategy
   implements
     PDFViewerStrategy<
       Record<string, Record<string, appearanceRequest[]>>,
-      CourtListDocumentBundleRequest,
-      ApiResponse<CourtListDocumentBundleResponse>
+      DocumentBundleRequest,
+      ApiResponse<DocumentBundleResponse>
     >
 {
   private readonly bundleStore = useBundleStore();
-  private readonly courtListService: CourtListService;
+  private readonly binderService: BinderService;
   private count = 0;
 
   constructor() {
-    const service = inject<CourtListService>('courtListService');
+    const service = inject<BinderService>('binderService');
     if (!service) {
-      throw new Error('CourtListService is not available!');
+      throw new Error('BinderService is not available!');
     }
-    this.courtListService = service;
+    this.binderService = service;
   }
 
   hasData(): boolean {
@@ -62,7 +60,7 @@ export class BundlePDFStrategy
 
   processDataForAPI(
     rawData: Record<string, Record<string, appearanceRequest[]>>
-  ): CourtListDocumentBundleRequest {
+  ): DocumentBundleRequest {
     const groupedAppearances = Object.values(rawData).flatMap((fileGroup) =>
       Object.values(fileGroup).flatMap((appearances) =>
         appearances.map((a) => a.appearance)
@@ -71,30 +69,30 @@ export class BundlePDFStrategy
 
     return {
       appearances: groupedAppearances,
-    } as unknown as CourtListDocumentBundleRequest;
+    } as unknown as DocumentBundleRequest;
   }
 
   async generatePDF(
-    processedData: CourtListDocumentBundleRequest
-  ): Promise<ApiResponse<CourtListDocumentBundleResponse>> {
-    return await this.courtListService.generateCourtListPdf(processedData);
+    processedData: DocumentBundleRequest
+  ): Promise<ApiResponse<DocumentBundleResponse>> {
+    return await this.binderService.generateBinderPDF(processedData);
   }
 
   extractBase64PDF(
-    apiResponse: ApiResponse<CourtListDocumentBundleResponse>
+    apiResponse: ApiResponse<DocumentBundleResponse>
   ): string {
     return apiResponse.payload.pdfResponse.base64Pdf;
   }
 
   extractPageRanges(
-    apiResponse: ApiResponse<CourtListDocumentBundleResponse>
+    apiResponse: ApiResponse<DocumentBundleResponse>
   ): Array<{ start: number; end?: number }> | undefined {
     return apiResponse.payload.pdfResponse.pageRanges;
   }
 
   createOutline(
     rawData: Record<string, Record<string, appearanceRequest[]>>,
-    apiResponse: ApiResponse<CourtListDocumentBundleResponse>
+    apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem[] {
     this.count = 0; // Reset counter
     return Object.entries(rawData).map(([groupKey, userGroup]) =>
@@ -105,7 +103,7 @@ export class BundlePDFStrategy
   private makeFirstGroup(
     groupKey: string,
     userGroup: Record<string, appearanceRequest[]>,
-    apiResponse: ApiResponse<CourtListDocumentBundleResponse>
+    apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem {
     const children: OutlineItem[] = [];
 
@@ -126,7 +124,7 @@ export class BundlePDFStrategy
   private makeSecondGroup(
     memberName: string,
     docs: appearanceRequest[],
-    apiResponse: ApiResponse<CourtListDocumentBundleResponse>
+    apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem | null {
     const fileIds = docs.map((d) => d.appearance.physicalFileId);
     const partIds = docs.map((d) => d.appearance.participantId);
@@ -157,7 +155,7 @@ export class BundlePDFStrategy
 
   private makeDocElement(
     doc: BinderDocument,
-    apiResponse: ApiResponse<CourtListDocumentBundleResponse>
+    apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem {
     console.log(doc);
     return {

@@ -1,6 +1,4 @@
 import {AdditionalProperties} from '../../common';
-import { GeneratePdfResponse } from '@/components/documents/models/GeneratePdf';
-import { Binder } from '@/types';
 
 export interface courtListType {
     criminalCourtList: criminalCourtListType[];
@@ -568,20 +566,3 @@ export interface courtListType {
     additionalProp2: {};
     additionalProp3: {}
   } 
-
-  // remove
-export interface CourtListDocumentBundleRequest {
-  appearances: CourtListAppearanceDocumentRequest[];
-}
-
-export interface CourtListAppearanceDocumentRequest {
-  physicalFileId: string;
-  appearanceId: string;
-  participantId: string;
-  courtClassCd: string;
-}
-
-export interface CourtListDocumentBundleResponse {
-  binders: Binder[];
-  pdfResponse: GeneratePdfResponse;
-}

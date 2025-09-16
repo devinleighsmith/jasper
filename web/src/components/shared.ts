@@ -1,5 +1,6 @@
 import { useBundleStore, usePDFViewerStore } from '@/stores';
-import { CourtListDocumentBundleRequest, CourtListAppearanceDocumentRequest } from '@/types/courtlist/jsonTypes';
+import { DocumentBundleRequest } from '@/types/DocumentBundleRequest';
+import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
 import {
   CourtDocumentType,
   DocumentData,
@@ -148,14 +149,14 @@ export default {
               appearanceId: app.appearanceId,
               participantId: app.profPartId,
               courtClassCd: app.courtClassCd,
-            } as CourtListAppearanceDocumentRequest,
+            } as AppearanceDocumentRequest,
             fileNumber: app.courtFileNumber,
             fullName: app.accusedNm
         }) 
       );
     const bundleRequest = {
       appearances: appearanceRequests.map(app => app.appearance),
-    } as CourtListDocumentBundleRequest;
+    } as DocumentBundleRequest;
     bundleStore.request = bundleRequest;
     bundleStore.appearanceRequests = appearanceRequests;
 
