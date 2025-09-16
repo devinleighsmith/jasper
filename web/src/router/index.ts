@@ -84,7 +84,7 @@ const routes: RouteRecordRaw[] = [
       import('@/components/courtfilesearch/CourtFileSearchView.vue'),
   },
   {
-    path: '/pdf-viewer',
+    path: '/file-viewer',
     name: 'NutrientContainer',
     component: () => import('@/components/documents/NutrientContainer.vue'),
   },

@@ -1,4 +1,6 @@
-import { usePDFViewerStore } from '@/stores';
+import { useBundleStore, usePDFViewerStore } from '@/stores';
+import { DocumentBundleRequest } from '@/types/DocumentBundleRequest';
+import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
 import {
   CourtDocumentType,
   DocumentData,
@@ -6,6 +8,7 @@ import {
 } from '@/types/shared';
 import { splunkLog } from '@/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { CourtListAppearance } from '@/types/courtlist';
 
 export default {
   convertToBase64Url(inputText: string): string {
@@ -129,7 +132,36 @@ export default {
       });
     });
     const caseNumbers = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
-    const newWindow = window.open('/pdf-viewer', 'pdf-viewer');
+    const newWindow = window.open('/file-viewer?type=file', 'file-viewer');
+
+    this.replaceWindowTitle(newWindow, caseNumbers);
+  },
+  openCourtListKeyDocuments(
+    appearances: CourtListAppearance[]
+  ): void {
+    if (!appearances.length) return;
+    const bundleStore = useBundleStore();
+    const appearanceRequests = appearances.map(
+        (app) =>
+          ({
+            appearance: {
+              physicalFileId: app.justinNo, 
+              appearanceId: app.appearanceId,
+              participantId: app.profPartId,
+              courtClassCd: app.courtClassCd,
+            } as AppearanceDocumentRequest,
+            fileNumber: app.courtFileNumber,
+            fullName: app.accusedNm
+        }) 
+      );
+    const bundleRequest = {
+      appearances: appearanceRequests.map(app => app.appearance),
+    } as DocumentBundleRequest;
+    bundleStore.request = bundleRequest;
+    bundleStore.appearanceRequests = appearanceRequests;
+
+    const newWindow = window.open('/file-viewer?type=bundle', 'file-viewer');
+    const caseNumbers = Array.from(new Set(appearances.map(d => d.courtFileNumber))).join(', ');
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
 
