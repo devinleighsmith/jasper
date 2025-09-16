@@ -157,7 +157,6 @@ export class BundlePDFStrategy
     doc: BinderDocument,
     apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem {
-    console.log(doc);
     return {
       title: doc.fileName ?? doc.documentType,
       pageIndex:

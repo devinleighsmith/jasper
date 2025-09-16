@@ -171,7 +171,7 @@
     mdiTrashCanOutline,
   } from '@mdi/js';
   import shared from '@/components/shared';
-  import { computed, inject, ref } from 'vue';
+  import { computed, ref } from 'vue';
 
   const selected = ref<CourtListAppearance[]>([]);
 
