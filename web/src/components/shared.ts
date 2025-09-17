@@ -132,7 +132,7 @@ export default {
       });
     });
     const caseNumbers = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
-    const newWindow = window.open('/file-viewer?type=file', 'file-viewer');
+    const newWindow = window.open('/file-viewer?type=file', '_blank');
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
@@ -160,7 +160,7 @@ export default {
     bundleStore.request = bundleRequest;
     bundleStore.appearanceRequests = appearanceRequests;
 
-    const newWindow = window.open('/file-viewer?type=bundle', 'file-viewer');
+    const newWindow = window.open('/file-viewer?type=bundle', '_blank');
     const caseNumbers = Array.from(new Set(appearances.map(d => d.courtFileNumber))).join(', ');
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
