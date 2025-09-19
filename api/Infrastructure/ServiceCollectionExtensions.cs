@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Scv.Api.Documents;
+using Scv.Api.Documents.Parsers;
 using Scv.Api.Documents.Strategies;
 using Scv.Api.Helpers;
 using Scv.Api.Helpers.Extensions;
@@ -196,6 +197,7 @@ namespace Scv.Api.Infrastructure
 
             services.AddScoped<IDashboardService, DashboardService>();
             services.AddScoped<IDocumentCategoryService, DocumentCategoryService>();
+            services.AddScoped<ICsvParser, CsvParser>();
 
             var connectionString = configuration.GetValue<string>("MONGODB_CONNECTION_STRING");
             if (!string.IsNullOrEmpty(connectionString))
