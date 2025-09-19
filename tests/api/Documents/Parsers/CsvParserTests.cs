@@ -13,14 +13,15 @@ public class CsvParserTest
         public int Age { get; set; }
     }
 
-    [Fact]
-    public void Parse_ReturnsCorrectRecords_ForValidTabDelimitedCsv()
+    [Theory]
+    [InlineData("Name\tAge\nAlice\t30\nBob\t25", "\t")]
+    [InlineData("Name,Age\nAlice,30\nBob,25", ",")]
+    public void Parse_ReturnsCorrectRecords_UsingDifferentDelimiters(string csvContent, string delimiter)
     {
-        var csvContent = "Name\tAge\nAlice\t30\nBob\t25";
         var csvStream = new MemoryStream(Encoding.UTF8.GetBytes(csvContent));
         var parser = new Scv.Api.Documents.Parsers.CsvParser();
 
-        var result = parser.Parse<TestRecord>(csvStream).ToList();
+        var result = parser.Parse<TestRecord>(csvStream, delimiter).ToList();
 
         Assert.Equal(2, result.Count);
         Assert.Equal("Alice", result[0].Name);

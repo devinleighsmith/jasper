@@ -9,11 +9,11 @@ namespace Scv.Api.Documents.Parsers;
 
 public class CsvParser : ICsvParser
 {
-    public IEnumerable<T> Parse<T>(MemoryStream csvStream) where T : class
+    public IEnumerable<T> Parse<T>(MemoryStream csvStream, string delimeter = "\t") where T : class
     {
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            Delimiter = "\t"
+            Delimiter = delimeter
         };
 
         using var reader = new StreamReader(csvStream);
