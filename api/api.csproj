@@ -41,9 +41,4 @@
     <ProjectReference Include="..\jc-interface-client\jc-interface-client.csproj" />
     <ProjectReference Include="..\pcss-client\pcss-client.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="Documents\Parsers\test.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>
