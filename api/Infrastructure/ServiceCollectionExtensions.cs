@@ -3,9 +3,7 @@ using System.Net.Http;
 using System.Reflection;
 using GdPicture14;
 using Hangfire;
-using Hangfire.Mongo;
-using Hangfire.Mongo.Migration.Strategies;
-using Hangfire.Mongo.Migration.Strategies.Backup;
+using Hangfire.PostgreSql;
 using JCCommon.Clients.FileServices;
 using JCCommon.Clients.LocationServices;
 using JCCommon.Clients.LookupCodeServices;
@@ -216,37 +214,19 @@ namespace Scv.Api.Infrastructure
 
         public static IServiceCollection AddHangfire(this IServiceCollection services, IConfiguration configuration)
         {
-            // Remove checking when the "real" mongo db has been configured
-            var connectionString = configuration.GetValue<string>("MONGODB_CONNECTION_STRING");
-            var dbName = configuration.GetValue<string>("MONGODB_NAME");
-            if (string.IsNullOrEmpty(connectionString) || string.IsNullOrEmpty(dbName))
+            var connectionString = configuration.GetValue<string>("DatabaseConnectionString");
+            if (string.IsNullOrEmpty(connectionString))
             {
                 return services;
             }
 
-            services.AddHangfire((sp, config) =>
-            {
-                var mongoClient = sp.GetRequiredService<IMongoClient>();
-                var dbName = configuration.GetValue<string>("HANGFIRE_DB") ?? "hangfire";
-
-                config
-                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-                    .UseSimpleAssemblyNameTypeSerializer()
-                    .UseRecommendedSerializerSettings()
-                    .UseMongoStorage(mongoClient, dbName, new MongoStorageOptions
+            services.AddHangfire(config => config
+                .UsePostgreSqlStorage(c => c
+                    .UseNpgsqlConnection(connectionString), new PostgreSqlStorageOptions
                     {
-                        MigrationOptions = new MongoMigrationOptions
-                        {
-                            MigrationStrategy = new MigrateMongoMigrationStrategy(),
-                            BackupStrategy = new CollectionMongoBackupStrategy(),
-                        },
-                        CheckQueuedJobsStrategy = CheckQueuedJobsStrategy.TailNotificationsCollection,
-                        Prefix = "hangfire.mongo",
-                        CheckConnection = true
-                    });
-            });
-            services.AddHangfireServer(options => options.ServerName = "Hangfire.Mongo");
-
+                        SchemaName = "hangfire"
+                    }));
+            services.AddHangfireServer();
             return services;
         }
 
