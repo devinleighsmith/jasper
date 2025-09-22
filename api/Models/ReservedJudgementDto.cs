@@ -6,7 +6,6 @@ public class ReservedJudgementDto : BaseDto
 {
     public DateTime AppearanceDate { get; set; }
     public string CourtClass { get; set; }
-    public string CourtFileNumber { get; set; }
     public string FileNumber { get; set; }
     public string AdjudicatorLastNameFirstName { get; set; }
     public string AdjudicatorTypeDescription { get; set; }
@@ -17,5 +16,5 @@ public class ReservedJudgementDto : BaseDto
     public char RJMultiYesNoCode { get; set; }
     public char RJOutstandingYesNoCode { get; set; }
     public int AgeInDays { get; set; }
-    public float AgeInMonths { get; set; }
+    public DateTime? UpdatedDate { get; set; }
 }

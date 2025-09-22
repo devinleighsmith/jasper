@@ -10,6 +10,7 @@ public class ReservedJudgementMapping : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CsvReservedJudgement, ReservedJudgement>();
-        config.NewConfig<ReservedJudgement, ReservedJudgementDto>();
+        config.NewConfig<ReservedJudgement, ReservedJudgementDto>()
+            .Map(dest => dest.UpdatedDate, src => src.Upd_Dtm);
     }
 }
