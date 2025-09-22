@@ -16,6 +16,7 @@ public interface ICrudService<TDto> where TDto : BaseDto
     Task<List<TDto>> GetAllAsync();
     Task<TDto> GetByIdAsync(string id);
     Task<OperationResult<TDto>> AddAsync(TDto dto);
+    Task<OperationResult<TDto>> AddRangeAsync(List<TDto> dtos);
     Task<OperationResult<TDto>> ValidateAsync(TDto dto, bool isEdit = false);
     Task<OperationResult<TDto>> UpdateAsync(TDto dto);
     Task<OperationResult> DeleteAsync(string id);
@@ -65,6 +66,25 @@ public abstract class CrudServiceBase<TRepo, TEntity, TDto>(
         catch (Exception ex)
         {
             this.Logger.LogError(ex, "Error when adding data: {message}", ex.Message);
+            return OperationResult<TDto>.Failure("Error when adding data.");
+        }
+    }
+
+    public virtual async Task<OperationResult<TDto>> AddRangeAsync(List<TDto> dtos)
+    {
+        try
+        {
+            var entities = Mapper.Map<List<TEntity>>(dtos);
+
+            await Repo.AddRangeAsync(entities);
+
+            InvalidateCache(CacheName);
+
+            return OperationResult<TDto>.Success(Mapper.Map<TDto>(entities));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error when adding data: {message}", ex.Message);
             return OperationResult<TDto>.Failure("Error when adding data.");
         }
     }

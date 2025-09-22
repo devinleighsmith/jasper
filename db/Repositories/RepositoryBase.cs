@@ -17,6 +17,7 @@ public interface IRepositoryBase<TEntity> where TEntity : EntityBase
     Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
     Task<IEnumerable<TEntity>> FindAsync(string collectionName, FilterDefinition<TEntity> filterDefinition);
     Task AddAsync(TEntity entity);
+    Task AddRangeAsync(IEnumerable<TEntity> entities);
     Task UpdateAsync(TEntity entity);
     Task DeleteAsync(TEntity entity);
 }
@@ -58,6 +59,12 @@ public class RepositoryBase<TEntity>(JasperDbContext context, IMongoDatabase mon
     public virtual async Task AddAsync(TEntity entity)
     {
         await _dbSet.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task AddRangeAsync(IEnumerable<TEntity> entities)
+    {
+        await _dbSet.AddRangeAsync(entities);
         await _context.SaveChangesAsync();
     }
 
