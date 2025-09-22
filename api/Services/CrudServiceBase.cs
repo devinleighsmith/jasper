@@ -84,7 +84,7 @@ public abstract class CrudServiceBase<TRepo, TEntity, TDto>(
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error when adding data: {message}", ex.Message);
+            Logger.LogError(ex, "Error when adding data: {Message}", ex.Message);
             return OperationResult<TDto>.Failure("Error when adding data.");
         }
     }
