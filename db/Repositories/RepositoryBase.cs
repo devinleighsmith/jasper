@@ -20,6 +20,7 @@ public interface IRepositoryBase<TEntity> where TEntity : EntityBase
     Task AddRangeAsync(IEnumerable<TEntity> entities);
     Task UpdateAsync(TEntity entity);
     Task DeleteAsync(TEntity entity);
+    Task DeleteRangeAsync(IEnumerable<TEntity> entities);
 }
 
 public class RepositoryBase<TEntity>(JasperDbContext context, IMongoDatabase mongoDb) : IRepositoryBase<TEntity> where TEntity : EntityBase
@@ -77,6 +78,12 @@ public class RepositoryBase<TEntity>(JasperDbContext context, IMongoDatabase mon
     public virtual async Task DeleteAsync(TEntity entity)
     {
         _dbSet.Remove(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public virtual async Task DeleteRangeAsync(IEnumerable<TEntity> entities)
+    {
+        _dbSet.RemoveRange(entities);
         await _context.SaveChangesAsync();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using LazyCache;
 using MapsterMapper;
@@ -20,6 +21,7 @@ public interface ICrudService<TDto> where TDto : BaseDto
     Task<OperationResult<TDto>> ValidateAsync(TDto dto, bool isEdit = false);
     Task<OperationResult<TDto>> UpdateAsync(TDto dto);
     Task<OperationResult> DeleteAsync(string id);
+    Task<OperationResult> DeleteRangeAsync(List<string> ids);
 }
 
 public abstract class CrudServiceBase<TRepo, TEntity, TDto>(
@@ -126,6 +128,34 @@ public abstract class CrudServiceBase<TRepo, TEntity, TDto>(
             await this.Repo.DeleteAsync(existingEntity);
 
             this.InvalidateCache(this.CacheName);
+
+            return OperationResult.Success();
+        }
+        catch (Exception ex)
+        {
+            this.Logger.LogError(ex, "Error deleting data: {message}", ex.Message);
+            return OperationResult.Failure("Error when deleting data.");
+        }
+    }
+
+    public virtual async Task<OperationResult> DeleteRangeAsync(List<string> ids)
+    {
+        try
+        {
+            var existingEntities = new List<TEntity>();
+            var tasks = ids.Select(Repo.GetByIdAsync);
+            var entities = await Task.WhenAll(tasks);
+            existingEntities.AddRange(entities.Where(ent => ent != null));
+
+            if (existingEntities.Count == 0)
+            {
+                var err = new List<string> { $"No entities found." };
+                return OperationResult.Failure([.. err]);
+            }
+
+            await Repo.DeleteRangeAsync(existingEntities);
+
+            InvalidateCache(CacheName);
 
             return OperationResult.Success();
         }
