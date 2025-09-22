@@ -21,8 +21,6 @@ public class ReservedJudgementService(
 {
     public override string CacheName => "GetReservedJudgementsAsync";
 
-    public override async Task<OperationResult<ReservedJudgementDto>> ValidateAsync(ReservedJudgementDto dto, bool isEdit = false)
-    {
-        return OperationResult<ReservedJudgementDto>.Success(dto);
-    }
+    public override Task<OperationResult<ReservedJudgementDto>> ValidateAsync(ReservedJudgementDto dto, bool isEdit = false)
+        => Task.FromResult(OperationResult<ReservedJudgementDto>.Success(dto));
 }
