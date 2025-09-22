@@ -161,7 +161,7 @@ public abstract class CrudServiceBase<TRepo, TEntity, TDto>(
         }
         catch (Exception ex)
         {
-            this.Logger.LogError(ex, "Error deleting data: {message}", ex.Message);
+            Logger.LogError(ex, "Error deleting data: {Message}", ex.Message);
             return OperationResult.Failure("Error when deleting data.");
         }
     }
