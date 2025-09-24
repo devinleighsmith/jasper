@@ -12,7 +12,7 @@ public class ReservedJudgementsController(ICrudService<ReservedJudgementDto> jud
     private readonly ICrudService<ReservedJudgementDto> _judgementService = judgementService;
 
     [HttpGet]
-    public async Task<ActionResult> ReservedJudgement()
+    public async Task<ActionResult> GetReservedJudgements()
     {
         var reservedJudgmenets = await _judgementService.GetAllAsync();
 
