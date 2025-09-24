@@ -12,6 +12,7 @@
     :judgeId="judgeId"
   />
   <MyCalendar v-else :judgeId="judgeId" v-model:selectedDate="selectedDate" />
+  <DashboardPanels class="my-5" />
 </template>
 <script setup lang="ts">
   import { useCommonStore } from '@/stores';
@@ -21,6 +22,7 @@
   import CourtCalendar from './court-calendar/CourtCalendar.vue';
   import CourtToday from './CourtToday.vue';
   import MyCalendar from './my-calendar/MyCalendar.vue';
+  import DashboardPanels from './panels/DashboardPanels.vue';
 
   const commonStore = useCommonStore();
   const judgeId = ref(commonStore.userInfo?.judgeId);
