@@ -26,12 +26,13 @@
 
 <script setup lang="ts">
   import ReservedJudgementTable from '@/components/dashboard/panels/reserved-judgements/ReservedJudgementTable.vue';
-import ReservedJudgementService, { ReservedJudgementModel } from '@/services/ReservedJudgementService';
-import { computed, inject, ref, watch } from 'vue';
+  import ReservedJudgementService from '@/services/ReservedJudgementService';
+  import { ReservedJudgement } from '@/types/ReservedJudgement';
+  import { computed, inject, ref, watch } from 'vue';
 
   const expanded = ref([]);
   const judgementsLoading = ref(false);
-  const reservedJudgements = ref<ReservedJudgementModel[]>([]);
+  const reservedJudgements = ref<ReservedJudgement[]>([]);
   const RESERVED_JUDGEMENT = 'reserved-judgement';
   const reservedJudgementCount = computed(() => reservedJudgements.value.length);
   const reservedJudgementService = inject<ReservedJudgementService>(
@@ -46,7 +47,7 @@ import { computed, inject, ref, watch } from 'vue';
         judgementsLoading.value = true;
         reservedJudgementService
           .get()
-          .then((data: ReservedJudgementModel[]) => {
+          .then((data: ReservedJudgement[]) => {
             reservedJudgements.value = data;
             judgementsLoading.value = false;
           })

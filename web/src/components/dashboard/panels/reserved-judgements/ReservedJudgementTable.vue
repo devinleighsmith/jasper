@@ -9,12 +9,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ReservedJudgementModel } from '@/services/ReservedJudgementService';
+  import { ReservedJudgement } from '@/types/ReservedJudgement';
   import { formatDateInstanceToDDMMMYYYY } from '@/utils/dateUtils';
   import { ref } from 'vue';
 
   defineProps<{
-    data: ReservedJudgementModel[];
+    data: ReservedJudgement[];
   }>();
   const sortBy = ref([{ key: 'cc', order: 'desc' }] as const);
 
@@ -42,7 +42,7 @@
     {
       title: 'LAST APPEARANCE',
       key: 'appearanceDate',
-      value: (item: ReservedJudgementModel) =>
+      value: (item: ReservedJudgement) =>
         formatDateInstanceToDDMMMYYYY(new Date(item.appearanceDate)),
     },
     {
