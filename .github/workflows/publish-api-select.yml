@@ -1,14 +1,22 @@
-name: Deploy API
+name: Deploy API to Environment
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - 'api/**'
-      - 'db/**'
-
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+      branch:
+        description: 'Branch to deploy from'
+        required: true
+        default: 'master'
+        type: string
 
 env:
   WORKING_DIRECTORY: .
@@ -30,6 +38,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Build API codebase
         uses: ./.github/workflows/actions/build-api
@@ -77,6 +87,7 @@ jobs:
   deploy2dev:
     name: Deploy to DEV
     needs: build
+    if: github.event.inputs.environment == 'dev'
     env:
       ENVIRONMENT: dev
     permissions:
@@ -88,6 +99,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Deploy to ${{ env.ENVIRONMENT }}
         uses: ./.github/workflows/actions/deploy-app
@@ -106,6 +119,7 @@ jobs:
   deploy2test:
     name: Deploy to TEST
     needs: [build, deploy2dev]
+    if: github.event.inputs.environment == 'test'
     env:
       ENVIRONMENT: test
     permissions:
@@ -117,6 +131,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Deploy to ${{ env.ENVIRONMENT }}
         uses: ./.github/workflows/actions/deploy-app
@@ -135,6 +151,7 @@ jobs:
   deploy2prod:
     name: Deploy to PROD
     needs: [build, deploy2dev, deploy2test]
+    if: github.event.inputs.environment == 'prod'
     env:
       ENVIRONMENT: prod
     permissions:
@@ -146,6 +163,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
       - name: Deploy to ${{ env.ENVIRONMENT }}
         uses: ./.github/workflows/actions/deploy-app
