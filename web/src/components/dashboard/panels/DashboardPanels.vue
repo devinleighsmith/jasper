@@ -10,12 +10,23 @@
         >
           <v-expansion-panel rounded="lg" :value="RESERVED_JUDGEMENT">
             <v-expansion-panel-title>
-              <h4 class="px-2 py-2">Reserved judgements & decisions {{ reservedJudgementCount > 0 ? `(${reservedJudgementCount})` : '' }}</h4>
+              <h4 class="px-2 py-2">
+                Reserved judgements & decisions
+                {{
+                  reservedJudgementCount > 0
+                    ? `(${reservedJudgementCount})`
+                    : ''
+                }}
+              </h4>
             </v-expansion-panel-title>
             <v-expansion-panel-text class="reserved-judgements-table">
-                <v-skeleton-loader class="my-1" type="table" :loading="judgementsLoading">
-                    <ReservedJudgementTable :data="reservedJudgements"/>
-                </v-skeleton-loader>
+              <v-skeleton-loader
+                class="my-1"
+                type="table"
+                :loading="judgementsLoading"
+              >
+                <ReservedJudgementTable :data="reservedJudgements" />
+              </v-skeleton-loader>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -34,7 +45,9 @@
   const judgementsLoading = ref(false);
   const reservedJudgements = ref<ReservedJudgement[]>([]);
   const RESERVED_JUDGEMENT = 'reserved-judgement';
-  const reservedJudgementCount = computed(() => reservedJudgements.value.length);
+  const reservedJudgementCount = computed(
+    () => reservedJudgements.value.length
+  );
   const reservedJudgementService = inject<ReservedJudgementService>(
     'reservedJudgementService'
   );
@@ -43,19 +56,21 @@
   }
 
   watch(expanded, (newVal: string) => {
-    if(newVal == RESERVED_JUDGEMENT) {
-        judgementsLoading.value = true;
-        reservedJudgementService
-          .get()
-          .then((data: ReservedJudgement[]) => {
-            reservedJudgements.value = data;
-            judgementsLoading.value = false;
-          })
-          .catch((err) => {
-            console.error('Failed to load reserved judgements:', err);
-          });
-    }else{
-        reservedJudgements.value = [];
+    if (newVal == RESERVED_JUDGEMENT) {
+      judgementsLoading.value = true;
+      reservedJudgementService
+        .get()
+        .then((data: ReservedJudgement[]) => {
+          reservedJudgements.value = data;
+        })
+        .finally(() => {
+          judgementsLoading.value = false;
+        })
+        .catch((err) => {
+          console.error('Failed to load reserved judgements:', err);
+        });
+    } else {
+      reservedJudgements.value = [];
     }
   });
 </script>
