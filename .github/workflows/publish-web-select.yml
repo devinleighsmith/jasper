@@ -92,81 +92,16 @@ jobs:
             VUE_ON_NGINX_SRC=../../docker/vue-on-nginx
             WEB_SRC=../../web
 
-  deploy2dev:
-    name: Deploy to DEV
+  deploy2env:
+    name: Deploy to ENV
     needs: build
-    if: github.event.inputs.environment == 'dev'
     env:
-      ENVIRONMENT: dev
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
     permissions:
       id-token: write
       packages: write
     runs-on: ubuntu-latest
-    environment: dev
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.inputs.branch }}
-
-      - name: Deploy to ${{ env.ENVIRONMENT }}
-        uses: ./.github/workflows/actions/deploy-app
-        with:
-          environment: ${{ env.ENVIRONMENT }}
-          aws_account: ${{ vars.AWS_ACCOUNT }}
-          region: ${{ vars.AWS_REGION }}
-          app_name: ${{ vars.APP_NAME }}
-          aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
-          ghcr_token: ${{ secrets.GITHUB_TOKEN }}
-          github_image_repo: ${{ env.GITHUB_IMAGE_REPO }}
-          image_name: ${{ env.WEB_IMAGE_NAME }}
-          tier_name: web
-          short_sha: ${{ needs.build.outputs.short_sha }}
-
-  deploy2test:
-    name: Deploy to TEST
-    needs: [build, deploy2dev]
-    if: github.event.inputs.environment == 'test'
-    env:
-      ENVIRONMENT: test
-    permissions:
-      id-token: write
-      packages: write
-    runs-on: ubuntu-latest
-    environment: test
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.event.inputs.branch }}
-
-      - name: Deploy to ${{ env.ENVIRONMENT }}
-        uses: ./.github/workflows/actions/deploy-app
-        with:
-          environment: ${{ env.ENVIRONMENT }}
-          aws_account: ${{ vars.AWS_ACCOUNT }}
-          region: ${{ vars.AWS_REGION }}
-          app_name: ${{ vars.APP_NAME }}
-          aws_role_arn: ${{ vars.AWS_ROLE_ARN }}
-          ghcr_token: ${{ secrets.GITHUB_TOKEN }}
-          github_image_repo: ${{ env.GITHUB_IMAGE_REPO }}
-          image_name: ${{ env.WEB_IMAGE_NAME }}
-          tier_name: web
-          short_sha: ${{ needs.build.outputs.short_sha }}
-
-  deploy2prod:
-    name: Deploy to PROD
-    needs: [build, deploy2dev, deploy2test]
-    if: github.event.inputs.environment == 'prod'
-    env:
-      ENVIRONMENT: prod
-    permissions:
-      id-token: write
-      packages: write
-    runs-on: ubuntu-latest
-    environment: prod
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
