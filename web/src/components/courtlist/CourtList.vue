@@ -161,7 +161,6 @@
     if (!data?.items?.length) {
       return;
     }
-
     data.items.forEach((courtList: any) => {
       const courtRoomDetails = courtList.courtRoomDetails[0];
       if (!courtRoomDetails) {
@@ -170,7 +169,7 @@
       const adjudicatorDetails = courtRoomDetails.adjudicatorDetails[0];
       const card = {} as CourtListCardInfo;
       const appearances = courtList.appearances as CourtListAppearance[];
-      card.fileCount = courtList.casesTarget;
+      card.fileCount = appearances.length;
       card.activity = courtList.activityDsc;
       card.presider = adjudicatorDetails?.adjudicatorNm;
       card.courtListRoom = courtRoomDetails.courtRoomCd;
@@ -180,6 +179,11 @@
 
       cardTablePairings.value.push({ card, table: appearances });
     });
+
+    // We always want AM pairings to appear before PM pairings
+    cardTablePairings.value.sort((a, b) =>
+      a.card.amPM.localeCompare(b.card.amPM)
+    );
   };
 
   const addDay = (days: number) => {
