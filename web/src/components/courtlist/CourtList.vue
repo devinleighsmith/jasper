@@ -161,7 +161,7 @@
     if (!data?.items?.length) {
       return;
     }
-    data.items.forEach((courtList: any) => {
+    for (const courtList of data.items) {
       const courtRoomDetails = courtList.courtRoomDetails[0];
       if (!courtRoomDetails) {
         return;
@@ -178,7 +178,7 @@
       card.amPM = adjudicatorDetails?.amPm;
 
       cardTablePairings.value.push({ card, table: appearances });
-    });
+    };
 
     // We always want AM pairings to appear before PM pairings
     cardTablePairings.value.sort((a, b) =>
@@ -213,8 +213,8 @@
         courtRoom: string;
       }
     >();
-    cardTablePairings.value.forEach((element) => {
-      element.table.forEach((data) => {
+    for (const element of cardTablePairings.value) {
+      for (const data of element.table) {
         const obj = {
           locationId: element.card.courtListLocationID,
           locationName: element.card.courtListLocation,
@@ -226,8 +226,8 @@
 
         const key = `${obj.locationId}|${obj.locationName}|${obj.date}|${obj.division}|${obj.class}|${obj.courtRoom}`;
         uniqueMap.set(key, obj);
-      });
-    });
+      };
+    };
     const documents: Array<{
       documentType: DocumentRequestType;
       documentData: Record<string, any>;
@@ -235,7 +235,7 @@
       documentName: any;
       groupKeyOne: string;
     }> = [];
-    uniqueMap.forEach((value) => {
+    for (const value of uniqueMap.values()) {
       let documentData: Record<string, any> = {
         courtDivisionCd: value.division,
         courtClass: value.class,
@@ -257,7 +257,7 @@
         documentName: reportType,
         groupKeyOne: value.locationName,
       });
-    });
+    };
     shared.openDocumentsPdfV2(documents);
 
     window.open('/pdf-viewer', 'pdf-viewer');
