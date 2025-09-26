@@ -92,7 +92,7 @@
           </v-col>
         </v-row>
         <v-row
-          v-if="type === 'keyDocuments' && item.category === 'BAIL'"
+          v-if="type === 'keyDocuments' && item.category.toLowerCase() === 'bail'"
           no-gutters
         >
           <v-col>

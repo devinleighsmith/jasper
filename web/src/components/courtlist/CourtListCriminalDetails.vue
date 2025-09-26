@@ -7,8 +7,6 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col>
         <v-card title="Key Documents" variant="flat">
           <v-data-table-virtual
             :items="details.keyDocuments"
@@ -20,17 +18,19 @@
               {{ formatCategory(item) }}
             </template>
             <template v-slot:item.docmFormDsc="{ item }">
-                <a v-if="item.imageId" href="javascript:void(0)" @click="openDocument(item)">
-                  {{ formatType(item) }}
-                </a>
+              <a v-if="item.imageId" href="javascript:void(0)" @click="openDocument(item)">
+                {{ formatType(item) }}
+              </a>
               <span v-else>
-                  {{ formatType(item) }}
+                {{ formatType(item) }}
               </span>
+              <div v-if="item.category.toLowerCase() === 'bail'">
+                  {{ item.docmDispositionDsc }}<span class="pl-2" />
+                  {{ formatDateToDDMMMYYYY(item.issueDate) }}
+              </div>
             </template>
           </v-data-table-virtual>
         </v-card>
-      </v-col>
-    </v-row>
     <v-row>
       <v-col>
         <v-card title="Charges" variant="flat">
