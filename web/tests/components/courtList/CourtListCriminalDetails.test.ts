@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { FilesService } from '@/services/FilesService';
-import { mount, flushPromises, shallowMount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 import CourtListCriminalDetails from 'CMP/courtlist/CourtListCriminalDetails.vue';
 import { nextTick } from 'vue';
 import { setActivePinia, createPinia } from 'pinia'
