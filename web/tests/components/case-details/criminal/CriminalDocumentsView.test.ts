@@ -129,11 +129,11 @@ describe('CriminalDocumentsView.vue', () => {
   });
 
   it('filters documents by category', async () => {
-    wrapper.vm.selectedCategory = 'ROP';
+    wrapper.vm.selectedCategory = 'bail';
 
     const documents = wrapper.vm.documents;
     expect(documents).toHaveLength(1);
-    expect(documents[0].category).toBe('rop');
+    expect(documents[0].category).toBe('bail');
   });
 
   it.each([
@@ -184,10 +184,9 @@ describe('CriminalDocumentsView.vue', () => {
           global: {
             stubs: {
                 'v-data-table-virtual': {
-                    template: `<div>
-                        <slot name="item.docmFormDsc" :item="items && items[0] ? items[0] : { category: 'bail' }"></slot>
-                        <slot name="group-header" :item="items && items[0] ? items[0] : {}" :columns="headers" :isGroupOpen="isGroupOpen" :toggleGroup="toggleGroup"></slot>
-                    </div>`,
+                    template: `
+                        <slot name="item.documentTypeDescription" :item="items && items[0] ? items[0] : { category: 'bail' }"></slot>
+                        `,
                     props: ['headers', 'items', 'itemValue', 'columns'],
                     methods: {
                         isGroupOpen: () => true,
@@ -195,16 +194,16 @@ describe('CriminalDocumentsView.vue', () => {
                     },
                 },
               'v-banner': true,
+              'v-card-text': true
             },
           },
          props: {
             participants: mockParticipants,
       },
       });
-  
       await flushPromises();
   
       expect(wrapper.text()).toContain('Disposition');
-      expect(wrapper.text()).toContain('01-Jun-2024');
+      expect(wrapper.text()).toContain('01-Jan-2023');
     });
 });

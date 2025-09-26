@@ -109,9 +109,7 @@ it('does not render AppearanceMethods when no appearanceMethods', () => {
           stubs: {
               'v-data-table-virtual': {
                  template: `
-                  <div>
                   <slot name="item.docmFormDsc" :item="items && items[0] ? items[0] : { category: 'bail' }"></slot>
-                  </div>
                 `,
                   props: ['headers', 'items', 'itemValue'],
               }
