@@ -12,8 +12,7 @@ export class ReservedJudgementService extends ServiceBase {
   ): Promise<ReservedJudgement[]> {
     return this.httpService.get<ReservedJudgement[]>(
       `api/reservedJudgements`,
-      queryParams,
-      { skipErrorHandler: true }
+      queryParams
     );
   }
 }
