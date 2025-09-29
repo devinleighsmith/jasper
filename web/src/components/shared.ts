@@ -62,23 +62,14 @@ export default {
         }&CorrelationId=${correlationId}`;
     }
   },
-  // Eventually will be deprecated in favor of opening even
-  // single documents in the nutrient-viewer
   openDocumentsPdf(
     documentType: CourtDocumentType,
     documentData: DocumentData
   ): void {
-    const correlationId = uuidv4();
     const fileName = this.generateFileName(documentType, documentData).replace(
       /\//g,
       '_'
     );
-    // const url = this.renderDocumentUrl(
-    //   documentType,
-    //   documentData,
-    //   correlationId,
-    //   fileName
-    // );
     let type = DocumentRequestType.File;
     if(documentType === CourtDocumentType.ROP){
       type = DocumentRequestType.ROP;
@@ -86,44 +77,15 @@ export default {
     else if(documentType === CourtDocumentType.CSR){
       type = DocumentRequestType.CourtSummary;
     }
-    // if (
-    //   documentType !== CourtDocumentType.ROP &&
-    //   documentType !== CourtDocumentType.CSR
-    // ) {
-    //   this.openRequestedTab(url, fileName, correlationId);
-    // } else {
-    //   //const newWindow = window.open(url);
-    //   //this.replaceWindowTitle(newWindow, fileName);
-    // }
-    const pdfStore = usePDFViewerStore();
-    pdfStore.clearDocuments();
-    pdfStore.addDocument({
-      request: {
-        type,
-        data: {
-            partId: documentData.partId || '',
-            profSeqNo: documentData.profSeqNo || '',
-            courtLevelCd: documentData.courtLevel || '',
-            courtClassCd: documentData.courtClass || '',
-            appearanceId: documentData.appearanceId || '',
-            documentId: documentData.documentId
-              ? this.convertToBase64Url(documentData.documentId)
-              : documentData.documentId || '',
-            fileId: documentData.fileId || '',
-            isCriminal: documentData.isCriminal || false,
-            correlationId,
-            courtDivisionCd: documentData.courtDivisionCd || '',
-            date: documentData.date,
-            locationId: documentData.locationId,
-            roomCode: documentData.roomCode || '',
-            reportType: documentData.reportType || '',
-            additionsList: documentData.additionsList || '',
-        },
-      },
-      groupKeyOne: documentData.fileNumberText ?? '',
-      groupKeyTwo: '',
-      documentName: fileName
-    });
+    this.addDocumentsToPdfStore([
+      {
+        documentType: type,
+        documentData: documentData,
+        groupKeyOne: documentData.fileNumberText ?? '',
+        groupKeyTwo: '',
+        documentName: fileName
+      }
+    ]);
 
     const newWindow = window.open('/file-viewer?type=file', '_blank');
 
@@ -139,38 +101,8 @@ export default {
     }[]
   ): void {
     if (!documents || documents.length === 0) return;
-
-    const pdfStore = usePDFViewerStore();
-    pdfStore.clearDocuments();
-    documents.forEach((doc) => {
-      pdfStore.addDocument({
-        request: {
-          type: doc.documentType,
-          data: {
-            partId: doc.documentData.partId || '',
-            profSeqNo: doc.documentData.profSeqNo || '',
-            courtLevelCd: doc.documentData.courtLevel || '',
-            courtClassCd: doc.documentData.courtClass || '',
-            appearanceId: doc.documentData.appearanceId || '',
-            documentId: doc.documentData.documentId
-              ? this.convertToBase64Url(doc.documentData.documentId)
-              : doc.documentData.documentId || '',
-            fileId: doc.documentData.fileId || '',
-            isCriminal: doc.documentData.isCriminal || false,
-            correlationId: uuidv4(),
-            courtDivisionCd: doc.documentData.courtDivisionCd || '',
-            date: doc.documentData.date,
-            locationId: doc.documentData.locationId,
-            roomCode: doc.documentData.roomCode || '',
-            reportType: doc.documentData.reportType || '',
-            additionsList: doc.documentData.additionsList || '',
-          },
-        },
-        groupKeyOne: doc.groupKeyOne,
-        groupKeyTwo: doc.groupKeyTwo,
-        documentName: doc.documentName,
-      });
-    });
+    this.addDocumentsToPdfStore(documents);
+    
     const caseNumbers = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
     const newWindow = window.open('/file-viewer?type=files', '_blank');
 
@@ -204,7 +136,47 @@ export default {
     const caseNumbers = Array.from(new Set(appearances.map(d => d.courtFileNumber))).join(', ');
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
-
+  addDocumentsToPdfStore(
+    documents: {
+      documentType: DocumentRequestType;
+      documentData: DocumentData;
+      groupKeyOne: string;
+      groupKeyTwo: string;
+      documentName: string;
+    }[]
+  ): void {
+    const pdfStore = usePDFViewerStore();
+    pdfStore.clearDocuments();
+    documents.forEach((doc) => {
+      pdfStore.addDocument({
+        request: {
+          type: doc.documentType,
+          data: {
+            partId: doc.documentData.partId || '',
+            profSeqNo: doc.documentData.profSeqNo || '',
+            courtLevelCd: doc.documentData.courtLevel || '',
+            courtClassCd: doc.documentData.courtClass || '',
+            appearanceId: doc.documentData.appearanceId || '',
+            documentId: doc.documentData.documentId
+              ? this.convertToBase64Url(doc.documentData.documentId)
+              : doc.documentData.documentId || '',
+            fileId: doc.documentData.fileId || '',
+            isCriminal: doc.documentData.isCriminal || false,
+            correlationId: uuidv4(),
+            courtDivisionCd: doc.documentData.courtDivisionCd || '',
+            date: doc.documentData.date,
+            locationId: doc.documentData.locationId,
+            roomCode: doc.documentData.roomCode || '',
+            reportType: doc.documentData.reportType || '',
+            additionsList: doc.documentData.additionsList || '',
+          },
+        },
+        groupKeyOne: doc.groupKeyOne,
+        groupKeyTwo: doc.groupKeyTwo,
+        documentName: doc.documentName,
+      });
+    });
+  },
   generateFileName(
     documentType: CourtDocumentType,
     documentData: DocumentData
