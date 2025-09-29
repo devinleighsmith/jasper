@@ -73,21 +73,61 @@ export default {
       /\//g,
       '_'
     );
-    const url = this.renderDocumentUrl(
-      documentType,
-      documentData,
-      correlationId,
-      fileName
-    );
-    if (
-      documentType !== CourtDocumentType.ROP &&
-      documentType !== CourtDocumentType.CSR
-    ) {
-      this.openRequestedTab(url, fileName, correlationId);
-    } else {
-      const newWindow = window.open(url);
-      this.replaceWindowTitle(newWindow, fileName);
+    // const url = this.renderDocumentUrl(
+    //   documentType,
+    //   documentData,
+    //   correlationId,
+    //   fileName
+    // );
+    let type = DocumentRequestType.File;
+    if(documentType === CourtDocumentType.ROP){
+      type = DocumentRequestType.ROP;
     }
+    else if(documentType === CourtDocumentType.CSR){
+      type = DocumentRequestType.CourtSummary;
+    }
+    // if (
+    //   documentType !== CourtDocumentType.ROP &&
+    //   documentType !== CourtDocumentType.CSR
+    // ) {
+    //   this.openRequestedTab(url, fileName, correlationId);
+    // } else {
+    //   //const newWindow = window.open(url);
+    //   //this.replaceWindowTitle(newWindow, fileName);
+    // }
+    const pdfStore = usePDFViewerStore();
+    pdfStore.clearDocuments();
+    pdfStore.addDocument({
+      request: {
+        type,
+        data: {
+            partId: documentData.partId || '',
+            profSeqNo: documentData.profSeqNo || '',
+            courtLevelCd: documentData.courtLevel || '',
+            courtClassCd: documentData.courtClass || '',
+            appearanceId: documentData.appearanceId || '',
+            documentId: documentData.documentId
+              ? this.convertToBase64Url(documentData.documentId)
+              : documentData.documentId || '',
+            fileId: documentData.fileId || '',
+            isCriminal: documentData.isCriminal || false,
+            correlationId,
+            courtDivisionCd: documentData.courtDivisionCd || '',
+            date: documentData.date,
+            locationId: documentData.locationId,
+            roomCode: documentData.roomCode || '',
+            reportType: documentData.reportType || '',
+            additionsList: documentData.additionsList || '',
+        },
+      },
+      groupKeyOne: documentData.fileNumberText ?? '',
+      groupKeyTwo: '',
+      documentName: fileName
+    });
+
+    const newWindow = window.open('/file-viewer?type=file', '_blank');
+
+    this.replaceWindowTitle(newWindow, fileName);
   },
   openDocumentsPdfV2(
     documents?: {
@@ -132,7 +172,7 @@ export default {
       });
     });
     const caseNumbers = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
-    const newWindow = window.open('/file-viewer?type=file', '_blank');
+    const newWindow = window.open('/file-viewer?type=files', '_blank');
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
