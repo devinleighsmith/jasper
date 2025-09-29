@@ -1,4 +1,5 @@
 export type ReservedJudgement = {
+    id: string;
     appearanceId: string;
     appearanceDate: string;
     judgeId?: number;
