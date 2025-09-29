@@ -25,19 +25,19 @@
     },
     {
       title: 'ACCUSED / PARTIES',
-      key: '',
+      key: 'styleOfCause',
     },
     {
       title: 'ACTIVITY',
-      key: '',
+      key: 'courtClass',
     },
     {
       title: 'DECISION DATE',
-      key: '',
+      key: 'dueDate', // This will change in the future to be editable
     },
     {
       title: 'REASON',
-      key: '',
+      key: 'reason',
     },
     {
       title: 'LAST APPEARANCE',
@@ -47,7 +47,7 @@
     },
     {
       title: 'DUE DATE',
-      key: '',
+      key: 'dueDate',
     },
     {
       title: 'CASE AGE (days)',
