@@ -5,13 +5,18 @@
     height="400"
     fixed-header
     :sort-by
-  ></v-data-table-virtual>
+  >
+    <template #item.courtClass="{ item }" >
+      {{ getCourtClassLabel(item.courtClass) }}
+    </template>
+  </v-data-table-virtual>
 </template>
 
 <script setup lang="ts">
   import { ReservedJudgement } from '@/types/ReservedJudgement';
   import { formatDateInstanceToDDMMMYYYY } from '@/utils/dateUtils';
   import { ref } from 'vue';
+  import { getCourtClassLabel } from '@/utils/utils';
 
   defineProps<{
     data: ReservedJudgement[];
@@ -33,7 +38,9 @@
     },
     {
       title: 'DECISION DATE',
-      key: 'dueDate', // This will change in the future to be editable
+      key: 'dueDate',
+      value: (item: ReservedJudgement) =>
+        formatDateInstanceToDDMMMYYYY(new Date(item.dueDate)),
     },
     {
       title: 'REASON',
@@ -48,6 +55,8 @@
     {
       title: 'DUE DATE',
       key: 'dueDate',
+      value: (item: ReservedJudgement) =>
+        formatDateInstanceToDDMMMYYYY(new Date(item.dueDate)),
     },
     {
       title: 'CASE AGE (days)',
