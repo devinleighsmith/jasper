@@ -259,7 +259,5 @@
       });
     };
     shared.openDocumentsPdfV2(documents);
-
-    window.open('/pdf-viewer', 'pdf-viewer');
   };
 </script>
