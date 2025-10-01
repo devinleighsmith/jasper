@@ -33,7 +33,7 @@
       key: 'styleOfCause',
     },
     {
-      title: 'ACTIVITY',
+      title: 'DIVISION',
       key: 'courtClass',
     },
     {
