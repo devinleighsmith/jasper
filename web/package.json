@@ -63,7 +63,7 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/test-utils": "^2.4.6",
     "buffer": "^6.0.3",
-    "eslint": "^9.34.0",
+    "eslint": "^9.36.0",
     "eslint-plugin-vue": "^10.4.0",
     "happy-dom": "^18.0.1",
     "prettier": "^3.6.2",
