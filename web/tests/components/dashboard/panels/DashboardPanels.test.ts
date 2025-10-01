@@ -31,7 +31,7 @@ describe('DashboardPanels.vue', () => {
 
   it('renders panel title and count', async () => {
     const wrapper = mountComponent()
-    expect(wrapper.text()).toContain('Reserved judgements & decisions')
+    expect(wrapper.text()).toContain('Reserved judgments & decisions')
     expect(wrapper.text()).not.toContain('(2)')
   })
 
