@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Reflection;
+using Azure.Identity;
 using GdPicture14;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Scv.Api.Documents;
@@ -134,6 +136,24 @@ namespace Scv.Api.Infrastructure
             return services;
         }
 
+        public static IServiceCollection AddGraphService(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSingleton<GraphServiceClient>(sp =>
+            {
+                var clientId = configuration.GetNonEmptyValue("AZURE:CLIENT_ID");
+                var tenantId = configuration.GetNonEmptyValue("AZURE:TENANT_ID");
+                var clientSecret = configuration.GetNonEmptyValue("AZURE:CLIENT_SECRET");
+
+                var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+
+                return new GraphServiceClient(credential);
+            });
+
+            services.AddScoped<IEmailService, EmailService>();
+
+            return services;
+        }
+
         public static IServiceCollection AddHttpClientsAndScvServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<TimingHandler>();
@@ -184,7 +204,7 @@ namespace Scv.Api.Infrastructure
                 .AddHttpMessageHandler<TimingHandler>();
 
             services.AddHttpContextAccessor();
-            services.AddTransient(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
+            services.AddTransient(s => s.GetService<IHttpContextAccessor>()?.HttpContext?.User);
             services.AddScoped<FilesService>();
             services.AddScoped<LookupService>();
             services.AddScoped<LocationService>();
@@ -209,6 +229,7 @@ namespace Scv.Api.Infrastructure
                 services.AddScoped<IBinderFactory, BinderFactory>();
                 services.AddScoped<IBinderService, BinderService>();
                 services.AddTransient<IRecurringJob, SyncDocumentCategoriesJob>();
+                services.AddTransient<IRecurringJob, SyncReservedJudgementsJob>();
             }
 
             return services;

@@ -83,6 +83,7 @@ namespace Scv.Api
             services.AddNutrient();
             services.AddJasperDb(Configuration);
             services.AddHangfire(Configuration);
+            services.AddGraphService(Configuration);
 
             #region Cors
 

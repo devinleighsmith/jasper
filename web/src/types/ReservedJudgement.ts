@@ -1,16 +1,16 @@
-// This will be finalized soon
 export type ReservedJudgement = {
+    id: string;
+    appearanceId: string;
     appearanceDate: string;
+    judgeId?: number;
     courtClass: string;
+    physicalFileId: string;
+    courtFileNumber: string;
     fileNumber: string;
-    adjudicatorLastNameFirstName: string;
-    adjudicatorTypeDescription: string;
-    facilityCode: string;
-    facilityDescription: string;
-    reservedJudgementYesNoCode: string;
-    rfjFiledDate?: string;
-    rjMultiYesNoCode: string;
-    rjOutstandingYesNoCode: string;
     ageInDays: number;
+    styleOfCause: string;
+    reason: string;
+    dueDate: string;
+    partId: string;
     updatedDate?: string;
 };
