@@ -11,7 +11,7 @@
           <v-expansion-panel rounded="lg" :value="RESERVED_JUDGEMENT">
             <v-expansion-panel-title>
               <h4 class="px-2 py-2">
-                Reserved judgements & decisions
+                Reserved judgments & decisions
                 {{
                   reservedJudgementCount > 0
                     ? `(${reservedJudgementCount})`
@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
   import ReservedJudgementTable from '@/components/dashboard/panels/reserved-judgements/ReservedJudgementTable.vue';
-  import ReservedJudgementService from '@/services/ReservedJudgementService';
+  import { ReservedJudgementService } from '@/services/ReservedJudgementService';
   import { ReservedJudgement } from '@/types/ReservedJudgement';
   import { computed, inject, ref, watch } from 'vue';
 
