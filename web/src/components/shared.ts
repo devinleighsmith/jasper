@@ -1,6 +1,7 @@
 import { useBundleStore, usePDFViewerStore } from '@/stores';
-import { DocumentBundleRequest } from '@/types/DocumentBundleRequest';
 import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
+import { CourtListAppearance } from '@/types/courtlist';
+import { DocumentBundleRequest } from '@/types/DocumentBundleRequest';
 import {
   CourtDocumentType,
   DocumentData,
@@ -8,7 +9,6 @@ import {
 } from '@/types/shared';
 import { splunkLog } from '@/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
-import { CourtListAppearance } from '@/types/courtlist';
 
 export default {
   convertToBase64Url(inputText: string): string {
@@ -71,10 +71,9 @@ export default {
       '_'
     );
     let type = DocumentRequestType.File;
-    if(documentType === CourtDocumentType.ROP){
+    if (documentType === CourtDocumentType.ROP) {
       type = DocumentRequestType.ROP;
-    }
-    else if(documentType === CourtDocumentType.CSR){
+    } else if (documentType === CourtDocumentType.CSR) {
       type = DocumentRequestType.CourtSummary;
     }
     this.addDocumentsToPdfStore([
@@ -82,16 +81,16 @@ export default {
         documentType: type,
         documentData: documentData,
         groupKeyOne: documentData.fileNumberText ?? '',
-        groupKeyTwo: '',
-        documentName: fileName
-      }
+        groupKeyTwo: documentData.partyName ?? '',
+        documentName: fileName,
+      },
     ]);
 
     const newWindow = window.open('/file-viewer?type=file', '_blank');
 
     this.replaceWindowTitle(newWindow, fileName);
   },
-  openDocumentsPdfV2(
+  openMergedDocuments(
     documents?: {
       documentType: DocumentRequestType;
       documentData: DocumentData;
@@ -102,38 +101,37 @@ export default {
   ): void {
     if (!documents || documents.length === 0) return;
     this.addDocumentsToPdfStore(documents);
-    
-    const caseNumbers = Array.from(new Set(documents.map(d => d.groupKeyOne))).join(', ');
+
+    const caseNumbers = Array.from(
+      new Set(documents.map((d) => d.groupKeyOne))
+    ).join(', ');
     const newWindow = window.open('/file-viewer?type=files', '_blank');
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
-  openCourtListKeyDocuments(
-    appearances: CourtListAppearance[]
-  ): void {
+  openCourtListKeyDocuments(appearances: CourtListAppearance[]): void {
     if (!appearances.length) return;
     const bundleStore = useBundleStore();
-    const appearanceRequests = appearances.map(
-        (app) =>
-          ({
-            appearance: {
-              physicalFileId: app.justinNo, 
-              appearanceId: app.appearanceId,
-              participantId: app.profPartId,
-              courtClassCd: app.courtClassCd,
-            } as AppearanceDocumentRequest,
-            fileNumber: app.courtFileNumber,
-            fullName: app.accusedNm
-        }) 
-      );
+    const appearanceRequests = appearances.map((app) => ({
+      appearance: {
+        physicalFileId: app.justinNo,
+        appearanceId: app.appearanceId,
+        participantId: app.profPartId,
+        courtClassCd: app.courtClassCd,
+      } as AppearanceDocumentRequest,
+      fileNumber: app.courtFileNumber,
+      fullName: app.accusedNm,
+    }));
     const bundleRequest = {
-      appearances: appearanceRequests.map(app => app.appearance),
+      appearances: appearanceRequests.map((app) => app.appearance),
     } as DocumentBundleRequest;
     bundleStore.request = bundleRequest;
     bundleStore.appearanceRequests = appearanceRequests;
 
     const newWindow = window.open('/file-viewer?type=bundle', '_blank');
-    const caseNumbers = Array.from(new Set(appearances.map(d => d.courtFileNumber))).join(', ');
+    const caseNumbers = Array.from(
+      new Set(appearances.map((d) => d.courtFileNumber))
+    ).join(', ');
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
   addDocumentsToPdfStore(
@@ -235,7 +233,7 @@ export default {
   },
 
   replaceWindowTitle(newWindow: Window | null, title: string) {
-    if(newWindow === null) {
+    if (newWindow === null) {
       return null;
     }
     try {
