@@ -1,9 +1,11 @@
 <template>
   <v-skeleton-loader class="p-3" type="card" :loading="loading">
     <v-row v-if="details.appearanceMethods?.length">
-      <v-col cols="6">
+      <v-col>
         <v-card title="Appearance Methods" variant="flat">
-          <AppearanceMethods :appearanceMethod="details.appearanceMethods" />
+          <v-card-text>
+            <CriminalAppearanceMethods :appearanceMethods="details.appearanceMethods" />
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -52,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-  import AppearanceMethods from '@/components/case-details/civil/appearances/AppearanceMethods.vue';
+  import CriminalAppearanceMethods from '@/components/case-details/criminal/appearances/CriminalAppearanceMethods.vue';
   import shared from '@/components/shared';
   import { beautifyDate } from '@/filters';
   import { FilesService } from '@/services/FilesService';

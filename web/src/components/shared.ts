@@ -105,7 +105,7 @@ export default {
     const caseNumbers = Array.from(
       new Set(documents.map((d) => d.groupKeyOne))
     ).join(', ');
-    const newWindow = window.open('/file-viewer?type=files', '_blank');
+    const newWindow = window.open('/file-viewer?type=file', '_blank');
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
