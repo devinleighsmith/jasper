@@ -70,7 +70,7 @@ describe('CourtListCriminalDetails.vue', () => {
   });
 
   it('renders AppearanceMethods when appearanceMethods exist', () => {
-    expect(wrapper.findComponent({name: 'AppearanceMethods'}).exists()).toBe(true);
+    expect(wrapper.findComponent({name: 'CriminalAppearanceMethods'}).exists()).toBe(true);
   });
 
 it('does not render AppearanceMethods when no appearanceMethods', () => {
@@ -88,7 +88,7 @@ it('does not render AppearanceMethods when no appearanceMethods', () => {
         seqNo: 'seq1',
       },
     });
-    expect(wrapper.findComponent({name: 'AppearanceMethods'}).exists()).toBe(false);
+    expect(wrapper.findComponent({name: 'CriminalAppearanceMethods'}).exists()).toBe(false);
   });
 
     it('renders key documents', () => {
