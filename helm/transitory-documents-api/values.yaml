@@ -1,0 +1,79 @@
+transitory-documents-api:
+  replicaCount: 1
+
+  image:
+    repository: 'image-registry.openshift-image-registry.svc:5000/e4161f-tools/jasper-transitory-documents-api'
+    tag: '0.0.2'
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 5001
+
+  ingress:
+    enabled: true
+    className: ''
+    annotations: {}
+    host: transitory-documents-api-e4161f-dev.apps.emerald.devops.gov.bc.ca
+    tls:
+      enabled: true
+      secretName: ''
+
+  route:
+    enabled: true
+    host: transitory-documents-api-e4161f-dev.apps.emerald.devops.gov.bc.ca
+    annotations: {}
+    tls:
+      termination: edge
+      insecureEdgeTerminationPolicy: Redirect
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 500Mi
+
+  nodeSelector: {}
+
+  affinity: {}
+
+  tolerations: []
+
+  securityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  podAnnotations:
+    aviinfrasetting.ako.vmware.com/name: 'dataclass-medium'
+
+  env:
+    ASPNETCORE_URLS: 'http://+:8080'
+    Keycloak__Audience: ''
+    Keycloak__Authority: ''
+    Keycloak__Client: ''
+    Keycloak__PresReqConfId: ''
+    Keycloak__VcIdpHint: ''
+    SplunkCollectorId: ''
+    SplunkCollectorUrl: ''
+    UserServicesClient__Url: ''
+    UserServicesClient__Username: ''
+    Request__AgencyIdentifierId: ''
+    Request__ApplicationCd: ''
+    Request__GetUserLoginDefaultAgencyId: ''
+    Request__PartId: ''
+
+  probes:
+    enabled: true
+    path: /health
+    initialDelaySeconds: 15
+    periodSeconds: 15
+    timeoutSeconds: 2
+    failureThreshold: 6
+    successThreshold: 1
+
+  networkPolicy:
+    enabled: true
+    allowExternal: true

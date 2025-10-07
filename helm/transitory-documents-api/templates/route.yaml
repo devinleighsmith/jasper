@@ -1,0 +1,25 @@
+{{- $cfg := index .Values "transitory-documents-api" -}}
+{{- if $cfg.route.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "transitory-documents-api.fullname" . }}
+  labels:
+    {{- include "transitory-documents-api.labels" . | nindent 4 }}
+  annotations:
+  {{- with $cfg.route.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  host: {{ $cfg.route.host }}
+  to:
+    kind: Service
+    name: {{ include "transitory-documents-api.fullname" . }}
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: {{ $cfg.route.tls.termination }}
+    insecureEdgeTerminationPolicy: {{ $cfg.route.tls.insecureEdgeTerminationPolicy }}
+  wildcardPolicy: None
+{{- end }}

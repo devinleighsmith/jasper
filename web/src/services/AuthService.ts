@@ -12,3 +12,4 @@ export class AuthService {
     return await this.httpService.get<UserInfo>(`api/auth/info`);
   }
 }
+ 

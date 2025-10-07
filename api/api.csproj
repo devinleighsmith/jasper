@@ -21,8 +21,10 @@
     <PackageReference Include="GdPicture.API" Version="14.3.15" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.21" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.20.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
     <PackageReference Include="NSwag.Generation.AspNetCore" Version="14.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.9" />
@@ -40,5 +42,6 @@
     <ProjectReference Include="..\db\db.csproj" />
     <ProjectReference Include="..\jc-interface-client\jc-interface-client.csproj" />
     <ProjectReference Include="..\pcss-client\pcss-client.csproj" />
+    <ProjectReference Include="..\transitory-documents-client\transitory-documents-client.csproj" />
   </ItemGroup>
 </Project>

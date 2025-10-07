@@ -14,6 +14,7 @@
           <v-tab value="court-file-search" to="/court-file-search"
             >Court file search</v-tab
           >
+          <v-btn size="x-large" @click="test()" :icon="mdiFile"></v-btn>
           <v-spacer></v-spacer>
           <div class="d-flex align-center">
             <JudgeSelector
@@ -44,13 +45,15 @@
 
 <script setup lang="ts">
   import logo from '@/assets/jasper-logo.svg?url';
-  import { mdiAccountCircle } from '@mdi/js';
+  import { mdiAccountCircle, mdiFile } from '@mdi/js';
   import { inject, onMounted, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
   import JudgeSelector from './components/shared/JudgeSelector.vue';
   import ProfileOffCanvas from './components/shared/ProfileOffCanvas.vue';
   import Snackbar from './components/shared/Snackbar.vue';
   import { DashboardService } from './services';
+  import { HttpService } from './services/HttpService';
+  import { useSnackbarStore } from './stores';
   import { useThemeStore } from './stores/ThemeStore';
   import { PersonSearchItem } from './types';
 
@@ -62,10 +65,17 @@
   const selectedTab = ref('/dashboard');
   const userService = inject<DashboardService>('dashboardService');
   const judges = ref<PersonSearchItem[]>([]);
+  const httpService = inject<HttpService>('httpService');
+  const snackBarStore = useSnackbarStore();
 
   onMounted(async () => {
     judges.value = (await userService?.getJudges()) ?? [];
   });
+
+  const test = async () => {
+    const result = await httpService?.get<string>('api/transitorydocuments');
+    snackBarStore.showSnackbar(result);
+  };
 
   watch(
     () => route.path,

@@ -1,6 +1,8 @@
 using ColeSoft.Extensions.Logging.Splunk;
 using FluentValidation;
-using Hangfire;
+using JCCommon.Clients.FileServices;
+using JCCommon.Clients.UserService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -8,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,16 +24,20 @@ using Scv.Api.Infrastructure;
 using Scv.Api.Infrastructure.Authentication;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Infrastructure.Encryption;
+using Scv.Api.Infrastructure.Handler;
 using Scv.Api.Infrastructure.Middleware;
-using Scv.Api.Jobs;
-using Scv.Api.Services.EF;
+using Scv.Api.Services;
 using Scv.Db.Models;
+using Scv.TdApi.Infrastructure.Authorization;
+using Scv.TdApi.Infrastructure.Middleware;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using static Scv.Api.Infrastructure.Authorization.ProviderAuthorizationHandler;
+using static Scv.TdApi.Infrastructure.Authorization.TDProviderAuthorizationHandler;
 
-namespace Scv.Api
+namespace Scv.TdApi
 {
     public class Startup
     {
@@ -63,25 +68,7 @@ namespace Scv.Api
                 });
             });
 
-            services.AddSingleton<MigrationAndSeedService>();
-
-            services.AddDbContext<ScvDbContext>(options =>
-                {
-                    options.UseNpgsql(Configuration.GetNonEmptyValue("DatabaseConnectionString"), npg =>
-                    {
-                        npg.MigrationsAssembly("db");
-                        npg.EnableRetryOnFailure(5, TimeSpan.FromSeconds(1), null);
-                    }).UseSnakeCaseNamingConvention();
-
-                    if (CurrentEnvironment.IsDevelopment())
-                        options.EnableSensitiveDataLogging();
-                }
-            );
-
-            services.AddMapster();
-            services.AddNutrient();
-            services.AddJasperDb(Configuration);
-            services.AddHangfire(Configuration);
+            services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationRedirectMiddlewareResultHandler>();
 
             #region Cors
 
@@ -95,32 +82,39 @@ namespace Scv.Api
                 });
             });
 
+            services.AddHealthChecks();
+
             #endregion Cors
 
             #region Setup Services
 
-            services.AddHttpClientsAndScvServices(Configuration);
+            services
+                .AddHttpClient<UserServiceClient>(client => { Api.Infrastructure.ServiceCollectionExtensions.ConfigureHttpClient(client, Configuration, "UserServicesClient"); })
+                .AddHttpMessageHandler<TimingHandler>();
 
+            services.AddHttpContextAccessor();
+            services.AddTransient(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddSingleton<JCUserService>();
 
             #endregion Setup Services
 
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
-            #region Data Protection
-            services.AddSingleton(new AesGcmEncryptionOptions { Key = Configuration.GetNonEmptyValue("DataProtectionKeyEncryptionKey") });
-
-            services.AddDataProtection()
-                .PersistKeysToDbContext<ScvDbContext>()
-                .UseXmlEncryptor(s => new AesGcmXmlEncryptor(s))
-                .SetApplicationName("SCV");
-
-            #endregion Data Protection
-
             #region Authentication & Authorization
-            services.AddScvAuthentication(CurrentEnvironment, Configuration);
 
-            services.AddScvAuthorization();
+            services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+            services.AddScvAuthentication(CurrentEnvironment, Configuration, JwtBearerDefaults.AuthenticationScheme);
+
+            services.AddScoped<IAuthorizationHandler, TDProviderAuthorizationHandler>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(nameof(TDProviderAuthorizationHandler), policy =>
+                    policy.Requirements.Add(new TdProviderRequirement()));
+            });
+
+            services.AddTransient<TimingHandler>();
             #endregion
 
             #region Newtonsoft
@@ -207,11 +201,11 @@ namespace Scv.Api
 
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("swagger/v1/swagger.json", "SCV.API");
+                options.SwaggerEndpoint("swagger/v1/swagger.json", "DOCUMENT_PROXY.API");
                 options.RoutePrefix = "api";
             });
 
-            app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+            app.UseMiddleware(typeof(TdErrorHandlingMiddleware));
 
             app.UseHttpsRedirection();
 
@@ -220,29 +214,11 @@ namespace Scv.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
-            var connectionString = Configuration.GetValue<string>("DatabaseConnectionString");
-            if (!string.IsNullOrWhiteSpace(connectionString))
-            {
-                app.UseHangfireDashboard("/hangfire", new DashboardOptions
-                {
-                    Authorization = [new HangFireDashboardAuthorizationFilter()]
-                });
-
-                #region Setup Jobs
-                using var scope = app.ApplicationServices.CreateScope();
-                var provider = scope.ServiceProvider;
-                var allJobs = provider.GetServices<IRecurringJob>();
-
-                foreach (var job in allJobs)
-                {
-                    RecurringJobHelper.AddOrUpdate(job);
-                }
-                #endregion Setup Jobs
-            }
-
+            // Move health check mapping inside UseEndpoints
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }

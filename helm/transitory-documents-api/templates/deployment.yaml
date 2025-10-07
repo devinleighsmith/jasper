@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "transitory-documents-api.fullname" . }}
+  labels:
+    {{- include "transitory-documents-api.labels" . | nindent 4 }}
+{{- $cfg := index .Values "transitory-documents-api" -}}
+spec:
+  replicas: {{ $cfg.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "transitory-documents-api.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        {{- include "transitory-documents-api.labels" . | nindent 8 }}
+      annotations:
+        {{- with $cfg.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        {{- toYaml $cfg.securityContext | nindent 8 }}
+      containers:
+        - name: api
+          image: "{{ $cfg.image.repository }}:{{ $cfg.image.tag }}"
+          imagePullPolicy: {{ $cfg.image.pullPolicy }}
+          ports:
+            - containerPort: {{ $cfg.service.port }}
+              name: http
+          envFrom:
+            - configMapRef:
+                name: {{ include "transitory-documents-api.fullname" . }}-config
+            - secretRef:
+                name: {{ include "transitory-documents-api.fullname" . }}-secrets
+          {{- if $cfg.probes.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ $cfg.probes.path }}
+              port: http
+            initialDelaySeconds: {{ $cfg.probes.initialDelaySeconds }}
+            periodSeconds: {{ $cfg.probes.periodSeconds }}
+            timeoutSeconds: {{ $cfg.probes.timeoutSeconds }}
+            failureThreshold: {{ $cfg.probes.failureThreshold }}
+            successThreshold: {{ $cfg.probes.successThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ $cfg.probes.path }}
+              port: http
+            initialDelaySeconds: {{ $cfg.probes.initialDelaySeconds }}
+            periodSeconds: {{ $cfg.probes.periodSeconds }}
+            timeoutSeconds: {{ $cfg.probes.timeoutSeconds }}
+            failureThreshold: {{ $cfg.probes.failureThreshold }}
+            successThreshold: {{ $cfg.probes.successThreshold }}
+          {{- end }}
+          resources:
+            {{- toYaml $cfg.resources | nindent 12 }}

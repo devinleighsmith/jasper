@@ -1,0 +1,18 @@
+{
+  "family": "net-debug",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::381491824201:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::381491824201:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "toolbox",
+      "image": "public.ecr.aws/amazonlinux/amazonlinux:2",
+      "entryPoint": ["sh", "-c"],
+      "command": ["yum install -y bind-utils nmap-ncat && sleep 3600"],
+      "essential": true
+    }
+  ]
+}

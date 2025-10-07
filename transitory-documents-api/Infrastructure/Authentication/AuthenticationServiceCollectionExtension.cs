@@ -36,172 +36,13 @@ namespace Scv.Api.Infrastructure.Authentication
     public static class AuthenticationServiceCollectionExtension
     {
         public static IServiceCollection AddScvAuthentication(this IServiceCollection services,
-            IWebHostEnvironment env, IConfiguration configuration)
+            IWebHostEnvironment env, IConfiguration configuration, string scheme)
         {
             services.AddAuthentication(options =>
             {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
-            .AddCookie(options =>
-            {
-                options.Cookie.Name = "SCV";
-                if (env.IsDevelopment())
-                    options.Cookie.Name += ".Development";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SameSite = SameSiteMode.None;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Events = new CookieAuthenticationEvents
-                {
-                    OnRedirectToAccessDenied = context =>
-                    {
-                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                        return context.Response.CompleteAsync();
-                    },
-                    OnValidatePrincipal = async cookieCtx =>
-                    {
-                        if (cookieCtx.Principal.Identity.AuthenticationType ==
-                            SiteMinderAuthenticationHandler.SiteMinder)
-                            return;
-
-                        var accessTokenExpiration = DateTimeOffset.Parse(cookieCtx.Properties.GetTokenValue("expires_at"));
-                        var timeRemaining = accessTokenExpiration.Subtract(DateTimeOffset.UtcNow);
-                        var refreshThreshold = TimeSpan.Parse(configuration.GetNonEmptyValue("TokenRefreshThreshold"));
-
-                        if (timeRemaining > refreshThreshold)
-                            return;
-
-                        var refreshToken = cookieCtx.Properties.GetTokenValue("refresh_token");
-                        var httpClientFactory = cookieCtx.HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
-                        var httpClient = httpClientFactory.CreateClient(nameof(CookieAuthenticationEvents));
-                        var response = await httpClient.RequestRefreshTokenAsync(new RefreshTokenRequest
-                        {
-                            Address = configuration.GetNonEmptyValue("Keycloak:Authority") + "/protocol/openid-connect/token",
-                            ClientId = configuration.GetNonEmptyValue("Keycloak:Client"),
-                            ClientSecret = configuration.GetNonEmptyValue("Keycloak:Secret"),
-                            RefreshToken = refreshToken
-                        });
-
-                        if (response.IsError)
-                        {
-                            cookieCtx.RejectPrincipal();
-                            await cookieCtx.HttpContext.SignOutAsync(CookieAuthenticationDefaults
-                                .AuthenticationScheme);
-                        }
-                        else
-                        {
-                            var expiresInSeconds = response.ExpiresIn;
-                            var updatedExpiresAt = DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds);
-                            cookieCtx.Properties.UpdateTokenValue("expires_at", updatedExpiresAt.ToString());
-                            cookieCtx.Properties.UpdateTokenValue("refresh_token", response.RefreshToken);
-
-                            // Indicate to the cookie middleware that the cookie should be remade (since we have updated it)
-                            cookieCtx.ShouldRenew = true;
-                        }
-                    }
-                };
-            }
-            )
-            .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
-            {
-                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.Authority = configuration.GetNonEmptyValue("Keycloak:Authority");
-                options.ClientId = configuration.GetNonEmptyValue("Keycloak:Client");
-                options.ClientSecret = configuration.GetNonEmptyValue("Keycloak:Secret");
-                options.RequireHttpsMetadata = true;
-                options.GetClaimsFromUserInfoEndpoint = true;
-                options.ResponseType = OpenIdConnectResponseType.Code;
-                options.UsePkce = true;
-                options.SaveTokens = true;
-                options.CallbackPath = "/api/auth/signin-oidc";
-                options.Scope.Add("groups");
-                options.Events = new OpenIdConnectEvents
-                {
-#pragma warning disable 1998
-                    OnTokenValidated = async context =>
-#pragma warning restore 1998
-                    {
-                        if (!(context.Principal.Identity is ClaimsIdentity identity)) return;
-
-                        var loggerFactory = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>();
-                        var logger = loggerFactory.CreateLogger("OnTokenValidated");
-                        logger.LogInformation($"OpenIdConnect UserId - {context.Principal.ExternalUserId()} - logged in.");
-
-                        //Cleanup keycloak claims, that are unused.
-                        foreach (var claim in identity.Claims.WhereToList(c =>
-                            !CustomClaimTypes.UsedKeycloakClaimTypes.Contains(c.Type)))
-                            identity.RemoveClaim(claim);
-
-                        var applicationCode = "SCV";
-                        var partId = configuration.GetNonEmptyValue("Request:PartId");
-                        var agencyId = configuration.GetNonEmptyValue("Request:AgencyIdentifierId");
-                        var isSupremeUser = false;
-                        if (context.Principal.IsVcUser())
-                        {
-                            var db = context.HttpContext.RequestServices.GetRequiredService<ScvDbContext>();
-                            var userId = context.Principal.ExternalUserId();
-                            var now = DateTimeOffset.UtcNow;
-                            var fileAccess = await db.RequestFileAccess
-                                .Where(r => r.UserId == userId && r.Expires > now)
-                                .OrderByDescending(x => x.Id)
-                                .FirstOrDefaultAsync();
-
-                            if (fileAccess != null && !string.IsNullOrEmpty(fileAccess.PartId) && !string.IsNullOrEmpty(fileAccess.AgencyId))
-                            {
-                                logger.LogInformation($"UserId - {context.Principal.ExternalUserId()} - Using credentials passed in from A2A.");
-                                var aesGcmEncryption = context.HttpContext.RequestServices.GetRequiredService<AesGcmEncryption>();
-                                partId = aesGcmEncryption.Decrypt(fileAccess.PartId);
-                                agencyId = aesGcmEncryption.Decrypt(fileAccess.AgencyId);
-                                applicationCode = "A2A";
-                            }
-                        }
-                        else if (context.Principal.IsIdirUser() && context.Principal.Groups().Contains("court-viewer-supreme"))
-                        {
-                            isSupremeUser = true;
-                        }
-
-                        var claims = new List<Claim>();
-                        claims.AddRange(new[] {
-                            new Claim(CustomClaimTypes.ApplicationCode, applicationCode),
-                            new Claim(CustomClaimTypes.JcParticipantId, partId),
-                            new Claim(CustomClaimTypes.JcAgencyCode, agencyId),
-                            new Claim(CustomClaimTypes.IsSupremeUser, isSupremeUser.ToString()),
-                        });
-
-                        await OnPostAuthSuccess(configuration, context, logger, claims);
-
-                        identity.AddClaims(claims);
-                    },
-                    OnRedirectToIdentityProvider = context =>
-                    {
-                        if (context.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication && !context.Request.Path.StartsWithSegments("/api/auth/login"))
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                            context.HandleResponse();
-                            return Task.CompletedTask;
-                        }
-
-                        context.ProtocolMessage.SetParameter("kc_idp_hint",
-                            context.Request.Query["redirectUri"].ToString().Contains("fromA2A=true")
-                                ? configuration.GetNonEmptyValue("Keycloak:VcIdpHint")
-                                : "idir");
-
-                        context.ProtocolMessage.SetParameter("pres_req_conf_id", configuration.GetNonEmptyValue("Keycloak:PresReqConfId"));
-                        if (context.HttpContext.Request.Headers["X-Forwarded-Host"].Count > 0)
-                        {
-                            var forwardedHost = context.HttpContext.Request.Headers["X-Forwarded-Host"];
-                            var forwardedPort = context.HttpContext.Request.Headers["X-Forwarded-Port"];
-                            var baseUrl = context.HttpContext.Request.Headers["X-Base-Href"];
-                            context.ProtocolMessage.RedirectUri = XForwardedForHelper.BuildUrlString(
-                                forwardedHost,
-                                forwardedPort,
-                                baseUrl,
-                                options.CallbackPath);
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
+                options.DefaultScheme = scheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = scheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = scheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
@@ -322,7 +163,7 @@ namespace Scv.Api.Infrastructure.Authentication
             var groupService = context.HttpContext.RequestServices.GetRequiredService<IGroupService>();
 
             UserItem matchingUser = null;
-            if (context.Principal.UserGuid() == null)
+            if(context.Principal.UserGuid() == null)
             {
                 logger.LogInformation("No GUID claim found for user with email {Email}. Cannot look up user in PCSS.", userDto.Email);
                 return userDto;

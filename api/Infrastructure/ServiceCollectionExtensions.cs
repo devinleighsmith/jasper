@@ -45,6 +45,7 @@ using PCSSPersonServices = PCSSCommon.Clients.PersonServices;
 using PCSSReportServices = PCSSCommon.Clients.ReportServices;
 using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
 using PCSSAuthorizationServices = PCSSCommon.Clients.AuthorizationServices;
+using TdDocumentsServices = TDCommon.Clients.DocumentsServices;
 
 namespace Scv.Api.Infrastructure
 {
@@ -188,6 +189,11 @@ namespace Scv.Api.Infrastructure
                 .AddHttpClient<PCSSAuthorizationServices.AuthorizationServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
                 .AddHttpMessageHandler<TimingHandler>();
 
+            // Transitory Documents
+            services
+                .AddHttpClient<TdDocumentsServices.TransitoryDocumentsClient>(client => { ConfigureHttpClient(client, configuration, "TD"); })
+                .AddHttpMessageHandler<TimingHandler>();
+
             services.AddHttpContextAccessor();
             services.AddTransient(s => s.GetService<IHttpContextAccessor>().HttpContext.User);
             services.AddScoped<FilesService>();
@@ -239,7 +245,7 @@ namespace Scv.Api.Infrastructure
             return services;
         }
 
-        private static void ConfigureHttpClient(HttpClient client, IConfiguration configuration, string prefix, int timeoutInSecs = 100)
+        public static void ConfigureHttpClient(HttpClient client, IConfiguration configuration, string prefix, int timeoutInSecs = 100)
         {
             var apigwUrl = configuration.GetValue<string>("AWS_API_GATEWAY_URL");
             var apigwKey = configuration.GetValue<string>("AWS_API_GATEWAY_API_KEY");

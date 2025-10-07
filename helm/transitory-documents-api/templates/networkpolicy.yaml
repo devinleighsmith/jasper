@@ -1,0 +1,22 @@
+{{- $cfg := index .Values "transitory-documents-api" -}}
+{{- if $cfg.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "transitory-documents-api.fullname" . }}
+  labels:
+    {{- include "transitory-documents-api.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "transitory-documents-api.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - {{- if $cfg.networkPolicy.allowExternal }} {}
+      {{- else }}
+      from:
+        - podSelector: {}
+      {{- end }}
+{{- end }}

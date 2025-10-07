@@ -1,0 +1,44 @@
+key questions(for Wade):
+why do you want to shard?
+    system load
+    amount of data stored in mongodb
+    current status of mongodb in emerald
+what about backups?
+is mongodump/restore a viable option? do we even need to restore?
+Are current releases handled in ArgoCD or some other way?
+Let's discuss a release process for this mongo change.
+
+
+what will be the shard key?
+    high cardinality
+    low frequency of individual values
+    useanalyzeshardkey 
+whether to shard all of the collections
+how many shards?
+how many members in a shard rs?
+how many configuration servers?
+
+mostly for notes and annotations:
+    notes are aribitraty text fields with labels and tags and relate those notes to a file.
+    file based queries
+    user based queries
+annotations 
+    annotations are text fields that are against a document.
+    document related queries
+    file id
+
+
+
+convert replica set to sharded cluster
+https://www.mongodb.com/docs/manual/tutorial/convert-replica-set-to-replicated-shard-cluster/
+
+sysdig monitor for postgresql database
+spike
+
+use mongodump and mongorestore
+    can directly dump all databases, collections to a directory, and then restore to a sharded cluster.
+    then you can reshard all of the collections
+    when resharding, you can evaluate the performance of the index as described here:
+    https://medium.com/@joseph.nyirenda/mongodb-measuring-the-effectiveness-of-shard-keys-f5f4bdcc4e4f
+
+    

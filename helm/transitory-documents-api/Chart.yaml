@@ -1,0 +1,6 @@
+apiVersion: v2
+name: transitory-documents-api
+description: Helm chart for transitory-documents-api (.NET 9 service)
+version: 0.1.0
+appVersion: '0.1.0'
+type: application
