@@ -1,4 +1,4 @@
-name: Deploy API
+name: Deploy transitory-documents-api
 
 on:
   push:
