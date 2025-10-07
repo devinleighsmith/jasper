@@ -59,7 +59,7 @@ namespace Scv.Api.Services
             DateTime expiryDate;
             DateTime effectiveDate;
             var userRoleNames = userRoles?.Where(ur => 
-                DateTime.TryParse(ur.ExpiryDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out expiryDate) && expiryDate >= DateTime.Now &&
+                (DateTime.TryParse(ur.ExpiryDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out expiryDate) && expiryDate >= DateTime.Now || ur.ExpiryDate == null) &&
                 DateTime.TryParse(ur.EffectiveDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out effectiveDate) && effectiveDate <= DateTime.Now)
                 .Select(ur => ur.Name).Distinct();
             if (userRoleNames == null || !userRoleNames.Any())

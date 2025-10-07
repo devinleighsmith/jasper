@@ -132,7 +132,7 @@ public class AuthorizationServiceTests
             UserId = userId,
             Roles = new List<EffectiveRoleItem>
             {
-                new EffectiveRoleItem { Name = roleName }
+                new EffectiveRoleItem { Name = roleName, EffectiveDate = DateTime.Now.AddDays(-1).ToShortDateString(), ExpiryDate = null }
             }
         };
 
