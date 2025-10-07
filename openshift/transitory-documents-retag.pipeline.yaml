@@ -1,0 +1,87 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: jasper-retag-image
+  labels:
+    DataClass: Low
+spec:
+  params:
+    - name: tag
+      type: string
+      description: Source image tag to import from GHCR
+    - name: environment
+      type: string
+      description: Destination environment tag (dev|test|prod)
+  tasks:
+    - name: validate-environment
+      taskRef:
+        # Pull Task from Tekton Catalog via cluster resolver
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: openshift-client
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: SCRIPT
+          value: |
+            set -euo pipefail
+            ENV="$(params.environment)"
+            case "$ENV" in
+              dev|test|prod)
+                echo "Environment OK: $ENV"
+                ;;
+              *)
+                echo "ERROR: invalid environment '$ENV' (must be dev, test, or prod)" >&2
+                exit 1
+                ;;
+            esac
+
+    - name: import-image
+      runAfter: ['validate-environment']
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: openshift-client
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: SCRIPT
+          value: |
+            set -euo pipefail
+            SRC_TAG="$(params.tag)"
+            SRC_IMAGE="ghcr.io/bcgov/jasper/jasper-transitory-documents-api:${SRC_TAG}"
+
+            echo "Importing ${SRC_IMAGE} into ImageStreamTag jasper-transitory-documents-api:${SRC_TAG} ..."
+            oc import-image "jasper-transitory-documents-api:${SRC_TAG}" \
+              --from="${SRC_IMAGE}" \
+              --confirm \
+              --reference-policy=local
+
+    - name: retag-to-environment
+      runAfter: ['import-image']
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: openshift-client
+          - name: namespace
+            value: openshift-pipelines
+      params:
+        - name: SCRIPT
+          value: |
+            set -euo pipefail
+            SRC_TAG="$(params.tag)"
+            DEST_ENV="$(params.environment)"
+
+            echo "Tagging jasper-transitory-documents-api:${SRC_TAG} -> jasper-transitory-documents-api:${DEST_ENV} ..."
+            oc tag "jasper-transitory-documents-api:${SRC_TAG}" \
+                   "jasper-transitory-documents-api:${DEST_ENV}" \
+                   --reference-policy=local
