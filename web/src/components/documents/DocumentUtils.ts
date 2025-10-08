@@ -68,3 +68,17 @@ export const getCivilDocumentType = (
     ? CourtDocumentType.CSR
     : CourtDocumentType.Civil;
 };
+
+export const formatDocumentCategory = (document: documentType) => {
+  let category = document.category ?? document.docmClassification;
+  if(category === 'PSR')
+    category = 'Report';
+  else if(category === 'rop')
+    category = 'ROP';
+  return category;
+};
+
+export const formatDocumentType = (document: documentType) =>
+  document.category === 'rop'
+    ? 'Record of Proceedings'
+    : document.documentTypeDescription;

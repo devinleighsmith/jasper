@@ -182,7 +182,7 @@
 
     // We always want AM pairings to appear before PM pairings
     cardTablePairings.value.sort((a, b) =>
-      a.card.amPM.localeCompare(b.card.amPM)
+      a.card.amPM?.localeCompare(b.card.amPM)
     );
   };
 

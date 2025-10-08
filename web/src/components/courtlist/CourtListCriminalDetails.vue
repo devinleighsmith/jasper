@@ -17,7 +17,7 @@
         density="compact"
       >
         <template v-slot:item.docmClassification="{ item }">
-          {{ formatCategory(item) }}
+          {{ formatDocumentCategory(item) }}
         </template>
         <template v-slot:item.docmFormDsc="{ item }">
           <a
@@ -25,10 +25,10 @@
             href="javascript:void(0)"
             @click="openDocument(item)"
           >
-            {{ formatType(item) }}
+            {{ formatDocumentType(item) }}
           </a>
           <span v-else>
-            {{ formatType(item) }}
+            {{ formatDocumentType(item) }}
           </span>
           <div v-if="item.category?.toLowerCase() === 'bail'">
             {{ item.docmDispositionDsc }}<span class="pl-2" />
@@ -65,6 +65,7 @@
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { formatDocumentCategory, formatDocumentType } from '@/components/documents/DocumentUtils';
   import { inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{
@@ -104,13 +105,12 @@
       title: 'CATEGORY',
       key: 'docmClassification',
       sortRaw: (a: documentType, b: documentType) => {
-        const order = ['Initiating', 'BAIL', 'ROP'];
+        const order = ['Initiating', 'rop', 'Bail', 'PSR'];
         const getOrder = (cat: string) => {
-          const formatted = cat === 'rop' ? 'ROP' : cat;
-          const idx = order.indexOf(formatted);
+          const idx = order.indexOf(cat);
           return idx === -1 ? order.length : idx;
         };
-        return getOrder(b.docmClassification) - getOrder(a.docmClassification);
+        return getOrder(b.category ?? b.docmClassification) - getOrder(a.category ?? a.docmClassification);
       },
     },
     { title: 'PAGES', key: 'documentPageCount' },
@@ -125,13 +125,6 @@
     );
     loading.value = false;
   });
-  const formatCategory = (item: documentType) =>
-    item.category === 'rop' ? 'ROP' : item.category;
-
-  const formatType = (item: documentType) =>
-    item.category === 'rop'
-      ? 'Record of Proceedings'
-      : item.documentTypeDescription;
 
   const openDocument = (document: documentType) => {
     const isRop = document.category?.toLowerCase() === 'rop';
