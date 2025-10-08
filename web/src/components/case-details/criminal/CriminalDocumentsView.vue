@@ -121,6 +121,8 @@
   import {
     getCriminalDocumentType,
     prepareCriminalDocumentData,
+    formatDocumentCategory,
+    formatDocumentType
   } from '@/components/documents/DocumentUtils';
   import shared from '@/components/shared';
   import NameFilter from '@/components/shared/Form/NameFilter.vue';
@@ -136,7 +138,6 @@
   } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { formatFromFullname } from '@/utils/utils';
-  import { formatDocumentCategory, formatDocumentType } from '@/components/documents/DocumentUtils';
   import { mdiFileDocumentMultipleOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
 

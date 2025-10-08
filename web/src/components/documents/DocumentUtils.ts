@@ -70,7 +70,7 @@ export const getCivilDocumentType = (
 };
 
 export const formatDocumentCategory = (document: documentType) => {
-  var category = document.category;
+  let category = document.category;
   if(category === 'PSR')
     category = 'Report';
   else if(category === 'rop')
