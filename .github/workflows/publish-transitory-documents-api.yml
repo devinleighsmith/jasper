@@ -16,7 +16,7 @@ permissions:
 env:
   WORKING_DIRECTORY: .
   IMAGE_NAME: jasper-transitory-documents-api
-  GITHUB_IMAGE_REPO: ghcr.io/bcgov/jasper
+  GITHUB_IMAGE_REPO: ghcr.io/${{ github.repository_owner }}/jasper
 
 jobs:
   build:
