@@ -265,10 +265,9 @@
       title: 'CATEGORY',
       key: 'category',
       sortRaw: (a: documentType, b: documentType) => {
-        const order = ['Initiating', 'BAIL', 'ROP'];
+        const order = ['Initiating', 'rop', 'Bail', 'PSR'];
         const getOrder = (cat: string) => {
-          const formatted = cat === 'rop' ? 'ROP' : cat;
-          const idx = order.indexOf(formatted);
+          const idx = order.indexOf(cat);
           return idx === -1 ? order.length : idx;
         };
         return getOrder(b.category) - getOrder(a.category);

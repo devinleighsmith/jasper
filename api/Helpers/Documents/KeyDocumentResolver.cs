@@ -28,19 +28,30 @@ public static class KeyDocumentResolver
         {
             return [];
         }
-        var nonBails = documents.Where(dmt => DocumentCategory.KEY_DOCUMENT_CATEGORIES.Contains(dmt.Category?.ToUpper() ?? dmt.DocmClassification?.ToUpper()));
-        var bails = documents
-            .OrderBy(dmt =>
-            {
-                return DateTime.TryParse(dmt.IssueDate, out DateTime date) ? date : DateTime.MinValue;
-            })
-            // We want the most recent perfected bail document to be included in the key documents.
-            .FirstOrDefault(dmt =>
-                (
-                    ((dmt.Category?.ToUpper() == _bail) || (dmt.DocmClassification?.ToUpper() == _bail)) &&
-                    dmt.DocmDispositionDsc.Equals(_perfected, StringComparison.OrdinalIgnoreCase)
-                )
-            );
-        return nonBails.Concat(bails is not null ? [bails] : []);
+
+        // Get PSR document (most recent)
+        var psrDoc = documents
+            .Where(d => (d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) == DocumentCategory.PSR)
+            .OrderByDescending(d => DateTime.TryParse(d.IssueDate, out var date) ? date : DateTime.MinValue)
+            .FirstOrDefault();
+
+        // Get other key documents (excluding PSR)
+        var otherKeyDocs = documents
+            .Where(d =>
+            DocumentCategory.KEY_DOCUMENT_CATEGORIES.Contains(d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) &&
+            (d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) != DocumentCategory.PSR);
+
+        // Get most recent perfected bail document
+        var bailDoc = documents
+            .Where(d =>
+            ((d.Category?.ToUpper() == _bail) || (d.DocmClassification?.ToUpper() == _bail)) &&
+            d.DocmDispositionDsc.Equals(_perfected, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(d => DateTime.TryParse(d.IssueDate, out var date) ? date : DateTime.MinValue)
+            .FirstOrDefault();
+
+        return new[] { psrDoc }
+            .Where(d => d != null)
+            .Concat(otherKeyDocs)
+            .Concat(bailDoc != null ? [bailDoc] : Array.Empty<CriminalDocument>());
     }
 }
