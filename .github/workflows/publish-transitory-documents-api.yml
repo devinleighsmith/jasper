@@ -9,6 +9,10 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   WORKING_DIRECTORY: .
   IMAGE_NAME: jasper-transitory-documents-api
