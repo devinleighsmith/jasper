@@ -131,9 +131,13 @@
         <span v-html="renderTooltip(value)"></span>
       </v-tooltip>
     </template>
-    <template v-slot:item.actions>
-      <v-icon :icon="mdiNotebookEditOutline" size="large" />
-      <v-icon :icon="mdiFileDocumentEditOutline" size="large" />
+    <template v-slot:item.actions="{ item }">
+      <TooltipIcon
+          v-if="item.scheduleNoteTxt"
+          location="start"
+          :text="item.scheduleNoteTxt"
+          :icon="mdiNotebookOutline"
+        />
     </template>
   </v-data-table-virtual>
   <CourtListTableActionBarGroup
@@ -166,9 +170,8 @@
     mdiChevronDown,
     mdiChevronUp,
     mdiCircleHalfFull,
-    mdiFileDocumentEditOutline,
+    mdiNotebookOutline,
     mdiHomeOutline,
-    mdiNotebookEditOutline,
     mdiTrashCanOutline,
   } from '@mdi/js';
   import { computed, ref } from 'vue';
