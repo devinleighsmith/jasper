@@ -110,7 +110,7 @@
           const idx = order.indexOf(cat);
           return idx === -1 ? order.length : idx;
         };
-        return getOrder(b.category) - getOrder(a.category);
+        return getOrder(b.category ?? b.docmClassification) - getOrder(a.category ?? a.docmClassification);
       },
     },
     { title: 'PAGES', key: 'documentPageCount' },
