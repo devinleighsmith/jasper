@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Scv.Api.Models.Criminal.Detail;
 using Scv.Db.Models;
@@ -12,7 +13,6 @@ namespace Scv.Api.Helpers.Documents;
 public static class KeyDocumentResolver
 {
     private static readonly string _perfected = "PERFECTED";
-    private static readonly string _bail = "BAIL";
 
     /// <summary>
     /// Retrieves key criminal documents from the provided collection based on predefined categories and perfected bail documents.
@@ -29,10 +29,10 @@ public static class KeyDocumentResolver
             return [];
         }
 
-        // Get PSR document (most recent)
+        // Get most recent PSR document
         var psrDoc = documents
             .Where(d => (d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) == DocumentCategory.PSR)
-            .OrderByDescending(d => DateTime.TryParse(d.IssueDate, out var date) ? date : DateTime.MinValue)
+            .OrderByDescendingIssueDate()
             .FirstOrDefault();
 
         // Get other key documents (excluding PSR)
@@ -44,14 +44,19 @@ public static class KeyDocumentResolver
         // Get most recent perfected bail document
         var bailDoc = documents
             .Where(d =>
-            ((d.Category?.ToUpper() == _bail) || (d.DocmClassification?.ToUpper() == _bail)) &&
+            ((d.Category?.ToUpper() == DocumentCategory.BAIL) || (d.DocmClassification?.ToUpper() == DocumentCategory.BAIL)) &&
             d.DocmDispositionDsc.Equals(_perfected, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(d => DateTime.TryParse(d.IssueDate, out var date) ? date : DateTime.MinValue)
+            .OrderByDescendingIssueDate()
             .FirstOrDefault();
 
         return new[] { psrDoc }
             .Where(d => d != null)
             .Concat(otherKeyDocs)
             .Concat(bailDoc != null ? [bailDoc] : Array.Empty<CriminalDocument>());
+    }
+    
+    public static IOrderedEnumerable<T> OrderByDescendingIssueDate<T>(this IEnumerable<T> source) where T : CriminalDocument
+    {
+        return source.OrderByDescending(d => DateTime.TryParse(d.IssueDate, CultureInfo.InvariantCulture, out var date) ? date : DateTime.MinValue);
     }
 }
