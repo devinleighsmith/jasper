@@ -104,7 +104,7 @@
       title: 'CATEGORY',
       key: 'docmClassification',
       sortRaw: (a: documentType, b: documentType) => {
-         const order = ['Initiating', 'rop', 'Bail', 'PSR'];
+        const order = ['Initiating', 'rop', 'Bail', 'PSR'];
         const getOrder = (cat: string) => {
           const idx = order.indexOf(cat);
           return idx === -1 ? order.length : idx;
