@@ -74,7 +74,7 @@
         </tr>
       </template>
       <template v-slot:item.category="{ item }">
-        {{ formatCategory(item) }}
+        {{ formatDocumentCategory(item) }}
       </template>
       <template v-slot:item.documentTypeDescription="{ item }">
         <v-row>
@@ -84,10 +84,10 @@
               href="javascript:void(0)"
               @click="openIndividualDocument(item)"
             >
-              {{ formatType(item) }}
+              {{ formatDocumentType(item) }}
             </a>
             <span v-else>
-              {{ formatType(item) }}
+              {{ formatDocumentType(item) }}
             </span>
           </v-col>
         </v-row>
@@ -136,6 +136,7 @@
   } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { formatFromFullname } from '@/utils/utils';
+  import { formatDocumentCategory, formatDocumentType } from '@/components/documents/DocumentUtils';
   import { mdiFileDocumentMultipleOutline } from '@mdi/js';
   import { computed, ref } from 'vue';
 
@@ -148,13 +149,6 @@
   const keyDocumentsSortBy = ref([{ key: 'category', order: 'desc' }] as const);
   const selectedCategory = ref<string>();
   const selectedAccused = ref<string>();
-
-  const formatCategory = (item: documentType) =>
-    item.category === 'rop' ? 'ROP' : item.category;
-  const formatType = (item: documentType) =>
-    item.category === 'rop'
-      ? 'Record of Proceedings'
-      : item.documentTypeDescription;
 
   const filterByCategory = (item: any) =>
     !selectedCategory.value ||
@@ -207,7 +201,7 @@
 
   const categoryCount = (category: string): number => {
     return unfilteredDocuments.value.filter(
-      (doc) => formatCategory(doc) === category
+      (doc) => formatDocumentCategory(doc) === category
     ).length;
   };
 
@@ -215,7 +209,7 @@
     ...new Set(
       unfilteredDocuments.value
         ?.filter((doc) => doc.category)
-        .map((doc) => formatCategory(doc)) || []
+        .map((doc) => formatDocumentCategory(doc)) || []
     ),
   ]);
 

@@ -17,7 +17,7 @@
         density="compact"
       >
         <template v-slot:item.docmClassification="{ item }">
-          {{ formatCategory(item) }}
+          {{ formatDocumentCategory(item) }}
         </template>
         <template v-slot:item.docmFormDsc="{ item }">
           <a
@@ -25,10 +25,10 @@
             href="javascript:void(0)"
             @click="openDocument(item)"
           >
-            {{ formatType(item) }}
+            {{ formatDocumentType(item) }}
           </a>
           <span v-else>
-            {{ formatType(item) }}
+            {{ formatDocumentType(item) }}
           </span>
           <div v-if="item.category?.toLowerCase() === 'bail'">
             {{ item.docmDispositionDsc }}<span class="pl-2" />
@@ -65,6 +65,7 @@
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { formatDocumentCategory, formatDocumentType } from '@/components/documents/DocumentUtils';
   import { inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{
@@ -109,7 +110,7 @@
           const idx = order.indexOf(cat);
           return idx === -1 ? order.length : idx;
         };
-        return getOrder(b.docmClassification) - getOrder(a.docmClassification);
+        return getOrder(b.category) - getOrder(a.category);
       },
     },
     { title: 'PAGES', key: 'documentPageCount' },
@@ -124,13 +125,6 @@
     );
     loading.value = false;
   });
-  const formatCategory = (item: documentType) =>
-    item.category === 'rop' ? 'ROP' : item.category;
-
-  const formatType = (item: documentType) =>
-    item.category === 'rop'
-      ? 'Record of Proceedings'
-      : item.documentTypeDescription;
 
   const openDocument = (document: documentType) => {
     const isRop = document.category?.toLowerCase() === 'rop';
