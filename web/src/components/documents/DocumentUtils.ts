@@ -33,7 +33,7 @@ export const prepareCriminalDocumentData = (data) => {
   return documentData;
 };
 
-export const prepareCivilDocumentData = (data) => {
+export const prepareCivilDocumentData = (data: civilDocumentType) => {
   const civilFileStore = useCivilFileStore();
   const documentData: DocumentData = {
     appearanceDate: beautifyDate(data.lastAppearanceDt),
@@ -42,12 +42,12 @@ export const prepareCivilDocumentData = (data) => {
     dateFiled: beautifyDate(data.filedDt),
     documentDescription: data.documentTypeCd,
     documentId: data.civilDocumentId,
-    fileId: civilFileStore.civilFileInformation.fileNumber,
-    fileNumberText: civilFileStore.civilFileInformation.detailsData.fileNumberTxt,
-    courtClass: civilFileStore.civilFileInformation.detailsData.courtClassCd,
-    courtLevel: civilFileStore.civilFileInformation.detailsData.courtLevelCd,
+    fileId: civilFileStore.civilFileInformation?.fileNumber,
+    fileNumberText: civilFileStore.civilFileInformation?.detailsData?.fileNumberTxt,
+    courtClass: civilFileStore.civilFileInformation?.detailsData?.courtClassCd,
+    courtLevel: civilFileStore.civilFileInformation?.detailsData?.courtLevelCd,
     location:
-      civilFileStore.civilFileInformation.detailsData.homeLocationAgencyName,
+      civilFileStore.civilFileInformation?.detailsData?.homeLocationAgencyName,
     isCriminal: false,
   };
   return documentData;
