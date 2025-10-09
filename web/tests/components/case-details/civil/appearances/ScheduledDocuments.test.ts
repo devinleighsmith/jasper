@@ -38,8 +38,7 @@ const mockDocuments = [
 vi.mock('@/components/shared', () => ({
     default: {
         openDocumentsPdf: vi.fn(),
-    },
-    openDocumentsPdf: vi.fn(),
+    }
 }));
 
 vi.mock('@/stores', () => ({
@@ -49,14 +48,6 @@ vi.mock('@/stores', () => ({
             { agencyIdentifierCd: 'AG2', name: 'Courtroom 2' },
         ],
     }),
-}));
-
-vi.mock('@/filters', () => ({
-    beautifyDate: (date: string) => `Beautified: ${date}`,
-}));
-
-vi.mock('@/utils/dateUtils', () => ({
-    formatDateToDDMMMYYYY: (date: string) => `Formatted: ${date}`,
 }));
 
 vi.mock('@/components/documents/DocumentUtils', () => ({
