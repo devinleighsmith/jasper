@@ -31,18 +31,15 @@
 <script setup lang="ts">
   import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
   import shared from '@/components/shared';
-    import {
+  import {
     getCivilDocumentType,
     prepareCivilDocumentData,
   } from '@/components/documents/DocumentUtils';
   import { civilDocumentType } from '@/types/civil/jsonTypes/index';
-  import { beautifyDate } from '@/filters';
   import { Anchor } from '@/types/common';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
-  import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import { useCommonStore } from '@/stores';
 
-  const props = defineProps<{
+  defineProps<{
     documents: civilDocumentType[];
     fileId: string;
     fileNumberTxt: string;
@@ -65,7 +62,6 @@
     { title: 'RESULTS', key: 'runtime' },
     { title: 'ISSUES', key: 'issue' },
   ];
-  const commonStore = useCommonStore();
 
   const openDocument = (document: civilDocumentType) => {
     const documentData = prepareCivilDocumentData(document);
