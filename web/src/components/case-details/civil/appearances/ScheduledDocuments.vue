@@ -71,8 +71,9 @@
     documentData.fileId = props.fileId;
     documentData.fileNumberText ||= props.fileNumberTxt;
     documentData.courtLevel ||= props.courtLevel;
-    documentData.location ||= commonStore.courtRoomsAndLocations.filter(
-        (location) => location.agencyIdentifierCd == props.agencyId)[0]?.name;
+    documentData.location ||= commonStore.courtRoomsAndLocations.find(
+      (location) => location.agencyIdentifierCd == props.agencyId
+    )?.name;
     const documentType = getCivilDocumentType(document);
 
     shared.openDocumentsPdf(documentType, documentData);
