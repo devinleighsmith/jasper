@@ -31,6 +31,10 @@
 <script setup lang="ts">
   import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
   import shared from '@/components/shared';
+    import {
+    getCivilDocumentType,
+    prepareCivilDocumentData,
+  } from '@/components/documents/DocumentUtils';
   import { civilDocumentType } from '@/types/civil/jsonTypes/index';
   import { beautifyDate } from '@/filters';
   import { Anchor } from '@/types/common';
@@ -64,22 +68,9 @@
   const commonStore = useCommonStore();
 
   const openDocument = (document: civilDocumentType) => {
-    const locationName = commonStore.courtRoomsAndLocations.filter(
-        (location) => location.agencyIdentifierCd == props.agencyId)[0]?.name;
-      const isCsr = document.category?.toLowerCase() === 'csr';
-      const documentData: DocumentData = {
-        dateFiled: beautifyDate(document.DateGranted),
-        documentId: document.civilDocumentId,
-        documentDescription: document.documentTypeDescription,
-        fileId: props.fileId,
-        fileNumberText: props.fileNumberTxt,
-        courtLevel: props.courtLevel,
-        partId: document.partId,
-        profSeqNo: document.fileSeqNo,
-        location: locationName,
-        isCriminal: false,
-      };
-    shared.openDocumentsPdf(isCsr ? CourtDocumentType.CSR : CourtDocumentType.Civil, documentData);
+    const documentData = prepareCivilDocumentData(document);
+    const documentType = getCivilDocumentType(document);
+    shared.openDocumentsPdf(documentType, documentData);
   };
 </script>
 
