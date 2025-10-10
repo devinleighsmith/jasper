@@ -38,14 +38,17 @@
   import { civilDocumentType } from '@/types/civil/jsonTypes/index';
   import { Anchor } from '@/types/common';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import { useCommonStore } from '@/stores';
 
-  defineProps<{
+  const props = defineProps<{
     documents: civilDocumentType[];
     fileId: string;
     fileNumberTxt: string;
     courtLevel: string;
     agencyId: string;
   }>();
+
+  const commonStore = useCommonStore();
 
   const headers = [
     { title: 'SEQ', key: 'fileSeqNo' },
@@ -65,7 +68,14 @@
 
   const openDocument = (document: civilDocumentType) => {
     const documentData = prepareCivilDocumentData(document);
+    documentData.fileId = props.fileId;
+    documentData.fileNumberText ||= props.fileNumberTxt;
+    documentData.courtLevel ||= props.courtLevel;
+    documentData.location ||= commonStore.courtRoomsAndLocations.find(
+      (location) => location.agencyIdentifierCd == props.agencyId
+    )?.name;
     const documentType = getCivilDocumentType(document);
+
     shared.openDocumentsPdf(documentType, documentData);
   };
 </script>
