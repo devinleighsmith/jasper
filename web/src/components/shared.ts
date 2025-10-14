@@ -81,7 +81,7 @@ export default {
         documentType: type,
         documentData: documentData,
         groupKeyOne: documentData.fileNumberText ?? 'File',
-        groupKeyTwo: documentData.partyName ?? 'Party',
+        groupKeyTwo: documentData.partyName ?? '',
         documentName: documentData.documentDescription ?? 'Document',
       },
     ]);
