@@ -80,9 +80,9 @@ export default {
       {
         documentType: type,
         documentData: documentData,
-        groupKeyOne: documentData.fileNumberText ?? '',
-        groupKeyTwo: documentData.partyName ?? '',
-        documentName: fileName,
+        groupKeyOne: documentData.fileNumberText ?? 'File',
+        groupKeyTwo: documentData.partyName ?? 'Party',
+        documentName: documentData.documentDescription ?? 'Document',
       },
     ]);
 
