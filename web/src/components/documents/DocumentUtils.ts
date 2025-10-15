@@ -29,6 +29,7 @@ export const prepareCriminalDocumentData = (data) => {
       criminalFileStore.criminalFileInformation.detailsData
         .homeLocationAgencyName,
     isCriminal: true,
+    partyName: data.fullName,
   };
   return documentData;
 };
@@ -40,7 +41,7 @@ export const prepareCivilDocumentData = (data: civilDocumentType) => {
     appearanceId:
       data.appearanceId ?? data.civilDocumentId,
     dateFiled: beautifyDate(data.filedDt),
-    documentDescription: data.documentTypeCd,
+    documentDescription: data.documentTypeDescription,
     documentId: data.civilDocumentId,
     fileId: civilFileStore.civilFileInformation?.fileNumber,
     fileNumberText: civilFileStore.civilFileInformation?.detailsData?.fileNumberTxt,

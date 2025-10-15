@@ -82,7 +82,7 @@ export default {
         documentData: documentData,
         groupKeyOne: documentData.fileNumberText ?? '',
         groupKeyTwo: documentData.partyName ?? '',
-        documentName: fileName,
+        documentName: documentData.documentDescription ?? 'Document',
       },
     ]);
 
