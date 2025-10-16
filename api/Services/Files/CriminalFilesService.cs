@@ -493,15 +493,10 @@ namespace Scv.Api.Services.Files
 
         private async Task<ICollection<CriminalCharges>> PopulateCharges(ICollection<CriminalAppearanceCount> appearanceCount, ICollection<ClAppearanceCount> clAppearanceCounts, string appearanceDate)
         {
-            // add mapping for AppearanceCount to CriminalCharges for PLEA
             var charges = _mapper.Map<ICollection<CriminalCharges>>(appearanceCount);
-            //var chargesTwo = _mapper.Map<ICollection<CriminalCharges>>(clAppearanceCounts);
-            //statuteSectionDsc
             var tasks = new List<Task>();
             foreach (var charge in charges)
             {
-                //charge.Plea = 
-                // Set chargeStatuteCode from matching appearanceCount's statuteSectionDsc
                 var matchingAppearanceCount = clAppearanceCounts?.FirstOrDefault(ac => ac.CountPrintSequenceNumber == charge.PrintSeqNo);
                 if (matchingAppearanceCount is null)
                     continue;
@@ -509,6 +504,7 @@ namespace Scv.Api.Services.Files
                 bool hasAppearanceDt = DateTime.TryParse(appearanceDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime appearanceDt);
                 bool hasPleaDt = DateTime.TryParse(matchingAppearanceCount.PleaDate, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime pleaDt);
 
+                // We compare the appearance and plea dates to prevent using backward propagated pleas
                 if (hasAppearanceDt && hasPleaDt && appearanceDt < pleaDt)
                 {
                     charge.PleaCode = null;

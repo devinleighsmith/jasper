@@ -53,13 +53,18 @@
                   </template>
                 </v-tooltip>
               </template>
-              <!-- <template v-slot:item.lastResults="{ item }">
-                <LabelWithTooltip
-                  v-if="item.appearanceResultCd"
-                  :values="[item.appearanceResultDesc]"
-                  :location="Anchor.Top"
-                />
-              </template> -->
+                <template v-slot:item.pleaCode="{ value, item }">
+                  <v-row>
+                    <v-col>
+                      {{ value }}
+                    </v-col>
+                  </v-row>
+                  <v-row v-if="item.pleaDate" no-gutters>
+                    <v-col>
+                      {{ formatDateInstanceToDDMMMYYYY(new Date(item.pleaDate)) }}
+                    </v-col>
+                  </v-row>
+              </template>
           </v-data-table-virtual>
         </v-card>
       </v-col>
@@ -68,10 +73,10 @@
 </template>
 
 <script setup lang="ts">
-  import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
   import CriminalAppearanceMethods from '@/components/case-details/criminal/appearances/CriminalAppearanceMethods.vue';
   import shared from '@/components/shared';
   import { beautifyDate } from '@/filters';
+  import { formatDateInstanceToDDMMMYYYY } from '@/utils/dateUtils';
   import { FilesService } from '@/services/FilesService';
   import { useCommonStore } from '@/stores';
   import {
@@ -107,8 +112,7 @@
     { title: 'DESCRIPTION', key: 'statuteDsc' },
     { title: 'LAST RESULTS', key: 'lastResults' },
     { title: 'PLEA', key: 'pleaCode' },
-    { title: 'FINDINGS', key: 'findingDsc' },
-    //appearanceResultCd => statuteSectionDsc
+    { title: 'FINDINGS', key: 'findingDsc' }
   ]);
 
   const headers = ref([
