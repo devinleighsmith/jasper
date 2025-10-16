@@ -1,15 +1,46 @@
 <template>
   <v-data-table-virtual class="charges-table" :headers :items="charges">
-    <template v-slot:item.appearanceResultCd="{ value }">
+                  <template v-slot:item.lastResults="{ value, item }">
+                <v-tooltip :text="item.appearanceResultDesc" location="top">
+                  <template v-slot:activator="{ props }">
+                    <span v-bind="props" class="has-tooltip">{{ item.appearanceResultCd }}</span>
+                  </template>
+                </v-tooltip>
+              </template>
+    <!-- <template v-slot:item.appearanceResultCd="{ value }">
       <v-chip v-if="value" color="black" rounded="lg" variant="flat">
         {{ value }}
       </v-chip>
+    </template> -->
+    <template v-slot:item.pleaCode="{ value, item }">
+      <v-row>
+        <v-col>
+          {{ value }}
+        </v-col>
+      </v-row>
+      <v-row v-if="item.pleaDate" no-gutters>
+        <v-col>
+          {{ formatDateInstanceToDDMMMYYYY(new Date(item.pleaDate)) }}
+        </v-col>
+      </v-row>
     </template>
+            <!-- <v-row
+          v-if="
+            type === 'keyDocuments' && item.category?.toLowerCase() === 'bail'
+          "
+          no-gutters
+        >
+          <v-col>
+            {{ item.docmDispositionDsc }} <span class="pl-2" />
+            {{ formatDateToDDMMMYYYY(item.issueDate) }}
+          </v-col>
+        </v-row> -->
   </v-data-table-virtual>
 </template>
 
 <script setup lang="ts">
   import { CriminalCharges } from '@/types/criminal/jsonTypes/index';
+  import { formatDateInstanceToDDMMMYYYY } from '@/utils/dateUtils';
 
   defineProps<{ charges: CriminalCharges[] | undefined }>();
 
@@ -20,7 +51,7 @@
     },
     {
       title: 'CRIMINAL CODE',
-      key: 'statuteSectionDsc',
+      key: 'chargeStatuteCode',
     },
     {
       title: 'DESCRIPTION',
@@ -28,8 +59,9 @@
     },
     {
       title: 'LAST RESULTS',
-      key: 'appearanceResultCd',
+      key: 'lastResults',
     },
+    { title: 'PLEA', key: 'pleaCode' },
     {
       title: 'FINDINGS',
       key: 'findingCd',

@@ -46,6 +46,20 @@
             style="background-color: rgba(248, 211, 119, 0.52)"
             density="compact"
           >
+              <template v-slot:item.lastResults="{ value, item }">
+                <v-tooltip :text="item.appearanceResultDesc" location="top">
+                  <template v-slot:activator="{ props }">
+                    <span v-bind="props" class="has-tooltip">{{ item.appearanceResultCd }}</span>
+                  </template>
+                </v-tooltip>
+              </template>
+              <!-- <template v-slot:item.lastResults="{ item }">
+                <LabelWithTooltip
+                  v-if="item.appearanceResultCd"
+                  :values="[item.appearanceResultDesc]"
+                  :location="Anchor.Top"
+                />
+              </template> -->
           </v-data-table-virtual>
         </v-card>
       </v-col>
@@ -54,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+  import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
   import CriminalAppearanceMethods from '@/components/case-details/criminal/appearances/CriminalAppearanceMethods.vue';
   import shared from '@/components/shared';
   import { beautifyDate } from '@/filters';
@@ -63,6 +78,7 @@
     CriminalAppearanceDetails,
     documentType,
   } from '@/types/criminal/jsonTypes';
+  import { Anchor } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { formatDocumentCategory, formatDocumentType } from '@/components/documents/DocumentUtils';
@@ -89,9 +105,10 @@
     { title: 'COUNT', key: 'printSeqNo' },
     { title: 'CRIMINAL CODE', key: 'statuteSectionDsc' },
     { title: 'DESCRIPTION', key: 'statuteDsc' },
-    { title: 'LAST RESULTS', key: 'appearanceResultDesc' },
-    { title: 'PLEA', key: '' }, // Awaiting more info on clAppearanceCount
+    { title: 'LAST RESULTS', key: 'lastResults' },
+    { title: 'PLEA', key: 'pleaCode' },
     { title: 'FINDINGS', key: 'findingDsc' },
+    //appearanceResultCd => statuteSectionDsc
   ]);
 
   const headers = ref([
