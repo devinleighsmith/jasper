@@ -35,7 +35,7 @@
     },
     {
       title: 'CRIMINAL CODE',
-      key: 'chargeStatuteCode',
+      key: 'statuteSectionDsc',
     },
     {
       title: 'DESCRIPTION',
