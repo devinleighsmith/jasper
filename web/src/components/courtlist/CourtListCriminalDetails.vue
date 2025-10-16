@@ -76,16 +76,14 @@
   import CriminalAppearanceMethods from '@/components/case-details/criminal/appearances/CriminalAppearanceMethods.vue';
   import shared from '@/components/shared';
   import { beautifyDate } from '@/filters';
-  import { formatDateInstanceToDDMMMYYYY } from '@/utils/dateUtils';
+  import { formatDateInstanceToDDMMMYYYY, formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { FilesService } from '@/services/FilesService';
   import { useCommonStore } from '@/stores';
   import {
     CriminalAppearanceDetails,
     documentType,
   } from '@/types/criminal/jsonTypes';
-  import { Anchor } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { formatDocumentCategory, formatDocumentType } from '@/components/documents/DocumentUtils';
   import { inject, onMounted, ref } from 'vue';
 

@@ -222,7 +222,7 @@ namespace Scv.Api.Services.Files
                 EstimatedTimeMin = appearanceFromAccused.EstimatedTimeMin?.ReturnNullIfEmpty(),
                 Accused = await PopulateAppearanceCriminalAccused(criminalParticipant.FullName, appearanceFromAccused, attendanceMethods, partId, appearanceMethods.AppearanceMethod),
                 JustinCounsel = await PopulateAppearanceDetailJustinCounsel(criminalParticipant, appearanceFromAccused, attendanceMethods, appearanceMethods.AppearanceMethod),
-                Charges = await PopulateCharges(appearanceCount.ApprCount, targetCourtList.AppearanceCount, targetAppearance.AppearanceDt),
+                Charges = await PopulateCharges(appearanceCount.ApprCount, targetCourtList?.AppearanceCount, targetAppearance.AppearanceDt),
                 Documents = await _documentConverter.GetCriminalDocuments(accusedFile),
                 CourtLevelCd = detail.CourtLevelCd
             };
