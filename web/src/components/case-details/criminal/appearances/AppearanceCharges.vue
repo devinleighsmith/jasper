@@ -48,7 +48,7 @@
     { title: 'PLEA', key: 'pleaCode' },
     {
       title: 'FINDINGS',
-      key: 'findingCd',
+      key: 'findingDsc',
     },
   ];
 </script>
