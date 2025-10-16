@@ -209,20 +209,18 @@ namespace Scv.Api.Services.Files
 
             var appearanceDetail = new CriminalAppearanceDetail
             {
-                JustinNo = fileId, // needed
-                AgencyId = await _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId), // needed
-                AppearanceId = appearanceId, //needed
-                PartId = targetAppearance.PartId, // needed
-                ProfSeqNo = targetAppearance.ProfSeqNo, // needed
-                CourtRoomCd = targetAppearance.CourtRoomCd, // needed
-                FileNumberTxt = detail.FileNumberTxt, // needed
-                AppearanceMethods = await PopulateAppearanceMethods(appearanceMethods.AppearanceMethod), // needed
-                AppearanceDt = targetAppearance.AppearanceDt, // needed
+                JustinNo = fileId,
+                AgencyId = await _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId),
+                AppearanceId = appearanceId,
+                PartId = targetAppearance.PartId,
+                ProfSeqNo = targetAppearance.ProfSeqNo,
+                CourtRoomCd = targetAppearance.CourtRoomCd,
+                FileNumberTxt = detail.FileNumberTxt,
+                AppearanceMethods = await PopulateAppearanceMethods(appearanceMethods.AppearanceMethod),
+                AppearanceDt = targetAppearance.AppearanceDt,
                 EstimatedTimeHour = appearanceFromAccused.EstimatedTimeHour?.ReturnNullIfEmpty(),
                 EstimatedTimeMin = appearanceFromAccused.EstimatedTimeMin?.ReturnNullIfEmpty(),
                 Accused = await PopulateAppearanceCriminalAccused(criminalParticipant.FullName, appearanceFromAccused, attendanceMethods, partId, appearanceMethods.AppearanceMethod),
-                //Prosecutor = await PopulateAppearanceDetailProsecutor(appearanceFromAccused, attendanceMethods, appearanceMethods.AppearanceMethod),
-                //Adjudicator = await PopulateAppearanceDetailAdjudicator(appearanceFromAccused, attendanceMethods, appearanceMethods.AppearanceMethod),
                 JustinCounsel = await PopulateAppearanceDetailJustinCounsel(criminalParticipant, appearanceFromAccused, attendanceMethods, appearanceMethods.AppearanceMethod),
                 Charges = await PopulateCharges(appearanceCount.ApprCount, targetCourtList.AppearanceCount, targetAppearance.AppearanceDt),
                 Documents = await _documentConverter.GetCriminalDocuments(accusedFile),
