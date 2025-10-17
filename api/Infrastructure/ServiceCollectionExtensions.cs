@@ -58,8 +58,7 @@ namespace Scv.Api.Infrastructure
         public static void AddNutrient(this IServiceCollection services, IConfiguration configuration)
         {
             LicenseManager licenseManager = new();
-            var licenseKey = configuration.GetValue<string>("NUTRIENT_BE_LICENSE_KEY");
-            licenseManager.RegisterKEY(licenseKey);
+            licenseManager.RegisterKEY(configuration.GetValue<string>("NUTRIENT_BE_LICENSE_KEY"));
 
             services.AddScoped<IDocumentMerger, DocumentMerger>();
             services.AddScoped<IDocumentRetriever, DocumentRetriever>();
