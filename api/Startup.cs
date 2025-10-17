@@ -80,7 +80,7 @@ namespace Scv.Api
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationRedirectMiddlewareResultHandler>();
 
             services.AddMapster();
-            services.AddNutrient();
+            services.AddNutrient(Configuration);
             services.AddJasperDb(Configuration);
             services.AddHangfire(Configuration);
             services.AddGraphService(Configuration);

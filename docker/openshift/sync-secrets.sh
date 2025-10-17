@@ -22,6 +22,7 @@ secret_keys="\
   pcss \
   request \
   reserved_judgements \
+  nutrient \
   splunk \
   user_services_client"
 

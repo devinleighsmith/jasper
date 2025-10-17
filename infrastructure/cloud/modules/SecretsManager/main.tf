@@ -189,6 +189,11 @@ resource "aws_secretsmanager_secret_version" "misc_secret_value" {
   }
 }
 
+data "aws_secretsmanager_secret_version" "nutrient" {
+  viteNutrientFeLicenseKey = aws_secretsmanager_secret.nutrient.viteNutrientFeLicenseKey,
+  nutrientBeLicenseKey = aws_secretsmanager_secret.nutrient.nutrientBeLicenseKey
+}
+
 data "aws_secretsmanager_secret_version" "current_misc_secret_value" {
   secret_id = aws_secretsmanager_secret.misc_secret.id
 }
