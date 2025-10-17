@@ -68,7 +68,7 @@
 
   const loading = ref(false);
   const emptyStore = ref(false);
-    const configuration = {
+  const configuration = {
     container: '.pdf-container',
     licenseKey: import.meta.env.VITE_NUTRIENT_FE_LICENSE_KEY,
   };
