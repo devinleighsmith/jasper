@@ -13,6 +13,7 @@ output "secrets_arn_list" {
     aws_secretsmanager_secret.lookup_services_client_secret.arn,
     aws_secretsmanager_secret.misc_secret.arn,
     aws_secretsmanager_secret.mtls_cert_secret.arn,
+    aws_secretsmanager_secret.nutrient_secret.arn,
     aws_secretsmanager_secret.pcss_secret.arn,
     aws_secretsmanager_secret.request_secret.arn,
     aws_secretsmanager_secret.reserved_judgements_secret.arn,
