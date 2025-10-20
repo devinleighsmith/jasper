@@ -55,12 +55,10 @@ namespace Scv.Api.Infrastructure
         const string X_ORIGIN_VERIFY_HEADER = "x-origin-verify";
         const string X_TARGET_APP = "x-target-app";
 
-        public static void AddNutrient(this IServiceCollection services)
+        public static void AddNutrient(this IServiceCollection services, IConfiguration configuration)
         {
             LicenseManager licenseManager = new();
-            // For now, use the trial license.
-            // https://www.nutrient.io/sdk/dotnet/getting-started/integrate/#activating-the-trial-license
-            licenseManager.RegisterKEY("");
+            licenseManager.RegisterKEY(configuration.GetValue<string>("NUTRIENT_BE_LICENSE_KEY"));
 
             services.AddScoped<IDocumentMerger, DocumentMerger>();
             services.AddScoped<IDocumentRetriever, DocumentRetriever>();

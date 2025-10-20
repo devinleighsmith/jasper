@@ -59,6 +59,7 @@ output "api_secrets" {
     ["LookupServicesClient__Url", "${aws_secretsmanager_secret.lookup_services_client_secret.arn}:baseUrl::"],
     ["MONGODB_CONNECTION_STRING", "${aws_secretsmanager_secret.database_secret.arn}:mongoDbConnectionString::"],
     ["MONGODB_NAME", "${aws_secretsmanager_secret.database_secret.arn}:mongoDbName::"],
+    ["NUTRIENT_BE_LICENSE_KEY", "${aws_secretsmanager_secret.nutrient_secret.arn}:nutrientBeLicenseKey::"],
     ["PCSS__Username", "${aws_secretsmanager_secret.pcss_secret.arn}:username::"],
     ["PCSS__Password", "${aws_secretsmanager_secret.pcss_secret.arn}:password::"],
     ["PCSS__Url", "${aws_secretsmanager_secret.pcss_secret.arn}:baseUrl::"],
@@ -77,7 +78,8 @@ output "api_secrets" {
     ["SplunkToken", "${aws_secretsmanager_secret.splunk_secret.arn}:token::"],
     ["UserServicesClient__Username", "${aws_secretsmanager_secret.user_services_client_secret.arn}:username::"],
     ["UserServicesClient__Password", "${aws_secretsmanager_secret.user_services_client_secret.arn}:password::"],
-    ["UserServicesClient__Url", "${aws_secretsmanager_secret.user_services_client_secret.arn}:baseUrl::"]
+    ["UserServicesClient__Url", "${aws_secretsmanager_secret.user_services_client_secret.arn}:baseUrl::"],
+    ["VITE_NUTRIENT_FE_LICENSE_KEY", "${aws_secretsmanager_secret.nutrient_secret.arn}:viteNutrientFeLicenseKey::"]
   ]
 }
 
