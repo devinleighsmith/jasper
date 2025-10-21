@@ -87,11 +87,12 @@ output "api_secrets" {
 output "web_secrets" {
   value = [
     ["API_URL", "${aws_secretsmanager_secret.misc_secret.arn}:apiUrl::"],
-    ["USE_SELF_SIGNED_SSL", "${aws_secretsmanager_secret.misc_secret.arn}:useSelfSignedSsl::"],
+    ["IncludeSiteminderHeaders", "${aws_secretsmanager_secret.misc_secret.arn}:includeSiteMinderHeaders::"],
     ["IpFilterRules", "${aws_secretsmanager_secret.misc_secret.arn}:ipFilterRules::"],
     ["RealIpFrom", "${aws_secretsmanager_secret.misc_secret.arn}:realIpFrom::"],
-    ["WEB_BASE_HREF", "${aws_secretsmanager_secret.misc_secret.arn}:webBaseHref::"],
-    ["IncludeSiteminderHeaders", "${aws_secretsmanager_secret.misc_secret.arn}:includeSiteMinderHeaders::"]
+    ["USE_SELF_SIGNED_SSL", "${aws_secretsmanager_secret.misc_secret.arn}:useSelfSignedSsl::"],
+    ["VITE_NUTRIENT_FE_LICENSE_KEY", "${aws_secretsmanager_secret.nutrient_secret.arn}:viteNutrientFeLicenseKey::"],
+    ["WEB_BASE_HREF", "${aws_secretsmanager_secret.misc_secret.arn}:webBaseHref::"]
   ]
 }
 
