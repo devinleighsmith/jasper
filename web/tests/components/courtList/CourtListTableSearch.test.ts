@@ -28,13 +28,13 @@ describe('CourtListTableSearch.vue', () => {
     it.each([
       [true, 'To be called'],
       [false, 'Complete']
-    ])('resets selectedFiles with expected selectedFiles value when reset button is clicked', async (isFuture, expectedValue) => {
+    ])('resets selectedFiles with expected value when reset button is clicked', async (isFuture, expectedValue) => {
         const wrapper = mount(CourtListTableSearch, {
           props: {
             isFuture
           }
         });
-        
+
         wrapper.vm.selectedFiles = '';
         await wrapper.find('v-btn').trigger('click');
 
