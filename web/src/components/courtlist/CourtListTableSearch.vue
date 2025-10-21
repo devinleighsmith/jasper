@@ -57,8 +57,7 @@
 </template>
 <script setup lang="ts">
   import { mdiMagnify, mdiMenu } from '@mdi/js';
-  import { inject } from 'vue';
-  import { watch } from 'vue';
+  import { inject, watch } from 'vue';
   import ActionButtons from '../shared/Form/ActionButtons.vue';
   const props = defineProps<{
     isFuture: boolean;

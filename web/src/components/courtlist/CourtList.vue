@@ -105,7 +105,7 @@
       appearance.appearanceStatusCd === 'SCHD',
   };
   const showDialog = ref(false);
-  const isFuture = computed( () => appliedDate.value !== null && appliedDate.value >= new Date());
+  const isFuture = computed(() => appliedDate.value !== null && appliedDate.value >= new Date());
 
   const filterByAMPM = (pairing: any) =>
     !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
