@@ -38,6 +38,7 @@
         v-model:filesFilter="selectedFilesFilter"
         v-model:AMPMFilter="selectedAMPMFilter"
         v-model:search="search"
+        :isFuture
       />
       <template
         v-for="pairing in filteredTablePairings"
@@ -58,7 +59,6 @@
 <script setup lang="ts">
   import shared from '@/components/shared';
   import { CourtListService } from '@/services';
-  import { usePDFViewerStore } from '@/stores';
   import { DivisionEnum } from '@/types/common';
   import { CourtListAppearance, CourtListCardInfo } from '@/types/courtlist';
   import { DocumentRequestType } from '@/types/shared';
@@ -89,7 +89,6 @@
   const selectedFilesFilter = ref();
   const selectedAMPMFilter = ref();
   const documentUrls = ref<string[]>([]);
-  const pdfStore = usePDFViewerStore();
   const cardTablePairings = ref<
     {
       card: CourtListCardInfo;
@@ -106,6 +105,7 @@
       appearance.appearanceStatusCd === 'SCHD',
   };
   const showDialog = ref(false);
+  const isFuture = computed( () => appliedDate.value !== null && appliedDate.value >= new Date());
 
   const filterByAMPM = (pairing: any) =>
     !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
