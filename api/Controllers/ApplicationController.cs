@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Scv.Api.Helpers;
@@ -18,6 +19,7 @@ public class ApplicationController(IConfiguration configuration) : ControllerBas
     /// </summary>
     /// <returns>JASPER application information values</returns>
     [HttpGet("info")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public IActionResult GetApplicationInfo()
     {
         return Ok(new
