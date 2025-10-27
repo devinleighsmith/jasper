@@ -105,7 +105,12 @@
       appearance.appearanceStatusCd === 'SCHD',
   };
   const showDialog = ref(false);
-  const isFuture = computed(() => appliedDate.value !== null && appliedDate.value >= new Date());
+  // We ignore the time portion of the date for comparison as we only care about the day
+  const isFuture = computed(
+    () =>
+      appliedDate.value !== null &&
+      appliedDate.value.setHours(0, 0, 0, 0) >= new Date().setHours(0, 0, 0, 0)
+  );
 
   const filterByAMPM = (pairing: any) =>
     !selectedAMPMFilter.value || pairing.card.amPM === selectedAMPMFilter.value;
@@ -178,7 +183,7 @@
       card.amPM = adjudicatorDetails?.amPm;
 
       cardTablePairings.value.push({ card, table: appearances });
-    };
+    }
 
     // We always want AM pairings to appear before PM pairings
     cardTablePairings.value.sort((a, b) =>
@@ -226,8 +231,8 @@
 
         const key = `${obj.locationId}|${obj.locationName}|${obj.date}|${obj.division}|${obj.class}|${obj.courtRoom}`;
         uniqueMap.set(key, obj);
-      };
-    };
+      }
+    }
     const documents: Array<{
       documentType: DocumentRequestType;
       documentData: Record<string, any>;
@@ -257,7 +262,7 @@
         documentName: reportType,
         groupKeyOne: value.locationName,
       });
-    };
+    }
     shared.openMergedDocuments(documents);
   };
 </script>
