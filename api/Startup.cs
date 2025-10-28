@@ -159,6 +159,8 @@ namespace Scv.Api
             #endregion Swagger
 
             services.AddLazyCache();
+            
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
