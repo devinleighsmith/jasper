@@ -83,10 +83,6 @@
             item-title="shortName"
             item-value="code"
             label="Location"
-            :required="true"
-            :error-messages="
-              errors.isMissingLocation ? ['Location is required'] : []
-            "
           />
         </v-col>
         <v-col style="max-width: 20rem">
@@ -185,8 +181,7 @@
   const errors = reactive({
     isMissingFileNo: false,
     isMissingSurname: false,
-    isMissingOrg: false,
-    isMissingLocation: false,
+    isMissingOrg: false
   });
 
   const locationService = inject<LocationService>('locationService');
@@ -286,9 +281,6 @@
 
     errors.isMissingFileNo =
       searchCriteria.searchBy === 'fileNumber' && !searchCriteria.fileNumberTxt;
-    errors.isMissingLocation =
-      searchCriteria.searchBy === 'fileNumber' &&
-      !searchCriteria.fileHomeAgencyId;
     errors.isMissingSurname =
       searchCriteria.searchBy === 'lastName' && !searchCriteria.lastName;
     errors.isMissingOrg =
@@ -361,7 +353,6 @@
     errors.isMissingFileNo = false;
     errors.isMissingSurname = false;
     errors.isMissingOrg = false;
-    errors.isMissingLocation = false;
   };
 
   const loadClasses = () => {
