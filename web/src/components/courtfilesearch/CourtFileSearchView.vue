@@ -137,7 +137,7 @@
   import { FilesService } from '@/services/FilesService';
   import { LocationService } from '@/services/LocationService';
   import { LookupService } from '@/services/LookupService';
-  import { useCourtFileSearchStore } from '@/stores';
+  import { useCourtFileSearchStore, useCommonStore } from '@/stores';
   import { CourtClassEnum, KeyValueInfo, LookupCode } from '@/types/common';
   import {
     CourtFileSearchCriteria,
@@ -152,7 +152,8 @@
   const SEARCH_RESULT_LIMIT = 100;
 
   const courtFileSearchStore = useCourtFileSearchStore();
-  const defaultLocation = undefined;
+  const commonStore = useCommonStore();
+  let defaultLocation = undefined;
   let searchCriteria: CourtFileSearchCriteria = reactive({
     isCriminal: true,
     isFamily: false,
@@ -256,6 +257,7 @@
       classes.value = courtClassesResp;
       loadDataFromState();
       loadClasses();
+      loadJudgeHomeLocation();
       isLookupDataReady.value = true;
     } catch (err: unknown) {
       console.error(err);
@@ -463,5 +465,18 @@
   const clearSelectedFiles = () => {
     selectedFiles.value = [];
     courtFileSearchStore.clearSelectedFiles();
+  };
+
+  const loadJudgeHomeLocation = () => {
+    const userInfo = commonStore.userInfo;
+    if (courtRooms.value && userInfo) {
+      const homeLocation = courtRooms.value.find(
+        (l) => l.locationId === userInfo.judgeHomeLocationId?.toString()
+      );
+      if (homeLocation) {
+        defaultLocation = homeLocation.code;
+        searchCriteria.fileHomeAgencyId = defaultLocation;
+      }
+    }
   };
 </script>
