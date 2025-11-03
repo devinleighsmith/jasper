@@ -45,7 +45,7 @@ public static class KeyDocumentResolver
         var bailDoc = documents
             .Where(d =>
             ((d.Category?.ToUpper() == DocumentCategory.BAIL) || (d.DocmClassification?.ToUpper() == DocumentCategory.BAIL)) &&
-            d.DocmDispositionDsc?.Equals(_cancelled, StringComparison.OrdinalIgnoreCase) != true)
+            (d.DocmDispositionDsc == null || !d.DocmDispositionDsc.Equals(_cancelled, StringComparison.OrdinalIgnoreCase)))
             .OrderByDescendingIssueDate()
             .FirstOrDefault();
 
