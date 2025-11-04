@@ -234,6 +234,7 @@ namespace Scv.Api.Services.Files
             var appearanceMethodsPopulatedTask = PopulateAppearanceMethods(appearanceMethods.AppearanceMethod);
             var justinCounselTask = PopulateAppearanceDetailJustinCounsel(criminalParticipant, attendanceMethods, appearanceMethods.AppearanceMethod);
             var chargesTask = PopulateCharges(appearanceCount.ApprCount, targetCourtList?.AppearanceCount, targetAppearance.AppearanceDt);
+            // Extract this out to it's own API call
             var documentsTask = _documentConverter.GetCriminalDocuments(accusedFile);
 
             await Task.WhenAll(appearanceMethodsPopulatedTask, justinCounselTask, chargesTask, documentsTask);
