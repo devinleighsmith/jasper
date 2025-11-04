@@ -170,20 +170,18 @@ namespace Scv.Api.Services.Files
         public async Task<CriminalAppearanceDetail> AppearanceDetailAsync(string fileId, string appearanceId, string partId)
         {
             async Task<CriminalFileDetailResponse> FileDetails() => await _filesClient.FilesCriminalGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
-            async Task<CriminalFileContent> FileContent() => await _filesClient.FilesCriminalFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
             async Task<CriminalFileAppearances> Appearances() => await PopulateDetailsAppearancesAsync(fileId, FutureYN.Y, HistoryYN.Y);
             async Task<CriminalFileAppearanceCountResponse> AppearanceCounts() => await _filesClient.FilesCriminalAppearanceCountsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
             async Task<CriminalFileAppearanceApprMethodResponse> AppearanceMethods() => await _filesClient.FilesCriminalAppearanceAppearancemethodsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
 
             var appearancesTask = _cache.GetOrAddAsync($"CriminalAppearancesFull-{fileId}-{_requestAgencyIdentifierId}", Appearances);
             var fileDetailTask = _cache.GetOrAddAsync($"CriminalFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
-            var fileContentTask = _cache.GetOrAddAsync($"CriminalFileContent-{fileId}-{_requestAgencyIdentifierId}", FileContent);
             var appearanceCountTask = _cache.GetOrAddAsync($"CriminalAppearanceCounts-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceCounts);
             var appearanceMethodsTask = _cache.GetOrAddAsync($"CriminalAppearanceMethods-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceMethods);
 
             // Wait for critical data needed for validation
             await Task.WhenAll(appearancesTask, fileDetailTask);
-            
+
             var appearances = appearancesTask.Result;
             var fileDetail = fileDetailTask.Result;
             var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
@@ -193,35 +191,33 @@ namespace Scv.Api.Services.Files
                 return null;
 
             var agencyIdTask = _locationService.GetLocationAgencyIdentifier(fileDetail.HomeLocationAgenId);
-            
+
             // Create court list task that starts as soon as agency ID is available
             var courtListTask = agencyIdTask.ContinueWith(async agencyTask =>
             {
                 var agencyId = await agencyTask;
                 if (agencyId == null) return null;
-                
+
                 async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, targetAppearance.AppearanceDt, "CR", detail.FileNumberTxt);
                 return await _cache.GetOrAddAsync($"CriminalCourtList-{agencyId}-{targetAppearance.CourtRoomCd}-{targetAppearance.AppearanceDt}-{fileDetail.FileNumberTxt}-{_requestAgencyIdentifierId}", CourtList);
             }, TaskContinuationOptions.OnlyOnRanToCompletion).Unwrap();
 
             // Wait for all tasks including the chained court list task
-            await Task.WhenAll(fileContentTask, appearanceCountTask, appearanceMethodsTask, courtListTask, agencyIdTask);
-            var fileContent = fileContentTask.Result;
+            await Task.WhenAll(appearanceCountTask, appearanceMethodsTask, courtListTask, agencyIdTask);
             var appearanceCount = appearanceCountTask.Result;
             var appearanceMethods = appearanceMethodsTask.Result;
             var courtList = courtListTask.Result;
             var agencyId = agencyIdTask.Result;
-            
+
             // Early exit if agency ID is null
             if (agencyId == null)
                 return null;
 
-            var accusedFile = fileContent?.AccusedFile?.FirstOrDefault(af => af.MdocJustinNo == fileId && af.PartId == partId);
             var criminalParticipant = detail?.Participant?.FirstOrDefault(p => p.PartId == partId);
-            
-            if (criminalParticipant == null || accusedFile == null)
+
+            if (criminalParticipant == null)
                 return null;
-            
+
             var targetCourtList = courtList?.CriminalCourtList?.FirstOrDefault(cl => cl.CriminalAppearanceID == appearanceId);
             var attendanceMethods = targetCourtList?.AttendanceMethod;
             var accused = new CriminalAccused
@@ -234,10 +230,8 @@ namespace Scv.Api.Services.Files
             var appearanceMethodsPopulatedTask = PopulateAppearanceMethods(appearanceMethods.AppearanceMethod);
             var justinCounselTask = PopulateAppearanceDetailJustinCounsel(criminalParticipant, attendanceMethods, appearanceMethods.AppearanceMethod);
             var chargesTask = PopulateCharges(appearanceCount.ApprCount, targetCourtList?.AppearanceCount, targetAppearance.AppearanceDt);
-            // TODO: Extract this out to it's own API call
-            var documentsTask = _documentConverter.GetCriminalDocuments(accusedFile);
 
-            await Task.WhenAll(appearanceMethodsPopulatedTask, justinCounselTask, chargesTask, documentsTask);
+            await Task.WhenAll(appearanceMethodsPopulatedTask, justinCounselTask, chargesTask);
 
             var appearanceDetail = new CriminalAppearanceDetail
             {
@@ -253,9 +247,26 @@ namespace Scv.Api.Services.Files
                 Accused = accused,
                 JustinCounsel = justinCounselTask.Result,
                 Charges = chargesTask.Result,
-                Documents = documentsTask.Result,
             };
             return appearanceDetail;
+        }
+        
+        public async Task<CriminalAppearanceDocuments> AppearanceDetailDocuments(string fileId, string partId)
+        {
+            async Task<CriminalFileContent> FileContent() => await _filesClient.FilesCriminalFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
+
+            var fileContent = await _cache.GetOrAddAsync($"CriminalFileContent-{fileId}-{_requestAgencyIdentifierId}", FileContent);
+            var accusedFile = fileContent?.AccusedFile?.FirstOrDefault(af => af.MdocJustinNo == fileId && af.PartId == partId);
+            
+            if (accusedFile == null)
+                return null;
+
+            var documentsResult = await _documentConverter.GetCriminalDocuments(accusedFile);
+
+            return new CriminalAppearanceDocuments
+            {
+                Documents = documentsResult,
+            };
         }
 
         #endregion

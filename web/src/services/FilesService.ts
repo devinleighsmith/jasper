@@ -4,7 +4,7 @@ import {
 } from '@/components/documents/models/GeneratePdf';
 import { CivilAppearanceDetails } from '@/types/civil/jsonTypes/index';
 import { CourtFileSearchResponse } from '@/types/courtFileSearch';
-import { CriminalAppearanceDetails } from '@/types/criminal/jsonTypes/index';
+import { CriminalAppearanceDetails, CriminalAppearanceDocuments } from '@/types/criminal/jsonTypes/index';
 import { HttpService } from './HttpService';
 
 export class FilesService {
@@ -48,6 +48,15 @@ export class FilesService {
   ): Promise<CriminalAppearanceDetails> {
     return this.httpService.get<any>(
       `${this.baseUrl}/criminal/${fileId}/appearance-detail/${appearanceId}/${partId}`
+    );
+  }
+
+  async criminalAppearanceDocuments(
+    fileId: string,
+    partId: string
+  ): Promise<CriminalAppearanceDocuments> {
+    return this.httpService.get<any>(
+      `${this.baseUrl}/criminal/${fileId}/appearance-detail/${partId}/documents`
     );
   }
 

@@ -20,6 +20,7 @@ using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Models.archive;
 using Scv.Api.Models.Civil.Detail;
+using Scv.Api.Models.Criminal.AppearanceDetail;
 using Scv.Api.Models.Criminal.Detail;
 using Scv.Api.Models.Document;
 using Scv.Api.Models.Search;
@@ -243,9 +244,8 @@ namespace Scv.Api.Controllers
         [Route("criminal/{fileId}/appearance-detail/{appearanceId}/{partId}")]
         public async Task<ActionResult<CriminalAppearanceDetail>> GetCriminalAppearanceDetails(string fileId, string appearanceId, string partId)
         {
-            var appearanceDetail = await _criminalFilesService.AppearanceDetailAsync(fileId, appearanceId, partId);
-            if (appearanceDetail == null)
-                throw new NotFoundException("Couldn't find appearance details with the provided parameters.");
+            var appearanceDetail = await _criminalFilesService.AppearanceDetailAsync(fileId, appearanceId, partId) 
+                ?? throw new NotFoundException("Couldn't find appearance details with the provided parameters.");
 
             // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
             // Only Provincial files can be accessed in JASPER
@@ -254,6 +254,25 @@ namespace Scv.Api.Controllers
 
 
             return Ok(appearanceDetail);
+        }
+
+        /// <summary>
+        /// Gets appearance documents regarding a given criminal file id, participant id.
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="partId"></param>
+        /// <returns>CriminalAppearanceDocuments</returns>
+        [HttpGet]
+        [Route("criminal/{fileId}/appearance-detail/{partId}/documents")]
+        public async Task<ActionResult<CriminalAppearanceDocuments>> GetCriminalAppearanceDocuments(string fileId, string partId)
+        {
+            var appearanceDocuments = await _criminalFilesService.AppearanceDetailDocuments(fileId, partId) 
+                ?? throw new NotFoundException("Couldn't find appearance documents with the provided parameters.");
+
+            if (User.IsSupremeUser())
+                return Forbid();
+
+            return Ok(appearanceDocuments);
         }
 
         /// <summary>
