@@ -217,7 +217,7 @@ namespace Scv.Api.Services.Files
                 return null;
 
             var accusedFile = fileContent?.AccusedFile?.FirstOrDefault(af => af.MdocJustinNo == fileId && af.PartId == partId);
-            var criminalParticipant = detail.Participant?.FirstOrDefault(p => p.PartId == partId);
+            var criminalParticipant = detail?.Participant?.FirstOrDefault(p => p.PartId == partId);
             
             if (criminalParticipant == null || accusedFile == null)
                 return null;
@@ -234,7 +234,7 @@ namespace Scv.Api.Services.Files
             var appearanceMethodsPopulatedTask = PopulateAppearanceMethods(appearanceMethods.AppearanceMethod);
             var justinCounselTask = PopulateAppearanceDetailJustinCounsel(criminalParticipant, attendanceMethods, appearanceMethods.AppearanceMethod);
             var chargesTask = PopulateCharges(appearanceCount.ApprCount, targetCourtList?.AppearanceCount, targetAppearance.AppearanceDt);
-            // Extract this out to it's own API call
+            // TODO: Extract this out to it's own API call
             var documentsTask = _documentConverter.GetCriminalDocuments(accusedFile);
 
             await Task.WhenAll(appearanceMethodsPopulatedTask, justinCounselTask, chargesTask, documentsTask);
