@@ -1,46 +1,46 @@
 <template>
-    <v-row v-if="details.appearanceMethods?.length">
-      <v-col>
-        <v-card title="Appearance Methods" variant="flat">
-          <v-card-text>
-            <CriminalAppearanceMethods :appearanceMethods="details.appearanceMethods" />
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-card title="Key Documents" variant="flat">
-      <v-skeleton-loader class="p-3" type="card" :max-height="125" :loading="documentsLoading">
-        <v-data-table-virtual
-          :items="documents.keyDocuments"
-          :headers
-          :sortBy
-          density="compact"
-          class="p-2"
-        >
-          <template v-slot:item.docmClassification="{ item }">
-            {{ formatDocumentCategory(item) }}
-          </template>
-          <template v-slot:item.docmFormDsc="{ item }">
-            <a
-              v-if="item.imageId"
-              href="javascript:void(0)"
-              @click="openDocument(item)"
-            >
-              {{ formatDocumentType(item) }}
-            </a>
-            <span v-else>
-              {{ formatDocumentType(item) }}
-            </span>
-            <div v-if="item.category?.toLowerCase() === 'bail'">
-              {{ item.docmDispositionDsc }}<span class="pl-2" />
-              {{ formatDateToDDMMMYYYY(item.issueDate) }}
-            </div>
-          </template>
-        </v-data-table-virtual>
-      </v-skeleton-loader>
-    </v-card>
-    <v-card title="Charges" variant="flat">
-      <v-skeleton-loader class="p-3" :max-height="125" type="card" :loading="detailsLoading">
+  <v-row v-if="details.appearanceMethods?.length">
+    <v-col>
+      <v-card title="Appearance Methods" variant="flat">
+        <v-card-text>
+          <CriminalAppearanceMethods :appearanceMethods="details.appearanceMethods" />
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
+  <v-card title="Key Documents" variant="flat">
+    <v-skeleton-loader class="p-3" type="card" :max-height="125" :loading="documentsLoading">
+      <v-data-table-virtual
+        :items="documents.keyDocuments"
+        :headers
+        :sortBy
+        density="compact"
+        class="p-2"
+      >
+        <template v-slot:item.docmClassification="{ item }">
+          {{ formatDocumentCategory(item) }}
+        </template>
+        <template v-slot:item.docmFormDsc="{ item }">
+          <a
+            v-if="item.imageId"
+            href="javascript:void(0)"
+            @click="openDocument(item)"
+          >
+            {{ formatDocumentType(item) }}
+          </a>
+          <span v-else>
+            {{ formatDocumentType(item) }}
+          </span>
+          <div v-if="item.category?.toLowerCase() === 'bail'">
+            {{ item.docmDispositionDsc }}<span class="pl-2" />
+            {{ formatDateToDDMMMYYYY(item.issueDate) }}
+          </div>
+        </template>
+      </v-data-table-virtual>
+    </v-skeleton-loader>
+  </v-card>
+  <v-card title="Charges" variant="flat">
+    <v-skeleton-loader class="p-3" :max-height="125" type="card" :loading="detailsLoading">
       <v-data-table-virtual
         :items="details.charges"
         :headers="chargeHeaders"
@@ -48,28 +48,28 @@
         density="compact"
         class="p-2"
       >
-          <template v-slot:item.lastResults="{ value, item }">
-            <v-tooltip :text="item.appearanceResultDesc" location="top">
-              <template v-slot:activator="{ props }">
-                <span v-bind="props" class="has-tooltip">{{ item.appearanceResultCd }}</span>
-              </template>
-            </v-tooltip>
-          </template>
-            <template v-slot:item.pleaCode="{ value, item }">
-              <v-row>
-                <v-col>
-                  {{ value }}
-                </v-col>
-              </v-row>
-              <v-row v-if="item.pleaDate" no-gutters>
-                <v-col>
-                  {{ formatDateInstanceToDDMMMYYYY(new Date(item.pleaDate)) }}
-                </v-col>
-              </v-row>
-          </template>
+        <template v-slot:item.lastResults="{ value, item }">
+          <v-tooltip :text="item.appearanceResultDesc" location="top">
+            <template v-slot:activator="{ props }">
+              <span v-bind="props" class="has-tooltip">{{ item.appearanceResultCd }}</span>
+            </template>
+          </v-tooltip>
+        </template>
+        <template v-slot:item.pleaCode="{ value, item }">
+          <v-row>
+            <v-col>
+              {{ value }}
+            </v-col>
+          </v-row>
+          <v-row v-if="item.pleaDate" no-gutters>
+            <v-col>
+              {{ formatDateInstanceToDDMMMYYYY(new Date(item.pleaDate)) }}
+            </v-col>
+          </v-row>
+        </template>
       </v-data-table-virtual>
-      </v-skeleton-loader>
-    </v-card>
+    </v-skeleton-loader>
+  </v-card>
 </template>
 
 <script setup lang="ts">
