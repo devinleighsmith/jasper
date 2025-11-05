@@ -270,7 +270,7 @@ it('does not render AppearanceMethods when no appearanceMethods', () => {
 
     // Should show loading initially
     expect(loadingWrapper.find('v-skeleton-loader').attributes('loading')).toBeDefined();
-    
+    expect(loadingWrapper.findAll('v-skeleton-loader').length).toBe(2);
     await flushPromises();
     await new Promise(resolve => setTimeout(resolve, 150));
     
