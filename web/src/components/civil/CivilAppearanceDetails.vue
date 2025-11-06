@@ -4,54 +4,57 @@
     <v-tab
       data-testid="binder-tab"
       v-if="showBinder"
-      :disabled="loading || !details || details.binderDocuments?.length === 0"
+      :disabled="documentsLoading || !documentDetails || documentDetails.binderDocuments?.length === 0"
       value="binder"
       >Judicial Binder</v-tab
     >
     <v-tab value="parties">Scheduled Parties</v-tab>
-    <v-tab value="methods" v-if="details.appearanceMethod?.length"
+    <v-tab value="methods" v-if="documentDetails.appearanceMethod?.length"
       >Appearance Methods</v-tab
     >
   </v-tabs>
 
   <v-card-text>
     <v-tabs-window v-model="tab">
-      <v-skeleton-loader
-        class="my-0"
-        type="table"
-        :height="200"
-        color="var(--bg-gray-200)"
-        :loading="loading"
-      >
         <v-tabs-window-item value="documents">
+          <v-skeleton-loader
+            class="my-0"
+            type="table"
+            :height="200"
+            color="var(--bg-gray-200)"
+            :loading="documentsLoading"
+          >
           <ScheduledDocuments
-            :documents="details.document"
+            :documents="documentDetails.document"
             :fileId
-            :fileNumberTxt="details.fileNumberTxt"
-            :courtLevel="details.courtLevelCd"
-            :agencyId="details.agencyId"
+            :fileNumberTxt="documentDetails.fileNumberTxt"
+            :courtLevel="documentDetails.courtLevelCd"
+            :agencyId="documentDetails.agencyId"
           />
+          </v-skeleton-loader>
         </v-tabs-window-item>
         <v-tabs-window-item v-if="showBinder" value="binder">
-          <JudicialBinder :documents="details.binderDocuments"
+          <JudicialBinder :documents="documentDetails.binderDocuments"
             :fileId
-            :fileNumberTxt="details.fileNumberTxt"
-            :courtLevel="details.courtLevelCd"
-            :agencyId="details.agencyId" />
+            :fileNumberTxt="documentDetails.fileNumberTxt"
+            :courtLevel="documentDetails.courtLevelCd"
+            :agencyId="documentDetails.agencyId" />
         </v-tabs-window-item>
 
         <v-tabs-window-item value="parties">
-          <ScheduledParties :parties="details.party" />
+          
+            <ScheduledParties :file-id="fileId" :appearance-id="appearanceId" />
+          
         </v-tabs-window-item>
         <v-tabs-window-item
-          v-if="details.appearanceMethod?.length"
+          v-if="methods.appearanceMethod?.length"
           value="methods"
         >
           <CivilAppearanceMethods
-            :appearanceMethod="details.appearanceMethod"
+            :appearanceMethod="methods.appearanceMethod"
           />
         </v-tabs-window-item>
-      </v-skeleton-loader>
+      
     </v-tabs-window>
   </v-card-text>
 </template>
@@ -77,30 +80,43 @@
 
   const filesService = inject<FilesService>('filesService');
   const tab = ref('documents');
-  const details = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
-  const loading = ref(false);
+  const documentDetails = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
+  const methods = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
+  const documentsLoading = ref(false);
 
   if (!filesService) {
     throw new Error('Files service is undefined.');
   }
 
   onMounted(async () => {
-    loading.value = true;
+    documentsLoading.value = true;
+    let methodResponse = {};
     try {
-      const response = await filesService.civilAppearanceDetails(
+      const documentsResponse = await filesService.civilAppearanceDocuments(
         props.fileId,
         props.appearanceId,
         true
       );
-      details.value = response;
+      documentDetails.value = documentsResponse;
+      documentsLoading.value = false;
+      // Dont await as we shouldnt hold up the UI for this
+      methodResponse = filesService.civilAppearanceMethods(
+        props.fileId,
+        props.appearanceId
+      ).then((methodResponse) => {
+        methods.value = methodResponse;
+      }).catch((e) => {
+      // Optionally handle error
+      console.error('Error occurred while retrieving appearance methods:', e);
+      });
     } catch (error) {
+      // Start fetching appearance methods in the background, don't await
       console.error(
         'Error occurred while retrieving appearance details:',
         error
       );
-      details.value = {} as CivilAppearanceDetails;
     } finally {
-      loading.value = false;
+      documentsLoading.value = false;
     }
   });
 </script>

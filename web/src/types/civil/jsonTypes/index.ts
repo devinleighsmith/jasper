@@ -192,11 +192,14 @@ export interface CivilAppearanceDetails {
   appearanceReasonCd: string;
   appearanceReasonDesc: string;
   adjudicator: Record<string, unknown>;
-  party: PartyDetails[];
   document: civilDocumentType[];
   binderDocuments: civilDocumentType[];
   appearanceMethod: Record<string, unknown>[];
   courtLevelCd: string;
+}
+
+export interface CivilAppearanceDetailParty {
+  party: PartyDetails[];
 }
 
 export interface civilFileDetailsType extends FileDetailsType {
