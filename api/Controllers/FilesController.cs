@@ -114,8 +114,9 @@ namespace Scv.Api.Controllers
         /// <returns>CivilAppearanceDetail</returns>
         [HttpGet]
         [Route("civil/{fileId}/appearance/{appearanceId}/documents")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDetails(string fileId, string appearanceId, bool includeJudicialBinder = false)
+        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDocuments(string fileId, string appearanceId, bool includeJudicialBinder = false)
         {
+            // What was this?
             // if (User.IsVcUser())
             // {
             //     if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
@@ -146,24 +147,13 @@ namespace Scv.Api.Controllers
         /// <returns>CivilAppearanceDetail</returns>
         [HttpGet]
         [Route("civil/{fileId}/appearance/{appearanceId}/party")]
-        public async Task<ActionResult<CivilAppearanceDetailParties>> GetCivilAppearanceDetailParty(string fileId, string appearanceId)
+        public async Task<ActionResult<CivilAppearanceDetailParties>> GetCivilAppearanceParty(string fileId, string appearanceId)
         {
-            // if (User.IsVcUser())
-            // {
-            //     if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
-            //         return Forbid();
-
-            //     var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-            //     if (civilFileDetailResponse?.PhysicalFileId == null)
-            //         throw new NotFoundException("Couldn't find civil file with this id.");
-            //     if (civilFileDetailResponse.SealedYN != "N")
-            //         return Forbid();
-            // }
+            if (User.IsSupremeUser())
+                return Forbid();
 
             var parties = await _civilFilesService.DetailedAppearanceParties(fileId, appearanceId)
                 ?? throw new NotFoundException("Couldn't find party details with the provided file id and appearance id.");
-            if (User.IsSupremeUser())
-                return Forbid();
 
             return Ok(parties);
         }
@@ -176,24 +166,13 @@ namespace Scv.Api.Controllers
         /// <returns>CivilAppearanceDetail</returns>
         [HttpGet]
         [Route("civil/{fileId}/appearance/{appearanceId}/methods")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDetailMethods(string fileId, string appearanceId)
+        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceMethods(string fileId, string appearanceId)
         {
-            // if (User.IsVcUser())
-            // {
-            //     if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
-            //         return Forbid();
-
-            //     var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-            //     if (civilFileDetailResponse?.PhysicalFileId == null)
-            //         throw new NotFoundException("Couldn't find civil file with this id.");
-            //     if (civilFileDetailResponse.SealedYN != "N")
-            //         return Forbid();
-            // }
+            if (User.IsSupremeUser())
+                return Forbid();
 
             var methods = await _civilFilesService.DetailedAppearanceMethods(fileId, appearanceId) 
                 ?? throw new NotFoundException("Couldn't find appearance methods with the provided file id and appearance id.");
-            if (User.IsSupremeUser())
-                return Forbid();
 
             return Ok(methods);
         }

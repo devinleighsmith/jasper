@@ -268,89 +268,24 @@ namespace Scv.Api.Services.Files
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
             async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
-            //async Task<CivilFileAppearancePartyResponse> AppearanceParty() => await _filesClient.FilesCivilAppearancePartiesAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
-            //async Task<CivilFileAppearanceApprMethodResponse> AppearanceMethods() => await _filesClient.FilesCivilAppearanceAppearancemethodsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
-            //async Task<CivilAppearanceResponse> Appearances() => await PopulateDetailAppearancesAsync(FutureYN.Y, HistoryYN.Y, fileId);
 
             var fileDetailTask = _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
-            // var appearancePartyTask = _cache.GetOrAddAsync($"CivilAppearanceParty-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceParty);
             var fileContentTask = _cache.GetOrAddAsync($"CivilFileContent-{fileId}-{_requestAgencyIdentifierId}", FileContent);
-            //var appearanceMethodsTask = _cache.GetOrAddAsync($"CivilAppearanceMethods-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceMethods);
-            //var appearancesTask = _cache.GetOrAddAsync($"CivilAppearancesFull-{fileId}-{_requestAgencyIdentifierId}", Appearances);
 
-            
-            
-            //var targetAppearance = appearancesTask.Result?.ApprDetail?.FirstOrDefault(app => app.AppearanceId == appearanceId);
-
-            //if (targetAppearance == null || fileDetailTask.Result == null)
-                //return null;
-
-            //Sometimes we can have a bogus location, querying court list wont work.
-            //ClCivilCourtList civilCourtList = null;
-            //var agencyId = await _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId);
-            // This is HUGE
-            // if (agencyId != null)
-            // {
-            //     async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, targetAppearance.AppearanceDt, "CV", detail.FileNumberTxt);
-            //     var courtListTask = _cache.GetOrAddAsync($"CivilCourtList-{agencyId}-{targetAppearance.CourtRoomCd}-{targetAppearance.AppearanceDt}-{detail.FileNumberTxt}-{_requestAgencyIdentifierId}", CourtList);
-            //     var courtList = await courtListTask;
-            //     civilCourtList = courtList.CivilCourtList.FirstOrDefault(cl => cl.AppearanceId == appearanceId);
-            // }
-
-            //await Task.WhenAll(appearanceMethodsTask);
-            //var appearanceMethods = appearanceMethodsTask.Result.AppearanceMethod;
-
-            //var appearanceDetail = appearancesTask.Result?.ApprDetail?.FirstOrDefault(app => app.AppearanceId == appearanceId);
             await Task.WhenAll(fileDetailTask, fileContentTask);
             var fileDetailDocuments = fileDetailTask.Result.Document.Where(doc => doc.Appearance != null && doc.Appearance.Any(app => app.AppearanceId == appearanceId)).ToList();
             var fileContentCivilFile = fileContentTask.Result?.CivilFile?.FirstOrDefault(cf => cf.PhysicalFileID == fileId);
-            //var previousAppearance = fileContentCivilFile?.PreviousAppearance.FirstOrDefault(pa => pa?.AppearanceId == appearanceId);
             var binderDocumentsTask = includeJudicialBinder ? PopulateBinderDocuments(fileDetailTask.Result, fileContentCivilFile) : Task.FromResult<IList<CivilDocument>>(new List<CivilDocument>());
             var documentsTask = PopulateDetailedAppearanceDocuments(fileDetailDocuments, isVcUser);
             var agencyIdTask = _locationService.GetLocationAgencyIdentifier(fileDetailTask.Result.HomeLocationAgenId);
             await Task.WhenAll(documentsTask, binderDocumentsTask, agencyIdTask);
-            // if (isVcUser)
-            // {
-            //     foreach (var document in documents)
-            //         document.CommentTxt = "";
-            // }
-
-            // Extract awaits to tasks
-            
-            //var appearanceReasonDescTask = _lookupService.GetCivilAppearanceReasonsDescription(appearanceDetail?.AppearanceReasonCd);
-            //var appearanceResultDescTask = _lookupService.GetCivilAppearanceResultsDescription(appearanceDetail?.AppearanceResultCd);
-            //var appearanceMethodTask = PopulateAppearanceMethods(appearanceMethods);
-            //var partyTask = PopulateDetailedAppearancePartiesAsync(appearancePartyTask.Result.Party, civilCourtList?.Parties, previousAppearance, appearanceMethods);
-            // var adjudicatorTask = PopulateDetailedAppearanceAdjudicator(previousAppearance, appearanceMethods);
-            
-
-            // await Task.WhenAll(
-            //     //agencyIdTask,
-            //     //appearanceReasonDescTask,
-            //     //appearanceResultDescTask,
-            //     //appearanceMethodTask,
-            //     //partyTask,
-            //     //adjudicatorTask,
-            //     binderDocumentsTask
-            // );
 
             var detailedAppearance = new CivilAppearanceDetail
             {
-                //PhysicalFileId = fileId,
                 AgencyId = agencyIdTask.Result,
                 AppearanceId = appearanceId,
-                //AppearanceResultCd = appearanceDetail?.AppearanceResultCd,
-                //AppearanceReasonCd = appearanceDetail?.AppearanceReasonCd,
-                //AppearanceReasonDesc = appearanceReasonDescTask.Result,
-                //AppearanceResultDesc = appearanceResultDescTask.Result,
-                //CourtRoomCd = targetAppearance.CourtRoomCd,
                 FileNumberTxt = fileDetailTask.Result.FileNumberTxt,
-                //AppearanceDt = targetAppearance.AppearanceDt,
-                //AppearanceMethod = appearanceMethodTask.Result,
-                //Party = [],
-                Document = documentsTask.Result, // needed
-                //Adjudicator = adjudicatorTask.Result,
-                //AdjudicatorComment = previousAppearance?.AdjudicatorComment,
+                Document = documentsTask.Result,
                 CourtLevelCd = fileDetailTask.Result.CourtLevelCd,
                 BinderDocuments = binderDocumentsTask.Result
             };
@@ -361,13 +296,11 @@ namespace Scv.Api.Services.Files
         public async Task<CivilAppearanceDetailParties> DetailedAppearanceParties(string fileId, string appearanceId)
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
-            //async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
             async Task<CivilFileAppearancePartyResponse> AppearanceParty() => await _filesClient.FilesCivilAppearancePartiesAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
             async Task<CivilAppearanceResponse> Appearances() => await PopulateDetailAppearancesAsync(FutureYN.Y, HistoryYN.Y, fileId);
 
             var fileDetailTask = _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
             var appearancePartyTask = _cache.GetOrAddAsync($"CivilAppearanceParty-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceParty);
-            //var fileContentTask = _cache.GetOrAddAsync($"CivilFileContent-{fileId}-{_requestAgencyIdentifierId}", FileContent);
             var appearancesTask = _cache.GetOrAddAsync($"CivilAppearancesFull-{fileId}-{_requestAgencyIdentifierId}", Appearances);
 
             await Task.WhenAll(fileDetailTask, appearancesTask, appearancePartyTask);
@@ -380,7 +313,7 @@ namespace Scv.Api.Services.Files
             //Sometimes we can have a bogus location, querying court list wont work.
             ClCivilCourtList civilCourtList = null;
             var agencyId = await _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId);
-            // This is HUGE
+            
             if (agencyId != null)
             {
                 async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, targetAppearance.AppearanceDt, "CV", detail.FileNumberTxt);
@@ -388,9 +321,6 @@ namespace Scv.Api.Services.Files
                 var courtList = await courtListTask;
                 civilCourtList = courtList.CivilCourtList.FirstOrDefault(cl => cl.AppearanceId == appearanceId);
             }
-
-            //var fileContentCivilFile = fileContentTask.Result?.CivilFile?.FirstOrDefault(cf => cf.PhysicalFileID == fileId);
-            //var previousAppearance = fileContentCivilFile?.PreviousAppearance.FirstOrDefault(pa => pa?.AppearanceId == appearanceId);
 
             var parties = await PopulateDetailedAppearancePartiesAsync(appearancePartyTask.Result.Party, civilCourtList?.Parties);
 
@@ -405,89 +335,15 @@ namespace Scv.Api.Services.Files
 
         public async Task<CivilAppearanceDetail> DetailedAppearanceMethods(string fileId, string appearanceId)
         {
-            //async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
-            //async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
-            //async Task<CivilFileAppearancePartyResponse> AppearanceParty() => await _filesClient.FilesCivilAppearancePartiesAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
             async Task<CivilFileAppearanceApprMethodResponse> AppearanceMethods() => await _filesClient.FilesCivilAppearanceAppearancemethodsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
-            //async Task<CivilAppearanceResponse> Appearances() => await PopulateDetailAppearancesAsync(FutureYN.Y, HistoryYN.Y, fileId);
 
-            //var fileDetailTask = _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
-            // var appearancePartyTask = _cache.GetOrAddAsync($"CivilAppearanceParty-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceParty);
-            //var fileContentTask = _cache.GetOrAddAsync($"CivilFileContent-{fileId}-{_requestAgencyIdentifierId}", FileContent);
             var appearanceMethods = await _cache.GetOrAddAsync($"CivilAppearanceMethods-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceMethods);
-            //var appearancesTask = _cache.GetOrAddAsync($"CivilAppearancesFull-{fileId}-{_requestAgencyIdentifierId}", Appearances);
 
-            //var appearanceMethod = await appearanceMethodsTask;
-            //var detail = fileDetailTask.Result;
-            //var targetAppearance = appearancesTask.Result?.ApprDetail?.FirstOrDefault(app => app.AppearanceId == appearanceId);
-
-            //if (targetAppearance == null || fileDetailTask.Result == null)
-                //return null;
-
-            //Sometimes we can have a bogus location, querying court list wont work.
-            //ClCivilCourtList civilCourtList = null;
-            //var agencyId = await _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId);
-            // This is HUGE
-            // if (agencyId != null)
-            // {
-            //     async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, targetAppearance.CourtRoomCd, targetAppearance.AppearanceDt, "CV", detail.FileNumberTxt);
-            //     var courtListTask = _cache.GetOrAddAsync($"CivilCourtList-{agencyId}-{targetAppearance.CourtRoomCd}-{targetAppearance.AppearanceDt}-{detail.FileNumberTxt}-{_requestAgencyIdentifierId}", CourtList);
-            //     var courtList = await courtListTask;
-            //     civilCourtList = courtList.CivilCourtList.FirstOrDefault(cl => cl.AppearanceId == appearanceId);
-            // }
-
-            //var appearanceMethods = appearanceMethod.AppearanceMethod;
-
-            //var appearanceDetail = appearancesTask.Result?.ApprDetail?.FirstOrDefault(app => app.AppearanceId == appearanceId);
-            //var fileDetailDocuments = fileDetailTask.Result.Document.Where(doc => doc.Appearance != null && doc.Appearance.Any(app => app.AppearanceId == appearanceId)).ToList();
-            //var fileContentCivilFile = fileContentTask.Result?.CivilFile?.FirstOrDefault(cf => cf.PhysicalFileID == fileId);
-            //var previousAppearance = fileContentCivilFile?.PreviousAppearance.FirstOrDefault(pa => pa?.AppearanceId == appearanceId);
-
-            // var documents = await PopulateDetailedAppearanceDocuments(fileDetailDocuments, isVcUser);
-            // if (isVcUser)
-            // {
-            //     foreach (var document in documents)
-            //         document.CommentTxt = "";
-            // }
-
-            // Extract awaits to tasks
-            //var agencyIdTask = _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId);
-            //var appearanceReasonDescTask = _lookupService.GetCivilAppearanceReasonsDescription(appearanceDetail?.AppearanceReasonCd);
-            //var appearanceResultDescTask = _lookupService.GetCivilAppearanceResultsDescription(appearanceDetail?.AppearanceResultCd);
-            //var appearanceMethodTask =;
-            //var partyTask = PopulateDetailedAppearancePartiesAsync(appearancePartyTask.Result.Party, civilCourtList?.Parties, previousAppearance, appearanceMethods);
-            // var adjudicatorTask = PopulateDetailedAppearanceAdjudicator(previousAppearance, appearanceMethods);
-            //var binderDocumentsTask = includeJudicialBinder ? PopulateBinderDocuments(detail, fileContentCivilFile) : Task.FromResult<IList<CivilDocument>>([]);
-
-            //await Task.WhenAll(
-                //agencyIdTask,
-                //appearanceReasonDescTask,
-                //appearanceResultDescTask,
-                //appearanceMethodTask,
-                //partyTask,
-                //adjudicatorTask,
-                //binderDocumentsTask
-            //);
 
             var detailedAppearance = new CivilAppearanceDetail
             {
-                //PhysicalFileId = fileId,
-                //AgencyId = agencyIdTask.Result,
-                //AppearanceId = appearanceId,
-                //AppearanceResultCd = appearanceDetail?.AppearanceResultCd,
-                //AppearanceReasonCd = appearanceDetail?.AppearanceReasonCd,
-                //AppearanceReasonDesc = appearanceReasonDescTask.Result,
-                //AppearanceResultDesc = appearanceResultDescTask.Result,
-                //CourtRoomCd = targetAppearance.CourtRoomCd,
-                //FileNumberTxt = detail.FileNumberTxt,
-                //AppearanceDt = targetAppearance.AppearanceDt,
+                AppearanceId = appearanceId,
                 AppearanceMethod =  await PopulateAppearanceMethods(appearanceMethods.AppearanceMethod),
-                //Party = [],
-                //Document = documents, // needed
-                //Adjudicator = adjudicatorTask.Result,
-                //AdjudicatorComment = previousAppearance?.AdjudicatorComment,
-                //CourtLevelCd = detail.CourtLevelCd,
-                //BinderDocuments = binderDocumentsTask.Result
             };
 
             return detailedAppearance;
@@ -731,7 +587,6 @@ namespace Scv.Api.Services.Files
         private async Task<ICollection<CivilAppearanceDetailParty>> PopulateDetailedAppearancePartiesAsync(ICollection<CivilAppearanceParty> parties,
             ICollection<ClParty> courtListParties)
         {
-            // Optimize this
             var resultParties = new List<CivilAppearanceDetailParty>();
             var tasks = new List<Task>();
             foreach (var partyGroup in parties.GroupBy(a => a.PartyId))
@@ -749,54 +604,11 @@ namespace Scv.Api.Services.Files
                     }).WhenAll();
                 }));
 
-                //Get information from appearanceMethods.
-                // if (civilAppearanceMethods.Any(am => party.PartyRole.Any(pr => pr.RoleTypeCd == am.RoleTypeCd)))
-                // {
-                //     party.AppearanceMethodCd = civilAppearanceMethods.First().AppearanceMethodCd;
-                //     party.AppearanceMethodDesc = await _lookupService.GetCivilAssetsDescription(civilAppearanceMethods.First().AppearanceMethodCd);
-                // }
-
-                //Get the additional information from court list.
                 var courtListParty = courtListParties?.FirstOrDefault(clp => clp.PartyId == partyGroup.Key);
                 if (courtListParty != null)
                 {
-                    //party.AttendanceMethodCd = courtListParty.AttendanceMethodCd;
-                    //party.AttendanceMethodDesc = await _lookupService.GetCivilAssetsDescription(party.AttendanceMethodCd);
                     party.Counsel = _mapper.Map<ICollection<CivilCounsel>>(courtListParty.Counsel);
-                    //party.Representative = _mapper.Map<ICollection<CivilRepresentative>>(courtListParty.Representative);
-                    // foreach (var representative in party.Representative)
-                    // {
-                    //     representative.AttendanceMethodDesc = await _lookupService.GetCivilAssetsDescription(representative.AttendanceMethodCd);
-                    // }
-                    //party.LegalRepresentative = courtListParty.LegalRepresentative;
                 }
-
-                //Add additional information from previous appearance - this comes from FileContent.
-                //if (previousAppearance?.CourtParticipant != null && previousAppearance.CourtParticipant.Any(cp => cp.PartId == party.PartyId))
-                //{
-                //Can be multiple rows here, but they repeat for the partyRole.
-                //var targetParticipant = previousAppearance.CourtParticipant.First(cp => cp.PartId == party.PartyId);
-                //party.PartyAppearanceMethod = targetParticipant.PartyAppearanceMethod;
-                //party.PartyAppearanceMethodDesc = await _lookupService.GetCivilPartyAttendanceType(targetParticipant.PartyAppearanceMethod);
-
-                //Update the counsel with their appearanceMethod.
-                // foreach (var counsel in targetParticipant.Counsel)
-                // {
-                //     //We match on counselName. 
-                //     //Not the best idea of matching data, but we aren't provided a counselId for Civil FileContent.  Although we are provided a counselId in FileDetails, CourtList. 
-                //     //TEST Environment - Civil Case 2151 - Appearance 9042, demonstrates this.
-
-                //     if (!counsel.AdditionalProperties.ContainsKey("counselName"))
-                //         continue;
-
-                //     var targetCounsel = party.Counsel?.FirstOrDefault(c => c.CounselFullName == counsel.CounselName);
-                //     if (targetCounsel == null)
-                //         continue;
-
-                //     targetCounsel.CounselAppearanceMethod = counsel.CounselAppearanceMethod;
-                //     targetCounsel.CounselAppearanceMethodDesc = await _lookupService.GetCivilCounselAttendanceType(targetCounsel.CounselAppearanceMethod);
-                // }
-                //}
 
                 resultParties.Add(party);
             }
@@ -806,24 +618,17 @@ namespace Scv.Api.Services.Files
 
         private async Task<IEnumerable<CivilAppearanceDocument>> PopulateDetailedAppearanceDocuments(List<CvfcDocument3> fileDetailDocuments, bool isVcUser)
         {
-            //CivilAppearanceDocument, doesn't include appearances.
-            var documents = _mapper.Map<IEnumerable<CivilAppearanceDocument>>(fileDetailDocuments);
-            documents = documents.Where(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd));
+            var documents = _mapper.Map<IEnumerable<CivilAppearanceDocument>>(fileDetailDocuments).ToList();
+            documents = [.. documents.Where(doc => !isVcUser || !_filterOutDocumentTypes.Contains(doc.DocumentTypeCd))];
             
-            if (!documents.Any())
+            if (documents.Count == 0)
                 return documents;
             
-            // Batch all unique document type codes for parallel lookup
             var uniqueDocumentTypeCds = documents.Select(d => d.DocumentTypeCd).Where(cd => !string.IsNullOrEmpty(cd)).Distinct();
-            
-            // Execute all lookups in parallel
             var categoryTasks = uniqueDocumentTypeCds.Select(async cd => new { Code = cd, Category = await _lookupService.GetDocumentCategory(cd) });
             var descriptionTasks = uniqueDocumentTypeCds.Select(async cd => new { Code = cd, Description = await _lookupService.GetDocumentDescriptionAsync(cd) });
-            
             var categoryResults = await Task.WhenAll(categoryTasks);
             var descriptionResults = await Task.WhenAll(descriptionTasks);
-            
-            // Create lookup dictionaries for fast access
             var categoryLookup = categoryResults.Where(r => !string.IsNullOrEmpty(r.Code)).ToDictionary(r => r.Code, r => r.Category ?? "");
             var descriptionLookup = descriptionResults.Where(r => !string.IsNullOrEmpty(r.Code)).ToDictionary(r => r.Code, r => r.Description ?? "");
             
@@ -837,12 +642,6 @@ namespace Scv.Api.Services.Files
                     ? descriptionLookup.GetValueOrDefault(document.DocumentTypeCd, "") 
                     : "";
                 document.ImageId = document.SealedYN != "N" ? null : document.ImageId;
-                
-                //foreach (var issue in document.Issue)
-                //{
-                    //issue.IssueTypeDesc = await _lookupService.GetCivilDocumentIssueType(issue.IssueTypeCd);
-                    //issue.IssueResultCdDesc = await _lookupService.GetCivilDocumentIssueResult(issue.IssueResultCd);
-                //}
             }
             
             return documents;

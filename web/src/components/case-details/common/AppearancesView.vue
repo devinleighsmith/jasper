@@ -62,6 +62,7 @@
               v-if="!isCriminal"
               :fileId="fileNumber"
               :appearanceId="item.appearanceId"
+              :showBinder="false"
             />
             <CriminalAppearanceDetails
               v-else
