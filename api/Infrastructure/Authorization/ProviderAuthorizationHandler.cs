@@ -81,7 +81,8 @@ namespace Scv.Api.Infrastructure.Authorization
                     nameof(FilesController.GetCivilCourtSummaryReport),
                     nameof(FilesController.GetDocument),
                     nameof(FilesController.GetArchive),
-                    nameof(FilesController.GetCivilAppearanceDetails)
+                    // What?
+                    // nameof(FilesController.GetCivilAppearanceDetails)
                 };
 
                 if (isFilesController && allowedActionsForVc.Contains(actionDescriptor.ActionName))

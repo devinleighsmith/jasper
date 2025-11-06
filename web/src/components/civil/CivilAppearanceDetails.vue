@@ -18,7 +18,7 @@
       Judicial Binder</v-tab
     >
     <v-tab value="parties">Scheduled Parties</v-tab>
-    <v-tab value="methods" v-if="documentDetails.appearanceMethod?.length"
+    <v-tab value="methods" v-if="methods.appearanceMethod?.length"
       >Appearance Methods</v-tab
     >
   </v-tabs>
@@ -73,13 +73,14 @@
   import ScheduledDocuments from '@/components/case-details/civil/appearances/ScheduledDocuments.vue';
   import ScheduledParties from '@/components/case-details/civil/appearances/ScheduledParties.vue';
   import { FilesService } from '@/services';
-  import { CivilAppearanceDetails } from '@/types/civil/jsonTypes';
+  import { CivilAppearanceDetailDocuments, CivilAppearanceDetailMethods } from '@/types/civil/jsonTypes';
   import { inject, onMounted, ref, computed } from 'vue';
   import { useCommonStore } from '@/stores';
   import { ApiResponse } from '@/types/ApiResponse';
   import { BinderService } from '@/services';
-  import { Binder, BinderDocument } from '@/types';
+  import { Binder } from '@/types';
   import JudicialBinder from '../case-details/civil/appearances/JudicialBinder.vue';
+  
   const props = withDefaults(
     defineProps<{
       fileId: string;
@@ -101,8 +102,8 @@
   }
   
   const tab = ref('documents');
-  const documentDetails = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
-  const methods = ref<CivilAppearanceDetails>({} as CivilAppearanceDetails);
+  const documentDetails = ref<CivilAppearanceDetailDocuments>({} as CivilAppearanceDetailDocuments);
+  const methods = ref<CivilAppearanceDetailMethods>({} as CivilAppearanceDetailMethods);
   const documentsLoading = ref(false);
   const binderLoading = ref(false);
   const currentBinder = ref<Binder>();

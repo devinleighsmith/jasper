@@ -199,7 +199,21 @@ export interface CivilAppearanceDetails {
 }
 
 export interface CivilAppearanceDetailParty {
+  appearanceId: string;
   party: PartyDetails[];
+}
+
+export interface CivilAppearanceDetailDocuments {
+  agencyId: string;
+  appearanceId: string;
+  fileNumberTxt: string;
+  courtLevelCd: string;
+  document: civilDocumentType[];
+}
+
+export interface CivilAppearanceDetailMethods {
+  appearanceId: string;
+  appearanceMethod: Record<string, unknown>[];
 }
 
 export interface civilFileDetailsType extends FileDetailsType {

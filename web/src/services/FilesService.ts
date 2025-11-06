@@ -2,7 +2,7 @@ import {
   GeneratePdfRequest,
   GeneratePdfResponse,
 } from '@/components/documents/models/GeneratePdf';
-import { CivilAppearanceDetails, CivilAppearanceDetailParty } from '@/types/civil/jsonTypes/index';
+import { CivilAppearanceDetailParty, CivilAppearanceDetailDocuments, CivilAppearanceDetailMethods } from '@/types/civil/jsonTypes/index';
 import { CourtFileSearchResponse } from '@/types/courtFileSearch';
 import { CriminalAppearanceDetails, CriminalAppearanceDocuments } from '@/types/criminal/jsonTypes/index';
 import { HttpService } from './HttpService';
@@ -35,7 +35,7 @@ export class FilesService {
     fileId: string,
     appearanceId: string,
     includeJudicialBinder: boolean = false
-  ): Promise<CivilAppearanceDetails> {
+  ): Promise<CivilAppearanceDetailDocuments> {
     return this.httpService.get<any>(
       `${this.baseUrl}/civil/${fileId}/appearance/${appearanceId}/documents?includeJudicialBinder=${includeJudicialBinder}`
     );
@@ -53,7 +53,7 @@ export class FilesService {
   async civilAppearanceMethods(
     fileId: string,
     appearanceId: string,
-  ): Promise<CivilAppearanceDetails> {
+  ): Promise<CivilAppearanceDetailMethods> {
     return this.httpService.get<any>(
       `${this.baseUrl}/civil/${fileId}/appearance/${appearanceId}/methods`
     );

@@ -110,11 +110,10 @@ namespace Scv.Api.Controllers
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="appearanceId"></param>
-        /// <param name="includeJudicialBinder">Flag to indicate whether the user's judicial binder will be included in the response.</param>
         /// <returns>CivilAppearanceDetail</returns>
         [HttpGet]
         [Route("civil/{fileId}/appearance/{appearanceId}/documents")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDocuments(string fileId, string appearanceId, bool includeJudicialBinder = false)
+        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDocuments(string fileId, string appearanceId)
         {
             // What was this?
             // if (User.IsVcUser())
@@ -129,7 +128,7 @@ namespace Scv.Api.Controllers
             //         return Forbid();
             // }
 
-            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId, User.IsVcUser(), includeJudicialBinder) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
+            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId, User.IsVcUser()) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
 
             // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
             // Only Provincial files can be accessed in JASPER

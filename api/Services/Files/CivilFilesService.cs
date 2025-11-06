@@ -264,30 +264,24 @@ namespace Scv.Api.Services.Files
             return detail;
         }
 
-        public async Task<CivilAppearanceDetail> DetailedAppearanceDocuments(string fileId, string appearanceId, bool isVcUser = false, bool includeJudicialBinder = false)
+        public async Task<CivilAppearanceDetailDocuments> DetailedAppearanceDocuments(string fileId, string appearanceId, bool isVcUser = false)
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
-            async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, null, null, null, null, fileId);
 
-            var fileDetailTask = _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
-            var fileContentTask = _cache.GetOrAddAsync($"CivilFileContent-{fileId}-{_requestAgencyIdentifierId}", FileContent);
-
-            await Task.WhenAll(fileDetailTask, fileContentTask);
-            var fileDetailDocuments = fileDetailTask.Result.Document.Where(doc => doc.Appearance != null && doc.Appearance.Any(app => app.AppearanceId == appearanceId)).ToList();
-            var fileContentCivilFile = fileContentTask.Result?.CivilFile?.FirstOrDefault(cf => cf.PhysicalFileID == fileId);
-            var binderDocumentsTask = includeJudicialBinder ? PopulateBinderDocuments(fileDetailTask.Result, fileContentCivilFile) : Task.FromResult<IList<CivilDocument>>(new List<CivilDocument>());
+            var fileDetail = await _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
+            var fileDetailDocuments = fileDetail.Document.Where(doc => doc.Appearance != null && doc.Appearance.Any(app => app.AppearanceId == appearanceId)).ToList();
             var documentsTask = PopulateDetailedAppearanceDocuments(fileDetailDocuments, isVcUser);
-            var agencyIdTask = _locationService.GetLocationAgencyIdentifier(fileDetailTask.Result.HomeLocationAgenId);
-            await Task.WhenAll(documentsTask, binderDocumentsTask, agencyIdTask);
+            var agencyIdTask = _locationService.GetLocationAgencyIdentifier(fileDetail.HomeLocationAgenId);
 
-            var detailedAppearance = new CivilAppearanceDetail
+            await Task.WhenAll(documentsTask, agencyIdTask);
+
+            var detailedAppearance = new CivilAppearanceDetailDocuments
             {
                 AgencyId = agencyIdTask.Result,
                 AppearanceId = appearanceId,
-                FileNumberTxt = fileDetailTask.Result.FileNumberTxt,
+                FileNumberTxt = fileDetail.FileNumberTxt,
                 Document = documentsTask.Result,
-                CourtLevelCd = fileDetailTask.Result.CourtLevelCd,
-                BinderDocuments = binderDocumentsTask.Result
+                CourtLevelCd = fileDetail.CourtLevelCd,
             };
 
             return detailedAppearance;
@@ -333,14 +327,13 @@ namespace Scv.Api.Services.Files
             return detailedParties;
         }
 
-        public async Task<CivilAppearanceDetail> DetailedAppearanceMethods(string fileId, string appearanceId)
+        public async Task<CivilAppearanceDetailMethods> DetailedAppearanceMethods(string fileId, string appearanceId)
         {
             async Task<CivilFileAppearanceApprMethodResponse> AppearanceMethods() => await _filesClient.FilesCivilAppearanceAppearancemethodsAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, appearanceId);
 
             var appearanceMethods = await _cache.GetOrAddAsync($"CivilAppearanceMethods-{fileId}-{appearanceId}-{_requestAgencyIdentifierId}", AppearanceMethods);
 
-
-            var detailedAppearance = new CivilAppearanceDetail
+            var detailedAppearance = new CivilAppearanceDetailMethods
             {
                 AppearanceId = appearanceId,
                 AppearanceMethod =  await PopulateAppearanceMethods(appearanceMethods.AppearanceMethod),
