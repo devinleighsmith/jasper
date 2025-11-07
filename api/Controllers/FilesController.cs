@@ -106,27 +106,27 @@ namespace Scv.Api.Controllers
         }
 
         /// <summary>
-        /// Gets detailed information regarding an appearance given civil file id and appearance id.
+        /// Gets detailed document information regarding an appearance given civil file id and appearance id.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="appearanceId"></param>
-        /// <returns>CivilAppearanceDetail</returns>
+        /// <returns>CivilAppearanceDetailDocuments</returns>
         [HttpGet]
         [Route("civil/{fileId}/appearance/{appearanceId}/documents")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDocuments(string fileId, string appearanceId)
+        public async Task<ActionResult<CivilAppearanceDetailDocuments>> GetCivilAppearanceDocuments(string fileId, string appearanceId)
         {
-            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
+            var civilAppearanceDocuments = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
 
             // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
             // Only Provincial files can be accessed in JASPER
-            if (User.IsSupremeUser() && civilAppearanceDetail.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.P)
+            if (User.IsSupremeUser() && civilAppearanceDocuments.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.P)
                 return Forbid();
 
-            return Ok(civilAppearanceDetail);
+            return Ok(civilAppearanceDocuments);
         }
 
         /// <summary>
-        /// Gets detailed information regarding an appearance given civil file id and appearance id.
+        /// Gets detailed party information regarding an appearance given civil file id and appearance id.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="appearanceId"></param>
@@ -145,7 +145,7 @@ namespace Scv.Api.Controllers
         }
         
         /// <summary>
-        /// Gets detailed information regarding an appearance given civil file id and appearance id.
+        /// Gets detailed method information regarding an appearance given civil file id and appearance id.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="appearanceId"></param>
