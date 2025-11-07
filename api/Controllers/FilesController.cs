@@ -115,19 +115,6 @@ namespace Scv.Api.Controllers
         [Route("civil/{fileId}/appearance/{appearanceId}/documents")]
         public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDocuments(string fileId, string appearanceId)
         {
-            // What was this?
-            // if (User.IsVcUser())
-            // {
-            //     if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
-            //         return Forbid();
-
-            //     var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-            //     if (civilFileDetailResponse?.PhysicalFileId == null)
-            //         throw new NotFoundException("Couldn't find civil file with this id.");
-            //     if (civilFileDetailResponse.SealedYN != "N")
-            //         return Forbid();
-            // }
-
             var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId, User.IsVcUser()) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
 
             // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
