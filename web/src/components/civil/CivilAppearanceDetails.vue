@@ -43,7 +43,7 @@
           </v-skeleton-loader>
         </v-tabs-window-item>
         <v-tabs-window-item v-if="showBinder" value="binder">
-          <JudicialBinder :documents="binderDocuments || []"
+          <JudicialBinder :documents="binderDocuments"
             :fileId
             :fileNumberTxt="documentDetails.fileNumberTxt"
             :courtLevel="documentDetails.courtLevelCd"
@@ -51,9 +51,7 @@
         </v-tabs-window-item>
 
         <v-tabs-window-item value="parties">
-          
-            <ScheduledParties :file-id="fileId" :appearance-id="appearanceId" />
-          
+          <ScheduledParties :file-id="fileId" :appearance-id="appearanceId" />
         </v-tabs-window-item>
         <v-tabs-window-item
           v-if="methods.appearanceMethod?.length"
@@ -80,7 +78,7 @@
   import { BinderService } from '@/services';
   import { Binder } from '@/types';
   import JudicialBinder from '../case-details/civil/appearances/JudicialBinder.vue';
-  
+
   const props = withDefaults(
     defineProps<{
       fileId: string;
@@ -124,8 +122,8 @@
       loadMethods();
       // Wait for documents to load as it is the main tab
       await loadDocuments();
-    } finally {
-
+    } catch (error) {
+      console.error('Error occurred while retrieving appearance details:', error);
     }
   });
 
