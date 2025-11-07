@@ -33,7 +33,7 @@
 <script setup lang="ts">
   import { onMounted, inject, ref } from 'vue';
   import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
-  import { CivilAppearanceDetailParty, PartyDetails } from '@/types/civil/jsonTypes/index';
+  import { CivilAppearanceDetailParty } from '@/types/civil/jsonTypes/index';
   import { Anchor } from '@/types/common';
   import { formatFromFullname } from '@/utils/utils';
   import { FilesService } from '@/services';
