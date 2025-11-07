@@ -19,6 +19,7 @@ using Scv.Api.Helpers.Exceptions;
 using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Models.archive;
+using Scv.Api.Models.Civil.AppearanceDetail;
 using Scv.Api.Models.Civil.Detail;
 using Scv.Api.Models.Criminal.AppearanceDetail;
 using Scv.Api.Models.Criminal.Detail;
@@ -105,38 +106,61 @@ namespace Scv.Api.Controllers
         }
 
         /// <summary>
-        /// Gets detailed information regarding an appearance given civil file id and appearance id.
+        /// Gets detailed document information regarding an appearance given civil file id and appearance id.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="appearanceId"></param>
-        /// <param name="includeJudicialBinder">Flag to indicate whether the user's judicial binder will be included in the response.</param>
-        /// <returns>CivilAppearanceDetail</returns>
+        /// <returns>CivilAppearanceDetailDocuments</returns>
         [HttpGet]
-        [Route("civil/{fileId}/appearance-detail/{appearanceId}")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDetails(string fileId, string appearanceId, bool includeJudicialBinder = false)
+        [Route("civil/{fileId}/appearance/{appearanceId}/documents")]
+        public async Task<ActionResult<CivilAppearanceDetailDocuments>> GetCivilAppearanceDocuments(string fileId, string appearanceId)
         {
-            if (User.IsVcUser())
-            {
-                if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, fileId))
-                    return Forbid();
-
-                var civilFileDetailResponse = await _civilFilesService.FileIdAsync(fileId, User.IsVcUser(), User.IsStaff());
-                if (civilFileDetailResponse?.PhysicalFileId == null)
-                    throw new NotFoundException("Couldn't find civil file with this id.");
-                if (civilFileDetailResponse.SealedYN != "N")
-                    return Forbid();
-            }
-
-            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceAsync(fileId, appearanceId, User.IsVcUser(), includeJudicialBinder);
-            if (civilAppearanceDetail == null)
-                throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
+            var civilAppearanceDocuments = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
 
             // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
             // Only Provincial files can be accessed in JASPER
-            if (User.IsSupremeUser() && civilAppearanceDetail.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.P)
+            if (User.IsSupremeUser() && civilAppearanceDocuments.CourtLevelCd != CivilFileDetailResponseCourtLevelCd.P)
                 return Forbid();
 
-            return Ok(civilAppearanceDetail);
+            return Ok(civilAppearanceDocuments);
+        }
+
+        /// <summary>
+        /// Gets detailed party information regarding an appearance given civil file id and appearance id.
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="appearanceId"></param>
+        /// <returns>CivilAppearanceDetail</returns>
+        [HttpGet]
+        [Route("civil/{fileId}/appearance/{appearanceId}/party")]
+        public async Task<ActionResult<CivilAppearanceDetailParties>> GetCivilAppearanceParty(string fileId, string appearanceId)
+        {
+            if (User.IsSupremeUser())
+                return Forbid();
+
+            var parties = await _civilFilesService.DetailedAppearanceParties(fileId, appearanceId)
+                ?? throw new NotFoundException("Couldn't find party details with the provided file id and appearance id.");
+
+            return Ok(parties);
+        }
+        
+        /// <summary>
+        /// Gets detailed method information regarding an appearance given civil file id and appearance id.
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="appearanceId"></param>
+        /// <returns>CivilAppearanceDetail</returns>
+        [HttpGet]
+        [Route("civil/{fileId}/appearance/{appearanceId}/methods")]
+        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceMethods(string fileId, string appearanceId)
+        {
+            if (User.IsSupremeUser())
+                return Forbid();
+
+            var methods = await _civilFilesService.DetailedAppearanceMethods(fileId, appearanceId) 
+                ?? throw new NotFoundException("Couldn't find appearance methods with the provided file id and appearance id.");
+
+            return Ok(methods);
         }
 
         /// <summary>
