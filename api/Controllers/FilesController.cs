@@ -115,7 +115,7 @@ namespace Scv.Api.Controllers
         [Route("civil/{fileId}/appearance/{appearanceId}/documents")]
         public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceDocuments(string fileId, string appearanceId)
         {
-            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId, User.IsVcUser()) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
+            var civilAppearanceDetail = await _civilFilesService.DetailedAppearanceDocuments(fileId, appearanceId) ?? throw new NotFoundException("Couldn't find appearance detail with the provided file id and appearance id.");
 
             // CourtLevel = "S"  Supreme court data, CourtLevel = "P" - Province.
             // Only Provincial files can be accessed in JASPER

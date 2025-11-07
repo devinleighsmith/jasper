@@ -70,12 +70,11 @@
   import CivilAppearanceMethods from '@/components/case-details/civil/appearances/CivilAppearanceMethods.vue';
   import ScheduledDocuments from '@/components/case-details/civil/appearances/ScheduledDocuments.vue';
   import ScheduledParties from '@/components/case-details/civil/appearances/ScheduledParties.vue';
-  import { FilesService } from '@/services';
+  import { FilesService, BinderService } from '@/services';
   import { CivilAppearanceDetailDocuments, CivilAppearanceDetailMethods } from '@/types/civil/jsonTypes';
   import { inject, onMounted, ref, computed } from 'vue';
   import { useCommonStore } from '@/stores';
   import { ApiResponse } from '@/types/ApiResponse';
-  import { BinderService } from '@/services';
   import { Binder } from '@/types';
   import JudicialBinder from '../case-details/civil/appearances/JudicialBinder.vue';
 

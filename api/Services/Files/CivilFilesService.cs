@@ -207,9 +207,9 @@ namespace Scv.Api.Services.Files
                 return null;
 
             var detail = _mapper.Map<RedactedCivilFileDetailResponse>(fileDetailTask.Result);
-            foreach (var document in PopulateDetailCsrsDocuments(fileDetailTask.Result.Appearance))
-                if (!isVcUser)
-                    detail.Document.Add(document);
+            var csrDocuments = PopulateDetailCsrsDocuments(fileDetailTask.Result.Appearance).Where(_ => !isVcUser);
+            foreach (var document in csrDocuments)
+                detail.Document.Add(document);
 
             detail = await PopulateBaseDetail(detail);
             detail.Appearances = appearancesTask.Result;
@@ -264,13 +264,13 @@ namespace Scv.Api.Services.Files
             return detail;
         }
 
-        public async Task<CivilAppearanceDetailDocuments> DetailedAppearanceDocuments(string fileId, string appearanceId, bool isVcUser = false)
+        public async Task<CivilAppearanceDetailDocuments> DetailedAppearanceDocuments(string fileId, string appearanceId)
         {
             async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, fileId);
 
             var fileDetail = await _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{_requestAgencyIdentifierId}", FileDetails);
             var fileDetailDocuments = fileDetail.Document.Where(doc => doc.Appearance != null && doc.Appearance.Any(app => app.AppearanceId == appearanceId)).ToList();
-            var documentsTask = PopulateDetailedAppearanceDocuments(fileDetailDocuments, isVcUser);
+            var documentsTask = PopulateDetailedAppearanceDocuments(fileDetailDocuments, false);
             var agencyIdTask = _locationService.GetLocationAgencyIdentifier(fileDetail.HomeLocationAgenId);
 
             await Task.WhenAll(documentsTask, agencyIdTask);
@@ -651,7 +651,7 @@ namespace Scv.Api.Services.Files
             };
 
             var binders = await _binderService.GetByLabels(labels);
-            //return [];
+            
             if (!binders.Succeeded || binders.Payload.Count == 0)
             {
                 return [];
