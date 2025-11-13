@@ -170,6 +170,7 @@
           profSeqNo: participant.profSeqNo,
           id:
             doc.category +
+            doc.issueDate +
             participant.fullName +
             doc.partId +
             participant.profSeqNo,
