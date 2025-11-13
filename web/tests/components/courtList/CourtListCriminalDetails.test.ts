@@ -31,7 +31,7 @@ describe('CourtListCriminalDetails.vue', () => {
         {
           issueDate: '2024-06-01',
           docmFormDsc: 'Form A',
-          docmDispositionDsc: 'Disposition',
+          docmDispositionDsc: 'Perfected',
           docmClassification: 'Type 1',
           documentPageCount: 3,
           category: 'bail',
@@ -152,7 +152,7 @@ it('does not render AppearanceMethods when no appearanceMethods', () => {
 
     await flushPromises();
 
-    expect(wrapper.text()).toContain('Disposition');
+    expect(wrapper.text()).toContain('Perfected');
     expect(wrapper.text()).toContain('01-Jun-2024');
   });
 

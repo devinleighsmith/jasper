@@ -31,20 +31,20 @@ public static class KeyDocumentResolver
 
         // Get most recent PSR document
         var psrDoc = documents
-            .Where(d => (d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) == DocumentCategory.PSR)
+            .Where(d => (d.Category?.ToUpper()) == DocumentCategory.PSR)
             .OrderByDescendingIssueDate()
             .FirstOrDefault();
 
         // Get other key documents (excluding PSR)
         var otherKeyDocs = documents
             .Where(d =>
-            DocumentCategory.KEY_DOCUMENT_CATEGORIES.Contains(d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) &&
-            (d.Category?.ToUpper() ?? d.DocmClassification?.ToUpper()) != DocumentCategory.PSR);
+            DocumentCategory.KEY_DOCUMENT_CATEGORIES.Contains(d.Category?.ToUpper()) &&
+            (d.Category?.ToUpper()) != DocumentCategory.PSR);
 
         // Get most recent uncancelled bail document
         var bailDoc = documents
             .Where(d =>
-            ((d.Category?.ToUpper() == DocumentCategory.BAIL) || (d.DocmClassification?.ToUpper() == DocumentCategory.BAIL)) &&
+            (d.Category?.ToUpper() == DocumentCategory.BAIL) &&
             (d.DocmDispositionDsc == null || !d.DocmDispositionDsc.Equals(_cancelled, StringComparison.OrdinalIgnoreCase)))
             .OrderByDescendingIssueDate()
             .FirstOrDefault();

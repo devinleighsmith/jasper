@@ -75,24 +75,6 @@ public class KeyDocumentResolverTest
     }
 
     [Fact]
-    public void GetCriminalKeyDocuments_HandlesNullCategoryAndClassification()
-    {
-        var documents = new List<CriminalDocument>
-        {
-            new() { Category = null, DocmClassification = DocumentCategory.ROP, IssueDate = "2024-01-01" },
-            new() { Category = null, DocmClassification = DocumentCategory.BAIL, DocmDispositionDsc = "Active", IssueDate = "2024-01-02" }
-        };
-
-        var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
-
-        Assert.NotNull(result);
-        var resultList = result.ToList();
-        Assert.Equal(2, resultList.Count);
-        Assert.Contains(resultList, d => d.DocmClassification == DocumentCategory.ROP);
-        Assert.Contains(resultList, d => d.DocmClassification == DocumentCategory.BAIL && d.DocmDispositionDsc == "Active");
-    }
-
-    [Fact]
     public void GetCriminalKeyDocuments_ReturnsLatestPsrDocument_WhenMultiplePsrsExist()
     {
         var documents = new List<CriminalDocument>
@@ -108,11 +90,11 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
-        
+
         var psrDocument = resultList.FirstOrDefault(d => d.Category == DocumentCategory.PSR);
         Assert.NotNull(psrDocument);
         Assert.Equal("2024-01-03", psrDocument.IssueDate);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
     }
 
@@ -133,7 +115,7 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(4, resultList.Count);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.PSR);
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         Assert.Contains(resultList, d => d.Category == DocumentCategory.INITIATING);
@@ -158,38 +140,14 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(3, resultList.Count); // Only 1 PSR (most recent) + ROP + INITIATING
-        
+
         // Should have only the most recent PSR
         var psrDocuments = resultList.Where(d => d.Category == DocumentCategory.PSR).ToList();
         Assert.Single(psrDocuments);
         Assert.Equal("2024-01-05", psrDocuments[0].IssueDate);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         Assert.Contains(resultList, d => d.Category == DocumentCategory.INITIATING);
-    }
-
-    [Fact]
-    public void GetCriminalKeyDocuments_FindsPsrUsingDocmClassification_WhenCategoryIsNull()
-    {
-        var documents = new List<CriminalDocument>
-        {
-            new() { Category = null, DocmClassification = DocumentCategory.PSR, IssueDate = "2024-01-01" },
-            new() { Category = null, DocmClassification = DocumentCategory.PSR, IssueDate = "2024-01-03" }, // Most recent
-            new() { Category = DocumentCategory.ROP, IssueDate = "2024-01-02" }
-        };
-
-        var result = KeyDocumentResolver.GetCriminalKeyDocuments(documents);
-
-        Assert.NotNull(result);
-        var resultList = result.ToList();
-        Assert.Equal(2, resultList.Count);
-        
-        var psrDocument = resultList.FirstOrDefault(d => d.DocmClassification == DocumentCategory.PSR);
-        Assert.NotNull(psrDocument);
-        Assert.Equal("2024-01-03", psrDocument.IssueDate); // Should be the most recent
-        Assert.Null(psrDocument.Category);
-        
-        Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
     }
 
     [Fact]
@@ -207,7 +165,7 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(3, resultList.Count);
-        
+
         Assert.DoesNotContain(resultList, d => d.Category == DocumentCategory.PSR || d.DocmClassification == DocumentCategory.PSR);
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         Assert.Contains(resultList, d => d.Category == DocumentCategory.INITIATING);
@@ -230,7 +188,7 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         Assert.Contains(resultList, d => d.Category == DocumentCategory.BAIL && d.DocmDispositionDsc == "Active");
         Assert.DoesNotContain(resultList, d => d.DocmDispositionDsc?.ToUpper() == "CANCELLED");
@@ -251,7 +209,7 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Single(resultList);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         Assert.DoesNotContain(resultList, d => d.Category == DocumentCategory.BAIL);
     }
@@ -272,7 +230,7 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         var bailDocument = resultList.FirstOrDefault(d => d.Category == DocumentCategory.BAIL);
         Assert.NotNull(bailDocument);
@@ -295,7 +253,7 @@ public class KeyDocumentResolverTest
         Assert.NotNull(result);
         var resultList = result.ToList();
         Assert.Equal(2, resultList.Count);
-        
+
         Assert.Contains(resultList, d => d.Category == DocumentCategory.ROP);
         var bailDocument = resultList.FirstOrDefault(d => d.Category == DocumentCategory.BAIL);
         Assert.NotNull(bailDocument);
