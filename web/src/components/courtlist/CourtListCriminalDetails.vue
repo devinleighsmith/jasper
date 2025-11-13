@@ -31,7 +31,10 @@
           <span v-else>
             {{ formatDocumentType(item) }}
           </span>
-          <div v-if="item.category?.toLowerCase() === 'bail'">
+          <div v-if="
+            item.category?.toLowerCase() === 'bail' &&
+            item.docmDispositionDsc?.toLowerCase() === 'perfected'
+          ">
             {{ item.docmDispositionDsc }}<span class="pl-2" />
             {{ formatDateToDDMMMYYYY(item.issueDate) }}
           </div>

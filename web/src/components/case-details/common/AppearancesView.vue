@@ -205,6 +205,8 @@
       title: 'DATE',
       key: 'appearanceDt',
       value: (item) => formatDateToDDMMMYYYY(item.appearanceDt),
+      sortRaw: (a: ApprDetailType, b: ApprDetailType) =>
+        new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
     },
     { title: 'REASON', key: 'appearanceReasonCd' },
     {
