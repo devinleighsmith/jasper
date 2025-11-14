@@ -60,7 +60,6 @@
   import ProfileOffCanvas from './components/shared/ProfileOffCanvas.vue';
   import Snackbar from './components/shared/Snackbar.vue';
   import { DashboardService } from './services';
-  import { useCommonStore } from './stores/CommonStore';
   import { useDarsStore } from './stores/DarsStore';
   import { useThemeStore } from './stores/ThemeStore';
   import { PersonSearchItem } from './types';
