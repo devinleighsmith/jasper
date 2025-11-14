@@ -38,7 +38,7 @@
   
   const commonStore = useCommonStore();
   const judgeName = ref<string>(
-    commonStore.userInfo?.name || ''
+    commonStore.userInfo?.judgeName || ''
   );
 
   function toggleDark() {
@@ -51,7 +51,7 @@
       if (!newUserInfo) {
         return;
       }
-      judgeName.value = newUserInfo.name;
+      judgeName.value = newUserInfo.judgeName || '';
     }
   );
 </script>

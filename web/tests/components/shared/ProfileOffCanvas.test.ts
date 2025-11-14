@@ -12,7 +12,7 @@ vi.mock('SRC/stores/ThemeStore', () => ({
 
 vi.mock('@/stores', () => ({
   useCommonStore: () => ({
-    userInfo: { name: 'Josh'  },
+    userInfo: { judgeName: 'Judge Josh'  },
   }),
 }));
 
@@ -28,7 +28,7 @@ describe('ProfileOffCanvas.vue', () => {
   });
 
   it('displays user name from store', () => {
-    expect(wrapper.html()).toContain('Josh');
+    expect(wrapper.html()).toContain('Judge Josh');
   });
 
   // Unable to dive deeper into slotted append/prepend components

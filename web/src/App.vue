@@ -94,7 +94,7 @@
   );
 
   const judgeName = ref<string>(
-    commonStore.userInfo?.name || ''
+    commonStore.userInfo?.judgeName || ''
   );
 
   watch(
@@ -103,7 +103,7 @@
       if (!newUserInfo) {
         return;
       }
-      judgeName.value = newUserInfo.name;
+      judgeName.value = newUserInfo.judgeName || '';
     }
   );
 
