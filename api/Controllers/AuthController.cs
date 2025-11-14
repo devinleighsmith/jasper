@@ -134,7 +134,7 @@ namespace Scv.Api.Controllers
                 JudgeId = HttpContext.User.JudgeId(),
                 JudgeHomeLocationId = HttpContext.User.JudgeHomeLocationId(),
                 Email = HttpContext.User.Email(),
-                Name = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "name")?.Value,
+                Name = HttpContext.User.FullName(),
                 IsActive = HttpContext.User.IsActive(),
                 DateTime.UtcNow
             }));
