@@ -109,9 +109,6 @@
       judgeName.value = newUserInfo.judgeName || '';
     }
   );
-  
-    // DARS modal state
-  const showDarsModal = ref(false);
 </script>
 
 <style>
