@@ -13,7 +13,7 @@ namespace Scv.Api.Services
 {
     public interface IDarsService
     {
-        Task<IEnumerable<DarsSearchResults>> DarsApiSearch(DateTime date, int locationId, string courtRoomCd);
+        Task<IEnumerable<DarsSearchResults>> DarsApiSearch(DateTime date, string agencyIdentifierCd, string courtRoomCd);
     }
     public class DarsService(
         IConfiguration configuration,
@@ -27,11 +27,25 @@ namespace Scv.Api.Services
 
         #endregion Variables
 
-        public async Task<IEnumerable<DarsSearchResults>> DarsApiSearch(DateTime date, int locationId, string courtRoomCd)
+        public async Task<IEnumerable<DarsSearchResults>> DarsApiSearch(DateTime date, string agencyIdentifierCd, string courtRoomCd)
         {
-            logger.LogInformation("DarsApiSearch called for LocationId: {LocationId}, CourtRoomCd: {CourtRoomCd}, Date: {Date}", locationId, courtRoomCd, date.ToString("yyyy-MM-dd"));
-            var darsResult = await logNotesServicesClient.GetBaseAsync(room: courtRoomCd, datetime: date, location: locationId);
-            logger.LogInformation("DarsApiSearch returned {ResultCount} results for LocationId: {LocationId}, CourtRoomCd: {CourtRoomCd}, Date: {Date}", darsResult?.Count() ?? 0, locationId, courtRoomCd, date.ToString("yyyy-MM-dd"));
+            logger.LogInformation("DarsApiSearch called for AgencyIdentifierCd: {AgencyIdentifierCd}, CourtRoomCd: {CourtRoomCd}, Date: {Date}", agencyIdentifierCd, courtRoomCd, date.ToString("yyyy-MM-dd"));
+
+            if (agencyIdentifierCd == null)
+            {
+                logger.LogWarning("Location not found for AgencyIdentifierCd: {AgencyIdentifierCd}", agencyIdentifierCd);
+                return [];
+            }
+
+            if (!int.TryParse(agencyIdentifierCd, out var agencyIdentifier))
+            {
+                logger.LogWarning("Unable to parse agencyIdentifierCd '{AgencyIdentifierCd}'", agencyIdentifierCd);
+                return [];
+            }
+
+            var darsResult = await logNotesServicesClient.GetBaseAsync(room: courtRoomCd, datetime: date, location: agencyIdentifier);
+            logger.LogInformation("DarsApiSearch returned {ResultCount} results for AgencyIdentifier: {AgencyIdentifier}, CourtRoomCd: {CourtRoomCd}, Date: {Date}", 
+                darsResult?.Count ?? 0, agencyIdentifier, courtRoomCd, date.ToString("yyyy-MM-dd"));
             var mappedResults = mapper.Map<IEnumerable<DarsSearchResults>>(darsResult).ToList();
 
             // Use LINQ's Select to append the base URL to each result's Url property
