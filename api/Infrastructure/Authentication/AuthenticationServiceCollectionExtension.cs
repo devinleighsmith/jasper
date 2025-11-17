@@ -136,7 +136,7 @@ namespace Scv.Api.Infrastructure.Authentication
                             !CustomClaimTypes.UsedKeycloakClaimTypes.Contains(c.Type)))
                             identity.RemoveClaim(claim);
 
-                        var applicationCode = "SCV";
+                        var applicationCode = "JASPER";
                         var partId = configuration.GetNonEmptyValue("Request:PartId");
                         var agencyId = configuration.GetNonEmptyValue("Request:AgencyIdentifierId");
                         var isSupremeUser = false;

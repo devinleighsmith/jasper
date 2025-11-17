@@ -70,10 +70,11 @@ public class JudicialBinderProcessor : BinderProcessorBase
 
         var courtSummaryIds = fileDetail.Appearance.Select(a => a.AppearanceId);
         var civilDocIds = fileDetail.Document.Select(d => d.CivilDocumentId);
+        var referenceDocIds = fileDetail.ReferenceDocument.Select(r => r.ReferenceDocumentId);
 
-        // Validate that all document ids from Dto exist in Civil Case Detail documents
+        // Validate that all document ids from Dto exist in Civil Case Detail documents or reference documents
         var docIdsFromDto = this.Binder.Documents.Select(d => d.DocumentId);
-        if (!docIdsFromDto.All(id => courtSummaryIds.Concat(civilDocIds).Contains(id)))
+        if (!docIdsFromDto.All(id => courtSummaryIds.Concat(civilDocIds).Concat(referenceDocIds).Contains(id)))
         {
             errors.Add("Found one or more invalid Document IDs.");
         }

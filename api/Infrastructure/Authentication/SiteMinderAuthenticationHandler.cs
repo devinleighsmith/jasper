@@ -107,7 +107,7 @@ namespace Scv.Api.Infrastructure.Authentication
                     Logger.LogDebug("JCUserServce Response is valid");
                 }
 
-                applicationCode = "SCV";
+                applicationCode = "JASPER";
                 participantId = jcUserInfo.PartID;
                 agencyCode = jcUserInfo.AgenID;
                 role = jcUserInfo.RoleCd;
