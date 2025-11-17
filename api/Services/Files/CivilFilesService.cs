@@ -475,22 +475,19 @@ namespace Scv.Api.Services.Files
             }
 
             // We add in reference documents alongside other documents since JASPER treats them the same
-            foreach (var refDoc in detail.ReferenceDocument)
+            foreach (var refDoc in detail.ReferenceDocument.Where(refDoc => refDoc != null))
             {
-                if (refDoc != null)
-                {
-                    var referenceDoc = new CivilDocument
-                        {
-                            Appearance = null,
-                            CivilDocumentId = refDoc.ReferenceDocumentId,
-                            DocumentTypeCd = refDoc.ReferenceDocumentTypeCd,
-                            DocumentTypeDescription = refDoc.ReferenceDocumentTypeDsc,
-                            Category = "Reference",
-                            ImageId = refDoc.ObjectGuid,
-                            FiledDt = refDoc.EnterDtm,
-                        };
-                        detail.Document.Add(referenceDoc);
-                }
+                var referenceDoc = new CivilDocument
+                    {
+                        Appearance = null,
+                        CivilDocumentId = refDoc.ReferenceDocumentId,
+                        DocumentTypeCd = refDoc.ReferenceDocumentTypeCd,
+                        DocumentTypeDescription = refDoc.ReferenceDocumentTypeDsc,
+                        Category = "Reference",
+                        ImageId = refDoc.ObjectGuid,
+                        FiledDt = refDoc.EnterDtm,
+                    };
+                detail.Document.Add(referenceDoc);
             }
             return detail.Document;
         }
