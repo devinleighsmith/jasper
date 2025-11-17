@@ -12,7 +12,7 @@ vi.mock('SRC/stores/ThemeStore', () => ({
 
 vi.mock('@/stores', () => ({
   useCommonStore: () => ({
-    userInfo: { judgeName: 'Judge Josh'  },
+    userInfo: { userTitle: 'Judge Josh'  },
   }),
 }));
 

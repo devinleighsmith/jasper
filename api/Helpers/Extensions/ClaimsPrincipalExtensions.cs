@@ -85,9 +85,14 @@ namespace Scv.Api.Helpers.Extensions
             claimsPrincipal.FindFirstValue("given_name");
 
         public static string UserType(this ClaimsPrincipal claimsPrincipal)
-            => claimsPrincipal.IsIdirUser() ? IDIR
-               : claimsPrincipal.IsVcUser() ? VC
-               : JUDICIARY;
+        {
+            if (claimsPrincipal.IsIdirUser())
+                return IDIR;
+            if (claimsPrincipal.IsVcUser())
+                return VC;
+                
+            return JUDICIARY;
+        }
 
         public static string UserTitle(this ClaimsPrincipal claimsPrincipal) =>
             claimsPrincipal.UserType() == JUDICIARY
