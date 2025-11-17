@@ -30,9 +30,6 @@ export const useCommonStore = defineStore('CommonStore', {
   actions: {
     setUserInfo(userInfo: UserInfo | null): void {
       this.userInfo = userInfo;
-      if (this.userInfo) {
-        this.userInfo.judgeName = userInfo?.userType == 'judiciary' ? 'Judge ' + userInfo?.lastName : userInfo?.firstName + ' ' + userInfo?.lastName;
-      }
     },
     updateUserInfo(newUserInfo): void {
       this.setUserInfo(newUserInfo);

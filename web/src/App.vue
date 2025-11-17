@@ -30,9 +30,14 @@
               "
               :judges="judges"
             />
-            <v-btn spaced="end" size="x-large" @click.stop="profile = true" class="text-subtitle-1">
+            <v-btn
+              spaced="end"
+              size="x-large"
+              @click.stop="profile = true"
+              class="text-subtitle-1"
+            >
               <span class="text-left">
-                <div class="mb-1">{{ judgeName }}</div>
+                <div class="mb-1">{{ userName }}</div>
               </span>
               <template #append>
                 <v-icon :icon="mdiAccountCircle" size="32" />
@@ -52,6 +57,8 @@
 
 <script setup lang="ts">
   import logo from '@/assets/jasper-logo.svg?url';
+  import { useCommonStore } from '@/stores';
+  import { UserInfo } from '@/types/common';
   import { mdiAccountCircle } from '@mdi/js';
   import { inject, onMounted, ref, watch } from 'vue';
   import { useRoute } from 'vue-router';
@@ -63,8 +70,6 @@
   import { useDarsStore } from './stores/DarsStore';
   import { useThemeStore } from './stores/ThemeStore';
   import { PersonSearchItem } from './types';
-  import { UserInfo } from '@/types/common';
-  import { useCommonStore } from '@/stores';
 
   const themeStore = useThemeStore();
   const commonStore = useCommonStore();
@@ -95,9 +100,7 @@
     }
   );
 
-  const judgeName = ref<string>(
-    commonStore.userInfo?.judgeName || ''
-  );
+  const userName = ref<string>(commonStore.userInfo?.userTitle || '');
 
   watch(
     () => commonStore.userInfo,
@@ -105,7 +108,7 @@
       if (!newUserInfo) {
         return;
       }
-      judgeName.value = newUserInfo.judgeName || '';
+      userName.value = newUserInfo.userTitle || '';
     }
   );
 </script>

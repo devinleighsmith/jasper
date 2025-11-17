@@ -112,19 +112,11 @@ namespace Scv.Api.Controllers
         [Route("info")]
         public Task<ActionResult> UserInfo()
         {
-            string userType;
-            if (HttpContext.User.IsIdirUser())
-                userType = "idir";
-            else if (HttpContext.User.IsVcUser())
-                userType = "vc";
-            else
-                userType = "judiciary";
-
             return Task.FromResult<ActionResult>(Ok(new
             {
                 Permissions = HttpContext.User.Permissions(),
                 Roles = HttpContext.User.Roles(),
-                UserType = userType,
+                UserType = HttpContext.User.UserType(),
                 EnableArchive = false,
                 ExternalRole = HttpContext.User.ExternalRole(),
                 SubRole = HttpContext.User.SubRole(),
@@ -135,8 +127,7 @@ namespace Scv.Api.Controllers
                 JudgeHomeLocationId = HttpContext.User.JudgeHomeLocationId(),
                 Email = HttpContext.User.Email(),
                 IsActive = HttpContext.User.IsActive(),
-                FirstName = HttpContext.User.FirstName(),
-                LastName = HttpContext.User.LastName(),
+                UserTitle = HttpContext.User.UserTitle(),
                 DateTime.UtcNow
             }));
         }
