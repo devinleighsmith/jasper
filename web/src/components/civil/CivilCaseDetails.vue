@@ -665,7 +665,7 @@
 
       const SortParties = (partiesList) => {
         return _.sortBy(partiesList, (party: partiesInfoType) => {
-          return party.lastName ? party.lastName?.toUpperCase() : '';
+          return party.lastName ? party.lastName.toUpperCase() : '';
         });
       };
 

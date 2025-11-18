@@ -71,6 +71,7 @@ export const getCivilDocumentType = (
     : CourtDocumentType.Civil;
 };
 
+// Move this mapping to the BE
 export const formatDocumentCategory = (document: documentType) => {
   let category = document.category;
   if (category === 'PSR') category = 'Report';

@@ -483,7 +483,7 @@ namespace Scv.Api.Services.Files
                         CivilDocumentId = refDoc.ReferenceDocumentId,
                         DocumentTypeCd = refDoc.ReferenceDocumentTypeCd,
                         DocumentTypeDescription = refDoc.ReferenceDocumentTypeDsc,
-                        Category = "Reference",
+                        Category =  char.ToUpper(DocumentCategory.REFERENCE[0]) + DocumentCategory.REFERENCE[1..].ToLower(),
                         ImageId = refDoc.ObjectGuid,
                         FiledDt = refDoc.EnterDtm,
                     };
