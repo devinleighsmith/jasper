@@ -111,6 +111,7 @@ namespace Scv.Api.Infrastructure
             services.AddScoped<GroupSeeder>();
             services.AddScoped<UserSeeder>();
             services.AddScoped<GroupAliasSeeder>();
+            services.AddScoped<QuickLinkSeeder>();
 
             services.AddDbContext<JasperDbContext>((serviceProvider, options) =>
             {

@@ -49,6 +49,7 @@ services:
       - DatabaseConnectionString=${DatabaseConnectionString}
       - DataProtectionKeyEncryptionKey=${DataProtectionKeyEncryptionKey}
       - DEFAULT_USERS=${DEFAULT_USERS}
+      - DEFAULT_QUICK_LINKS=${DEFAULT_QUICK_LINKS}
       - FileServicesClient__Password=${FileServicesClientPassword}
       - FileServicesClient__Url=${FileServicesClientUrl}
       - FileServicesClient__Username=${FileServicesClientUsername}

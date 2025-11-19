@@ -110,6 +110,8 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
             Permission.VIEW_QUICK_LINKS,
             Permission.SET_DEFAULT_HOME_SCREEN,
             Permission.ADD_EDIT_OWN_NOTES_ONLY
+
+            // QuickLink permissions
         ];
     }
 
