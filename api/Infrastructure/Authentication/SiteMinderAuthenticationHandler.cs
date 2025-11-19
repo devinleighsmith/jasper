@@ -20,6 +20,7 @@ namespace Scv.Api.Infrastructure.Authentication
         public const string SiteMinder = nameof(SiteMinder);
         private JCUserService JCUserService { get; }
         private string ValidSiteMinderUserType { get; }
+        private string ApplicationCd { get; }
         #endregion
 
         #region Constructor
@@ -30,6 +31,7 @@ namespace Scv.Api.Infrastructure.Authentication
         {
             JCUserService = jcUserService;
             ValidSiteMinderUserType = configuration.GetNonEmptyValue("Auth:AllowSiteMinderUserType");
+            ApplicationCd = configuration.GetNonEmptyValue("Request:ApplicationCd");
         }
         #endregion
 
@@ -68,7 +70,7 @@ namespace Scv.Api.Infrastructure.Authentication
             Logger.LogDebug("\tContext.User.Identity.Name: {0}", Context.User.Identity.Name);
 
             var authenticatedBySiteMinderPreviously = Context.User.Identity.AuthenticationType == SiteMinder;
-            var applicationCode = Context.User.ApplicationCode();
+            var applicationCode = ApplicationCd;
             var participantId = Context.User.ParticipantId();
             var agencyCode = Context.User.AgencyCode();
             var isSupremeUser = Context.User.IsSupremeUser();
@@ -107,7 +109,6 @@ namespace Scv.Api.Infrastructure.Authentication
                     Logger.LogDebug("JCUserServce Response is valid");
                 }
 
-                applicationCode = "JASPER";
                 participantId = jcUserInfo.PartID;
                 agencyCode = jcUserInfo.AgenID;
                 role = jcUserInfo.RoleCd;
@@ -120,7 +121,6 @@ namespace Scv.Api.Infrastructure.Authentication
             }
 
             var claims = new[] {
-                new Claim(CustomClaimTypes.ApplicationCode, applicationCode),
                 new Claim(CustomClaimTypes.JcParticipantId, participantId),
                 new Claim(CustomClaimTypes.JcAgencyCode, agencyCode),
                 new Claim(CustomClaimTypes.ExternalRole, role),

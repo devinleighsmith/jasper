@@ -13,12 +13,6 @@ namespace Scv.Api.Helpers.Extensions
         private const string IDIR = "idir";
         private const string JUDGE = "Judge";
 
-        public static string ApplicationCode(this ClaimsPrincipal claimsPrincipal)
-        {
-            var identity = (ClaimsIdentity)claimsPrincipal.Identity;
-            return identity.Claims.FirstOrDefault(c => c.Type == CustomClaimTypes.ApplicationCode)?.Value;
-        }
-
         public static string AgencyCode(this ClaimsPrincipal claimsPrincipal)
         {
             var identity = (ClaimsIdentity)claimsPrincipal.Identity;

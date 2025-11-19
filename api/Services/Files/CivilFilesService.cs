@@ -62,7 +62,7 @@ namespace Scv.Api.Services.Files
             _locationService = locationService;
             _mapper = mapper;
             _cache = cache;
-            _applicationCode = user?.ApplicationCode() ?? configuration.GetNonEmptyValue("Request:ApplicationCd");
+            _applicationCode = configuration.GetNonEmptyValue("Request:ApplicationCd");
             _requestAgencyIdentifierId = user?.AgencyCode() ?? configuration.GetNonEmptyValue("Request:AgencyIdentifierId");
             _requestPartId = user?.ParticipantId() ?? configuration.GetNonEmptyValue("Request:PartId");
 

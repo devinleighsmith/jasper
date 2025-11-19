@@ -139,37 +139,17 @@ namespace Scv.Api.Infrastructure.Authentication
                             !CustomClaimTypes.UsedKeycloakClaimTypes.Contains(c.Type)))
                             identity.RemoveClaim(claim);
 
-                        var applicationCode = "JASPER";
                         var partId = configuration.GetNonEmptyValue("Request:PartId");
                         var agencyId = configuration.GetNonEmptyValue("Request:AgencyIdentifierId");
                         var isSupremeUser = false;
-                        if (context.Principal.IsVcUser())
-                        {
-                            var db = context.HttpContext.RequestServices.GetRequiredService<ScvDbContext>();
-                            var userId = context.Principal.ExternalUserId();
-                            var now = DateTimeOffset.UtcNow;
-                            var fileAccess = await db.RequestFileAccess
-                                .Where(r => r.UserId == userId && r.Expires > now)
-                                .OrderByDescending(x => x.Id)
-                                .FirstOrDefaultAsync();
 
-                            if (fileAccess != null && !string.IsNullOrEmpty(fileAccess.PartId) && !string.IsNullOrEmpty(fileAccess.AgencyId))
-                            {
-                                logger.LogInformation($"UserId - {context.Principal.ExternalUserId()} - Using credentials passed in from A2A.");
-                                var aesGcmEncryption = context.HttpContext.RequestServices.GetRequiredService<AesGcmEncryption>();
-                                partId = aesGcmEncryption.Decrypt(fileAccess.PartId);
-                                agencyId = aesGcmEncryption.Decrypt(fileAccess.AgencyId);
-                                applicationCode = "A2A";
-                            }
-                        }
-                        else if (context.Principal.IsIdirUser() && context.Principal.Groups().Contains("court-viewer-supreme"))
+                        if (context.Principal.IsIdirUser() && context.Principal.Groups().Contains("court-viewer-supreme"))
                         {
                             isSupremeUser = true;
                         }
 
                         var claims = new List<Claim>();
                         claims.AddRange(new[] {
-                            new Claim(CustomClaimTypes.ApplicationCode, applicationCode),
                             new Claim(CustomClaimTypes.JcParticipantId, partId),
                             new Claim(CustomClaimTypes.JcAgencyCode, agencyId),
                             new Claim(CustomClaimTypes.IsSupremeUser, isSupremeUser.ToString()),
