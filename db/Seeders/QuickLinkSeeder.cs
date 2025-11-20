@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,10 +10,9 @@ using Scv.Db.Models;
 
 namespace Scv.Db.Seeders;
 
-public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration config, IMapper mapper) : SeederBase<JasperDbContext>(logger)
+public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration config) : SeederBase<JasperDbContext>(logger)
 {
     private readonly IConfiguration _config = config;
-    private readonly IMapper _mapper = mapper;
 
     public override int Order => 5;
 
@@ -46,7 +44,9 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
 
         foreach (var link in quickLinks)
         {
-            var ql = await context.QuickLinks.AsQueryable().FirstOrDefaultAsync(ql => ql.Name == link.Name);
+            var ql = await context.QuickLinks.AsQueryable().FirstOrDefaultAsync(
+                ql => ql.Name == link.Name
+                && ql.ParentName == link.ParentName);
             if (ql == null)
             {
                 Logger.LogInformation("\t{name} does not exist, adding it...", link.Name);
@@ -55,16 +55,11 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
             else
             {
                 Logger.LogInformation("\tUpdating fields for {name}...", link.Name);
-
-                // Use mapster instead
-                
-                // ql.URL = link.URL;
-                // ql.Order = link.Order;
-                // ql.ParentName = link.ParentName;
-                // ql.IsMenu = link.IsMenu;
-                // ql.JudgeId = link.JudgeId;
-                _mapper.Map(link, ql);
-
+                ql.URL = link.URL;
+                ql.Order = link.Order;
+                ql.ParentName = link.ParentName;
+                ql.IsMenu = link.IsMenu;
+                ql.JudgeId = link.JudgeId;
             }
         }
 
