@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,9 +11,10 @@ using Scv.Db.Models;
 
 namespace Scv.Db.Seeders;
 
-public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration config) : SeederBase<JasperDbContext>(logger)
+public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration config, IMapper mapper) : SeederBase<JasperDbContext>(logger)
 {
     private readonly IConfiguration _config = config;
+    private readonly IMapper _mapper = mapper;
 
     public override int Order => 5;
 
@@ -32,30 +33,38 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
             var newQuickLink = new QuickLink
             {
                 Name = quickLinkObj["Name"],
-                ParentId = null,
-                IsMenu = false,
+                ParentName = quickLinkObj["ParentName"],
+                IsMenu = bool.Parse(quickLinkObj["IsMenu"]),
                 URL = quickLinkObj["URL"],
-                Order = order++,
-                JudgeId = null
+                Order = int.Parse(quickLinkObj["Order"]),
+                JudgeId = quickLinkObj["JudgeId"]
             };
             quickLinks.Add(newQuickLink);
         }
 
-        this.Logger.LogInformation("\tUpdating quick links...");
+        Logger.LogInformation("\tUpdating quick links...");
 
         foreach (var link in quickLinks)
         {
             var ql = await context.QuickLinks.AsQueryable().FirstOrDefaultAsync(ql => ql.Name == link.Name);
             if (ql == null)
             {
-                this.Logger.LogInformation("\t{name} does not exist, adding it...", link.Name);
+                Logger.LogInformation("\t{name} does not exist, adding it...", link.Name);
                 await context.QuickLinks.AddAsync(link);
             }
             else
             {
-                this.Logger.LogInformation("\tUpdating fields for {name}...", link.Name);
-                ql.URL = link.URL;
-                ql.Order = link.Order;
+                Logger.LogInformation("\tUpdating fields for {name}...", link.Name);
+
+                // Use mapster instead
+                
+                // ql.URL = link.URL;
+                // ql.Order = link.Order;
+                // ql.ParentName = link.ParentName;
+                // ql.IsMenu = link.IsMenu;
+                // ql.JudgeId = link.JudgeId;
+                _mapper.Map(link, ql);
+
             }
         }
 

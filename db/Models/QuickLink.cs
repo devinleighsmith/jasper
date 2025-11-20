@@ -8,7 +8,7 @@ namespace Scv.Db.Models;
 public class QuickLink : EntityBase
 {
     public string Name { get; set; }
-    public string ParentId { get; set; }
+    public string ParentName { get; set; }
     public bool IsMenu { get; set; } = false;
     public string URL { get; set; }
     public int Order { get; set; }
