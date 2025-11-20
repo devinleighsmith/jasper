@@ -152,8 +152,28 @@ namespace Scv.Api.Infrastructure
             if (!string.IsNullOrWhiteSpace(region))
             {
                 // For deployed environments
+                // Set a high default timeout for the HTTP client, individual invocations can specify shorter timeouts via CancellationToken
                 services.AddSingleton<IAmazonLambda>(sp =>
-                    new AmazonLambdaClient(RegionEndpoint.GetBySystemName(region)));
+                {
+                    var config = new AmazonLambdaConfig
+                    {
+                        RegionEndpoint = RegionEndpoint.GetBySystemName(region),
+                    };
+
+                    var lambdaLongTimeout = configuration.GetValue<int?>("AWS_LAMBDA_LONG_TIMEOUT_MINUTES");
+                    if (lambdaLongTimeout.HasValue)
+                    {
+                        config.Timeout = TimeSpan.FromMinutes(lambdaLongTimeout.Value);
+                    }
+
+                    var retryAttempts = configuration.GetValue<int?>("AWS_LAMBDA_RETRY_ATTEMPTS");
+                    if (retryAttempts.HasValue)
+                    {
+                        config.MaxErrorRetry = retryAttempts.Value;
+                    }
+
+                    return new AmazonLambdaClient(config);
+                });
 
                 services.AddScoped<ILambdaInvokerService, LambdaInvokerService>();
             }
