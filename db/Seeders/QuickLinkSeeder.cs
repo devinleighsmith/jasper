@@ -18,13 +18,9 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
 
     protected async override Task ExecuteAsync(JasperDbContext context)
     {
-        // Get default quick links from env variable
         var defaultQuickLinksJson = _config["DEFAULT_QUICK_LINKS"];
-        // Remove this line later
-        Console.WriteLine(defaultQuickLinksJson);
         var quickLinksObj = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(defaultQuickLinksJson);
         var quickLinks = new List<QuickLink>();
-        var order = 0;
 
         foreach (var quickLinkObj in quickLinksObj)
         {
@@ -49,12 +45,12 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
                 && ql.ParentName == link.ParentName);
             if (ql == null)
             {
-                Logger.LogInformation("\t{name} does not exist, adding it...", link.Name);
+                Logger.LogInformation("\t{Name} does not exist, adding it...", link.Name);
                 await context.QuickLinks.AddAsync(link);
             }
             else
             {
-                Logger.LogInformation("\tUpdating fields for {name}...", link.Name);
+                Logger.LogInformation("\tUpdating fields for {Name}...", link.Name);
                 ql.URL = link.URL;
                 ql.Order = link.Order;
                 ql.ParentName = link.ParentName;
