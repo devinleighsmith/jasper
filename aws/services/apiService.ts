@@ -193,8 +193,9 @@ export class ApiService {
       });
 
       // Attempt to pass the original error back from the proxy - so the client can determine how to handle the error.
-      if (error && error.response) {
-        const resp = error.response as AxiosResponse<unknown>;
+      if (error && typeof error === "object" && "response" in error) {
+        const resp = (error as { response?: AxiosResponse<unknown> })
+          .response as AxiosResponse<unknown>;
         const responseHeaders = this.sanitizeResponseHeaders(
           resp.headers || {}
         );
@@ -212,7 +213,6 @@ export class ApiService {
           console.error("Failed to serialize response data:", stringifyError);
           body = String(resp.data ?? "{}");
         }
-
         return {
           statusCode: resp.status || 500,
           headers: responseHeaders,
