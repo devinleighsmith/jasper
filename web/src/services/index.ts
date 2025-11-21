@@ -11,6 +11,7 @@ import { HttpService } from './HttpService';
 import { LocationService } from './LocationService';
 import { LookupService } from './LookupService';
 import { UserService } from './UserService';
+import { QuickLinkService } from './QuickLinkService';
 
 export function registerRouter(app: App) {
   const httpService = new HttpService(import.meta.env.BASE_URL);
@@ -25,6 +26,7 @@ export function registerRouter(app: App) {
   const userService = new UserService(httpService);
   const caseService = new CaseService(httpService);
   const darsService = new DarsService(httpService);
+  const quickLinkService = new QuickLinkService(httpService);
 
   app.provide('httpService', httpService);
   app.provide('authService', authService);
@@ -38,6 +40,7 @@ export function registerRouter(app: App) {
   app.provide('userService', userService);
   app.provide('caseService', caseService);
   app.provide('darsService', darsService);
+  app.provide('quickLinkService', quickLinkService);
 }
 
 export * from './AuthService';
@@ -51,3 +54,4 @@ export * from './LocationService';
 export * from './LookupService';
 export * from './RedirectHandlerService';
 export * from './UserService';
+export * from './QuickLinkService';

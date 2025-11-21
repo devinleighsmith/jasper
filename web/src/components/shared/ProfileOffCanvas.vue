@@ -12,19 +12,26 @@
 
     <v-divider></v-divider>
 
-    <v-list-item color="primary" rounded="shaped">
-      <template v-slot:prepend>
-        <v-icon :icon="mdiWeatherNight"></v-icon>
-      </template>
-      <v-list-item-title style="font-size: 0.85rem">Dark mode</v-list-item-title>
-      <template v-slot:append>
-        <v-switch v-model="isDark" hide-details @click="toggleDark" />
-      </template>
-    </v-list-item>
+    <v-list density="compact" v-model:opened="openedGroups">
+      <QuickLinksMenu />
+    </v-list>
+
+    <template v-slot:append>
+      <v-list-item color="primary" rounded="shaped">
+        <template v-slot:prepend>
+          <v-icon :icon="mdiWeatherNight"></v-icon>
+        </template>
+        <v-list-item-title>Dark mode</v-list-item-title>
+        <template v-slot:append>
+          <v-switch v-model="isDark" hide-details @click="toggleDark" />
+        </template>
+      </v-list-item>
+    </template>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
+  import QuickLinksMenu from '@/components/shared/QuickLinksMenu.vue';
   import { useCommonStore } from '@/stores';
   import { useThemeStore } from '@/stores/ThemeStore';
   import { UserInfo } from '@/types/common';
@@ -35,6 +42,7 @@
   const themeStore = useThemeStore();
   const theme = ref(themeStore.state);
   const isDark = ref(theme.value === 'dark');
+  const openedGroups = ref(['quick-links']); // Expand Quick links by default
 
   const commonStore = useCommonStore();
   const userName = ref<string>(commonStore.userInfo?.userTitle || '');
