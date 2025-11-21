@@ -47,6 +47,7 @@ using PCSSPersonServices = PCSSCommon.Clients.PersonServices;
 using PCSSReportServices = PCSSCommon.Clients.ReportServices;
 using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
 using LogNotesServices = DARSCommon.Clients.LogNotesServices;
+using PCSSTimebankServices = PCSSCommon.Clients.TimebankServices;
 using PCSSAuthorizationServices = PCSSCommon.Clients.AuthorizationServices;
 using Microsoft.AspNetCore.Hosting;
 
@@ -151,8 +152,28 @@ namespace Scv.Api.Infrastructure
             if (!string.IsNullOrWhiteSpace(region))
             {
                 // For deployed environments
+                // Set a high default timeout for the HTTP client, individual invocations can specify shorter timeouts via CancellationToken
                 services.AddSingleton<IAmazonLambda>(sp =>
-                    new AmazonLambdaClient(RegionEndpoint.GetBySystemName(region)));
+                {
+                    var config = new AmazonLambdaConfig
+                    {
+                        RegionEndpoint = RegionEndpoint.GetBySystemName(region),
+                    };
+
+                    var lambdaLongTimeout = configuration.GetValue<int?>("AWS_LAMBDA_LONG_TIMEOUT_MINUTES");
+                    if (lambdaLongTimeout.HasValue)
+                    {
+                        config.Timeout = TimeSpan.FromMinutes(lambdaLongTimeout.Value);
+                    }
+
+                    var retryAttempts = configuration.GetValue<int?>("AWS_LAMBDA_RETRY_ATTEMPTS");
+                    if (retryAttempts.HasValue)
+                    {
+                        config.MaxErrorRetry = retryAttempts.Value;
+                    }
+
+                    return new AmazonLambdaClient(config);
+                });
 
                 services.AddScoped<ILambdaInvokerService, LambdaInvokerService>();
             }
@@ -212,6 +233,14 @@ namespace Scv.Api.Infrastructure
                 .AddHttpClient<LogNotesServices.LogNotesServicesClient>(client => { ConfigureHttpClient(client, configuration, "DARS"); })
                 .AddHttpMessageHandler<TimingHandler>();
             services
+                .AddHttpClient<PCSSTimebankServices.TimebankServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
+                .AddHttpMessageHandler<TimingHandler>()
+                .ConfigureHttpClient((sp, client) =>
+                {
+                    // Configure the TimebankServicesClient after creation
+                    // This is a workaround since we can't use the UpdateJsonSerializerSettings partial method
+                });
+            services
                 .AddHttpClient<PCSSAuthorizationServices.AuthorizationServicesClient>(client => { ConfigureHttpClient(client, configuration, "PCSS"); })
                 .AddHttpMessageHandler<TimingHandler>();
 
@@ -229,6 +258,7 @@ namespace Scv.Api.Infrastructure
             services.AddSingleton<JudicialCalendarService>();
 
             services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<ITimebankService, TimebankService>();
             services.AddScoped<IDocumentCategoryService, DocumentCategoryService>();
             services.AddScoped<ICsvParser, CsvParser>();
 
