@@ -20,7 +20,6 @@ namespace Scv.Api.Infrastructure.Authentication
         public const string SiteMinder = nameof(SiteMinder);
         private JCUserService JCUserService { get; }
         private string ValidSiteMinderUserType { get; }
-        private string ApplicationCd { get; }
         #endregion
 
         #region Constructor
@@ -31,7 +30,6 @@ namespace Scv.Api.Infrastructure.Authentication
         {
             JCUserService = jcUserService;
             ValidSiteMinderUserType = configuration.GetNonEmptyValue("Auth:AllowSiteMinderUserType");
-            ApplicationCd = configuration.GetNonEmptyValue("Request:ApplicationCd");
         }
         #endregion
 
@@ -70,7 +68,6 @@ namespace Scv.Api.Infrastructure.Authentication
             Logger.LogDebug("\tContext.User.Identity.Name: {0}", Context.User.Identity.Name);
 
             var authenticatedBySiteMinderPreviously = Context.User.Identity.AuthenticationType == SiteMinder;
-            var applicationCode = ApplicationCd;
             var participantId = Context.User.ParticipantId();
             var agencyCode = Context.User.AgencyCode();
             var isSupremeUser = Context.User.IsSupremeUser();
@@ -79,7 +76,6 @@ namespace Scv.Api.Infrastructure.Authentication
 
             Logger.LogDebug("SiteMinder: {0}", SiteMinder);
             Logger.LogDebug("authenticatedBySiteMinderPreviously: {0}", authenticatedBySiteMinderPreviously);
-            Logger.LogDebug("applicationCode: {0}", applicationCode);
             Logger.LogDebug("participantId : {0}", participantId);
             Logger.LogDebug("agencyCode : {0}", agencyCode);
             Logger.LogDebug("isSupremeUser : {0}", isSupremeUser);
