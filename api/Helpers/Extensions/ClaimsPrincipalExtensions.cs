@@ -33,7 +33,9 @@ namespace Scv.Api.Helpers.Extensions
 
         public static List<string> Groups(this ClaimsPrincipal claimsPrincipal)
         {
-            var identity = (ClaimsIdentity)claimsPrincipal.Identity;
+            if (claimsPrincipal?.Identity is not ClaimsIdentity identity)
+                return [];
+
             return identity.Claims.Where(c => c.Type == CustomClaimTypes.Groups).Select(s => s.Value).ToList();
         }
 
@@ -133,6 +135,9 @@ namespace Scv.Api.Helpers.Extensions
 
         public static int JudgeId(this ClaimsPrincipal claimsPrincipal, int? judgeIdOverride = null)
         {
+            if (claimsPrincipal == null)
+                return default;
+
             if (judgeIdOverride != null && CanViewOthersSchedule(claimsPrincipal))
             {
                 return judgeIdOverride.GetValueOrDefault();
@@ -150,7 +155,7 @@ namespace Scv.Api.Helpers.Extensions
         }
 
         public static bool CanViewOthersSchedule(this ClaimsPrincipal claimsPrincipal)
-            => claimsPrincipal.HasClaim(c => c.Type == CustomClaimTypes.Groups && c.Value == "jasper-view-others-schedule");
+            => claimsPrincipal?.HasClaim(c => c.Type == CustomClaimTypes.Groups && c.Value == "jasper-view-others-schedule") ?? false;
 
         public static string IdirUserGuid(this ClaimsPrincipal claimsPrincipal)
             => claimsPrincipal.FindFirstValue(CustomClaimTypes.UserGuid);

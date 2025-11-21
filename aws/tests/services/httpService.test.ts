@@ -136,6 +136,6 @@ describe("HttpService", () => {
     await httpService.init(credentialsSecret, mtlsSecret);
     await expect(
       httpService.get("/not-found", mockAxiosConfig)
-    ).rejects.toThrow("HTTP Error: 404");
+    ).rejects.toMatchObject({ response: { status: 404 } });
   });
 });
