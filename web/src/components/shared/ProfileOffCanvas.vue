@@ -37,7 +37,7 @@
         <v-list-item-title>Dark mode</v-list-item-title
       >
         <template v-slot:append>
-          <v-switch v-model="isDark" hide-details @click="toggleDark" />
+          <v-switch v-model="appliedThemes" value="dark" hide-details />
         </template>
       </v-list-item>
     </template>
@@ -67,8 +67,7 @@
   const model = defineModel<boolean>();
   const themeStore = useThemeStore();
   const commonStore = useCommonStore();
-  const theme = ref(themeStore.state);
-  const isDark = ref(theme.value === 'dark');
+  const appliedThemes = ref(['']);
   const openedGroups = ref(['quick-links']); // Expand Quick links by default
   const showTimebankModal = ref(false);
 
@@ -81,11 +80,8 @@
   const userJudgeId = computed(() => {
     return commonStore.userInfo?.judgeId;
   });
-  const userName = ref<string>(commonStore.userInfo?.userTitle || '');
 
-  function toggleDark() {
-    themeStore.changeState(theme.value === 'dark' ? 'light' : 'dark');
-  }
+  const userName = ref<string>(commonStore.userInfo?.userTitle || '');
 
   function openTimebankModal() {
     showTimebankModal.value = true;
@@ -100,6 +96,15 @@
       userName.value = newUserInfo.userTitle || '';
     }
   );
+
+  watch(appliedThemes, (newValue) => {
+    // Currently we only support light and dark themes
+    if (newValue.includes('dark')) {
+      themeStore.changeState('dark');
+    } else {
+      themeStore.changeState('light');
+    }
+  });
 </script>
 
 <style>
