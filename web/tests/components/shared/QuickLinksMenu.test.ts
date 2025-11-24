@@ -86,17 +86,17 @@ describe('QuickLinksMenu.vue', () => {
       },
     });
 
-    await loadingWrapper.vm.$nextTick();
+    await nextTick();
     expect(loadingWrapper.find('v-skeleton-loader').exists()).toBe(true);
   });
 
   it('fetches quick links on mount', async () => {
-    await wrapper.vm.$nextTick();
+    await nextTick();
     expect(mockQuickLinkService.getQuickLinks).toHaveBeenCalled();
   });
 
   it('transforms quick links into hierarchical menu structure', async () => {
-    await wrapper.vm.$nextTick();
+    await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const menuItems = wrapper.vm.menuItems;
@@ -162,7 +162,7 @@ describe('QuickLinksMenu.vue', () => {
       },
     });
 
-    await sortWrapper.vm.$nextTick();
+    await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const menuItems = sortWrapper.vm.menuItems as QuickLink[];
@@ -175,7 +175,7 @@ describe('QuickLinksMenu.vue', () => {
   it('opens URL in new tab when child item is clicked', async () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-    await wrapper.vm.$nextTick();
+    await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     wrapper.vm.handleChildClick({
@@ -198,7 +198,7 @@ describe('QuickLinksMenu.vue', () => {
   it('does not open URL if child has no URL', async () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
-    await wrapper.vm.$nextTick();
+    await nextTick();
 
     wrapper.vm.handleChildClick({
       id: '1',
@@ -224,7 +224,7 @@ describe('QuickLinksMenu.vue', () => {
       new Error(errorMessage)
     );
 
-    const errorWrapper = mount(QuickLinksMenu, {
+    mount(QuickLinksMenu, {
       global: {
         provide: {
           quickLinkService: mockQuickLinkService,
@@ -232,7 +232,7 @@ describe('QuickLinksMenu.vue', () => {
       },
     });
 
-    await errorWrapper.vm.$nextTick();
+    await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -303,7 +303,7 @@ describe('QuickLinksMenu.vue', () => {
       },
     });
 
-    await emptyWrapper.vm.$nextTick();
+    await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const menuItems = emptyWrapper.vm.menuItems;

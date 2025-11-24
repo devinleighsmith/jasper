@@ -21,8 +21,7 @@
       <template v-slot:prepend>
         <v-icon :icon="mdiCalendarClock"></v-icon>
       </template>
-      <v-list-item-title style="font-size: 0.85rem"
-        >My Timebank</v-list-item-title
+      <v-list-item-title>My Timebank</v-list-item-title
       >
     </v-list-item>
 
@@ -35,8 +34,7 @@
         <template v-slot:prepend>
           <v-icon :icon="mdiWeatherNight"></v-icon>
         </template>
-        <v-list-item-title
-        >Dark mode</v-list-item-title
+        <v-list-item-title>Dark mode</v-list-item-title
       >
         <template v-slot:append>
           <v-switch v-model="isDark" hide-details @click="toggleDark" />
