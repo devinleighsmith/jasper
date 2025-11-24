@@ -182,7 +182,8 @@ resource "aws_secretsmanager_secret_version" "misc_secret_value" {
     includeSiteMinderHeaders       = "",
     mtlsCert                       = "",
     allowedIpRanges                = "",
-    keyDocsBinderRefreshHours      = ""
+    keyDocsBinderRefreshHours      = "",
+    defaultQuickLinks              = ""
   })
   lifecycle {
     ignore_changes = [secret_string]
