@@ -137,7 +137,8 @@ resource "aws_secretsmanager_secret_version" "database_secret_value" {
     adminPassword           = "",
     mongoDbConnectionString = "",
     mongoDbName             = "",
-    defaultUsers            = ""
+    defaultUsers            = "",
+    defaultQuickLinks       = ""
   })
   lifecycle {
     ignore_changes = [secret_string]
@@ -182,8 +183,7 @@ resource "aws_secretsmanager_secret_version" "misc_secret_value" {
     includeSiteMinderHeaders       = "",
     mtlsCert                       = "",
     allowedIpRanges                = "",
-    keyDocsBinderRefreshHours      = "",
-    defaultQuickLinks              = ""
+    keyDocsBinderRefreshHours      = ""
   })
   lifecycle {
     ignore_changes = [secret_string]
