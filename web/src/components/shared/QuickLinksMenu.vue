@@ -89,7 +89,7 @@
     }));
   });
 
-  function handleChildClick(child: QuickLink) {
+  const handleChildClick = (child: QuickLink) => {
     if (child.url) {
       window.open(child.url, '_blank');
     }
