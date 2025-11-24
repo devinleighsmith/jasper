@@ -73,14 +73,12 @@
       });
   });
 
-  // Transform QuickLinks into hierarchical menu structure
   const menuItems = computed<QuickLink[]>(() => {
     // Get all parent items (where isMenu is true or parentName is null/empty)
     const parents = quickLinks.value
       .filter((link) => link.isMenu === true || !link.parentName)
       .sort((a, b) => a.order - b.order);
 
-    // Build the menu structure with children
     return parents.map((parent) => ({
       ...parent,
       children: quickLinks.value
