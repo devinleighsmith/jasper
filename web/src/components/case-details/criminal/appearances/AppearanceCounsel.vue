@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span v-if="counsel.fullName">
+    <span v-if="counsel?.fullName">
       {{ counsel.fullName }}
     </span>
     <span v-else>No counsel.</span>
