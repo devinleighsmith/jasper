@@ -98,8 +98,6 @@
       </template>
       <template v-slot:item.courtLocation="{ value, item }">
         {{ value }} &nbsp; <span style="color: gray">{{ item.courtRoomCd }}</span>
-        <br />
-        <span>Activity</span>
       </template>
       <template v-slot:item.appearanceStatusCd="{ value }">
         <AppearanceStatusChip :status="value" />
