@@ -92,10 +92,20 @@ export class BundlePDFStrategy
     rawData: Record<string, Record<string, appearanceRequest[]>>,
     apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem[] {
-    this.count = 0; // Reset counter
-    return Object.entries(rawData).map(([groupKey, userGroup]) =>
-      this.makeFirstGroup(groupKey, userGroup, apiResponse)
+    this.count = 0;
+    const binderFileIds = new Set(
+      apiResponse.payload.binders.map((b) => b.labels.physicalFileId)
     );
+    
+    return Object.entries(rawData)
+      .filter(([, userGroup]) =>
+        Object.values(userGroup)
+          .flat()
+          .some((req) => binderFileIds.has(req.appearance.physicalFileId))
+      )
+      .map(([groupKey, userGroup]) =>
+        this.makeFirstGroup(groupKey, userGroup, apiResponse)
+      );
   }
 
   private makeFirstGroup(

@@ -2,6 +2,7 @@
 using Mapster;
 using Scv.Api.Documents;
 using Scv.Api.Models;
+using Scv.Api.Models.Civil.Detail;
 using Scv.Api.Models.Criminal.Detail;
 using Scv.Db.Models;
 
@@ -34,5 +35,13 @@ public class BinderMapping : IRegister
                 string.Equals(src.Category, DocumentCategory.ROP, StringComparison.OrdinalIgnoreCase)
                     ? DocumentType.ROP
                     : DocumentType.File);
+
+        config.NewConfig<CivilDocument, BinderDocumentDto>()
+            .Map(dest => dest.DocumentId, src =>
+                string.IsNullOrWhiteSpace(src.ImageId)
+                    ? null
+                    : src.CivilDocumentId)
+            .Map(dest => dest.FileName, src => src.DocumentTypeDescription)
+            .Map(dest => dest.DocumentType, src => DocumentType.File); // idk
     }
 }

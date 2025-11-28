@@ -6,30 +6,43 @@ using FluentValidation;
 using JCCommon.Clients.FileServices;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
+using MapsterMapper;
 using Scv.Api.Helpers;
 using Scv.Api.Helpers.ContractResolver;
 using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure;
 using Scv.Api.Models;
 using Scv.Db.Contants;
+using LazyCache;
+using Scv.Api.Services.Files;
+using System;
 
 namespace Scv.Api.Processors;
 
 public class JudicialBinderProcessor : BinderProcessorBase
 {
     private readonly FileServicesClient _filesClient;
+    private readonly IAppCache _cache;
     private readonly IConfiguration _configuration;
+    private readonly CivilFilesService _civilFilesService;
+    private readonly IMapper _mapper;
 
     public JudicialBinderProcessor(
         FileServicesClient filesClient,
         ClaimsPrincipal currentUser,
         IValidator<BinderDto> basicValidator,
+        FilesService filesService,
         BinderDto dto,
-        IConfiguration configuration) : base(currentUser, dto, basicValidator)
+        IAppCache cache,
+        IConfiguration configuration,
+        IMapper mapper) : base(currentUser, dto, basicValidator)
     {
         _filesClient = filesClient;
         _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
         _configuration = configuration;
+        _civilFilesService = filesService.Civil;
+        _cache = cache;
+        _mapper = mapper;
     }
 
     public override async Task PreProcessAsync()
@@ -46,6 +59,19 @@ public class JudicialBinderProcessor : BinderProcessorBase
         // Add labels specific to Judicial Binder
         this.Binder.Labels.Add(LabelConstants.COURT_CLASS_CD, fileDetail.CourtClassCd.ToString());
         this.Binder.Labels.Add(LabelConstants.JUDGE_ID, this.CurrentUser.UserId());
+    }
+
+    public override async Task<OperationResult> ProcessAsync()
+    {
+        // Judicial Binders always exist
+        // but check if it does, if it doesnt throw exception
+        if (this.Binder.Id != null)
+        {
+        var documents = await GetDocuments();
+        this.Binder.Documents = documents;
+        return OperationResult.Success();
+        }
+        return OperationResult.Failure("Binder does not exist.");
     }
 
     public override async Task<OperationResult> ValidateAsync()
@@ -87,5 +113,46 @@ public class JudicialBinderProcessor : BinderProcessorBase
         return errors.Count != 0
             ? OperationResult.Failure([.. errors])
             : OperationResult.Success();
+    }
+
+    private async Task<List<BinderDocumentDto>> GetDocuments()
+    {
+        var fileId = this.Binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID);
+        var participantId = this.Binder.Labels.GetValue(LabelConstants.PARTICIPANT_ID);
+
+        async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(
+            this.CurrentUser.AgencyCode(),
+            this.CurrentUser.ParticipantId(),
+            _configuration.GetNonEmptyValue("Request:ApplicationCd"),
+            fileId);
+        async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(CurrentUser.AgencyCode(), CurrentUser.ParticipantId(), _configuration.GetNonEmptyValue("Request:ApplicationCd"), null, null, null, null, fileId);
+        var fileContentTask = _cache.GetOrAddAsync($"CivilFileContent-{fileId}-{CurrentUser.AgencyCode()}", FileContent);
+        var fileDetailsTask = _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{CurrentUser.AgencyCode()}", FileDetails);
+        var fileDetails = await fileDetailsTask;
+        var fileContent = await fileContentTask;
+
+        var fileContentCivilFile = fileContent.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
+
+        // Pass existing binder documents if available, otherwise use empty list
+        var existingBinderDocs = this.Binder.Documents ?? new List<BinderDocumentDto>();
+        var binderDocuments = await _civilFilesService.PopulateBinderDocuments(fileDetails, fileContentCivilFile, existingBinderDocs);
+        var matchingDocuments  = binderDocuments.Where(d => existingBinderDocs.Any(ed => ed.DocumentId == d.CivilDocumentId)).ToList();
+        //var accusedFile = fileContent?.AccusedFile.FirstOrDefault(af => af.MdocJustinNo == fileId && af.PartId == participantId);
+        //if (accusedFile == null)
+        //{
+        //_logger.LogWarning("No accused file found for fileId {FileId} and participantId {ParticipantId}.", fileId, participantId);
+        //return [];
+        //}
+
+        // Prepare Key Documents
+        //var allDocuments = await _documentConverter.GetCriminalDocuments(accusedFile);
+        //var keyDocuments = _mapper.Map<List<BinderDocumentDto>>(KeyDocumentResolver.GetCriminalKeyDocuments(allDocuments));
+
+        //this.Binder.Labels.TryAdd(LabelConstants.PROF_SEQ_NUMBER, fileDetails.);
+        this.Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
+        this.Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
+
+        // var keyDocuments = _mapper.Map<List<BinderDocumentDto>>(KeyDocumentResolver.GetCriminalKeyDocuments(allDocuments));
+        return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments);
     }
 }

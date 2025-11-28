@@ -148,6 +148,7 @@
     :selected
     @view-case-details="viewCaseDetails"
     @view-key-documents="viewKeyDocuments"
+    @view-judicial-binders="handleViewJudicialBinders"
   />
 </template>
 
@@ -160,6 +161,7 @@
   import { bannerClasses } from '@/constants/bannerClasses';
   import { useCourtFileSearchStore } from '@/stores';
   import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
+  import { useCommonStore } from '@/stores';
   import {
     CourtClassEnum,
     DivisionEnum,
@@ -180,6 +182,7 @@
   } from '@mdi/js';
   import { computed, ref } from 'vue';
 
+  const commonStore = useCommonStore();
   const selected = ref<CourtListAppearance[]>([]);
   const sortBy = ref([
     { key: 'appearanceSequenceNumber', order: 'asc' },
@@ -388,7 +391,28 @@
         }) as AppearanceDocumentRequest
     );
 
-    shared.openCourtListKeyDocuments(appearances);
+    shared.openCourtListKeyDocuments(appearances,);
+  };
+
+  const handleViewJudicialBinders = (
+    appearances: CourtListAppearance[]
+  ) => {
+    if (appearances.length === 0) {
+      return;
+    }
+
+    appearances.map(
+      (app) =>
+        ({
+          physicalFileId: app.physicalFileId,
+          appearanceId: app.appearanceId,
+          participantId: app.profPartId,
+          courtClassCd: app.courtClassCd
+        }) as AppearanceDocumentRequest
+    );
+    console.log(appearances);
+
+    shared.openJudicialBinderDocuments(appearances, commonStore.userInfo?.userId || "");
   };
 
   const viewCaseDetails = (selectedItems: CourtListAppearance[]) => {

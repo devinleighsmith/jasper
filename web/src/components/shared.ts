@@ -142,6 +142,33 @@ export default {
     ).join(', ');
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
+
+  openJudicialBinderDocuments(appearances: CourtListAppearance[], judgeId: string): void {
+    if (!appearances.length) return;
+    const bundleStore = useBundleStore();
+    const appearanceRequests = appearances.map((app) => ({
+      appearance: {
+        physicalFileId: app.physicalFileId, // temp
+        appearanceId: app.appearanceId,
+        participantId: app.profPartId,
+        courtClassCd: app.courtClassCd,
+        judgeId
+      } as AppearanceDocumentRequest,
+      fileNumber: app.courtFileNumber,
+      fullName: app.styleOfCause,
+    }));
+    const bundleRequest = {
+      appearances: appearanceRequests.map((app) => app.appearance),
+    } as DocumentBundleRequest;
+    bundleStore.request = bundleRequest;
+    bundleStore.appearanceRequests = appearanceRequests;
+
+    const newWindow = window.open('/file-viewer?type=bundle', '_blank');
+    const caseNumbers = Array.from(
+      new Set(appearances.map((d) => d.courtFileNumber))
+    ).join(', ');
+    this.replaceWindowTitle(newWindow, caseNumbers);
+  },
   addDocumentsToPdfStore(
     documents: {
       documentType: DocumentRequestType;
