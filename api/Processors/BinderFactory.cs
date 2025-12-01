@@ -29,11 +29,9 @@ public class BinderFactory(
     IAppCache cache,
     IConfiguration configuration,
     IDocumentConverter documentConverter,
-    IMapper mapper,
-    FilesService filesService) : IBinderFactory
+    IMapper mapper) : IBinderFactory
 {
     private readonly FileServicesClient _filesClient = filesClient;
-    private readonly FilesService _filesService = filesService;
     private readonly ClaimsPrincipal _currentUser = currentUser;
     private readonly ILogger<BinderFactory> _logger = logger;
     private readonly IValidator<BinderDto> _basicValidator = basicValidator;
@@ -68,7 +66,6 @@ public class BinderFactory(
                     _filesClient,
                      _currentUser,
                      _basicValidator,
-                     _filesService,
                      dto,
                      _cache,
                      _configuration,

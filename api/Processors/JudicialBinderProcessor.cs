@@ -14,8 +14,8 @@ using Scv.Api.Infrastructure;
 using Scv.Api.Models;
 using Scv.Db.Contants;
 using LazyCache;
-using Scv.Api.Services.Files;
 using System;
+using Scv.Db.Models;
 
 namespace Scv.Api.Processors;
 
@@ -24,14 +24,12 @@ public class JudicialBinderProcessor : BinderProcessorBase
     private readonly FileServicesClient _filesClient;
     private readonly IAppCache _cache;
     private readonly IConfiguration _configuration;
-    private readonly CivilFilesService _civilFilesService;
     private readonly IMapper _mapper;
 
     public JudicialBinderProcessor(
         FileServicesClient filesClient,
         ClaimsPrincipal currentUser,
         IValidator<BinderDto> basicValidator,
-        FilesService filesService,
         BinderDto dto,
         IAppCache cache,
         IConfiguration configuration,
@@ -40,7 +38,7 @@ public class JudicialBinderProcessor : BinderProcessorBase
         _filesClient = filesClient;
         _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
         _configuration = configuration;
-        _civilFilesService = filesService.Civil;
+        //_civilFilesService = filesService.Civil;
         _cache = cache;
         _mapper = mapper;
     }
@@ -67,9 +65,9 @@ public class JudicialBinderProcessor : BinderProcessorBase
         // but check if it does, if it doesnt throw exception
         if (this.Binder.Id != null)
         {
-        var documents = await GetDocuments();
-        this.Binder.Documents = documents;
-        return OperationResult.Success();
+            var documents = await GetDocuments();
+            this.Binder.Documents = documents;
+            return OperationResult.Success();
         }
         return OperationResult.Failure("Binder does not exist.");
     }
@@ -134,25 +132,27 @@ public class JudicialBinderProcessor : BinderProcessorBase
         var fileContentCivilFile = fileContent.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
 
         // Pass existing binder documents if available, otherwise use empty list
-        var existingBinderDocs = this.Binder.Documents ?? new List<BinderDocumentDto>();
-        var binderDocuments = await _civilFilesService.PopulateBinderDocuments(fileDetails, fileContentCivilFile, existingBinderDocs);
-        var matchingDocuments  = binderDocuments.Where(d => existingBinderDocs.Any(ed => ed.DocumentId == d.CivilDocumentId)).ToList();
-        //var accusedFile = fileContent?.AccusedFile.FirstOrDefault(af => af.MdocJustinNo == fileId && af.PartId == participantId);
-        //if (accusedFile == null)
-        //{
-        //_logger.LogWarning("No accused file found for fileId {FileId} and participantId {ParticipantId}.", fileId, participantId);
-        //return [];
-        //}
-
-        // Prepare Key Documents
-        //var allDocuments = await _documentConverter.GetCriminalDocuments(accusedFile);
-        //var keyDocuments = _mapper.Map<List<BinderDocumentDto>>(KeyDocumentResolver.GetCriminalKeyDocuments(allDocuments));
-
-        //this.Binder.Labels.TryAdd(LabelConstants.PROF_SEQ_NUMBER, fileDetails.);
+        var existingBinderDocs = this.Binder.Documents ?? [];
+        var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingBinderDocs.Select(doc => doc.DocumentId).Contains(a.AppearanceId))]);
+        var documents = fileContent.CivilFile.SelectMany(cf => cf.Document);
+        var matchingDocuments = documents.Where(docContent => existingBinderDocs.Any(bd => bd.DocumentId == docContent.DocumentId)).ToList();
+        
         this.Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
         this.Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
 
-        // var keyDocuments = _mapper.Map<List<BinderDocumentDto>>(KeyDocumentResolver.GetCriminalKeyDocuments(allDocuments));
-        return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments);
+        return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments.Concat(csrDocs));
     }
+
+    private static IEnumerable<CvfcDocument> PopulateDetailCsrsDocuments(ICollection<CvfcAppearance> appearances)
+    {
+        //Add in CSRs.
+        return appearances.Select(appearance => new CvfcDocument()
+        {
+            DocumentTypeCd = DocumentCategory.CSR,
+            DocumentTypeDescription = "Court Summary",
+            DocumentId = appearance.AppearanceId,
+            ImageId = appearance.AppearanceId,
+        });
+    }
+
 }

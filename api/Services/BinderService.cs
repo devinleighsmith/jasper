@@ -310,7 +310,7 @@ public class BinderService(
                         CourtLevelCd = binder.Labels.GetValue(LabelConstants.COURT_LEVEL_CD),
                         CourtClassCd = binder.Labels.GetValue(LabelConstants.COURT_CLASS_CD),
                         FileId = binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID),
-                        AppearanceId = binder.Labels.GetValue(LabelConstants.APPEARANCE_ID),
+                        AppearanceId = d.DocumentId,
                         IsCriminal = false,
                         CorrelationId = correlationId.ToString(),
                         DocumentId = d.DocumentType == DocumentType.File

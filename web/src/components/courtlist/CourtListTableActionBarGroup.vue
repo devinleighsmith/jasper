@@ -34,10 +34,10 @@
             v-else
             size="large"
             class="mx-2"
-            :prepend-icon="mdiFileDocumentMultipleOutline"
+            :prepend-icon="mdiFolderEyeOutline"
             style="letter-spacing: 0.001rem"
             data-testid="view-judicial-binders"
-            :disabled="binderLoading"
+            :disabled="binderLoading || totalBinderCount === 0"
             @click="() => onViewJudicialBinders(group)"
           >
             View judicial binder(s)&nbsp;
@@ -66,6 +66,7 @@
   import {
     mdiFileDocumentMultipleOutline,
     mdiFileDocumentOutline,
+    mdiFolderEyeOutline
   } from '@mdi/js';
   import { computed, inject, ref, watch } from 'vue';
   import { BinderService } from '@/services';
@@ -91,7 +92,8 @@
 
   const previousCivilFileIds = new Set<string>();
   const binderCounts = ref<Record<string, number>>({});
-  const binderLoading = ref(false);
+  const binderRequests = ref<Promise<any>[]>([]);
+  const binderLoading = computed(() => binderRequests.value.length > 0);
 
   const groupedSelections = computed(() => {
     const groups: Record<string, CourtListAppearance[]> = {};
@@ -153,16 +155,17 @@
           };
 
           try {
-            binderLoading.value = true;
-            const response = await binderService.getBinders(labels);
-            binderCounts.value[fileId] = response.succeeded && response.payload 
-              ? response.payload.length 
-              : 0;
+            const request = binderService.getBinders(labels).then((response) => {
+                binderCounts.value[fileId] = response.succeeded && response.payload 
+                  ? response.payload.length 
+                  : 0;
+              }).finally(() => {
+                binderRequests.value = binderRequests.value.filter(r => r !== request);
+              });
+            binderRequests.value.push(request);
           } catch (error) {
             console.error('Error fetching binders:', error);
             binderCounts.value[fileId] = 0;
-          } finally {
-            binderLoading.value = false;
           }
         }
       } else {
