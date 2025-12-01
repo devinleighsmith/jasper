@@ -141,39 +141,38 @@
         binderCounts.value = {};
         return;
       }
-
-      if (isSelection) {
-        // Fetch binder count for newly selected file
-        const fileId = newSelected[newSelected.length - 1].physicalFileId;
-        const appearance = civilFiles.find((f) => f.physicalFileId === fileId);
-        
-        if (appearance) {
-          const labels = {
-            physicalFileId: appearance.physicalFileId,
-            courtClassCd: appearance.courtClassCd,
-            judgeId: commonStore.userInfo?.userId,
-          };
-
-          try {
-            const request = binderService.getBinders(labels).then((response) => {
-                binderCounts.value[fileId] = response.succeeded && response.payload 
-                  ? response.payload.length 
-                  : 0;
-              }).finally(() => {
-                binderRequests.value = binderRequests.value.filter(r => r !== request);
-              });
-            binderRequests.value.push(request);
-          } catch (error) {
-            console.error('Error fetching binders:', error);
-            binderCounts.value[fileId] = 0;
-          }
-        }
-      } else {
-        // Remove counts for deselected files
+      if(!isSelection) {
+        // No need to fetch if all files are already tracked
         const currentFileIds = new Set(civilFiles.map((f) => f.physicalFileId));
         binderCounts.value = Object.fromEntries(
           Object.entries(binderCounts.value).filter(([fileId]) => currentFileIds.has(fileId))
         );
+        return;
+      }
+      // Fetch binder count for newly selected file
+      const fileId = newSelected[newSelected.length - 1].physicalFileId;
+      const appearance = civilFiles.find((f) => f.physicalFileId === fileId);
+      if(!appearance) {
+        return;
+      }
+      const labels = {
+        physicalFileId: appearance.physicalFileId,
+        courtClassCd: appearance.courtClassCd,
+        judgeId: commonStore.userInfo?.userId,
+      };
+
+      try {
+        const request = binderService.getBinders(labels).then((response) => {
+            binderCounts.value[fileId] = response.succeeded && response.payload 
+              ? response.payload.length 
+              : 0;
+          }).finally(() => {
+            binderRequests.value = binderRequests.value.filter(r => r !== request);
+          });
+        binderRequests.value.push(request);
+      } catch (error) {
+        console.error('Error fetching binders:', error);
+        binderCounts.value[fileId] = 0;
       }
     },
     { immediate: true }
@@ -190,7 +189,6 @@
     emit('view-key-documents', appearances);
   };
   const onViewJudicialBinders = (appearances: CourtListAppearance[]) => {
-    // Placeholder for future implementation
     emit('view-judicial-binders', appearances);
   };
 </script>

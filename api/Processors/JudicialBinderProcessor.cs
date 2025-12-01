@@ -16,6 +16,8 @@ using Scv.Db.Contants;
 using LazyCache;
 using System;
 using Scv.Db.Models;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Scv.Api.Processors;
 
@@ -134,13 +136,26 @@ public class JudicialBinderProcessor : BinderProcessorBase
         // Pass existing binder documents if available, otherwise use empty list
         var existingBinderDocs = this.Binder.Documents ?? [];
         var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingBinderDocs.Select(doc => doc.DocumentId).Contains(a.AppearanceId))]);
+        var referenceDocs = PopulateDetailReferenceDocuments([.. fileDetails.ReferenceDocument.Where(rd => existingBinderDocs.Select(doc => doc.DocumentId).Contains(rd.ReferenceDocumentId))]);
         var documents = fileContent.CivilFile.SelectMany(cf => cf.Document);
         var matchingDocuments = documents.Where(docContent => existingBinderDocs.Any(bd => bd.DocumentId == docContent.DocumentId)).ToList();
         
         this.Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
         this.Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
 
-        return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments.Concat(csrDocs));
+        return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments.Concat(csrDocs).Concat(referenceDocs));
+    }
+
+    private static IEnumerable<CvfcDocument> PopulateDetailReferenceDocuments(ICollection<CvfcRefDocument3> referenceDocuments)
+    {
+        //Add in Reference Documents.
+        return referenceDocuments.Select(referenceDocument => new CvfcDocument()
+        {
+            DocumentTypeCd = DocumentCategory.REFERENCE,
+            DocumentTypeDescription = referenceDocument.ReferenceDocumentTypeDsc,
+            DocumentId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(referenceDocument.ObjectGuid)),
+            ImageId = referenceDocument.ObjectGuid,
+        });
     }
 
     private static IEnumerable<CvfcDocument> PopulateDetailCsrsDocuments(ICollection<CvfcAppearance> appearances)

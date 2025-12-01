@@ -151,7 +151,7 @@ export class BundlePDFStrategy
       apiResponse.payload.pdfResponse.pageRanges?.[this.count]?.start;
     const children = binders.flatMap((binder) =>
       binder.documents
-        .filter((doc) => !isNaN(parseFloat(doc.documentId)))
+        .filter((doc) => doc.documentId) // Only include documents with valid IDs
         .map((doc) => this.makeDocElement(doc, apiResponse))
     );
 

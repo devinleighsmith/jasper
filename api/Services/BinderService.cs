@@ -147,14 +147,14 @@ public class BinderService(
                 this.Logger.LogWarning("No binders to process. CorrelationId: {CorreclationId}", correlationId);
                 return OperationResult<DocumentBundleResponse>.Success(new DocumentBundleResponse
                 {
-                    Binders = new List<BinderDto>(),
+                    Binders = [],
                     PdfResponse = null
                 });
             }
             var isCriminal = binders.Any(b => sourceArray.Contains(b.Labels.GetValue(LabelConstants.COURT_CLASS_CD)));
             var requests = isCriminal 
-            ? GenerateCriminalPdfDocumentRequests(binders, correlationId)
-            : GenerateCivilPdfDocumentRequests(binders, correlationId);
+                ? GenerateCriminalPdfDocumentRequests(binders, correlationId)
+                : GenerateCivilPdfDocumentRequests(binders, correlationId);
             if (requests.Length == 0)
             {
                 this.Logger.LogWarning("No binders to merge. CorrelationId: {CorreclationId}", correlationId);

@@ -412,7 +412,6 @@
           courtClassCd: app.courtClassCd
         }) as AppearanceDocumentRequest
     );
-    console.log(appearances);
 
     shared.openJudicialBinderDocuments(appearances, commonStore.userInfo?.userId || "");
   };
