@@ -49,8 +49,8 @@
                   color="primary"
                   class="mr-2 align-middle"
                 />
-                <span v-else>
-                  ({{ totalBinderCount }})
+                <span v-else-if="totalBinderCount > 0">
+                  ({{ totalBinderCount }} / {{ selected.length }})
                 </span>
           </v-btn>
         </template>

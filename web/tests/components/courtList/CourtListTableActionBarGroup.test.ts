@@ -168,7 +168,7 @@ describe('CourtListTableActionBarGroup.vue', () => {
     const judicialBinderButton = wrapper.find(
       '[data-testid="view-judicial-binders"]'
     );
-    expect(judicialBinderButton.text()).toContain('(2)');
+    expect(judicialBinderButton.text()).toContain('2');
   });
 
   it('disables judicial binder button when count is 0', async () => {
@@ -220,7 +220,7 @@ describe('CourtListTableActionBarGroup.vue', () => {
       '[data-testid="view-judicial-binders"]'
     );
     // Should show count from the single remaining appearance
-    expect(judicialBinderButton.text()).toContain('(1)');
+    expect(judicialBinderButton.text()).toContain('(1 / 1)');
   });
 
   it('emits view-judicial-binders event when button is clicked', async () => {
