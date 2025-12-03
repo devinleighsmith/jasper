@@ -40,7 +40,6 @@ public class JudicialBinderProcessor : BinderProcessorBase
         _filesClient = filesClient;
         _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
         _configuration = configuration;
-        //_civilFilesService = filesService.Civil;
         _cache = cache;
         _mapper = mapper;
     }
@@ -63,12 +62,10 @@ public class JudicialBinderProcessor : BinderProcessorBase
 
     public override async Task<OperationResult> ProcessAsync()
     {
-        // Judicial Binders always exist
-        // but check if it does, if it doesnt throw exception
         if (this.Binder.Id != null)
         {
             var documents = await GetDocuments();
-            this.Binder.Documents = documents;
+            Binder.Documents = documents;
             return OperationResult.Success();
         }
         return OperationResult.Failure("Binder does not exist.");
@@ -134,14 +131,14 @@ public class JudicialBinderProcessor : BinderProcessorBase
         var fileContentCivilFile = fileContent.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
 
         // Pass existing binder documents if available, otherwise use empty list
-        var existingBinderDocs = this.Binder.Documents ?? [];
+        var existingBinderDocs = Binder.Documents ?? [];
         var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingBinderDocs.Select(doc => doc.DocumentId).Contains(a.AppearanceId))]);
         var referenceDocs = PopulateDetailReferenceDocuments([.. fileDetails.ReferenceDocument.Where(rd => existingBinderDocs.Select(doc => doc.DocumentId).Contains(rd.ReferenceDocumentId))]);
         var documents = fileContent.CivilFile.SelectMany(cf => cf.Document);
         var matchingDocuments = documents.Where(docContent => existingBinderDocs.Any(bd => bd.DocumentId == docContent.DocumentId)).ToList();
         
-        this.Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
-        this.Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
+        Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
+        Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
 
         return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments.Concat(csrDocs).Concat(referenceDocs));
     }
@@ -169,5 +166,4 @@ public class JudicialBinderProcessor : BinderProcessorBase
             ImageId = appearance.AppearanceId,
         });
     }
-
 }
