@@ -114,7 +114,7 @@ public class JudicialBinderProcessor : BinderProcessorBase
 
     private async Task<List<BinderDocumentDto>> GetDocuments()
     {
-        var fileId = this.Binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID);
+        var fileId = Binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID);
         var agencyCode = CurrentUser.AgencyCode();
         var participantId = CurrentUser.ParticipantId();
         var applicationCd = _configuration.GetNonEmptyValue("Request:ApplicationCd");
@@ -132,10 +132,8 @@ public class JudicialBinderProcessor : BinderProcessorBase
 
         var existingBinderDocs = Binder.Documents ?? [];
         var existingDocIds = existingBinderDocs.Select(doc => doc.DocumentId).ToList();
-        var csrDocs = PopulateDetailCsrsDocuments(
-            fileDetails.Appearance.Where(a => existingDocIds.Contains(a.AppearanceId)).ToList());
-        var referenceDocs = PopulateDetailReferenceDocuments(
-            fileDetails.ReferenceDocument.Where(rd => existingDocIds.Contains(rd.ReferenceDocumentId)).ToList());
+        var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingDocIds.Contains(a.AppearanceId))]);
+        var referenceDocs = PopulateDetailReferenceDocuments([.. fileDetails.ReferenceDocument.Where(rd => existingDocIds.Contains(rd.ReferenceDocumentId))]);
         var civilDocs = fileContent.CivilFile
             .SelectMany(cf => cf.Document)
             .Where(doc => existingDocIds.Contains(doc.DocumentId));
