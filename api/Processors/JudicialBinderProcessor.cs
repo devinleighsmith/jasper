@@ -128,8 +128,6 @@ public class JudicialBinderProcessor : BinderProcessorBase
         var fileDetails = await fileDetailsTask;
         var fileContent = await fileContentTask;
 
-        var fileContentCivilFile = fileContent.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
-
         // Pass existing binder documents if available, otherwise use empty list
         var existingBinderDocs = Binder.Documents ?? [];
         var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingBinderDocs.Select(doc => doc.DocumentId).Contains(a.AppearanceId))]);
@@ -137,8 +135,12 @@ public class JudicialBinderProcessor : BinderProcessorBase
         var documents = fileContent.CivilFile.SelectMany(cf => cf.Document);
         var matchingDocuments = documents.Where(docContent => existingBinderDocs.Any(bd => bd.DocumentId == docContent.DocumentId)).ToList();
         
-        Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
-        Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
+        var fileContentCivilFile = fileContent.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
+        if(fileContentCivilFile != null)
+        {
+            Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
+            Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
+        }
 
         return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments.Concat(csrDocs).Concat(referenceDocs));
     }
