@@ -63,6 +63,8 @@
           :isCriminal="isCriminal"
           :fileNumber="fileId"
           :courtClassCd="courtClassCd!"
+          :transcripts="transcripts"
+          :details="details"
         />
       </v-window-item>
       <v-window-item value="sentence">
@@ -86,12 +88,14 @@
   import { computed, ref } from 'vue';
   import SentenceOrderDetailsView from '../criminal/sentence-order-details/SentenceOrderDetailsView.vue';
   import AppearancesView from './AppearancesView.vue';
+  import { TranscriptDocument } from '@/services/DarsService';
 
   const props = defineProps<{
     details: FileDetailsType;
     activityClassCd: string;
     fileId: string;
     courtClassCd?: string;
+    transcripts?: TranscriptDocument[];
   }>();
 
   const isCriminal = computed(() => props.activityClassCd === DivisionEnum.R);

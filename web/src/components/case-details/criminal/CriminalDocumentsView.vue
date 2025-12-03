@@ -164,7 +164,7 @@
   const unfilteredDocuments = computed(
     () =>
       props.participants?.flatMap((participant) =>
-        participant.document?.map((doc) => ({
+        participant.document.map((doc) => ({
           ...doc,
           fullName: participant.fullName || '',
           profSeqNo: participant.profSeqNo,
@@ -295,10 +295,17 @@
     selectedItems.value
       .filter((item) => item.imageId)
       .forEach((item) => {
-        const documentType =
-          getCriminalDocumentType(item) === CourtDocumentType.Criminal
-            ? DocumentRequestType.File
-            : DocumentRequestType.ROP;
+        const criminalDocType = getCriminalDocumentType(item);
+        let documentType: DocumentRequestType;
+
+        if (criminalDocType === CourtDocumentType.Criminal) {
+          documentType = DocumentRequestType.File;
+        } else if (criminalDocType === CourtDocumentType.Transcript) {
+          documentType = DocumentRequestType.Transcript;
+        } else {
+          documentType = DocumentRequestType.ROP;
+        }
+
         const documentData = prepareCriminalDocumentData(item);
         documents.push({
           documentType,

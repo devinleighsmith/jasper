@@ -62,6 +62,7 @@
               :activityClassCd="details.activityClassCd"
               :courtClassCd="details.courtClassCd"
               :fileId="fileId"
+              :transcripts="transcripts"
             />
           </v-col>
         </v-row>
@@ -92,6 +93,7 @@
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
   import CivilSidePanel from '@/components/civil/CivilSidePanel.vue';
   import { beautifyDate } from '@/filters';
+  import { DarsService, TranscriptDocument } from '@/services/DarsService';
   import { HttpService } from '@/services/HttpService';
   import {
     useCivilFileStore,
@@ -145,8 +147,9 @@
       const commonStore = useCommonStore();
       const courtFileSearchStore = useCourtFileSearchStore();
       const httpService = inject<HttpService>('httpService');
+      const darsService = inject<DarsService>('darsService');
 
-      if (!httpService) {
+      if (!httpService || !darsService) {
         throw new Error('Service is undefined.');
       }
 
@@ -173,6 +176,7 @@
       const loading = ref(false);
       const fileNumber = ref('');
       const fileId = ref('');
+      const transcripts = ref<TranscriptDocument[]>([]);
 
       const partiesJson = ref<partyType[]>([]);
       const adjudicatorRestrictionsJson = ref<civilHearingRestrictionType[]>(
@@ -245,6 +249,9 @@
               isSealed.value = data.sealedYN === 'Y';
 
               ExtractCaseInfo();
+
+              // Load transcripts from DARS API
+              loadTranscripts(data.physicalFileId);
 
               if (
                 adjudicatorRestrictionsInfo.value.length > 0 ||
@@ -663,6 +670,104 @@
         }
       };
 
+      const loadTranscripts = async (physicalFileId: string) => {
+        try {
+          const transcriptsData =
+            await darsService.getTranscripts(physicalFileId);
+          transcripts.value = transcriptsData;
+
+          for (const transcript of transcriptsData) {
+            const docInfo = {} as documentsInfoType;
+
+            docInfo.documentId = transcript.id.toString();
+
+            docInfo.documentType = `Transcript - ${transcript.description}`;
+
+            docInfo.category = 'Transcript';
+            if (!categories.value.includes('Transcript')) {
+              categories.value.push('Transcript');
+            }
+
+            // Date filed is appearance date from first appearance
+            if (transcript.appearances && transcript.appearances.length > 0) {
+              const firstAppearance = transcript.appearances[0];
+              docInfo.dateFiled = firstAppearance.appearanceDt
+                ? firstAppearance.appearanceDt.split('T')[0]
+                : '';
+            } else {
+              docInfo.dateFiled = '';
+            }
+
+            docInfo.seq = '';
+            docInfo.filedByName = [];
+            docInfo.issues = [];
+            docInfo.act = [];
+            docInfo.swornBy = '';
+            docInfo.affNo = '';
+            docInfo.comment = '';
+            docInfo.concluded = '';
+            docInfo.nextAppearanceDate =
+              transcript.appearances.sort(
+                (a, b) =>
+                  new Date(a.appearanceDt).getTime() -
+                  new Date(b.appearanceDt).getTime()
+              )[0]?.appearanceDt || '';
+            docInfo.orderMadeDate = '';
+            docInfo.pdfAvail = true;
+            docInfo.isChecked = false;
+            docInfo.isEnabled = true;
+            docInfo.sealed = false;
+
+            docInfo.transcriptOrderId = transcript.orderId.toString();
+            docInfo.transcriptDocumentId = transcript.id.toString();
+
+            documentsInfo.value.push(docInfo);
+
+            const civilDoc: civilDocumentType = {
+              civilDocumentId: transcript.id.toString(),
+              documentTypeDescription: `Transcript - ${transcript.description}`,
+              documentTypeCd: 'TRANSCRIPT',
+              category: 'Transcript',
+              filedDt: docInfo.dateFiled,
+              imageId: transcript.id.toString(),
+              sealedYN: 'N',
+              fileSeqNo: '',
+              concludedYn: '',
+              nextAppearanceDt: '',
+              swornByNm: '',
+              affidavitNo: '',
+              filedByName: '',
+              commentTxt: '',
+              lastAppearanceId: '',
+              lastAppearanceDt: '',
+              lastAppearanceTm: '',
+              DateGranted: '',
+              documentSupport: [],
+              issue: [],
+              filedBy: [],
+              appearance: [],
+              additionalProperties: {},
+              additionalProp1: {},
+              additionalProp2: {},
+              additionalProp3: {},
+              ...({
+                transcriptOrderId: transcript.orderId,
+                transcriptDocumentId: transcript.id,
+              } as any),
+            };
+
+            details.value.document.push(civilDoc);
+          }
+        } catch (error: any) {
+          // Log warning for 404 errors (no transcripts found) but don't display error to user
+          if (error?.status === 404 || error?.response?.status === 404) {
+            console.warn(`No transcripts found for file ${physicalFileId}`);
+          } else {
+            console.error('Error loading transcripts:', error);
+          }
+        }
+      };
+
       const SortParties = (partiesList) => {
         return _.sortBy(partiesList, (party: partiesInfoType) => {
           return party.lastName ? party.lastName.toUpperCase() : '';
@@ -723,6 +828,7 @@
         loading,
         details,
         adjudicatorRestrictions: adjudicatorRestrictionsInfo.value,
+        transcripts,
       };
     },
   });

@@ -62,6 +62,7 @@
               v-if="!isCriminal"
               :fileId="fileNumber"
               :appearanceId="item.appearanceId"
+              :courtClassCd="courtClassCd"
             />
             <CriminalAppearanceDetails
               v-else
@@ -75,6 +76,34 @@
       </template>
       <template v-slot:item.appearanceDt="{ value }">
         <span> {{ value }} </span>
+      </template>
+      <template v-slot:item.transcripts="{ item }">
+        <v-icon
+          v-if="getAppearanceTranscripts(item.appearanceId).length > 0"
+          :icon="mdiFileDocumentOutline"
+          class="cursor-pointer"
+          :data-testid="`transcript-button-${item.appearanceId}`"
+          @click="handleTranscriptClick($event, item.appearanceId)"
+        />
+        <v-menu
+          v-if="getAppearanceTranscripts(item.appearanceId).length > 1"
+          v-model="transcriptMenus[item.appearanceId]"
+          :activator="`[data-testid='transcript-button-${item.appearanceId}']`"
+          location="bottom"
+        >
+          <v-list>
+            <v-list-item
+              v-for="transcript in getAppearanceTranscripts(item.appearanceId)"
+              :key="`${transcript.orderId}-${transcript.id}`"
+              @click="openTranscript(transcript)"
+              class="cursor-pointer"
+            >
+              <v-list-item-title>
+                Transcript - {{ transcript.description }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </template>
       <template v-slot:item.DARS="{ item }">
         <v-icon
@@ -129,17 +158,28 @@
 <script setup lang="ts">
   import CriminalAppearanceDetails from '@/components/case-details/criminal/appearances/CriminalAppearanceDetails.vue';
   import CivilAppearanceDetails from '@/components/civil/CivilAppearanceDetails.vue';
+  import shared from '@/components/shared';
   import AppearanceStatusChip from '@/components/shared/AppearanceStatusChip.vue';
+  import { TranscriptDocument } from '@/services/DarsService';
   import { useDarsStore } from '@/stores/DarsStore';
   import { criminalApprDetailType } from '@/types/criminal/jsonTypes';
-  import { ApprDetailType } from '@/types/shared';
+  import {
+    ApprDetailType,
+    CourtDocumentType,
+    FileDetailsType,
+  } from '@/types/shared';
   import {
     extractTime,
     formatDateToDDMMMYYYY,
     hoursMinsFormatter,
   } from '@/utils/dateUtils';
   import { formatToFullName } from '@/utils/utils';
-  import { mdiChevronDown, mdiChevronUp, mdiHeadphones } from '@mdi/js';
+  import {
+    mdiChevronDown,
+    mdiChevronUp,
+    mdiFileDocumentOutline,
+    mdiHeadphones,
+  } from '@mdi/js';
   import { computed, ref } from 'vue';
 
   const props = defineProps<{
@@ -147,6 +187,8 @@
     isCriminal: boolean;
     fileNumber: string;
     courtClassCd: string;
+    transcripts?: TranscriptDocument[];
+    details: FileDetailsType;
   }>();
 
   const pastHeaders = [
@@ -161,6 +203,7 @@
         new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
       width: '13%',
     },
+    { title: '', key: 'transcripts', sortable: false, width: '1%' },
     { title: '', key: 'DARS', sortable: false, width: '1%' },
     { title: 'REASON', key: 'appearanceReasonCd' },
     {
@@ -200,6 +243,7 @@
       sortRaw: (a: ApprDetailType, b: ApprDetailType) =>
         new Date(a.appearanceDt).getTime() - new Date(b.appearanceDt).getTime(),
     },
+    { title: '', key: 'transcripts', sortable: false, width: '1%' },
     { title: 'REASON', key: 'appearanceReasonCd' },
     {
       title: 'TIME DURATION',
@@ -225,6 +269,47 @@
   const now = new Date();
 
   const darsStore = useDarsStore();
+  const transcriptMenus = ref<Record<string, boolean>>({});
+
+  const getAppearanceTranscripts = (appearanceId: string | number) => {
+    if (!props.transcripts) return [];
+    const appearanceIdStr = String(appearanceId);
+    return props.transcripts.filter((transcript) =>
+      transcript.appearances.some((app) => {
+        // For criminal files, match on justinAppearanceId
+        // For civil files, match on ceisAppearanceId
+        const transcriptAppearanceId = props.isCriminal
+          ? String(app.justinAppearanceId)
+          : String(app.ceisAppearanceId);
+        return transcriptAppearanceId === appearanceIdStr;
+      })
+    );
+  };
+
+  const handleTranscriptClick = (event: MouseEvent, appearanceId: string) => {
+    const transcripts = getAppearanceTranscripts(appearanceId);
+    if (transcripts.length === 1) {
+      // Open single transcript directly
+      event.stopPropagation();
+      openTranscript(transcripts[0]);
+    }
+    // For multiple transcripts, the menu will open automatically via v-menu
+  };
+
+  const openTranscript = (transcript: TranscriptDocument) => {
+    shared.openDocumentsPdf(CourtDocumentType.Transcript, {
+      documentId: transcript.id.toString(),
+      orderId: transcript.orderId.toString(),
+      transcriptDocumentId: transcript.id.toString(),
+      documentDescription: `Transcript - ${transcript.description}`,
+      fileId: props.fileNumber,
+      fileNumberText: props.details.fileNumberTxt,
+      courtLevel: props.details.courtLevelCd,
+      courtClass: props.details.courtClassCd,
+      location: props.details.homeLocationAgencyName,
+      isCriminal: props.isCriminal,
+    });
+  };
 
   const openDarsModal = (item: ApprDetailType) => {
     // Parse the date string to Date object

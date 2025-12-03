@@ -5,14 +5,19 @@ using System.Threading.Tasks;
 using Bogus;
 using DARSCommon.Clients.LogNotesServices;
 using DARSCommon.Models;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Scv.Api.Controllers;
+using Scv.Api.Documents;
 using Scv.Api.Models.Dars;
+using Scv.Api.Models.Document;
 using Scv.Api.Services;
 using Xunit;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace tests.api.Controllers
 {
@@ -21,6 +26,8 @@ namespace tests.api.Controllers
         private readonly Faker _faker;
         private readonly Mock<IDarsService> _mockDarsService;
         private readonly Mock<ILogger<DarsController>> _mockLogger;
+        private readonly Mock<IValidator<TranscriptSearchRequest>> _mockValidator;
+        private readonly Mock<IDocumentMerger> _mockDocumentMerger;
         private readonly DarsController _controller;
 
         public DarsControllerTests()
@@ -28,7 +35,14 @@ namespace tests.api.Controllers
             _faker = new Faker();
             _mockDarsService = new Mock<IDarsService>();
             _mockLogger = new Mock<ILogger<DarsController>>();
-            _controller = new DarsController(_mockDarsService.Object, _mockLogger.Object);
+            _mockValidator = new Mock<IValidator<TranscriptSearchRequest>>();
+            _mockDocumentMerger = new Mock<IDocumentMerger>();
+
+            _controller = new DarsController(
+                _mockDarsService.Object,
+                _mockLogger.Object,
+                _mockValidator.Object,
+                _mockDocumentMerger.Object);
 
             var context = new DefaultHttpContext();
             _controller.ControllerContext = new ControllerContext
@@ -63,7 +77,7 @@ namespace tests.api.Controllers
         {
             // Arrange
             var date = _faker.Date.Recent();
-            var agencyIdentifierCd = _faker.Random.Int(1, 1000).ToString();;
+            var agencyIdentifierCd = _faker.Random.Int(1, 1000).ToString(); ;
             var courtRoomCd = _faker.Random.AlphaNumeric(5);
             var expectedResults = new List<DarsSearchResults>
             {
@@ -277,6 +291,314 @@ namespace tests.api.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.NotNull(okResult.Value);
             _mockDarsService.Verify(s => s.DarsApiSearch(date, agencyIdentifierCd, courtRoomCd), Times.Once);
+        }
+
+        #endregion
+
+        #region GetTranscripts Tests
+
+        [Fact]
+        public async Task GetTranscripts_ReturnsBadRequest_WhenValidationFails()
+        {
+            // Arrange
+            var physicalFileId = _faker.Random.AlphaNumeric(10);
+            var validationResult = new ValidationResult(new List<ValidationFailure>
+            {
+                new ValidationFailure("PhysicalFileId", "Invalid format")
+            });
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+            Assert.Contains("Invalid format", errors);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_ReturnsOk_WhenTranscriptsFound()
+        {
+            // Arrange
+            var physicalFileId = _faker.Random.AlphaNumeric(10);
+            var transcripts = new List<TranscriptDocument>
+            {
+                new TranscriptDocument
+                {
+                    Id = _faker.Random.Int(1, 1000),
+                    OrderId = _faker.Random.Int(1, 1000),
+                    Description = _faker.Lorem.Sentence(),
+                    FileName = _faker.System.FileName("pdf"),
+                    PagesComplete = _faker.Random.Int(1, 100),
+                    StatusCodeId = 1,
+                    Appearances = new List<TranscriptAppearance>()
+                },
+                new TranscriptDocument
+                {
+                    Id = _faker.Random.Int(1, 1000),
+                    OrderId = _faker.Random.Int(1, 1000),
+                    Description = _faker.Lorem.Sentence(),
+                    FileName = _faker.System.FileName("pdf"),
+                    PagesComplete = _faker.Random.Int(1, 100),
+                    StatusCodeId = 1,
+                    Appearances = new List<TranscriptAppearance>()
+                }
+            };
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ReturnsAsync(transcripts);
+
+            // Act
+            var result = await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedTranscripts = Assert.IsAssignableFrom<IEnumerable<TranscriptDocument>>(okResult.Value);
+            Assert.Equal(2, returnedTranscripts.Count());
+        }
+
+        [Fact]
+        public async Task GetTranscripts_ReturnsNotFound_WhenNoTranscriptsFound()
+        {
+            // Arrange
+            var physicalFileId = _faker.Random.AlphaNumeric(10);
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ReturnsAsync(new List<TranscriptDocument>());
+
+            // Act
+            var result = await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_ReturnsNotFound_WhenResultIsNull()
+        {
+            // Arrange
+            var physicalFileId = _faker.Random.AlphaNumeric(10);
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ReturnsAsync((IEnumerable<TranscriptDocument>)null);
+
+            // Act
+            var result = await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_ReturnsNotFound_WhenApiException404()
+        {
+            // Arrange
+            var physicalFileId = _faker.Random.AlphaNumeric(10);
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ThrowsAsync(new DARSCommon.Clients.TranscriptsServices.ApiException("Not found", 404, "response", null, null));
+
+            // Act
+            var result = await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_ReturnsInternalServerError_WhenApiException()
+        {
+            // Arrange
+            var physicalFileId = _faker.Random.AlphaNumeric(10);
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ThrowsAsync(new DARSCommon.Clients.TranscriptsServices.ApiException("Server error", 500, "response", null, null));
+
+            // Act
+            var result = await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            var statusCodeResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, statusCodeResult.StatusCode);
+            Assert.Equal("An error occurred while searching for transcripts.", statusCodeResult.Value);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_PassesCorrectParameters_WithPhysicalFileId()
+        {
+            // Arrange
+            var physicalFileId = "12345";
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ReturnsAsync(new List<TranscriptDocument>
+                {
+                    new TranscriptDocument { Id = 1, OrderId = 1, Description = "", FileName = "", PagesComplete = 0, StatusCodeId = 1, Appearances = new List<TranscriptAppearance>() }
+                });
+
+            // Act
+            await _controller.GetTranscripts(physicalFileId);
+
+            // Assert
+            _mockDarsService.Verify(s => s.GetCompletedDocuments(physicalFileId, null, true), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_PassesCorrectParameters_WithMdocJustinNo()
+        {
+            // Arrange
+            var mdocJustinNo = "54321";
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(null, mdocJustinNo, true))
+                .ReturnsAsync(new List<TranscriptDocument>
+                {
+                    new TranscriptDocument { Id = 1, OrderId = 1, Description = "", FileName = "", PagesComplete = 0, StatusCodeId = 1, Appearances = new List<TranscriptAppearance>() }
+                });
+
+            // Act
+            await _controller.GetTranscripts(null, mdocJustinNo);
+
+            // Assert
+            _mockDarsService.Verify(s => s.GetCompletedDocuments(null, mdocJustinNo, true), Times.Once);
+        }
+
+        #endregion
+
+        #region GetTranscriptDocument Tests
+
+        [Fact]
+        public async Task GetTranscriptDocument_ReturnsBadRequest_WhenOrderIdIsEmpty()
+        {
+            // Arrange
+            var orderId = "";
+            var documentId = _faker.Random.Int(1, 1000).ToString();
+
+            // Act
+            var result = await _controller.GetTranscriptDocument(orderId, documentId);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Order ID and Document ID are required.", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task GetTranscriptDocument_ReturnsBadRequest_WhenDocumentIdIsEmpty()
+        {
+            // Arrange
+            var orderId = _faker.Random.Int(1, 1000).ToString();
+            var documentId = "";
+
+            // Act
+            var result = await _controller.GetTranscriptDocument(orderId, documentId);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Order ID and Document ID are required.", badRequestResult.Value);
+        }
+
+        [Fact]
+        public async Task GetTranscriptDocument_ReturnsOk_WithBase64Pdf()
+        {
+            // Arrange
+            var orderId = _faker.Random.Int(1, 1000).ToString();
+            var documentId = _faker.Random.Int(1, 1000).ToString();
+            var expectedBase64 = Convert.ToBase64String(_faker.Random.Bytes(100));
+
+            _mockDocumentMerger
+                .Setup(m => m.MergeDocuments(It.IsAny<PdfDocumentRequest[]>()))
+                .ReturnsAsync(new PdfDocumentResponse { Base64Pdf = expectedBase64 });
+
+            // Act
+            var result = await _controller.GetTranscriptDocument(orderId, documentId);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var response = okResult.Value;
+            var base64Property = response.GetType().GetProperty("base64Pdf");
+            Assert.NotNull(base64Property);
+            Assert.Equal(expectedBase64, base64Property.GetValue(response));
+        }
+
+        [Fact]
+        public async Task GetTranscriptDocument_CallsMergeDocuments_WithCorrectParameters()
+        {
+            // Arrange
+            var orderId = "123";
+            var documentId = "456";
+
+            _mockDocumentMerger
+                .Setup(m => m.MergeDocuments(It.IsAny<PdfDocumentRequest[]>()))
+                .ReturnsAsync(new PdfDocumentResponse { Base64Pdf = "test" });
+
+            // Act
+            await _controller.GetTranscriptDocument(orderId, documentId);
+
+            // Assert
+            _mockDocumentMerger.Verify(m => m.MergeDocuments(
+                It.Is<PdfDocumentRequest[]>(reqs =>
+                    reqs.Length == 1 &&
+                    reqs[0].Type == Scv.Api.Documents.DocumentType.Transcript &&
+                    reqs[0].Data.OrderId == orderId &&
+                    reqs[0].Data.TranscriptDocumentId == documentId)),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTranscriptDocument_ReturnsInternalServerError_WhenExceptionThrown()
+        {
+            // Arrange
+            var orderId = _faker.Random.Int(1, 1000).ToString();
+            var documentId = _faker.Random.Int(1, 1000).ToString();
+
+            _mockDocumentMerger
+                .Setup(m => m.MergeDocuments(It.IsAny<PdfDocumentRequest[]>()))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            // Act
+            var result = await _controller.GetTranscriptDocument(orderId, documentId);
+
+            // Assert
+            var statusCodeResult = Assert.IsType<ObjectResult>(result);
+            Assert.Equal(500, statusCodeResult.StatusCode);
+            Assert.Equal("An error occurred while retrieving the transcript document.", statusCodeResult.Value);
         }
 
         #endregion

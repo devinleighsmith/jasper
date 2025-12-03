@@ -16,6 +16,7 @@ using Moq;
 using Scv.Api.Documents;
 using Scv.Api.Models;
 using Scv.Api.Processors;
+using Scv.Api.Services;
 using Scv.Db.Contants;
 using Xunit;
 
@@ -46,6 +47,9 @@ public class BinderFactoryTests
         var config = new TypeAdapterConfig();
         var mapper = new Mapper(config);
 
+        // Mock IDarsService
+        var mockDarsService = new Mock<IDarsService>();
+
         return new BinderFactory(
             filesClient,
             user,
@@ -54,7 +58,8 @@ public class BinderFactoryTests
             cachingService,
             new Mock<IConfiguration>().Object,
             new Mock<IDocumentConverter>().Object,
-            mapper);
+            mapper,
+            mockDarsService.Object);
     }
 
     private static Dictionary<string, string> Labels(string courtClass) =>

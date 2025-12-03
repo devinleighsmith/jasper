@@ -155,11 +155,11 @@
   const enableViewTogether = computed<boolean>(
     () => selectedItems.value.filter((d) => d.imageId).length > 1
   );
-  const scheduledDocuments = props.documents.filter(
-    (doc) => doc.nextAppearanceDt
+  const scheduledDocuments = computed(() =>
+    props.documents.filter((doc) => doc.nextAppearanceDt)
   );
   const selectedCategory = ref<string>(
-    scheduledDocuments.length > 0 ? SCHEDULED_CATEGORY : ''
+    scheduledDocuments.value.length > 0 ? SCHEDULED_CATEGORY : ''
   );
   const isBinderLoading = ref(true);
   const rolesLoading = ref(false);
@@ -184,19 +184,25 @@
 
   const getCategoryDisplayTitle = (category: string): string => {
     const categoryMap: Record<string, string> = {
-      'Affidavits': AFF_FIN_STMT,
-      'CSR': CSR_CATEGORY_DESC,
+      Affidavits: AFF_FIN_STMT,
+      CSR: CSR_CATEGORY_DESC,
     };
     return categoryMap[category] || category;
   };
 
-  const documentCategories = ref<{ title: string; value: string }[]>(
-    (scheduledDocuments.length > 0 ? [{ title: SCHEDULED_CATEGORY, value: SCHEDULED_CATEGORY }] : []).concat(
-      [...new Set(props.documents.filter(d => d.category).map(doc => doc.category))]
-        .map(category => ({
-          title: getCategoryDisplayTitle(category),
-          value: category
-        }))
+  const documentCategories = computed<{ title: string; value: string }[]>(() =>
+    (scheduledDocuments.value.length > 0
+      ? [{ title: SCHEDULED_CATEGORY, value: SCHEDULED_CATEGORY }]
+      : []
+    ).concat(
+      [
+        ...new Set(
+          props.documents.filter((d) => d.category).map((doc) => doc.category)
+        ),
+      ].map((category) => ({
+        title: getCategoryDisplayTitle(category),
+        value: category,
+      }))
     )
   );
 
@@ -288,10 +294,17 @@
     items
       .filter((item) => item.imageId)
       .forEach((item) => {
-        const documentType =
-          getCivilDocumentType(item) === CourtDocumentType.CSR
-            ? DocumentRequestType.CourtSummary
-            : DocumentRequestType.File;
+        const civilDocType = getCivilDocumentType(item);
+        let documentType: DocumentRequestType;
+
+        if (civilDocType === CourtDocumentType.CSR) {
+          documentType = DocumentRequestType.CourtSummary;
+        } else if (civilDocType === CourtDocumentType.Transcript) {
+          documentType = DocumentRequestType.Transcript;
+        } else {
+          documentType = DocumentRequestType.File;
+        }
+
         const documentData = prepareCivilDocumentData(item);
         documents.push({
           documentType,
@@ -324,11 +337,26 @@
     }
   };
 
-  const addDocumentToBinder = async (documentId: string) => {
-    currentBinder.value?.documents.push({
-      documentId,
-      order: currentBinder.value?.documents.length,
-    } as BinderDocument);
+  const addDocumentToBinder = async (document: civilDocumentType) => {
+    const binderDoc: BinderDocument = {
+      documentId: document.civilDocumentId,
+      order: currentBinder.value?.documents.length ?? 0,
+      documentType:
+        document.category === 'Transcript'
+          ? DocumentRequestType.Transcript
+          : DocumentRequestType.File,
+      fileName: document.documentTypeDescription,
+    };
+
+    // Add orderId for transcript documents
+    if (
+      document.category === 'Transcript' &&
+      (document as any).transcriptOrderId
+    ) {
+      binderDoc.orderId = (document as any).transcriptOrderId.toString();
+    }
+
+    currentBinder.value?.documents.push(binderDoc);
 
     await saveBinder();
   };
@@ -407,10 +435,22 @@
     }
 
     newDocuments.forEach((d) => {
-      currentBinder.value?.documents.push({
+      const binderDoc: BinderDocument = {
         documentId: d.civilDocumentId,
-        order: currentBinder.value?.documents.length,
-      } as BinderDocument);
+        order: currentBinder.value?.documents.length ?? 0,
+        documentType:
+          d.category === 'Transcript'
+            ? DocumentRequestType.Transcript
+            : DocumentRequestType.File,
+        fileName: d.documentTypeDescription,
+      };
+
+      // Add orderId for transcript documents
+      if (d.category === 'Transcript' && (d as any).transcriptOrderId) {
+        binderDoc.orderId = (d as any).transcriptOrderId.toString();
+      }
+
+      currentBinder.value?.documents.push(binderDoc);
     });
 
     selectedItems.value = [];
