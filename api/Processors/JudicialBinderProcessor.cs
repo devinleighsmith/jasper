@@ -115,33 +115,43 @@ public class JudicialBinderProcessor : BinderProcessorBase
     private async Task<List<BinderDocumentDto>> GetDocuments()
     {
         var fileId = this.Binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID);
+        var agencyCode = CurrentUser.AgencyCode();
+        var participantId = CurrentUser.ParticipantId();
+        var applicationCd = _configuration.GetNonEmptyValue("Request:ApplicationCd");
 
-        async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(
-            this.CurrentUser.AgencyCode(),
-            this.CurrentUser.ParticipantId(),
-            _configuration.GetNonEmptyValue("Request:ApplicationCd"),
-            fileId);
-        async Task<CivilFileContent> FileContent() => await _filesClient.FilesCivilFilecontentAsync(CurrentUser.AgencyCode(), CurrentUser.ParticipantId(), _configuration.GetNonEmptyValue("Request:ApplicationCd"), null, null, null, null, fileId);
-        var fileContentTask = _cache.GetOrAddAsync($"CivilFileContent-{fileId}-{CurrentUser.AgencyCode()}", FileContent);
-        var fileDetailsTask = _cache.GetOrAddAsync($"CivilFileDetail-{fileId}-{CurrentUser.AgencyCode()}", FileDetails);
+        // Fetch file details and content in parallel
+        var fileDetailsTask = _cache.GetOrAddAsync(
+            $"CivilFileDetail-{fileId}-{agencyCode}", 
+            () => _filesClient.FilesCivilGetAsync(agencyCode, participantId, applicationCd, fileId));
+        var fileContentTask = _cache.GetOrAddAsync(
+            $"CivilFileContent-{fileId}-{agencyCode}", 
+            () => _filesClient.FilesCivilFilecontentAsync(agencyCode, participantId, applicationCd, null, null, null, null, fileId));
+
         var fileDetails = await fileDetailsTask;
         var fileContent = await fileContentTask;
 
-        // Pass existing binder documents if available, otherwise use empty list
         var existingBinderDocs = Binder.Documents ?? [];
-        var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingBinderDocs.Select(doc => doc.DocumentId).Contains(a.AppearanceId))]);
-        var referenceDocs = PopulateDetailReferenceDocuments([.. fileDetails.ReferenceDocument.Where(rd => existingBinderDocs.Select(doc => doc.DocumentId).Contains(rd.ReferenceDocumentId))]);
-        var documents = fileContent.CivilFile.SelectMany(cf => cf.Document);
-        var matchingDocuments = documents.Where(docContent => existingBinderDocs.Any(bd => bd.DocumentId == docContent.DocumentId)).ToList();
-        
-        var fileContentCivilFile = fileContent.CivilFile?.First(cf => cf.PhysicalFileID == fileId);
-        if(fileContentCivilFile != null)
+        var existingDocIds = existingBinderDocs.Select(doc => doc.DocumentId).ToList();
+        var csrDocs = PopulateDetailCsrsDocuments(
+            fileDetails.Appearance.Where(a => existingDocIds.Contains(a.AppearanceId)).ToList());
+        var referenceDocs = PopulateDetailReferenceDocuments(
+            fileDetails.ReferenceDocument.Where(rd => existingDocIds.Contains(rd.ReferenceDocumentId)).ToList());
+        var civilDocs = fileContent.CivilFile
+            .SelectMany(cf => cf.Document)
+            .Where(doc => existingDocIds.Contains(doc.DocumentId));
+
+        // Map and preserve order
+        var mappedDocuments = _mapper.Map<List<BinderDocumentDto>>(civilDocs.Concat(csrDocs).Concat(referenceDocs));
+        foreach (var doc in mappedDocuments)
         {
-            Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, fileContentCivilFile.CourtLevelCd);
-            Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, fileContentCivilFile.CourtClassCd);
+            var existingDoc = existingBinderDocs.FirstOrDefault(ed => ed.DocumentId == doc.DocumentId);
+            if (existingDoc != null)
+            {
+                doc.Order = existingDoc.Order;
+            }
         }
 
-        return _mapper.Map<List<BinderDocumentDto>>(matchingDocuments.Concat(csrDocs).Concat(referenceDocs));
+        return [.. mappedDocuments.OrderBy(d => d.Order)];
     }
 
     private static IEnumerable<CvfcDocument> PopulateDetailReferenceDocuments(ICollection<CvfcRefDocument3> referenceDocuments)
