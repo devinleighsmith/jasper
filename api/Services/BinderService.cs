@@ -46,6 +46,7 @@ public class BinderService(
 
     public override string CacheName => nameof(BinderService);
 
+    // Find more generic place for this
     private static readonly string[] sourceArray = ["A", "Y", "T"];
 
     public async Task<OperationResult<List<BinderDto>>> GetByLabels(Dictionary<string, string> labels)
@@ -152,9 +153,7 @@ public class BinderService(
                 });
             }
             var isCriminal = binders.Any(b => sourceArray.Contains(b.Labels.GetValue(LabelConstants.COURT_CLASS_CD)));
-            var requests = isCriminal 
-                ? GenerateCriminalPdfDocumentRequests(binders, correlationId)
-                : GenerateCivilPdfDocumentRequests(binders, correlationId);
+            var requests = GeneratePdfDocumentRequests(binders, correlationId, isCriminal);
             if (requests.Length == 0)
             {
                 this.Logger.LogWarning("No binders to merge. CorrelationId: {CorreclationId}", correlationId);
@@ -259,7 +258,7 @@ public class BinderService(
         return binders;
     }
 
-    private static PdfDocumentRequest[] GenerateCriminalPdfDocumentRequests(List<BinderDto> binders, Guid correlationId)
+    private static PdfDocumentRequest[] GeneratePdfDocumentRequests(List<BinderDto> binders, Guid correlationId, bool isCriminal)
     {
         var bundleRequests = new List<PdfDocumentRequest>();
         foreach (var binder in binders)
@@ -278,40 +277,10 @@ public class BinderService(
                         CourtLevelCd = binder.Labels.GetValue(LabelConstants.COURT_LEVEL_CD),
                         CourtClassCd = binder.Labels.GetValue(LabelConstants.COURT_CLASS_CD),
                         FileId = binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID),
-                        AppearanceId = binder.Labels.GetValue(LabelConstants.APPEARANCE_ID),
-                        IsCriminal = true,
-                        CorrelationId = correlationId.ToString(),
-                        DocumentId = d.DocumentType == DocumentType.File
-                            ? WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(d.DocumentId))
-                            : d.DocumentId
-                    }
-                });
-            bundleRequests.AddRange(binderDocRequests);
-        }
-        return [.. bundleRequests];
-    }
-
-    private static PdfDocumentRequest[] GenerateCivilPdfDocumentRequests(List<BinderDto> binders, Guid correlationId)
-    {
-        var bundleRequests = new List<PdfDocumentRequest>();
-        foreach (var binder in binders)
-        {
-            var binderDocRequests = binder.Documents
-                // Excludes DocumentType.File documents where the FileName = DocumentId.
-                // This means that there is no document to view.
-                .Where(d => d.DocumentType != DocumentType.File || d.DocumentId != null)
-                .Select(d => new PdfDocumentRequest
-                {
-                    Type = d.DocumentType,
-                    Data = new PdfDocumentRequestDetails
-                    {
-                        PartId = binder.Labels.GetValue(LabelConstants.PARTICIPANT_ID),
-                        ProfSeqNo = binder.Labels.GetValue(LabelConstants.PROF_SEQ_NUMBER),
-                        CourtLevelCd = binder.Labels.GetValue(LabelConstants.COURT_LEVEL_CD),
-                        CourtClassCd = binder.Labels.GetValue(LabelConstants.COURT_CLASS_CD),
-                        FileId = binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID),
-                        AppearanceId = d.DocumentId,
-                        IsCriminal = false,
+                        AppearanceId = isCriminal 
+                            ? binder.Labels.GetValue(LabelConstants.APPEARANCE_ID)
+                            : d.DocumentId,
+                        IsCriminal = isCriminal,
                         CorrelationId = correlationId.ToString(),
                         DocumentId = d.DocumentType == DocumentType.File
                             ? WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(d.DocumentId))

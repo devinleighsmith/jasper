@@ -57,8 +57,7 @@ namespace Scv.Api.Services.Files
                 _cache,
                 claimsPrincipal,
                 factory.CreateLogger<CivilFilesService>(),
-                binderService
-                );
+                binderService);
             Criminal = new CriminalFilesService(configuration, filesClient, mapper, lookupService, locationService, _cache, claimsPrincipal, documentConverter);
 
             _applicationCode = configuration.GetNonEmptyValue("Request:ApplicationCd");
