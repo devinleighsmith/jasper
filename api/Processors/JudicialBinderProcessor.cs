@@ -115,7 +115,6 @@ public class JudicialBinderProcessor : BinderProcessorBase
     private async Task<List<BinderDocumentDto>> GetDocuments()
     {
         var fileId = this.Binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID);
-        var participantId = this.Binder.Labels.GetValue(LabelConstants.PARTICIPANT_ID);
 
         async Task<CivilFileDetailResponse> FileDetails() => await _filesClient.FilesCivilGetAsync(
             this.CurrentUser.AgencyCode(),

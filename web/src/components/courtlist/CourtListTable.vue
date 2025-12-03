@@ -159,9 +159,8 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
-  import { useCourtFileSearchStore } from '@/stores';
+  import { useCourtFileSearchStore, useCommonStore } from '@/stores';
   import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
-  import { useCommonStore } from '@/stores';
   import {
     CourtClassEnum,
     DivisionEnum,

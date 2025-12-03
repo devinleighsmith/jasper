@@ -144,7 +144,6 @@ public class BinderService(
             var binders = await InitializeBinders(contexts);
             if (binders.Count == 0)
             {
-                this.Logger.LogWarning("Something went wrong while initializing the binders. CorrelationId: {CorreclationId}", correlationId);
                 this.Logger.LogWarning("No binders to process. CorrelationId: {CorreclationId}", correlationId);
                 return OperationResult<DocumentBundleResponse>.Success(new DocumentBundleResponse
                 {
