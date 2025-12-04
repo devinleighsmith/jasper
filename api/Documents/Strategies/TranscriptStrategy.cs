@@ -13,8 +13,6 @@ namespace Scv.Api.Documents.Strategies;
 public class TranscriptStrategy : IDocumentStrategy
 {
     private readonly TranscriptsServicesClient _transcriptsClient;
-    private readonly ClaimsPrincipal _currentUser;
-    private readonly IConfiguration _configuration;
     private readonly ILogger<TranscriptStrategy> _logger;
 
     public TranscriptStrategy(
@@ -24,8 +22,6 @@ public class TranscriptStrategy : IDocumentStrategy
         ILogger<TranscriptStrategy> logger)
     {
         _transcriptsClient = transcriptsClient;
-        _currentUser = currentUser;
-        _configuration = configuration;
         _logger = logger;
     }
 
@@ -33,8 +29,8 @@ public class TranscriptStrategy : IDocumentStrategy
 
     public async Task<MemoryStream> Invoke(PdfDocumentRequestDetails documentRequest)
     {
-        ArgumentNullException.ThrowIfNull(documentRequest.OrderId, nameof(documentRequest.OrderId));
-        ArgumentNullException.ThrowIfNull(documentRequest.TranscriptDocumentId, nameof(documentRequest.TranscriptDocumentId));
+        ArgumentNullException.ThrowIfNull(documentRequest.OrderId);
+        ArgumentNullException.ThrowIfNull(documentRequest.TranscriptDocumentId);
 
         _logger.LogInformation(
             "Fetching transcript attachment - OrderId: {OrderId}, DocumentId: {DocumentId}",
