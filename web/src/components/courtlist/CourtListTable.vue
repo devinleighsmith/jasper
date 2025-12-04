@@ -148,6 +148,7 @@
     :selected
     @view-case-details="viewCaseDetails"
     @view-key-documents="viewKeyDocuments"
+    @view-judicial-binders="handleViewJudicialBinders"
   />
 </template>
 
@@ -158,7 +159,7 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
-  import { useCourtFileSearchStore } from '@/stores';
+  import { useCourtFileSearchStore, useCommonStore } from '@/stores';
   import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
   import {
     CourtClassEnum,
@@ -180,6 +181,7 @@
   } from '@mdi/js';
   import { computed, ref } from 'vue';
 
+  const commonStore = useCommonStore();
   const selected = ref<CourtListAppearance[]>([]);
   const sortBy = ref([
     { key: 'appearanceSequenceNumber', order: 'asc' },
@@ -390,7 +392,27 @@
         }) as AppearanceDocumentRequest
     );
 
-    shared.openCourtListKeyDocuments(appearances);
+    shared.openCourtListKeyDocuments(appearances,);
+  };
+
+  const handleViewJudicialBinders = (
+    appearances: CourtListAppearance[]
+  ) => {
+    if (appearances.length === 0) {
+      return;
+    }
+
+    appearances.map(
+      (app) =>
+        ({
+          physicalFileId: app.physicalFileId,
+          appearanceId: app.appearanceId,
+          participantId: app.profPartId,
+          courtClassCd: app.courtClassCd
+        }) as AppearanceDocumentRequest
+    );
+
+    shared.openJudicialBinderDocuments(appearances, commonStore.userInfo?.userId || "");
   };
 
   const viewCaseDetails = (selectedItems: CourtListAppearance[]) => {

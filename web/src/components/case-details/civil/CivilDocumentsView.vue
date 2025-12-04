@@ -410,6 +410,9 @@
       currentBinder.value?.documents.push({
         documentId: d.civilDocumentId,
         order: currentBinder.value?.documents.length,
+        documentType: getCivilDocumentType(d) === CourtDocumentType.CSR
+            ? DocumentRequestType.CourtSummary
+            : DocumentRequestType.File,
       } as BinderDocument);
     });
 

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Scv.Api.Documents;
 using Scv.Api.Helpers.Extensions;
 using Scv.Api.Models;
+using Scv.Api.Services.Files;
 using Scv.Db.Contants;
 
 namespace Scv.Api.Processors;
@@ -61,7 +62,14 @@ public class BinderFactory(
             case CourtClassCd.F:
             case CourtClassCd.L:
             case CourtClassCd.M:
-                return new JudicialBinderProcessor(_filesClient, _currentUser, _basicValidator, dto, _configuration);
+                return new JudicialBinderProcessor(
+                    _filesClient,
+                     _currentUser,
+                     _basicValidator,
+                     dto,
+                     _cache,
+                     _configuration,
+                     _mapper);
             case CourtClassCd.A:
             case CourtClassCd.Y:
             case CourtClassCd.T:

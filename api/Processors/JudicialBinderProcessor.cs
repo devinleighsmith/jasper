@@ -6,30 +6,42 @@ using FluentValidation;
 using JCCommon.Clients.FileServices;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
+using MapsterMapper;
 using Scv.Api.Helpers;
 using Scv.Api.Helpers.ContractResolver;
 using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure;
 using Scv.Api.Models;
 using Scv.Db.Contants;
+using LazyCache;
+using System;
+using Scv.Db.Models;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Scv.Api.Processors;
 
 public class JudicialBinderProcessor : BinderProcessorBase
 {
     private readonly FileServicesClient _filesClient;
+    private readonly IAppCache _cache;
     private readonly IConfiguration _configuration;
+    private readonly IMapper _mapper;
 
     public JudicialBinderProcessor(
         FileServicesClient filesClient,
         ClaimsPrincipal currentUser,
         IValidator<BinderDto> basicValidator,
         BinderDto dto,
-        IConfiguration configuration) : base(currentUser, dto, basicValidator)
+        IAppCache cache,
+        IConfiguration configuration,
+        IMapper mapper) : base(currentUser, dto, basicValidator)
     {
         _filesClient = filesClient;
         _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
         _configuration = configuration;
+        _cache = cache;
+        _mapper = mapper;
     }
 
     public override async Task PreProcessAsync()
@@ -44,8 +56,20 @@ public class JudicialBinderProcessor : BinderProcessorBase
             fileId);
 
         // Add labels specific to Judicial Binder
-        this.Binder.Labels.Add(LabelConstants.COURT_CLASS_CD, fileDetail.CourtClassCd.ToString());
-        this.Binder.Labels.Add(LabelConstants.JUDGE_ID, this.CurrentUser.UserId());
+        Binder.Labels.Add(LabelConstants.COURT_CLASS_CD, fileDetail.CourtClassCd.ToString());
+        Binder.Labels.Add(LabelConstants.JUDGE_ID, this.CurrentUser.UserId());
+        Binder.Labels.Add(LabelConstants.IS_CRIMINAL, "false");
+    }
+
+    public override async Task<OperationResult> ProcessAsync()
+    {
+        if (this.Binder.Id != null)
+        {
+            var documents = await GetDocuments();
+            Binder.Documents = documents;
+            return OperationResult.Success();
+        }
+        return OperationResult.Failure("Binder does not exist.");
     }
 
     public override async Task<OperationResult> ValidateAsync()
@@ -87,5 +111,68 @@ public class JudicialBinderProcessor : BinderProcessorBase
         return errors.Count != 0
             ? OperationResult.Failure([.. errors])
             : OperationResult.Success();
+    }
+
+    private async Task<List<BinderDocumentDto>> GetDocuments()
+    {
+        var fileId = Binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID);
+        var agencyCode = CurrentUser.AgencyCode();
+        var participantId = CurrentUser.ParticipantId();
+        var applicationCd = _configuration.GetNonEmptyValue("Request:ApplicationCd");
+
+        // Fetch file details and content in parallel
+        var fileDetails = _cache.GetOrAddAsync(
+            $"CivilFileDetail-{fileId}-{agencyCode}-{participantId}-{applicationCd}",
+            () => _filesClient.FilesCivilGetAsync(agencyCode, participantId, applicationCd, fileId));
+        var fileContent = _cache.GetOrAddAsync(
+            $"CivilFileContent-{fileId}-{agencyCode}-{participantId}-{applicationCd}",
+            () => _filesClient.FilesCivilFilecontentAsync(agencyCode, participantId, applicationCd, null, null, null, null, fileId));
+
+        await Task.WhenAll(fileDetails, fileContent);
+
+        var existingBinderDocs = Binder.Documents ?? [];
+        var existingDocIds = existingBinderDocs.Select(doc => doc.DocumentId).ToHashSet();
+        var csrDocs = PopulateDetailCsrsDocuments([.. (fileDetails.Result.Appearance ?? []).Where(a => existingDocIds.Contains(a.AppearanceId))]);
+        var referenceDocs = PopulateDetailReferenceDocuments([.. (fileDetails.Result.ReferenceDocument ?? []).Where(rd => existingDocIds.Contains(rd.ReferenceDocumentId))]);
+        var civilDocs = (fileContent.Result.CivilFile ?? [])
+            .SelectMany(cf => cf.Document ?? [])
+            .Where(doc => existingDocIds.Contains(doc.DocumentId));
+
+        // Map and preserve order
+        var mappedDocuments = _mapper.Map<List<BinderDocumentDto>>(civilDocs.Concat(csrDocs).Concat(referenceDocs));
+        foreach (var doc in mappedDocuments)
+        {
+            var existingDoc = existingBinderDocs.FirstOrDefault(ed => ed.DocumentId == doc.DocumentId);
+            if (existingDoc != null)
+            {
+                doc.Order = existingDoc.Order;
+            }
+        }
+
+        return [.. mappedDocuments.OrderBy(d => d.Order)];
+    }
+
+    private static IEnumerable<CvfcDocument> PopulateDetailReferenceDocuments(ICollection<CvfcRefDocument3> referenceDocuments)
+    {
+        //Add in Reference Documents.
+        return referenceDocuments.Select(referenceDocument => new CvfcDocument()
+        {
+            DocumentTypeCd = DocumentCategory.REFERENCE,
+            DocumentTypeDescription = referenceDocument.ReferenceDocumentTypeDsc,
+            DocumentId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(referenceDocument.ObjectGuid)),
+            ImageId = referenceDocument.ObjectGuid,
+        });
+    }
+
+    private static IEnumerable<CvfcDocument> PopulateDetailCsrsDocuments(ICollection<CvfcAppearance> appearances)
+    {
+        //Add in CSRs.
+        return appearances.Select(appearance => new CvfcDocument()
+        {
+            DocumentTypeCd = DocumentCategory.CSR,
+            DocumentTypeDescription = "Court Summary",
+            DocumentId = appearance.AppearanceId,
+            ImageId = appearance.AppearanceId,
+        });
     }
 }

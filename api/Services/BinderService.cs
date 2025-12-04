@@ -141,10 +141,13 @@ public class BinderService(
             var binders = await InitializeBinders(contexts);
             if (binders.Count == 0)
             {
-                this.Logger.LogWarning("Something went wrong while initializing the binders. CorrelationId: {CorreclationId}", correlationId);
-                return OperationResult<DocumentBundleResponse>.Failure("No binders to process.");
+                this.Logger.LogWarning("No binders to process. CorrelationId: {CorreclationId}", correlationId);
+                return OperationResult<DocumentBundleResponse>.Success(new DocumentBundleResponse
+                {
+                    Binders = [],
+                    PdfResponse = null
+                });
             }
-
             var requests = GeneratePdfDocumentRequests(binders, correlationId);
             if (requests.Length == 0)
             {
@@ -255,6 +258,7 @@ public class BinderService(
         var bundleRequests = new List<PdfDocumentRequest>();
         foreach (var binder in binders)
         {
+            var isCriminal = bool.TryParse(binder.Labels.GetValue(LabelConstants.IS_CRIMINAL), out var result) && result;
             var binderDocRequests = binder.Documents
                 // Excludes DocumentType.File documents where the FileName = DocumentId.
                 // This means that there is no document to view.
@@ -269,8 +273,10 @@ public class BinderService(
                         CourtLevelCd = binder.Labels.GetValue(LabelConstants.COURT_LEVEL_CD),
                         CourtClassCd = binder.Labels.GetValue(LabelConstants.COURT_CLASS_CD),
                         FileId = binder.Labels.GetValue(LabelConstants.PHYSICAL_FILE_ID),
-                        AppearanceId = binder.Labels.GetValue(LabelConstants.APPEARANCE_ID),
-                        IsCriminal = true,
+                        AppearanceId = isCriminal
+                            ? binder.Labels.GetValue(LabelConstants.APPEARANCE_ID)
+                            : d.DocumentId,
+                        IsCriminal = isCriminal,
                         CorrelationId = correlationId.ToString(),
                         DocumentId = d.DocumentType == DocumentType.File
                             ? WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(d.DocumentId))

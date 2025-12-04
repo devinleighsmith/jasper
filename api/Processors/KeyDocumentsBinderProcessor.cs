@@ -54,7 +54,7 @@ public class KeyDocumentsBinderProcessor : BinderProcessorBase
     public override Task PreProcessAsync()
     {
         // Key Documents Binder are generated in the backend so we have full control
-        // which data are saved. Overriding this method so Labels aren't cleared.
+        Binder.Labels.TryAdd(LabelConstants.IS_CRIMINAL, "true");
         return Task.CompletedTask;
     }
 
@@ -136,9 +136,10 @@ public class KeyDocumentsBinderProcessor : BinderProcessorBase
         var allDocuments = await _documentConverter.GetCriminalDocuments(accusedFile);
         var keyDocuments = _mapper.Map<List<BinderDocumentDto>>(KeyDocumentResolver.GetCriminalKeyDocuments(allDocuments));
 
-        this.Binder.Labels.TryAdd(LabelConstants.PROF_SEQ_NUMBER, accusedFile.ProfSeqNo);
-        this.Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, accusedFile.CourtLevelCd);
-        this.Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, accusedFile.CourtClassCd);
+        Binder.Labels.TryAdd(LabelConstants.PROF_SEQ_NUMBER, accusedFile.ProfSeqNo);
+        Binder.Labels.TryAdd(LabelConstants.COURT_LEVEL_CD, accusedFile.CourtLevelCd);
+        Binder.Labels.TryAdd(LabelConstants.COURT_CLASS_CD, accusedFile.CourtClassCd);
+        Binder.Labels.TryAdd(LabelConstants.IS_CRIMINAL, "true");
 
         return keyDocuments;
     }
