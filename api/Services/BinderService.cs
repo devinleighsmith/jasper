@@ -46,9 +46,6 @@ public class BinderService(
 
     public override string CacheName => nameof(BinderService);
 
-    // Find more generic place for this
-    private static readonly string[] sourceArray = ["A", "Y", "T"];
-
     public async Task<OperationResult<List<BinderDto>>> GetByLabels(Dictionary<string, string> labels)
     {
         var binderProcessor = _binderFactory.Create(labels);
@@ -151,8 +148,7 @@ public class BinderService(
                     PdfResponse = null
                 });
             }
-            var isCriminal = binders.Any(b => sourceArray.Contains(b.Labels.GetValue(LabelConstants.COURT_CLASS_CD)));
-            var requests = GeneratePdfDocumentRequests(binders, correlationId, isCriminal);
+            var requests = GeneratePdfDocumentRequests(binders, correlationId);
             if (requests.Length == 0)
             {
                 this.Logger.LogWarning("No binders to merge. CorrelationId: {CorreclationId}", correlationId);
@@ -257,11 +253,12 @@ public class BinderService(
         return binders;
     }
 
-    private static PdfDocumentRequest[] GeneratePdfDocumentRequests(List<BinderDto> binders, Guid correlationId, bool isCriminal)
+    private static PdfDocumentRequest[] GeneratePdfDocumentRequests(List<BinderDto> binders, Guid correlationId)
     {
         var bundleRequests = new List<PdfDocumentRequest>();
         foreach (var binder in binders)
         {
+            var isCriminal = bool.TryParse(binder.Labels.GetValue(LabelConstants.IS_CRIMINAL), out var result) && result;
             var binderDocRequests = binder.Documents
                 // Excludes DocumentType.File documents where the FileName = DocumentId.
                 // This means that there is no document to view.

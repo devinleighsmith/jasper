@@ -95,6 +95,34 @@
   const binderRequests = ref<Promise<any>[]>([]);
   const binderLoading = computed(() => binderRequests.value.length > 0);
 
+  const getCivilFiles = (items: CourtListAppearance[]) =>
+    items.filter((item) => 
+      !isCourtClassLabelCriminal(getCourtClassLabel(item.courtClassCd)) && 
+      item.physicalFileId
+    );
+
+  const fetchBinderCountForAppearance = async (appearance: CourtListAppearance) => {
+    const labels = {
+      physicalFileId: appearance.physicalFileId,
+      courtClassCd: appearance.courtClassCd,
+      judgeId: commonStore.userInfo?.userId,
+    };
+
+    try {
+      const request = binderService.getBinders(labels).then((response) => {
+          binderCounts.value[appearance.physicalFileId] = response.succeeded && response.payload 
+            ? response.payload.length 
+            : 0;
+        }).finally(() => {
+          binderRequests.value = binderRequests.value.filter(r => r !== request);
+        });
+      binderRequests.value.push(request);
+    } catch (error) {
+      console.error('Error fetching binders:', error);
+      binderCounts.value[appearance.physicalFileId] = 0;
+    }
+  };
+
   const groupedSelections = computed(() => {
     const groups: Record<string, CourtListAppearance[]> = {};
     const currentCivilFileIds = new Set<string>();
@@ -128,12 +156,6 @@
   watch(
     () => props.selected,
     async (newSelected, oldSelected) => {
-      const getCivilFiles = (items: CourtListAppearance[]) =>
-        items.filter((item) => 
-          !isCourtClassLabelCriminal(getCourtClassLabel(item.courtClassCd)) && 
-          item.physicalFileId
-        );
-
       const civilFiles = getCivilFiles(newSelected);
       const isSelection = newSelected.length > (oldSelected?.length || 0);
 
@@ -141,38 +163,20 @@
         binderCounts.value = {};
         return;
       }
-      if(!isSelection) {
-        // No need to fetch if all files are already tracked
+
+      if (!isSelection) {
         const currentFileIds = new Set(civilFiles.map((f) => f.physicalFileId));
         binderCounts.value = Object.fromEntries(
           Object.entries(binderCounts.value).filter(([fileId]) => currentFileIds.has(fileId))
         );
         return;
       }
-      // Fetch binder count for newly selected file
+
       const fileId = newSelected[newSelected.length - 1].physicalFileId;
       const appearance = civilFiles.find((f) => f.physicalFileId === fileId);
-      if(!appearance) {
-        return;
-      }
-      const labels = {
-        physicalFileId: appearance.physicalFileId,
-        courtClassCd: appearance.courtClassCd,
-        judgeId: commonStore.userInfo?.userId,
-      };
-
-      try {
-        const request = binderService.getBinders(labels).then((response) => {
-            binderCounts.value[fileId] = response.succeeded && response.payload 
-              ? response.payload.length 
-              : 0;
-          }).finally(() => {
-            binderRequests.value = binderRequests.value.filter(r => r !== request);
-          });
-        binderRequests.value.push(request);
-      } catch (error) {
-        console.error('Error fetching binders:', error);
-        binderCounts.value[fileId] = 0;
+      
+      if (appearance) {
+        await fetchBinderCountForAppearance(appearance);
       }
     },
     { immediate: true }

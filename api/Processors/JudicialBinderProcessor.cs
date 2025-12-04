@@ -56,8 +56,9 @@ public class JudicialBinderProcessor : BinderProcessorBase
             fileId);
 
         // Add labels specific to Judicial Binder
-        this.Binder.Labels.Add(LabelConstants.COURT_CLASS_CD, fileDetail.CourtClassCd.ToString());
-        this.Binder.Labels.Add(LabelConstants.JUDGE_ID, this.CurrentUser.UserId());
+        Binder.Labels.Add(LabelConstants.COURT_CLASS_CD, fileDetail.CourtClassCd.ToString());
+        Binder.Labels.Add(LabelConstants.JUDGE_ID, this.CurrentUser.UserId());
+        Binder.Labels.Add(LabelConstants.IS_CRIMINAL, "false");
     }
 
     public override async Task<OperationResult> ProcessAsync()
@@ -120,22 +121,21 @@ public class JudicialBinderProcessor : BinderProcessorBase
         var applicationCd = _configuration.GetNonEmptyValue("Request:ApplicationCd");
 
         // Fetch file details and content in parallel
-        var fileDetailsTask = _cache.GetOrAddAsync(
-            $"CivilFileDetail-{fileId}-{agencyCode}", 
+        var fileDetails = _cache.GetOrAddAsync(
+            $"CivilFileDetail-{fileId}-{agencyCode}-{participantId}-{applicationCd}",
             () => _filesClient.FilesCivilGetAsync(agencyCode, participantId, applicationCd, fileId));
-        var fileContentTask = _cache.GetOrAddAsync(
-            $"CivilFileContent-{fileId}-{agencyCode}", 
+        var fileContent = _cache.GetOrAddAsync(
+            $"CivilFileContent-{fileId}-{agencyCode}-{participantId}-{applicationCd}",
             () => _filesClient.FilesCivilFilecontentAsync(agencyCode, participantId, applicationCd, null, null, null, null, fileId));
 
-        var fileDetails = await fileDetailsTask;
-        var fileContent = await fileContentTask;
+        await Task.WhenAll(fileDetails, fileContent);
 
         var existingBinderDocs = Binder.Documents ?? [];
-        var existingDocIds = existingBinderDocs.Select(doc => doc.DocumentId).ToList();
-        var csrDocs = PopulateDetailCsrsDocuments([.. fileDetails.Appearance.Where(a => existingDocIds.Contains(a.AppearanceId))]);
-        var referenceDocs = PopulateDetailReferenceDocuments([.. fileDetails.ReferenceDocument.Where(rd => existingDocIds.Contains(rd.ReferenceDocumentId))]);
-        var civilDocs = fileContent.CivilFile
-            .SelectMany(cf => cf.Document)
+        var existingDocIds = existingBinderDocs.Select(doc => doc.DocumentId).ToHashSet();
+        var csrDocs = PopulateDetailCsrsDocuments([.. (fileDetails.Result.Appearance ?? []).Where(a => existingDocIds.Contains(a.AppearanceId))]);
+        var referenceDocs = PopulateDetailReferenceDocuments([.. (fileDetails.Result.ReferenceDocument ?? []).Where(rd => existingDocIds.Contains(rd.ReferenceDocumentId))]);
+        var civilDocs = (fileContent.Result.CivilFile ?? [])
+            .SelectMany(cf => cf.Document ?? [])
             .Where(doc => existingDocIds.Contains(doc.DocumentId));
 
         // Map and preserve order
