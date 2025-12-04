@@ -38,7 +38,7 @@
             style="letter-spacing: 0.001rem"
             data-testid="view-judicial-binders"
             :disabled="binderLoading || totalBinderCount === 0"
-            @click="() => onViewJudicialBinders(group)"
+            @click="onViewJudicialBinders(group)"
           >
             View judicial binder(s)&nbsp;
               <v-progress-circular
@@ -125,7 +125,6 @@
 
   const groupedSelections = computed(() => {
     const groups: Record<string, CourtListAppearance[]> = {};
-    const currentCivilFileIds = new Set<string>();
     
     for (const item of props.selected) {
       const group = getCourtClassLabel(item.courtClassCd);
@@ -133,21 +132,7 @@
         groups[group] = [];
       }
       groups[group].push(item);
-
-      // Track civil/family appearances by physicalFileId
-      if (!isCourtClassLabelCriminal(group) && item.physicalFileId) {
-        currentCivilFileIds.add(item.physicalFileId);
-        
-        // Emit event if this is a new unique physicalFileId
-        if (!previousCivilFileIds.has(item.physicalFileId)) {
-          emit('unique-civil-file-selected', item);
-        }
-      }
     }
-
-    // Update the previous set for next comparison
-    previousCivilFileIds.clear();
-    currentCivilFileIds.forEach(id => previousCivilFileIds.add(id));
 
     return groups;
   });
@@ -161,6 +146,7 @@
 
       if (civilFiles.length === 0) {
         binderCounts.value = {};
+        previousCivilFileIds.clear();
         return;
       }
 
@@ -169,14 +155,24 @@
         binderCounts.value = Object.fromEntries(
           Object.entries(binderCounts.value).filter(([fileId]) => currentFileIds.has(fileId))
         );
+        
+        // Update previousCivilFileIds to match current selection
+        previousCivilFileIds.clear();
+        currentFileIds.forEach(id => previousCivilFileIds.add(id));
         return;
       }
 
-      const fileId = newSelected[newSelected.length - 1].physicalFileId;
-      const appearance = civilFiles.find((f) => f.physicalFileId === fileId);
-      
-      if (appearance) {
-        await fetchBinderCountForAppearance(appearance);
+      // Find newly added items
+      const oldFileIds = new Set(getCivilFiles(oldSelected || []).map(f => f.physicalFileId));
+      const newlySelected = civilFiles.filter(f => !oldFileIds.has(f.physicalFileId));
+
+      // Fetch for all new items
+      for (const appearance of newlySelected) {
+        if (!previousCivilFileIds.has(appearance.physicalFileId)) {
+          emit('unique-civil-file-selected', appearance);
+          previousCivilFileIds.add(appearance.physicalFileId);
+          await fetchBinderCountForAppearance(appearance);
+        }
       }
     },
     { immediate: true }

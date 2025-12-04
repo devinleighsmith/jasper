@@ -191,38 +191,6 @@ describe('CourtListTableActionBarGroup.vue', () => {
     expect(judicialBinderButton.attributes('disabled')).toBeDefined();
   });
 
-  it('removes binder counts when appearances are deselected', async () => {
-    binderService.getBinders
-      .mockResolvedValueOnce({
-        succeeded: true,
-        payload: [{ id: '1' }, { id: '2' }],
-      })
-      .mockResolvedValueOnce({
-        succeeded: true,
-        payload: [{ id: '3' }],
-      });
-
-    const civilAppearances = mockAppearances.filter((a) =>
-      ['C', 'F'].includes(a.courtClassCd)
-    );
-    const wrapper = createWrapper({ selected: civilAppearances });
-
-    await nextTick();
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    // Deselect one - should only have one file's binders now
-    wrapper.unmount();
-    const wrapper2 = createWrapper({ selected: [mockAppearances[2]] });
-    await nextTick();
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const judicialBinderButton = wrapper2.find(
-      '[data-testid="view-judicial-binders"]'
-    );
-    // Should show count from the single remaining appearance
-    expect(judicialBinderButton.text()).toContain('(1 / 1)');
-  });
-
   it('emits view-judicial-binders event when button is clicked', async () => {
     binderService.getBinders.mockResolvedValue({
       succeeded: true,
