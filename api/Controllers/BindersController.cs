@@ -75,22 +75,7 @@ public class BindersController(IBinderService binderService) : ControllerBase
             return BadRequest("Invalid request.");
         }
 
-        // Extract filters from query string if not provided
-        if (filters?.Count == 0)
-        {
-            // Supported filter keys
-            var filterKeys = new[] { "category" };
-            filters = [];
-            foreach (var filterKey in filterKeys)
-            {
-                if (Request.Query.TryGetValue(filterKey, out var values) && values.Count > 0)
-                {
-                    filters[filterKey] = [.. values];
-                }
-            }
-        }
-
-        var result = await _binderService.CreateDocumentBundle(request, filters?.Count > 0 ? filters : null);
+        var result = await _binderService.CreateDocumentBundle(request, filters);
         if (!result.Succeeded)
         {
             return BadRequest(new { error = result.Errors });
