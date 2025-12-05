@@ -9,7 +9,12 @@
     <v-card-text>
       <v-row align="center" no-gutters>
         <v-col class="text-h5" cols="6">
-          All Documents ({{ documents.length }})
+          {{
+            props.selectedCategory && props.getCategoryDisplayTitle
+              ? props.getCategoryDisplayTitle(props.selectedCategory)
+              : 'All Documents'
+          }}
+          ({{ documents.length }})
         </v-col>
       </v-row>
     </v-card-text>
@@ -93,6 +98,8 @@
     roles: LookupCode[];
     baseHeaders: DataTableHeader[];
     binderDocumentIds: string[];
+    selectedCategory?: string;
+    getCategoryDisplayTitle?: (category: string) => string;
     addDocumentToBinder: (documentId: string) => void;
     openIndividualDocument: (data: civilDocumentType) => void;
   }>();

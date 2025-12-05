@@ -45,6 +45,8 @@
     :openIndividualDocument
     :selectedItems
     :binderDocumentIds="currentBinder?.documents.map((d) => d.documentId) ?? []"
+    :selectedCategory="selectedCategory"
+    :getCategoryDisplayTitle="getCategoryDisplayTitle"
     @update:selectedItems="(val) => (selectedItems = val)"
   />
 

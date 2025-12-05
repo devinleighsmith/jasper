@@ -60,4 +60,48 @@ describe('AllDocuments.vue', () => {
     expect(alertEl.exists()).toBe(false);
     expect(tableEl.exists()).toBe(true);
   });
+
+  it('displays "All Documents" when no category is selected', () => {
+    mockProps.documents = [{} as civilDocumentType];
+    mockProps.binderDocumentIds = [];
+    const wrapper = mount(AllDocuments, {
+      props: {
+        ...mockProps,
+        selectedCategory: undefined,
+      },
+    });
+
+    const header = wrapper.find('.text-h5');
+    expect(header.text()).toContain('All Documents (1)');
+  });
+
+  it('displays category display title when category is selected', () => {
+    mockProps.documents = [{} as civilDocumentType];
+    const getCategoryDisplayTitle = vi.fn().mockReturnValue('Orders');
+    const wrapper = mount(AllDocuments, {
+      props: {
+        ...mockProps,
+        selectedCategory: 'ORDER',
+        getCategoryDisplayTitle,
+      },
+    });
+
+    const header = wrapper.find('.text-h5');
+    expect(getCategoryDisplayTitle).toHaveBeenCalledWith('ORDER');
+    expect(header.text()).toContain('Orders (1)');
+  });
+
+  it('displays "All Documents" when category is selected but getCategoryDisplayTitle is not provided', () => {
+    mockProps.documents = [{} as civilDocumentType];
+    const wrapper = mount(AllDocuments, {
+      props: {
+        ...mockProps,
+        selectedCategory: 'ORDER',
+        getCategoryDisplayTitle: undefined,
+      },
+    });
+
+    const header = wrapper.find('.text-h5');
+    expect(header.text()).toContain('All Documents (1)');
+  });
 });

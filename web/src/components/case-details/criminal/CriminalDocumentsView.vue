@@ -40,7 +40,11 @@
       <v-card-text>
         <v-row align="center" no-gutters>
           <v-col class="text-h5" cols="6">
-            {{ type === 'keyDocuments' ? 'Key Documents' : 'All Documents' }}
+            {{
+              type === 'keyDocuments'
+                ? 'Key Documents'
+                : getCategoryDisplayTitle()
+            }}
             ({{ documents.length }})
           </v-col>
         </v-row>
@@ -208,6 +212,12 @@
     return unfilteredDocuments.value.filter(
       (doc) => formatDocumentCategory(doc) === category
     ).length;
+  };
+
+  const getCategoryDisplayTitle = (): string => {
+    return selectedCategory.value
+      ? formatDocumentCategory(selectedCategory.value)
+      : 'All Documents';
   };
 
   const documentCategories = ref<string[]>([
