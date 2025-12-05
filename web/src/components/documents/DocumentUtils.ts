@@ -72,10 +72,13 @@ export const getCivilDocumentType = (
 };
 
 // Move this mapping to the BE
-export const formatDocumentCategory = (document: documentType) => {
-  let category = document.category;
-  if (category === 'PSR') category = 'Report';
-  else if (category === 'rop') category = 'ROP';
+export const formatDocumentCategory = (documentOrCategory: documentType | string) => {
+  const category = typeof documentOrCategory === 'string' 
+    ? documentOrCategory 
+    : documentOrCategory.category;
+  
+  if (category === 'PSR') return 'Report';
+  if (category === 'rop') return 'ROP';
   return category;
 };
 

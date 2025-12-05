@@ -6,7 +6,11 @@
     item-value="appearanceId"
   >
     <template v-slot:item.documentTypeDescription="{ item }">
-      <a v-if="item.imageId" href="javascript:void(0)" @click="openDocument(item)">
+      <a
+        v-if="item.imageId"
+        href="javascript:void(0)"
+        @click="openDocument(item)"
+      >
         {{ item.documentTypeDescription }}
       </a>
       <span v-else>
@@ -30,11 +34,11 @@
 
 <script setup lang="ts">
   import shared from '@/components/shared';
-import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
-import { useCommonStore } from '@/stores';
-import { civilDocumentType } from '@/types/civil/jsonTypes/index';
-import { Anchor } from '@/types/common';
-import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
+  import LabelWithTooltip from '@/components/shared/LabelWithTooltip.vue';
+  import { useCommonStore } from '@/stores';
+  import { civilDocumentType } from '@/types/civil/jsonTypes/index';
+  import { Anchor } from '@/types/common';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
 
   const props = defineProps<{
     documents: civilDocumentType[];
@@ -57,7 +61,7 @@ import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
       sortRaw: (a: civilDocumentType, b: civilDocumentType) =>
         new Date(a.filedDt).getTime() - new Date(b.filedDt).getTime(),
     },
-    { title: 'FILED BY', key: 'filedByName' },
+    { title: 'FILED / SWORN BY', key: 'filedByName' },
     { title: 'RESULTS', key: 'runtime' },
     { title: 'ISSUES', key: 'issue' },
   ];
