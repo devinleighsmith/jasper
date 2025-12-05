@@ -35,7 +35,8 @@ public class BinderMapping : IRegister
             .Map(dest => dest.DocumentType, src =>
                 string.Equals(src.Category, DocumentCategory.ROP, StringComparison.OrdinalIgnoreCase)
                     ? DocumentType.ROP
-                    : DocumentType.File);
+                    : DocumentType.File)
+            .Map(dest => dest.Category, src => src.Category);
 
         config.NewConfig<CvfcDocument, BinderDocumentDto>()
             .Map(dest => dest.DocumentId, src =>
@@ -46,6 +47,7 @@ public class BinderMapping : IRegister
             .Map(dest => dest.DocumentType, src =>
                 string.Equals(src.DocumentTypeCd, DocumentCategory.CSR, StringComparison.OrdinalIgnoreCase)
                     ? DocumentType.CourtSummary
-                    : DocumentType.File);
+                    : DocumentType.File)
+            .Map(dest => dest.Category, src => src.DocumentTypeCd);
     }
 }

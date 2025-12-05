@@ -10,10 +10,9 @@
       >
         <template #default>
           <v-btn
-            size="large"
-            class="mx-2"
             :prepend-icon="mdiFileDocumentOutline"
-            style="letter-spacing: 0.001rem"
+            style="letter-spacing: 0rem"
+            density="compact"
             data-testid="view-case-details"
             @click="() => onViewApprCaseDetails(group)"
           >
@@ -21,21 +20,29 @@
           </v-btn>
           <v-btn
             v-if="isCourtClassLabelCriminal(courtClass)"
-            size="large"
-            class="mx-2"
             :prepend-icon="mdiFileDocumentMultipleOutline"
-            style="letter-spacing: 0.001rem"
+            style="letter-spacing: 0rem"
+            density="compact"
             data-testid="view-key-documents"
-            @click="() => onViewKeyDocuments(group)"
+            @click="() => onViewKeyDocuments(group, [])"
           >
             View key documents
           </v-btn>
           <v-btn
+            v-if="isCourtClassLabelCriminal(courtClass)"
+            :prepend-icon="mdiFileDocumentMultipleOutline"
+            density="compact"
+            style="letter-spacing: 0rem"
+            data-testid="view-informations"
+            @click="() => onViewInformations(group, ['INITIATING'])"
+          >
+            View Informations
+          </v-btn>
+          <v-btn
             v-else
-            size="large"
-            class="mx-2"
             :prepend-icon="mdiFolderEyeOutline"
-            style="letter-spacing: 0.001rem"
+            style="letter-spacing: 0rem"
+            density="compact"
             data-testid="view-judicial-binders"
             :disabled="binderLoading || totalBinderCount === 0"
             @click="onViewJudicialBinders(group)"
@@ -85,7 +92,8 @@
 
   const emit = defineEmits<{
     (e: 'view-case-details', appearances: CourtListAppearance[]): void;
-    (e: 'view-key-documents', appearances: CourtListAppearance[]): void;
+    (e: 'view-key-documents', appearances: CourtListAppearance[], categories: string[]): void;
+    (e: 'view-informations', appearances: CourtListAppearance[], categories: string[]): void;
     (e: 'unique-civil-file-selected', appearance: CourtListAppearance): void;
     (e: 'view-judicial-binders', appearances: CourtListAppearance[]): void;
   }>();
@@ -185,8 +193,11 @@
   const onViewApprCaseDetails = (appearances: CourtListAppearance[]) => {
     emit('view-case-details', appearances);
   };
-  const onViewKeyDocuments = (appearances: CourtListAppearance[]) => {
-    emit('view-key-documents', appearances);
+  const onViewKeyDocuments = (appearances: CourtListAppearance[], categories: string[]) => {
+    emit('view-key-documents', appearances, categories);
+  };
+  const onViewInformations = (appearances: CourtListAppearance[], categories: string[]) => {
+    emit('view-informations', appearances, categories);
   };
   const onViewJudicialBinders = (appearances: CourtListAppearance[]) => {
     emit('view-judicial-binders', appearances);

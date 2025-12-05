@@ -1,4 +1,5 @@
 ﻿namespace Scv.Db.Models;
+
 public class BinderDocument
 {
     public string DocumentId { get; set; }
@@ -8,4 +9,5 @@ public class BinderDocument
     public int Order { get; set; }
     public int DocumentType { get; set; }
     public string FileName { get; set; }
+    public string Category { get; set; }
 }

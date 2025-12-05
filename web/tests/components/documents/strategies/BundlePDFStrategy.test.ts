@@ -154,7 +154,7 @@ describe('BundlePDFStrategy', () => {
     const strategy = new BundlePDFStrategy();
     mockBinderService.generateBinderPDF.mockResolvedValue('pdf');
     const result = await strategy.generatePDF({ appearances: [] });
-    expect(mockBinderService.generateBinderPDF).toHaveBeenCalledWith({ appearances: [] });
+    expect(mockBinderService.generateBinderPDF).toHaveBeenCalledWith({ appearances: [] }, []);
     expect(result).toBe('pdf');
   });
 

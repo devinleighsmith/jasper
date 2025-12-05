@@ -11,4 +11,5 @@ public class BinderDocumentDto
     public int Order { get; set; }
     public DocumentType DocumentType { get; set; }
     public string FileName { get; set; }
+    public string Category { get; set; }
 }

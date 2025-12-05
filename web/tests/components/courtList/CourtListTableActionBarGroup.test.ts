@@ -216,6 +216,56 @@ describe('CourtListTableActionBarGroup.vue', () => {
     );
   });
 
+  it('emits view-key-documents event when button is clicked', async () => {
+    binderService.getBinders.mockResolvedValue({
+      succeeded: true,
+      payload: [{ id: '1' }],
+    });
+
+    const criminalAppearances = mockAppearances.filter(
+      (a) => a.courtClassCd === 'A'
+    );
+    const wrapper = createWrapper({ selected: criminalAppearances });
+
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const keyDocsBinderButton = wrapper.find(
+      '[data-testid="view-key-documents"]'
+    );
+    await keyDocsBinderButton.trigger('click');
+
+    expect(wrapper.emitted('view-key-documents')).toBeTruthy();
+    expect(wrapper.emitted('view-key-documents')![0][0]).toEqual(
+      criminalAppearances
+    );
+  });
+
+  it('emits view-informations event when button is clicked', async () => {
+    binderService.getBinders.mockResolvedValue({
+      succeeded: true,
+      payload: [{ id: '1' }],
+    });
+
+    const criminalAppearances = mockAppearances.filter(
+      (a) => a.courtClassCd === 'A'
+    );
+    const wrapper = createWrapper({ selected: criminalAppearances });
+
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const keyDocsBinderButton = wrapper.find(
+      '[data-testid="view-informations"]'
+    );
+    await keyDocsBinderButton.trigger('click');
+
+    expect(wrapper.emitted('view-informations')).toBeTruthy();
+    expect(wrapper.emitted('view-informations')![0][0]).toEqual(
+      criminalAppearances
+    );
+  });
+
   it('emits unique-civil-file-selected when a new civil file is selected', async () => {
     binderService.getBinders.mockResolvedValue({
       succeeded: true,

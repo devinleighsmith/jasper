@@ -26,7 +26,7 @@ namespace Scv.Api.Services;
 public interface IBinderService : ICrudService<BinderDto>
 {
     Task<OperationResult<List<BinderDto>>> GetByLabels(Dictionary<string, string> labels);
-    Task<OperationResult<DocumentBundleResponse>> CreateDocumentBundle(List<Dictionary<string, string>> contexts);
+    Task<OperationResult<DocumentBundleResponse>> CreateDocumentBundle(List<Dictionary<string, string>> contexts, Dictionary<string, List<string>> filters = null);
 }
 
 public class BinderService(
@@ -131,31 +131,41 @@ public class BinderService(
         throw new NotImplementedException("Binder validations are executed via BinderProcessors");
     }
 
-    public async Task<OperationResult<DocumentBundleResponse>> CreateDocumentBundle(List<Dictionary<string, string>> contexts)
+    public async Task<OperationResult<DocumentBundleResponse>> CreateDocumentBundle(List<Dictionary<string, string>> contexts, Dictionary<string, List<string>> filters = null)
     {
         var correlationId = Guid.NewGuid();
-        this.Logger.LogInformation("Starting document bundling/merging process. CorrelationId: {CorreclationId}", correlationId);
+        this.Logger.LogInformation("Starting document bundling/merging process. CorrelationId: {CorrelationId}", correlationId);
 
         try
         {
             var binders = await InitializeBinders(contexts);
+
             if (binders.Count == 0)
             {
-                this.Logger.LogWarning("No binders to process. CorrelationId: {CorreclationId}", correlationId);
+                this.Logger.LogWarning("No binders to process. CorrelationId: {CorrelationId}", correlationId);
                 return OperationResult<DocumentBundleResponse>.Success(new DocumentBundleResponse
                 {
                     Binders = [],
                     PdfResponse = null
                 });
             }
-            var requests = GeneratePdfDocumentRequests(binders, correlationId);
+            var requests = GeneratePdfDocumentRequests(binders, correlationId, filters);
             if (requests.Length == 0)
             {
-                this.Logger.LogWarning("No binders to merge. CorrelationId: {CorreclationId}", correlationId);
+                this.Logger.LogWarning("No binders to merge. CorrelationId: {CorrelationId}", correlationId);
                 return OperationResult<DocumentBundleResponse>.Failure("No documents found to merge.");
             }
 
             var response = await _documentMerger.MergeDocuments(requests);
+
+            // Apply filters to binders before returning
+            if (filters != null && filters.Count > 0)
+            {
+                foreach (var binder in binders)
+                {
+                    binder.Documents = ApplyDocumentFilters(binder.Documents, filters);
+                }
+            }
 
             return OperationResult<DocumentBundleResponse>.Success(new DocumentBundleResponse
             {
@@ -178,10 +188,10 @@ public class BinderService(
         foreach (var context in contexts)
         {
             // See if binder(s) already exists for the given context
-            var bindersResult = await this.GetByLabels(context);
+            var bindersResult = await GetByLabels(context);
             if (!bindersResult.Succeeded)
             {
-                this.Logger.LogWarning("Failed to get binder(s) for the current context: {Error}", string.Join(",", bindersResult.Errors));
+                Logger.LogWarning("Failed to get binder(s) for the current context: {Error}", string.Join(",", bindersResult.Errors));
                 continue;
             }
 
@@ -253,13 +263,19 @@ public class BinderService(
         return binders;
     }
 
-    private static PdfDocumentRequest[] GeneratePdfDocumentRequests(List<BinderDto> binders, Guid correlationId)
+    private static PdfDocumentRequest[] GeneratePdfDocumentRequests(List<BinderDto> binders, Guid correlationId, Dictionary<string, List<string>> filters = null)
     {
         var bundleRequests = new List<PdfDocumentRequest>();
         foreach (var binder in binders)
         {
             var isCriminal = bool.TryParse(binder.Labels.GetValue(LabelConstants.IS_CRIMINAL), out var result) && result;
-            var binderDocRequests = binder.Documents
+            
+            // Apply filters to get only the documents that should be included
+            var documentsToInclude = filters != null && filters.Count > 0
+                ? ApplyDocumentFilters(binder.Documents, filters)
+                : binder.Documents;
+
+            var binderDocRequests = documentsToInclude
                 // Excludes DocumentType.File documents where the FileName = DocumentId.
                 // This means that there is no document to view.
                 .Where(d => d.DocumentType != DocumentType.File || d.DocumentId != null)
@@ -286,6 +302,29 @@ public class BinderService(
             bundleRequests.AddRange(binderDocRequests);
         }
         return [.. bundleRequests];
+    }
+
+    private static List<BinderDocumentDto> ApplyDocumentFilters(List<BinderDocumentDto> documents, Dictionary<string, List<string>> filters)
+    {
+        var filteredDocs = documents.AsEnumerable();
+
+        foreach (var filter in filters)
+        {
+            var filterKey = filter.Key.ToLowerInvariant();
+            var filterValues = filter.Value;
+
+            if (filterValues == null || filterValues.Count == 0)
+                continue;
+
+            filteredDocs = filterKey switch
+            {
+                "category" => filteredDocs.Where(d => filterValues.Contains(d.Category, StringComparer.OrdinalIgnoreCase)),
+                // Add more filter types here as needed in the future
+                _ => filteredDocs
+            };
+        }
+
+        return [.. filteredDocs];
     }
 
     #endregion Helpers
