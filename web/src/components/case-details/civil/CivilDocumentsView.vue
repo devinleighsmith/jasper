@@ -420,6 +420,7 @@
         documentType: getCivilDocumentType(d) === CourtDocumentType.CSR
             ? DocumentRequestType.CourtSummary
             : DocumentRequestType.File,
+        category: d.category ?? d.documentTypeCd,
       } as BinderDocument);
     });
 
