@@ -148,6 +148,7 @@
     :selected
     @view-case-details="viewCaseDetails"
     @view-key-documents="viewKeyDocuments"
+    @view-informations="viewKeyDocuments"
     @view-judicial-binders="handleViewJudicialBinders"
   />
 </template>
@@ -377,7 +378,7 @@
     return [];
   };
 
-  const viewKeyDocuments = async (appearances: CourtListAppearance[]) => {
+  const viewKeyDocuments = async (appearances: CourtListAppearance[], documentTypes: string[]) => {
     if (appearances.length === 0) {
       return;
     }
@@ -392,7 +393,7 @@
         }) as AppearanceDocumentRequest
     );
 
-    shared.openCourtListKeyDocuments(appearances,);
+    shared.openCourtListKeyDocuments(appearances, documentTypes);
   };
 
   const handleViewJudicialBinders = (

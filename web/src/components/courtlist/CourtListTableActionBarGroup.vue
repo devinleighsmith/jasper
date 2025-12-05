@@ -26,9 +26,20 @@
             :prepend-icon="mdiFileDocumentMultipleOutline"
             style="letter-spacing: 0.001rem"
             data-testid="view-key-documents"
-            @click="() => onViewKeyDocuments(group)"
+            @click="() => onViewKeyDocuments(group, [])"
           >
             View key documents
+          </v-btn>
+          <v-btn
+            v-if="isCourtClassLabelCriminal(courtClass)"
+            size="large"
+            class="mx-2"
+            :prepend-icon="mdiFileDocumentMultipleOutline"
+            style="letter-spacing: 0.001rem"
+            data-testid="view-informations"
+            @click="() => onViewInformations(group, ['INITIATING'])"
+          >
+            View Informations
           </v-btn>
           <v-btn
             v-else
@@ -85,7 +96,8 @@
 
   const emit = defineEmits<{
     (e: 'view-case-details', appearances: CourtListAppearance[]): void;
-    (e: 'view-key-documents', appearances: CourtListAppearance[]): void;
+    (e: 'view-key-documents', appearances: CourtListAppearance[], documentTypes: string[]): void;
+    (e: 'view-informations', appearances: CourtListAppearance[], documentTypes: string[]): void;
     (e: 'unique-civil-file-selected', appearance: CourtListAppearance): void;
     (e: 'view-judicial-binders', appearances: CourtListAppearance[]): void;
   }>();
@@ -185,8 +197,11 @@
   const onViewApprCaseDetails = (appearances: CourtListAppearance[]) => {
     emit('view-case-details', appearances);
   };
-  const onViewKeyDocuments = (appearances: CourtListAppearance[]) => {
-    emit('view-key-documents', appearances);
+  const onViewKeyDocuments = (appearances: CourtListAppearance[], documentTypes: string[]) => {
+    emit('view-key-documents', appearances, documentTypes);
+  };
+  const onViewInformations = (appearances: CourtListAppearance[], documentTypes: string[]) => {
+    emit('view-informations', appearances, documentTypes);
   };
   const onViewJudicialBinders = (appearances: CourtListAppearance[]) => {
     emit('view-judicial-binders', appearances);

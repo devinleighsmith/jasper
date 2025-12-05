@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Scv.Api.Documents;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Models;
 using Scv.Api.Services;
@@ -66,14 +68,29 @@ public class BindersController(IBinderService binderService) : ControllerBase
 
     [HttpPost]
     [Route("bundle")]
-    public async Task<IActionResult> CreateDocumentBundle([FromBody] List<Dictionary<string, string>> request)
+    public async Task<IActionResult> CreateDocumentBundle([FromBody] List<Dictionary<string, string>> request, [FromQuery] Dictionary<string, List<string>> filters = null)
     {
         if (request == null || request.Count == 0)
         {
             return BadRequest("Invalid request.");
         }
 
-        var result = await _binderService.CreateDocumentBundle(request);
+        // Extract filters from query string if not provided
+        if (filters?.Count == 0)
+        {
+            // Supported filter keys
+            var filterKeys = new[] { "category" };
+            filters = [];
+            foreach (var filterKey in filterKeys)
+            {
+                if (Request.Query.TryGetValue(filterKey, out var values) && values.Count > 0)
+                {
+                    filters[filterKey] = [.. values];
+                }
+            }
+        }
+
+        var result = await _binderService.CreateDocumentBundle(request, filters?.Count > 0 ? filters : null);
         if (!result.Succeeded)
         {
             return BadRequest(new { error = result.Errors });

@@ -117,7 +117,7 @@ export default {
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
-  openCourtListKeyDocuments(appearances: CourtListAppearance[]): void {
+  openCourtListKeyDocuments(appearances: CourtListAppearance[], documentTypes: string[]): void {
     if (!appearances.length) return;
     const bundleStore = useBundleStore();
     const appearanceRequests = appearances.map((app) => ({
@@ -136,7 +136,7 @@ export default {
     bundleStore.request = bundleRequest;
     bundleStore.appearanceRequests = appearanceRequests;
 
-    const newWindow = window.open('/file-viewer?type=bundle', '_blank');
+    const newWindow = window.open(`/file-viewer?type=bundle${documentTypes.length>0 ? `&category=${documentTypes.join(',')}` : ''}`, '_blank');
     const caseNumbers = Array.from(
       new Set(appearances.map((d) => d.courtFileNumber))
     ).join(', ');
