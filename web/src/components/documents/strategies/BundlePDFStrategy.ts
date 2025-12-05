@@ -75,7 +75,7 @@ export class BundlePDFStrategy
   async generatePDF(
     processedData: DocumentBundleRequest
   ): Promise<ApiResponse<DocumentBundleResponse>> {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const documentCategories = urlParams.get('category')?.split(',') || [];
     return await this.binderService.generateBinderPDF(processedData, documentCategories);
   }
