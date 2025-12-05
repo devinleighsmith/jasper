@@ -182,7 +182,7 @@ public class BinderService(
 
     #region Helpers
 
-    private async Task<List<BinderDto>> InitializeBinders(List<Dictionary<string, string>> contexts, Dictionary<string, List<string>> filters = null)
+    private async Task<List<BinderDto>> InitializeBinders(List<Dictionary<string, string>> contexts)
     {
         var binders = new List<BinderDto>();
         foreach (var context in contexts)

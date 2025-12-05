@@ -92,8 +92,8 @@
 
   const emit = defineEmits<{
     (e: 'view-case-details', appearances: CourtListAppearance[]): void;
-    (e: 'view-key-documents', appearances: CourtListAppearance[], documentTypes: string[]): void;
-    (e: 'view-informations', appearances: CourtListAppearance[], documentTypes: string[]): void;
+    (e: 'view-key-documents', appearances: CourtListAppearance[], categories: string[]): void;
+    (e: 'view-informations', appearances: CourtListAppearance[], categories: string[]): void;
     (e: 'unique-civil-file-selected', appearance: CourtListAppearance): void;
     (e: 'view-judicial-binders', appearances: CourtListAppearance[]): void;
   }>();
@@ -193,11 +193,11 @@
   const onViewApprCaseDetails = (appearances: CourtListAppearance[]) => {
     emit('view-case-details', appearances);
   };
-  const onViewKeyDocuments = (appearances: CourtListAppearance[], documentTypes: string[]) => {
-    emit('view-key-documents', appearances, documentTypes);
+  const onViewKeyDocuments = (appearances: CourtListAppearance[], categories: string[]) => {
+    emit('view-key-documents', appearances, categories);
   };
-  const onViewInformations = (appearances: CourtListAppearance[], documentTypes: string[]) => {
-    emit('view-informations', appearances, documentTypes);
+  const onViewInformations = (appearances: CourtListAppearance[], categories: string[]) => {
+    emit('view-informations', appearances, categories);
   };
   const onViewJudicialBinders = (appearances: CourtListAppearance[]) => {
     emit('view-judicial-binders', appearances);

@@ -378,7 +378,7 @@
     return [];
   };
 
-  const viewKeyDocuments = async (appearances: CourtListAppearance[], documentTypes: string[]) => {
+  const viewKeyDocuments = async (appearances: CourtListAppearance[], categories: string[]) => {
     if (appearances.length === 0) {
       return;
     }
@@ -393,7 +393,7 @@
         }) as AppearanceDocumentRequest
     );
 
-    shared.openCourtListKeyDocuments(appearances, documentTypes);
+    shared.openCourtListKeyDocuments(appearances, categories);
   };
 
   const handleViewJudicialBinders = (

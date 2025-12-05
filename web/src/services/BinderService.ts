@@ -52,10 +52,15 @@ export class BinderService extends ServiceBase {
 
   async generateBinderPDF(
     bundleRequest: DocumentBundleRequest,
-    documentTypes: string[]
+    categories: string[]
   ): Promise<ApiResponse<DocumentBundleResponse>> {
+    const categoryParams = categories.length 
+      ? '?category=' + categories.join(',')
+      : '';
+    const url = 'api/binders/bundle' + categoryParams;
+    
     return this.httpService.post<ApiResponse<DocumentBundleResponse>>(
-      `api/binders/bundle${documentTypes.length ? `?category=${documentTypes.join(',')}` : ''}`,
+      url,
       bundleRequest.appearances
     );
   }
