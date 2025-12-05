@@ -1,4 +1,19 @@
 <template>
+  <JudicialBinder
+    v-model="selectedBinderItems"
+    :courtClassCdStyle
+    :binderDocuments
+    :isBinderLoading
+    :rolesLoading
+    :roles="roles ?? []"
+    :openIndividualDocument
+    :removeDocumentFromBinder
+    :deleteBinder="deleteCurrentBinder"
+    :viewBinder="() => openMergedDocuments(binderDocuments)"
+    :baseHeaders="headers"
+    @update:reordered="(documentData) => handleReordering(documentData)"
+  />
+
   <v-row>
     <v-col cols="6" />
     <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
@@ -20,22 +35,6 @@
       </v-select>
     </v-col>
   </v-row>
-
-  <JudicialBinder
-    v-model="selectedBinderItems"
-    :courtClassCdStyle
-    :binderDocuments
-    :isBinderLoading
-    :rolesLoading
-    :roles="roles ?? []"
-    :openIndividualDocument
-    :removeDocumentFromBinder
-    :deleteBinder="deleteCurrentBinder"
-    :viewBinder="() => openMergedDocuments(binderDocuments)"
-    :baseHeaders="headers"
-    @update:reordered="(documentData) => handleReordering(documentData)"
-  />
-
   <AllDocuments
     :courtClassCdStyle
     :documents="filteredDocuments"
@@ -184,19 +183,25 @@
 
   const getCategoryDisplayTitle = (category: string): string => {
     const categoryMap: Record<string, string> = {
-      'Affidavits': AFF_FIN_STMT,
-      'CSR': CSR_CATEGORY_DESC,
+      Affidavits: AFF_FIN_STMT,
+      CSR: CSR_CATEGORY_DESC,
     };
     return categoryMap[category] || category;
   };
 
   const documentCategories = ref<{ title: string; value: string }[]>(
-    (scheduledDocuments.length > 0 ? [{ title: SCHEDULED_CATEGORY, value: SCHEDULED_CATEGORY }] : []).concat(
-      [...new Set(props.documents.filter(d => d.category).map(doc => doc.category))]
-        .map(category => ({
-          title: getCategoryDisplayTitle(category),
-          value: category
-        }))
+    (scheduledDocuments.length > 0
+      ? [{ title: SCHEDULED_CATEGORY, value: SCHEDULED_CATEGORY }]
+      : []
+    ).concat(
+      [
+        ...new Set(
+          props.documents.filter((d) => d.category).map((doc) => doc.category)
+        ),
+      ].map((category) => ({
+        title: getCategoryDisplayTitle(category),
+        value: category,
+      }))
     )
   );
 

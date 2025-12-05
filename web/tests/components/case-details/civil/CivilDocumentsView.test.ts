@@ -151,22 +151,76 @@ describe('CivilDocumentsView.vue', () => {
 
   it('inserts "Scheduled" option when a document has a next appearance date', async () => {
     expect(wrapper.vm.documentCategories[0]).toEqual({
-      "title": "Scheduled",
-      "value": "Scheduled",
+      title: 'Scheduled',
+      value: 'Scheduled',
     });
   });
 
   it(`renames 'CSR' to 'Court Summary' in the document categories`, async () => {
     expect(wrapper.vm.documentCategories[1]).toEqual({
-      "title": "Court Summary",
-      "value": "CSR",
+      title: 'Court Summary',
+      value: 'CSR',
     });
   });
 
   it(`renames 'Affidavits' to 'Affidavits/Financial Stmts' in the document categories`, async () => {
     expect(wrapper.vm.documentCategories[4]).toEqual({
-      "title": "Affidavits/Financial Stmts",
-      "value": "Affidavits",
+      title: 'Affidavits/Financial Stmts',
+      value: 'Affidavits',
+    });
+  });
+
+  describe('Category Filtering', () => {
+    beforeEach(async () => {
+      const mockBinders = [
+        {
+          binderId: 'binder-1',
+          name: 'Test Binder',
+          documents: [
+            { documentId: '1', order: 1 },
+            { documentId: '2', order: 2 },
+            { documentId: '3', order: 3 },
+            { documentId: '4', order: 4 },
+          ],
+        },
+      ];
+      (mockBinderService.getBinders as Mock).mockResolvedValue({
+        succeeded: true,
+        payload: mockBinders,
+      });
+
+      wrapper = shallowMount(CivilDocumentsView, {
+        props: { documents: mockDocuments },
+        global: {
+          provide: {
+            binderService: mockBinderService,
+          },
+        },
+      });
+
+      await nextTick();
+    });
+
+    it('does not filter judicial binder documents by category', async () => {
+      wrapper.vm.selectedCategory = 'CSR';
+      await nextTick();
+
+      expect(wrapper.vm.filteredDocuments).toHaveLength(1);
+      expect(wrapper.vm.filteredDocuments[0].civilDocumentId).toBe('1');
+
+      expect(wrapper.vm.binderDocuments).toHaveLength(4);
+      expect(
+        wrapper.vm.binderDocuments.map((d: any) => d.civilDocumentId)
+      ).toEqual(['1', '2', '3', '4']);
+    });
+
+    it('filters all documents table by category', async () => {
+      wrapper.vm.selectedCategory = 'ROP';
+      await nextTick();
+
+      expect(wrapper.vm.filteredDocuments).toHaveLength(1);
+      expect(wrapper.vm.filteredDocuments[0].category).toBe('ROP');
+      expect(wrapper.vm.filteredDocuments[0].civilDocumentId).toBe('2');
     });
   });
 });
