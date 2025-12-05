@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -62,13 +63,13 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
             }
         }
 
-        // Remove quick links that exist in DB but not in config
-        foreach (var existingLink in existingQuickLinks)
+        // Remove default quick links that exist in DB but not in config
+        foreach (var existingLink in existingQuickLinks.Where(ql => ql.JudgeId == null))
         {
-            var stillExists = quickLinks.Exists(ql => 
-                ql.Name == existingLink.Name && 
+            var stillExists = quickLinks.Exists(ql =>
+                ql.Name == existingLink.Name &&
                 ql.ParentName == existingLink.ParentName);
-            
+
             if (!stillExists)
             {
                 Logger.LogInformation("\t{Name} no longer in config, removing it...", existingLink.Name);
