@@ -161,7 +161,7 @@ public class BindersControllerTests
     public async Task CreateDocumentBundle_ShouldReturnBadRequest_BinderServiceResultDidNotSucceed()
     {
         _mockService
-            .Setup(s => s.CreateDocumentBundle(It.IsAny<List<Dictionary<string, string>>>()))
+            .Setup(s => s.CreateDocumentBundle(It.IsAny<List<Dictionary<string, string>>>(), It.IsAny<Dictionary<string, List<string>>>()))
             .ReturnsAsync(OperationResult<DocumentBundleResponse>.Failure(null));
 
         var result = await _controller.CreateDocumentBundle([[]]);
@@ -173,13 +173,13 @@ public class BindersControllerTests
     public async Task CreateDocumentBundle_ShouldReturnOkResult()
     {
         _mockService
-            .Setup(s => s.CreateDocumentBundle(It.IsAny<List<Dictionary<string, string>>>()))
+            .Setup(s => s.CreateDocumentBundle(It.IsAny<List<Dictionary<string, string>>>(), It.IsAny<Dictionary<string, List<string>>>()))
             .ReturnsAsync(OperationResult<DocumentBundleResponse>.Success(null));
 
         var result = await _controller.CreateDocumentBundle([[]]);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
 
-        _mockService.Verify(s => s.CreateDocumentBundle(It.IsAny<List<Dictionary<string, string>>>()), Times.Once());
+        _mockService.Verify(s => s.CreateDocumentBundle(It.IsAny<List<Dictionary<string, string>>>(), It.IsAny<Dictionary<string, List<string>>>()), Times.Once());
     }
 }
