@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,9 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
 
         Logger.LogInformation("\tUpdating quick links...");
 
+        var existingQuickLinks = await context.QuickLinks.ToListAsync();
+
+        // Add or update quick links from config
         foreach (var link in quickLinks)
         {
             var ql = await context.QuickLinks.AsQueryable().FirstOrDefaultAsync(
@@ -56,6 +60,20 @@ public class QuickLinkSeeder(ILogger<QuickLinkSeeder> logger, IConfiguration con
                 ql.ParentName = link.ParentName;
                 ql.IsMenu = link.IsMenu;
                 ql.JudgeId = link.JudgeId;
+            }
+        }
+
+        // Remove default quick links that exist in DB but not in config
+        foreach (var existingLink in existingQuickLinks.Where(ql => ql.JudgeId == null))
+        {
+            var stillExists = quickLinks.Exists(ql =>
+                ql.Name == existingLink.Name &&
+                ql.ParentName == existingLink.ParentName);
+
+            if (!stillExists)
+            {
+                Logger.LogInformation("\t{Name} no longer in config, removing it...", existingLink.Name);
+                context.QuickLinks.Remove(existingLink);
             }
         }
 

@@ -60,9 +60,19 @@ updates:
   - package-ecosystem: "npm"
     directory: "/web"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    cooldown:
+      default-days: 30  # Fallback cooldown if no other rule applies
+      semver-major-days: 30  # Cooldown for major version updates
+      semver-minor-days: 30  # Cooldown for minor version updates
+      semver-patch-days: 30  # Cooldown for patch updates
 
   - package-ecosystem: "npm"
     directory: "./infrastructure/jasper-aws-bootstrap"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    cooldown:
+      default-days: 30  # Fallback cooldown if no other rule applies
+      semver-major-days: 30  # Cooldown for major version updates
+      semver-minor-days: 30  # Cooldown for minor version updates
+      semver-patch-days: 30  # Cooldown for patch updates
