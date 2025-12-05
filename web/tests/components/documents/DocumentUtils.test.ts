@@ -20,13 +20,13 @@ const mockCriminalFileStore = {
 
 const mockCivilFileStore = {
   civilFileInformation: {
-    detailsData: {}
-  }
+    detailsData: {},
+  },
 };
 
 vi.mock('@/stores', () => ({
   useCriminalFileStore: () => mockCriminalFileStore,
-  useCivilFileStore : () => mockCivilFileStore,
+  useCivilFileStore: () => mockCivilFileStore,
 }));
 
 describe('DocumentUtils', () => {
@@ -91,34 +91,46 @@ describe('DocumentUtils', () => {
   describe('getCriminalDocumentType', () => {
     it('should return ROP for category rop', () => {
       const data = { category: 'rop' } as any;
-      expect(DocumentUtils.getCriminalDocumentType(data)).toBe(CourtDocumentType.ROP);
+      expect(DocumentUtils.getCriminalDocumentType(data)).toBe(
+        CourtDocumentType.ROP
+      );
     });
 
     it('should return Criminal for other categories', () => {
       const data = { category: 'other' } as any;
-      expect(DocumentUtils.getCriminalDocumentType(data)).toBe(CourtDocumentType.Criminal);
+      expect(DocumentUtils.getCriminalDocumentType(data)).toBe(
+        CourtDocumentType.Criminal
+      );
     });
 
     it('should handle undefined category', () => {
       const data = {} as any;
-      expect(DocumentUtils.getCriminalDocumentType(data)).toBe(CourtDocumentType.Criminal);
+      expect(DocumentUtils.getCriminalDocumentType(data)).toBe(
+        CourtDocumentType.Criminal
+      );
     });
   });
 
   describe('getCivilDocumentType', () => {
     it('should return CSR for documentTypeCd CSR', () => {
       const data = { documentTypeCd: 'CSR' } as any;
-      expect(DocumentUtils.getCivilDocumentType(data)).toBe(CourtDocumentType.CSR);
+      expect(DocumentUtils.getCivilDocumentType(data)).toBe(
+        CourtDocumentType.CSR
+      );
     });
 
     it('should return Civil for other documentTypeCd', () => {
       const data = { documentTypeCd: 'OTH' } as any;
-      expect(DocumentUtils.getCivilDocumentType(data)).toBe(CourtDocumentType.Civil);
+      expect(DocumentUtils.getCivilDocumentType(data)).toBe(
+        CourtDocumentType.Civil
+      );
     });
 
     it('should handle undefined documentTypeCd', () => {
       const data = {} as any;
-      expect(DocumentUtils.getCivilDocumentType(data)).toBe(CourtDocumentType.Civil);
+      expect(DocumentUtils.getCivilDocumentType(data)).toBe(
+        CourtDocumentType.Civil
+      );
     });
   });
 
@@ -128,14 +140,28 @@ describe('DocumentUtils', () => {
       expect(DocumentUtils.formatDocumentCategory(document)).toBe('Report');
     });
 
+    it('should return "Report" for PSR string category', () => {
+      expect(DocumentUtils.formatDocumentCategory('PSR')).toBe('Report');
+    });
+
     it('should return "ROP" for rop category', () => {
       const document = { category: 'rop' } as any;
       expect(DocumentUtils.formatDocumentCategory(document)).toBe('ROP');
     });
 
+    it('should return "ROP" for rop category', () => {
+      expect(DocumentUtils.formatDocumentCategory('rop')).toBe('ROP');
+    });
+
     it('should return original category for other categories', () => {
       const document = { category: 'INITIATING' } as any;
       expect(DocumentUtils.formatDocumentCategory(document)).toBe('INITIATING');
+    });
+
+    it('should return original category for other (string) categories', () => {
+      expect(DocumentUtils.formatDocumentCategory('INITIATING')).toBe(
+        'INITIATING'
+      );
     });
 
     it('should handle undefined category', () => {
@@ -151,31 +177,37 @@ describe('DocumentUtils', () => {
 
   describe('formatDocumentType', () => {
     it('should return "Record of Proceedings" for rop category', () => {
-      const document = { 
+      const document = {
         category: 'rop',
-        documentTypeDescription: 'Some other description'
+        documentTypeDescription: 'Some other description',
       } as any;
-      expect(DocumentUtils.formatDocumentType(document)).toBe('Record of Proceedings');
+      expect(DocumentUtils.formatDocumentType(document)).toBe(
+        'Record of Proceedings'
+      );
     });
 
     it('should return documentTypeDescription for non-rop categories', () => {
-      const document = { 
+      const document = {
         category: 'PSR',
-        documentTypeDescription: 'Pre-sentence Report'
+        documentTypeDescription: 'Pre-sentence Report',
       } as any;
-      expect(DocumentUtils.formatDocumentType(document)).toBe('Pre-sentence Report');
+      expect(DocumentUtils.formatDocumentType(document)).toBe(
+        'Pre-sentence Report'
+      );
     });
 
     it('should return documentTypeDescription for undefined category', () => {
-      const document = { 
-        documentTypeDescription: 'Some Document Type'
+      const document = {
+        documentTypeDescription: 'Some Document Type',
       } as any;
-      expect(DocumentUtils.formatDocumentType(document)).toBe('Some Document Type');
+      expect(DocumentUtils.formatDocumentType(document)).toBe(
+        'Some Document Type'
+      );
     });
 
     it('should handle undefined documentTypeDescription', () => {
-      const document = { 
-        category: 'OTHER'
+      const document = {
+        category: 'OTHER',
       } as any;
       expect(DocumentUtils.formatDocumentType(document)).toBeUndefined();
     });
