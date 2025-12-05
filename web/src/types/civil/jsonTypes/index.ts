@@ -103,6 +103,7 @@ export interface civilDocumentType {
   affidavitNo: string;
   swornByNm: string;
   filedDt: string;
+  orderMadeDt: string;
   filedByName: string;
   commentTxt: string;
   concludedYn: string;

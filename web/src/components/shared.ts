@@ -294,6 +294,8 @@ export default {
       {
         title: 'SEQ',
         key: 'fileSeqNo',
+        width: '4rem',
+        maxWidth: '4rem',
       },
       {
         title: 'DOCUMENT TYPE',
@@ -306,12 +308,24 @@ export default {
       {
         title: 'DATE FILED',
         key: 'filedDt',
+        width: '8.5rem',
+        maxWidth: '8.5rem',
         value: (item: civilDocumentType) => formatDateToDDMMMYYYY(item.filedDt),
         sortRaw: (a: civilDocumentType, b: civilDocumentType) =>
           new Date(a.filedDt).getTime() - new Date(b.filedDt).getTime(),
       },
       {
-        title: 'FILED BY',
+        title: 'ORDER MADE',
+        key: 'orderMadeDt',
+        width: '9.5rem',
+        maxWidth: '9.5rem',
+        value: (item: civilDocumentType) =>
+          formatDateToDDMMMYYYY(item.orderMadeDt),
+        sortRaw: (a: civilDocumentType, b: civilDocumentType) =>
+          new Date(a.orderMadeDt).getTime() - new Date(b.orderMadeDt).getTime(),
+      },
+      {
+        title: 'FILED / SWORN BY',
         key: 'filedBy',
       },
       {
