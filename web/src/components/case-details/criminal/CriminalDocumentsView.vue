@@ -17,7 +17,6 @@
       <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
         <v-select
           v-model="selectedCategory"
-          label="Documents"
           placeholder="All documents"
           hide-details
           :items="documentCategories"

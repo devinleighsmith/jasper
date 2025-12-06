@@ -19,7 +19,6 @@
     <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
       <v-select
         v-model="selectedCategory"
-        label="Documents"
         placeholder="All documents"
         hide-details
         :items="documentCategories"
@@ -159,8 +158,8 @@
   const scheduledDocuments = props.documents.filter(
     (doc) => doc.nextAppearanceDt
   );
-  const selectedCategory = ref<string>(
-    scheduledDocuments.length > 0 ? SCHEDULED_CATEGORY : ''
+  const selectedCategory = ref<string | undefined>(
+    scheduledDocuments.length > 0 ? SCHEDULED_CATEGORY : undefined
   );
   const isBinderLoading = ref(true);
   const rolesLoading = ref(false);
