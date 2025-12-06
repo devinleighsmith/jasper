@@ -72,13 +72,17 @@ export const getCivilDocumentType = (
 };
 
 // Move this mapping to the BE
-export const formatDocumentCategory = (documentOrCategory: documentType | string) => {
-  const category = typeof documentOrCategory === 'string' 
-    ? documentOrCategory 
-    : documentOrCategory.category;
-  
+export const formatDocumentCategory = (
+  documentOrCategory: documentType | string
+) => {
+  const category =
+    typeof documentOrCategory === 'string'
+      ? documentOrCategory
+      : documentOrCategory.category;
+
   if (category === 'PSR') return 'Report';
   if (category === 'rop') return 'ROP';
+  if (category?.toLowerCase() === 'litigant') return 'Litigant';
   return category;
 };
 

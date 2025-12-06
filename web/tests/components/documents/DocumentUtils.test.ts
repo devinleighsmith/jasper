@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
-import * as DocumentUtils from 'CMP/documents/DocumentUtils';
 import { CourtDocumentType } from '@/types/shared';
+import * as DocumentUtils from 'CMP/documents/DocumentUtils';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/filters', () => ({
   beautifyDate: vi.fn((date) => `beautified-${date}`),
