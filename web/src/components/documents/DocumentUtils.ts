@@ -36,13 +36,15 @@ export const prepareCriminalDocumentData = (data) => {
 
 export const prepareCivilDocumentData = (data: civilDocumentType) => {
   const civilFileStore = useCivilFileStore();
+  const isLitigantDocument =
+    data.category?.toLowerCase() === 'reference' ||
+    data.category?.toLowerCase() === 'litigant';
   const documentData: DocumentData = {
     appearanceDate: beautifyDate(data.lastAppearanceDt),
     appearanceId: data.appearanceId ?? data.civilDocumentId,
     dateFiled: beautifyDate(data.filedDt),
     documentDescription: data.documentTypeDescription,
-    documentId:
-      data.category === 'Reference' ? data.imageId : data.civilDocumentId,
+    documentId: isLitigantDocument ? data.imageId : data.civilDocumentId,
     fileId: civilFileStore.civilFileInformation?.fileNumber,
     fileNumberText:
       civilFileStore.civilFileInformation?.detailsData?.fileNumberTxt,
