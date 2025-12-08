@@ -1,7 +1,5 @@
 import { registerPlugins } from '@/plugins';
 import LoadingSpinner from '@components/LoadingSpinner.vue';
-import { createBootstrap } from 'bootstrap-vue-next';
-import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'intersection-observer';
 import { createApp } from 'vue';
@@ -15,7 +13,6 @@ import { registerPinia } from './stores';
 const app = createApp(App);
 registerPinia(app);
 app.use(router);
-app.use(createBootstrap());
 //Vue.config.productionTip = true
 app.component('loading-spinner', LoadingSpinner);
 

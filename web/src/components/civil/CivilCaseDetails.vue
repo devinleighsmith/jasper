@@ -130,14 +130,12 @@
     watch,
   } from 'vue';
   import { useRoute } from 'vue-router';
-  import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
 
   export default defineComponent({
     components: {
       CourtFilesSelector,
       CivilSidePanel,
-      CustomOverlay,
       CaseHeader,
     },
     setup() {
