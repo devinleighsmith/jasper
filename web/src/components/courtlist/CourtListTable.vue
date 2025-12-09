@@ -41,9 +41,9 @@
         </td>
       </tr>
     </template>
-    <template #item.accusedNm="{ item }">
+    <template #item.accusedNm="{ item, value }">
       <a href="#" @click.prevent="viewCaseDetails([item])">
-        {{ item.accusedNm || item.styleOfCause }}
+        {{ value }}
       </a>
     </template>
     <template v-slot:group-header="{ item, columns, isGroupOpen, toggleGroup }">
@@ -102,7 +102,7 @@
         </template>
       </v-tooltip>
     </template>
-    <template v-slot:item.counsel="{ item }">
+    <template v-slot:item.counsel="{ item, value }">
       <v-tooltip
         :disabled="
           (item.counsel?.length ?? 0) + (item.accusedCounselNm ? 1 : 0) < 2
@@ -117,7 +117,7 @@
                 (item?.accusedCounselNm ? 1 : 0) + (item.counsel?.length ?? 0) >
                 1,
             }"
-            >{{ renderCounsel(item.accusedCounselNm, item.counsel) }}</span
+            >{{ value }}</span
           >
         </template>
         <span
@@ -148,6 +148,8 @@
     :selected
     @view-case-details="viewCaseDetails"
     @view-key-documents="viewKeyDocuments"
+    @view-informations="viewKeyDocuments"
+    @view-judicial-binders="handleViewJudicialBinders"
   />
 </template>
 
@@ -158,7 +160,7 @@
   import FileMarkers from '@/components/shared/FileMarkers.vue';
   import TooltipIcon from '@/components/shared/TooltipIcon.vue';
   import { bannerClasses } from '@/constants/bannerClasses';
-  import { useCourtFileSearchStore } from '@/stores';
+  import { useCourtFileSearchStore, useCommonStore } from '@/stores';
   import { AppearanceDocumentRequest } from '@/types/AppearanceDocumentRequest';
   import {
     CourtClassEnum,
@@ -180,6 +182,7 @@
   } from '@mdi/js';
   import { computed, ref } from 'vue';
 
+  const commonStore = useCommonStore();
   const selected = ref<CourtListAppearance[]>([]);
   const sortBy = ref([
     { key: 'appearanceSequenceNumber', order: 'asc' },
@@ -244,13 +247,15 @@
     {
       title: 'ACCUSED/PARTIES',
       key: 'accusedNm',
+      value: (item: CourtListAppearance) =>
+        item.accusedNm || item.styleOfCause,
     },
     { title: 'TIME', key: 'appearanceTm' },
     { title: 'EST.', key: 'estimatedTime' },
     { title: 'ROOM', key: 'courtRoomCd' },
     { title: 'REASON', key: 'appearanceReasonCd' },
     { title: 'FILE MARKERS', key: 'fileMarkers', sortable: false },
-    { title: 'COUNSEL', key: 'counsel' },
+    { title: 'COUNSEL', key: 'counsel', value: (item: CourtListAppearance) => renderName(item.counsel ?? [], item.accusedCounselNm) },
     { title: 'CROWN', key: 'crown' },
     {
       title: 'CASE AGE (days)',
@@ -373,7 +378,7 @@
     return [];
   };
 
-  const viewKeyDocuments = async (appearances: CourtListAppearance[]) => {
+  const viewKeyDocuments = async (appearances: CourtListAppearance[], categories: string[]) => {
     if (appearances.length === 0) {
       return;
     }
@@ -388,7 +393,27 @@
         }) as AppearanceDocumentRequest
     );
 
-    shared.openCourtListKeyDocuments(appearances);
+    shared.openCourtListKeyDocuments(appearances, categories);
+  };
+
+  const handleViewJudicialBinders = (
+    appearances: CourtListAppearance[]
+  ) => {
+    if (appearances.length === 0) {
+      return;
+    }
+
+    appearances.map(
+      (app) =>
+        ({
+          physicalFileId: app.physicalFileId,
+          appearanceId: app.appearanceId,
+          participantId: app.profPartId,
+          courtClassCd: app.courtClassCd
+        }) as AppearanceDocumentRequest
+    );
+
+    shared.openJudicialBinderDocuments(appearances, commonStore.userInfo?.userId || "");
   };
 
   const viewCaseDetails = (selectedItems: CourtListAppearance[]) => {

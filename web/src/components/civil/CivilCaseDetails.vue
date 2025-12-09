@@ -244,7 +244,10 @@
               civilFileStore.civilFileInformation.detailsData = data;
               partiesJson.value = data.party;
               adjudicatorRestrictionsJson.value = data.hearingRestriction;
-              documentsDetailsJson = [...data.document];
+              documentsDetailsJson = data.document.map((doc) => ({
+                ...doc,
+                orderMadeDt: doc.DateGranted || doc.orderMadeDt,
+              }));
               providedDocumentsDetailsJson = [...data.referenceDocument];
               isSealed.value = data.sealedYN === 'Y';
 
@@ -281,7 +284,10 @@
                   civilFileStore.civilFileInformation
                 );
                 showSealedWarning.value = isSealed.value || docIsSealed.value;
-                details.value = data;
+                details.value = {
+                  ...data,
+                  document: documentsDetailsJson,
+                };
                 fileId.value = data.physicalFileId;
                 isDataReady.value = true;
               } else errorCode.value = 200;

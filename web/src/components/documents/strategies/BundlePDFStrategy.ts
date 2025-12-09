@@ -75,7 +75,9 @@ export class BundlePDFStrategy
   async generatePDF(
     processedData: DocumentBundleRequest
   ): Promise<ApiResponse<DocumentBundleResponse>> {
-    return await this.binderService.generateBinderPDF(processedData);
+    const urlParams = new URLSearchParams(globalThis.location.search);
+    const documentCategories = urlParams.get('category')?.split(',') || [];
+    return await this.binderService.generateBinderPDF(processedData, documentCategories);
   }
 
   extractBase64PDF(apiResponse: ApiResponse<DocumentBundleResponse>): string {
@@ -92,10 +94,20 @@ export class BundlePDFStrategy
     rawData: Record<string, Record<string, appearanceRequest[]>>,
     apiResponse: ApiResponse<DocumentBundleResponse>
   ): OutlineItem[] {
-    this.count = 0; // Reset counter
-    return Object.entries(rawData).map(([groupKey, userGroup]) =>
-      this.makeFirstGroup(groupKey, userGroup, apiResponse)
+    this.count = 0;
+    const binderFileIds = new Set(
+      apiResponse.payload.binders.map((b) => b.labels.physicalFileId)
     );
+    
+    return Object.entries(rawData)
+      .filter(([, userGroup]) =>
+        Object.values(userGroup)
+          .flat()
+          .some((req) => binderFileIds.has(req.appearance.physicalFileId))
+      )
+      .map(([groupKey, userGroup]) =>
+        this.makeFirstGroup(groupKey, userGroup, apiResponse)
+      );
   }
 
   private makeFirstGroup(
@@ -141,7 +153,7 @@ export class BundlePDFStrategy
       apiResponse.payload.pdfResponse.pageRanges?.[this.count]?.start;
     const children = binders.flatMap((binder) =>
       binder.documents
-        .filter((doc) => !isNaN(parseFloat(doc.documentId)))
+        .filter((doc) => doc.documentId) // Only include documents with valid IDs
         .map((doc) => this.makeDocElement(doc, apiResponse))
     );
 

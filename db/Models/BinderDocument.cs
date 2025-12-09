@@ -9,6 +9,7 @@ public class BinderDocument
     public int Order { get; set; }
     public int DocumentType { get; set; }
     public string FileName { get; set; }
+    public string Category { get; set; }
     /// <summary>
     /// Order ID for transcript documents
     /// </summary>

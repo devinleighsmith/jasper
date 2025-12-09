@@ -15,7 +15,8 @@ public class DocumentCategory : EntityBase
     public const string PLEADINGS = "PLEADINGS";
     public const string PSR = "PSR";
     public const string ROP = "ROP";
-    public const string REFERENCE = "REFERENCE";
+    public const string CSR = "CSR";
+    public const string LITIGANT = "LITIGANT";
 
     public static readonly List<string> ALL_DOCUMENT_CATEGORIES = [
         AFFIDAVITS,
@@ -25,7 +26,8 @@ public class DocumentCategory : EntityBase
         ORDERS,
         PLEADINGS,
         PSR,
-        REFERENCE
+        LITIGANT,
+        CSR
     ];
 
     public static readonly List<string> KEY_DOCUMENT_CATEGORIES = [

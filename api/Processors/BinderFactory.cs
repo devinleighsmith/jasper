@@ -64,7 +64,15 @@ public class BinderFactory(
             case CourtClassCd.F:
             case CourtClassCd.L:
             case CourtClassCd.M:
-                return new JudicialBinderProcessor(_filesClient, _currentUser, _basicValidator, dto, _configuration, _darsService);
+                return new JudicialBinderProcessor(
+                    _filesClient,
+                     _currentUser,
+                     _basicValidator,
+                     dto,
+                     _cache,
+                     _configuration,
+                     _darsService,
+                     _mapper);
             case CourtClassCd.A:
             case CourtClassCd.Y:
             case CourtClassCd.T:

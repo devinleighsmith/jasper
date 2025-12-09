@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Hangfire;
 using LazyCache;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +13,11 @@ using PCSSCommon.Models;
 using Scv.Api.Documents.Parsers;
 using Scv.Api.Documents.Parsers.Models;
 using Scv.Api.Helpers;
+using Scv.Api.Helpers.Exceptions;
 using Scv.Api.Helpers.Extensions;
 using Scv.Api.Models;
 using Scv.Api.Services;
+using PCSSCommonConstants = PCSSCommon.Common.Constants;
 
 namespace Scv.Api.Jobs;
 
@@ -75,10 +78,14 @@ public class SyncAssignedCasesJob(
             return;
         }
 
-        var newRJsDtos = this.Mapper.Map<List<CaseDto>>(newRJs.Where(rj => rj.AppearanceId != null));
+        var validRJs = newRJs.Where(rj => rj.AppearanceId != null).ToList();
+        var failedCount = newRJs.Length - validRJs.Count;
+
+        var newRJsDtos = this.Mapper.Map<List<CaseDto>>(validRJs);
         await _caseService.AddRangeAsync(newRJsDtos);
 
-        this.Logger.LogInformation("Received {AllRJsCount} RJs. Successfully processed {ValidRJsCount}.", newRJs.Length, newRJsDtos.Count);
+        this.Logger.LogInformation("Received {AllRJsCount} RJs. Successfully processed {ValidRJsCount}. Failed: {FailedCount}.",
+            newRJs.Length, newRJsDtos.Count, failedCount);
     }
 
     private async Task<Db.Models.Case[]> GetNewReservedJudgements()
@@ -108,8 +115,22 @@ public class SyncAssignedCasesJob(
         var parsedRJs = _csvParser.Parse<CsvReservedJudgement>(attachments.First().Value);
 
         this.Logger.LogInformation("Populating missing info...");
-        var newRJsTask = parsedRJs.Select(crj => PopulateMissingInfoForRJ(crj));
-        var newRJs = await Task.WhenAll(newRJsTask);
+
+        var newRJs = await PopulateCaseInfoWithThrottling(
+            parsedRJs,
+            async crj =>
+            {
+                try
+                {
+                    return await PopulateMissingInfoForRJ(crj);
+                }
+                catch
+                {
+                    return this.Mapper.Map<Db.Models.Case>(crj);
+                }
+            },
+            crj => crj.CourtFileNumber,
+            "RJ");
 
         return newRJs;
     }
@@ -201,6 +222,85 @@ public class SyncAssignedCasesJob(
 
     #endregion Reserved Judgements Methods
 
+    #region Common Helper Methods
+
+    private async Task<TOutput[]> PopulateCaseInfoWithThrottling<TInput, TOutput>(
+        IEnumerable<TInput> items,
+        Func<TInput, Task<TOutput>> populateMissingInfo,
+        Func<TInput, string> getItemIdentifier,
+        string itemTypeName)
+    {
+        var itemsList = items.ToList();
+        if (itemsList.Count == 0)
+        {
+            return [];
+        }
+
+        var maxConcurrency = this.Configuration.GetValue<int?>("JOBS:MAX_CONCURRENT_REQUESTS") ?? 10;
+        var delayBetweenRequestsMs = this.Configuration.GetValue<int?>("JOBS:DELAY_BETWEEN_REQUESTS_MS") ?? 100;
+        var warnings = new List<string>();
+        var results = new TOutput[itemsList.Count];
+        var processedCount = 0;
+        var totalCount = itemsList.Count;
+
+        this.Logger.LogInformation("Processing {Total} {ItemType}(s) with max concurrency of {MaxConcurrency} and {Delay}ms delay between requests",
+            totalCount, itemTypeName, maxConcurrency, delayBetweenRequestsMs);
+
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = maxConcurrency
+        };
+
+        await Parallel.ForEachAsync(
+            itemsList.Select((item, index) => (item, index)),
+            parallelOptions,
+            async (tuple, cancellationToken) =>
+            {
+                var (item, index) = tuple;
+                try
+                {
+                    results[index] = await populateMissingInfo(item);
+
+                    // Add delay after each request to avoid overwhelming the server
+                    if (delayBetweenRequestsMs > 0)
+                    {
+                        await Task.Delay(delayBetweenRequestsMs, cancellationToken);
+                    }
+
+                    var currentCount = Interlocked.Increment(ref processedCount);
+                    if (currentCount % maxConcurrency == 0 || currentCount == totalCount)
+                    {
+                        this.Logger.LogInformation("Progress: {Processed}/{Total} {ItemType}(s) processed",
+                            currentCount, totalCount, itemTypeName);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var itemId = getItemIdentifier(item);
+                    var warning = $"Failed to populate info for {itemTypeName} {itemId}: {ex.Message}";
+                    lock (warnings)
+                    {
+                        warnings.Add(warning);
+                    }
+                    this.Logger.LogError(ex, "Error populating missing info for {ItemType} {ItemId}", itemTypeName, itemId);
+
+                    Interlocked.Increment(ref processedCount);
+                    throw new NotFoundException(warning);
+                }
+            });
+
+        if (warnings.Count > 0)
+        {
+            var warningTable = string.Join("\n", warnings.Select((w, i) => $"  {i + 1,3}. {w}"));
+            this.Logger.LogWarning("Encountered {Count} errors while populating {ItemType} info:\n{Warnings}",
+                warnings.Count, itemTypeName, warningTable);
+        }
+
+        return results;
+    }
+
+    #endregion Common Helper Methods
+
     #region Scheduled Cases (Decisions and Continuations) Methods
 
     private async Task ProcessScheduledCases()
@@ -214,11 +314,25 @@ public class SyncAssignedCasesJob(
             return;
         }
 
-        var scheduledData = scheduledCases.Select(c => PopulateMissingInfoForScheduledCase(c)).ToList();
+        var scheduledData = await PopulateCaseInfoWithThrottling(
+            scheduledCases,
+            async c =>
+            {
+                try
+                {
+                    return await PopulateMissingInfoForScheduledCase(c);
+                }
+                catch
+                {
+                    return PopulateScheduledCaseWithDefaults(c);
+                }
+            },
+            c => $"{c.FileNumberTxt} (PhysicalFileId: {c.PhysicalFileId})",
+            "case");
 
         await _caseService.AddRangeAsync([.. scheduledData]);
 
-        this.Logger.LogInformation("Processed {Count} Scheduled Cases", scheduledData.Count);
+        this.Logger.LogInformation("Processed {Count} Scheduled Cases", scheduledData.Length);
     }
 
     private async Task<ICollection<Case>> GetScheduledCases()
@@ -254,7 +368,44 @@ public class SyncAssignedCasesJob(
         }
     }
 
-    private CaseDto PopulateMissingInfoForScheduledCase(PCSSCommon.Models.Case @case)
+    private async Task<CaseDto> PopulateMissingInfoForScheduledCase(PCSSCommon.Models.Case @case)
+    {
+        var caseDto = this.Mapper.Map<CaseDto>(@case);
+        var nextApprDate = DateTime.ParseExact(
+                caseDto.DueDate,
+                PCSSCommonConstants.DATE_FORMAT,
+                CultureInfo.InvariantCulture);
+
+        // Attempt to retrieve the appropriate Accused/Participant and "full" Court File Number via Court List endpoint.
+        // If unsuccessful, fall back to populating Style of Cause from participants list.
+        var courtList = await _courtListService.GetJudgeCourtListAppearances(caseDto.JudgeId.GetValueOrDefault(), nextApprDate);
+        if (courtList == null || courtList.Items.Count == 0)
+        {
+            this.Logger.LogWarning("Could not find court list for JudgeId: {JudgeId}, AppearanceDate: {AppearanceDate}. PhysicalFileId: {PhysicalFileId}",
+                caseDto.JudgeId, nextApprDate, caseDto.PhysicalFileId);
+            return PopulateScheduledCaseWithDefaults(@case);
+        }
+
+        var appearance = courtList.Items
+            .SelectMany(i => i.Appearances)
+            .FirstOrDefault(a => a.AppearanceId == caseDto.AppearanceId
+                && a.ProfPartId == caseDto.PartId
+                && (a.PhysicalFileId == caseDto.PhysicalFileId || a.JustinNo == caseDto.PhysicalFileId)
+                && a.AslFeederAdjudicators.Any(asl => asl.JudiciaryPersonId == caseDto.JudgeId));
+        if (appearance == null)
+        {
+            this.Logger.LogWarning("Could not find appearance for JudgeId: {JudgeId}, PhysicalFileId: {PhysicalFileId}, AppearanceDate: {AppearanceDate}, AppearanceId: {AppearanceId}, ProfPartId: {ProfPartId}",
+                caseDto.JudgeId, caseDto.PhysicalFileId, nextApprDate, caseDto.AppearanceId, caseDto.PartId);
+            return PopulateScheduledCaseWithDefaults(@case);
+        }
+
+        caseDto.StyleOfCause = appearance.AccusedNm;
+        caseDto.CourtFileNumber = appearance.CourtFileNumber;
+
+        return caseDto;
+    }
+
+    private CaseDto PopulateScheduledCaseWithDefaults(PCSSCommon.Models.Case @case)
     {
         var caseDto = this.Mapper.Map<CaseDto>(@case);
 

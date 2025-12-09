@@ -9,7 +9,12 @@
     <v-card-text>
       <v-row align="center" no-gutters>
         <v-col class="text-h5" cols="6">
-          All Documents ({{ documents.length }})
+          {{
+            props.selectedCategory && props.getCategoryDisplayTitle
+              ? props.getCategoryDisplayTitle(props.selectedCategory)
+              : 'All Documents'
+          }}
+          ({{ documents.length }})
         </v-col>
       </v-row>
     </v-card-text>
@@ -94,6 +99,8 @@
     baseHeaders: DataTableHeader[];
     binderDocumentIds: string[];
     addDocumentToBinder: (document: civilDocumentType) => void;
+    selectedCategory?: string;
+    getCategoryDisplayTitle?: (category: string) => string;
     openIndividualDocument: (data: civilDocumentType) => void;
   }>();
   const emit =

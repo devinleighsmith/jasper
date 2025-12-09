@@ -19,10 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       lambda_dir_list: ${{ steps.convert.outputs.LAMBDA_DIR_LIST }}
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Get Lambda directories
         id: lambdas
@@ -48,7 +50,7 @@ jobs:
 
   deploy2gchr:
     needs: get-lambdas
-    environment: dev
+    environment: lz-dev
     outputs:
       short_sha: ${{ steps.short_sha.outputs.SHORT_SHA }}
     permissions:
@@ -62,10 +64,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Log in to the GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -87,7 +89,7 @@ jobs:
 
       - name: Setup Image Metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: |
             ${{ env.GITHUB_IMAGE_REPO }}/${{ env.RESOURCE }}.${{ env.LAMBDA }}
@@ -95,12 +97,12 @@ jobs:
             type=raw,value=${{ steps.short_sha.outputs.SHORT_SHA }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.0
         with:
           driver: docker
 
       - name: Build ${{ matrix.lambda }} image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           push: true
           file: ./docker/aws/Dockerfile.release
@@ -115,12 +117,12 @@ jobs:
     name: Deploy to DEV
     needs: [get-lambdas, deploy2gchr]
     env:
-      ENVIRONMENT: dev
+      ENVIRONMENT: lz-dev
     permissions:
       id-token: write
       packages: write
     runs-on: ubuntu-latest
-    environment: dev
+    environment: lz-dev
 
     strategy:
       matrix:
@@ -128,7 +130,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Deploy to ${{ env.ENVIRONMENT }}
         uses: ./.github/workflows/actions/deploy-lambda
@@ -142,17 +144,16 @@ jobs:
           github_image_repo: ${{ env.GITHUB_IMAGE_REPO }}
           lambda: ${{ matrix.lambda }}
           short_sha: ${{ needs.deploy2gchr.outputs.short_sha }}
-
   deploy2test:
     name: Deploy to TEST
     needs: [get-lambdas, deploy2gchr, deploy2dev]
     env:
-      ENVIRONMENT: test
+      ENVIRONMENT: lz-test
     permissions:
       id-token: write
       packages: write
     runs-on: ubuntu-latest
-    environment: test
+    environment: lz-test
 
     strategy:
       matrix:
@@ -160,7 +161,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Deploy to ${{ env.ENVIRONMENT }}
         uses: ./.github/workflows/actions/deploy-lambda
@@ -179,12 +180,12 @@ jobs:
     name: Deploy to PROD
     needs: [get-lambdas, deploy2gchr, deploy2dev, deploy2test]
     env:
-      ENVIRONMENT: prod
+      ENVIRONMENT: lz-prod
     permissions:
       id-token: write
       packages: write
     runs-on: ubuntu-latest
-    environment: prod
+    environment: lz-prod
 
     strategy:
       matrix:
@@ -192,7 +193,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Deploy to ${{ env.ENVIRONMENT }}
         uses: ./.github/workflows/actions/deploy-lambda

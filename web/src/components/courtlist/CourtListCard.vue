@@ -27,6 +27,7 @@
             }}
           </h5>
         </v-col>
+        <v-col />
       </v-row>
 
       <v-row>

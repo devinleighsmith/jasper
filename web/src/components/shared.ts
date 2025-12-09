@@ -119,7 +119,7 @@ export default {
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
-  openCourtListKeyDocuments(appearances: CourtListAppearance[]): void {
+  openCourtListKeyDocuments(appearances: CourtListAppearance[], categories: string[]): void {
     if (!appearances.length) return;
     const bundleStore = useBundleStore();
     const appearanceRequests = appearances.map((app) => ({
@@ -131,6 +131,37 @@ export default {
       } as AppearanceDocumentRequest,
       fileNumber: app.courtFileNumber,
       fullName: app.accusedNm,
+    }));
+    const bundleRequest = {
+      appearances: appearanceRequests.map((app) => app.appearance),
+    } as DocumentBundleRequest;
+    bundleStore.request = bundleRequest;
+    bundleStore.appearanceRequests = appearanceRequests;
+
+    const categoryParams = categories.length > 0 
+      ? '&category=' + categories.join(',')
+      : '';
+    const url = '/file-viewer?type=bundle' + categoryParams;
+    const newWindow = window.open(url, '_blank');
+    const caseNumbers = Array.from(
+      new Set(appearances.map((d) => d.courtFileNumber))
+    ).join(', ');
+    this.replaceWindowTitle(newWindow, caseNumbers);
+  },
+
+  openJudicialBinderDocuments(appearances: CourtListAppearance[], judgeId: string): void {
+    if (!appearances.length) return;
+    const bundleStore = useBundleStore();
+    const appearanceRequests = appearances.map((app) => ({
+      appearance: {
+        physicalFileId: app.physicalFileId, // temp
+        appearanceId: app.appearanceId,
+        participantId: app.profPartId,
+        courtClassCd: app.courtClassCd,
+        judgeId
+      } as AppearanceDocumentRequest,
+      fileNumber: app.courtFileNumber,
+      fullName: app.styleOfCause,
     }));
     const bundleRequest = {
       appearances: appearanceRequests.map((app) => app.appearance),
@@ -273,6 +304,8 @@ export default {
       {
         title: 'SEQ',
         key: 'fileSeqNo',
+        width: '4rem',
+        maxWidth: '4rem',
       },
       {
         title: 'DOCUMENT TYPE',
@@ -285,12 +318,24 @@ export default {
       {
         title: 'DATE FILED',
         key: 'filedDt',
+        width: '8.5rem',
+        maxWidth: '8.5rem',
         value: (item: civilDocumentType) => formatDateToDDMMMYYYY(item.filedDt),
         sortRaw: (a: civilDocumentType, b: civilDocumentType) =>
           new Date(a.filedDt).getTime() - new Date(b.filedDt).getTime(),
       },
       {
-        title: 'FILED BY',
+        title: 'ORDER MADE',
+        key: 'orderMadeDt',
+        width: '9.5rem',
+        maxWidth: '9.5rem',
+        value: (item: civilDocumentType) =>
+          formatDateToDDMMMYYYY(item.orderMadeDt),
+        sortRaw: (a: civilDocumentType, b: civilDocumentType) =>
+          new Date(a.orderMadeDt).getTime() - new Date(b.orderMadeDt).getTime(),
+      },
+      {
+        title: 'FILED / SWORN BY',
         key: 'filedBy',
       },
       {

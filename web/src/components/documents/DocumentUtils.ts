@@ -53,13 +53,15 @@ export const prepareCivilDocumentData = (data: civilDocumentType) => {
   const isTranscript = data.category?.toLowerCase() === TRANSCRIPT;
 
   const civilFileStore = useCivilFileStore();
+  const isLitigantDocument =
+    data.category?.toLowerCase() === 'reference' ||
+    data.category?.toLowerCase() === 'litigant';
   const documentData: DocumentData = {
     appearanceDate: beautifyDate(data.lastAppearanceDt),
     appearanceId: data.appearanceId ?? data.civilDocumentId,
     dateFiled: beautifyDate(data.filedDt),
     documentDescription: data.documentTypeDescription,
-    documentId:
-      data.category === 'Reference' ? data.imageId : data.civilDocumentId,
+    documentId: isLitigantDocument ? data.imageId : data.civilDocumentId,
     fileId: civilFileStore.civilFileInformation?.fileNumber,
     fileNumberText:
       civilFileStore.civilFileInformation?.detailsData?.fileNumberTxt,
@@ -105,12 +107,18 @@ export const getCivilDocumentType = (
 };
 
 // Move this mapping to the BE
-export const formatDocumentCategory = (document: documentType) => {
-  let category = document?.category;
-  if (!category) return category;
-  if (category === 'PSR') category = 'Report';
-  else if (category === 'rop') category = 'ROP';
-  else if (category?.toLowerCase() === TRANSCRIPT) category = 'Transcript';
+export const formatDocumentCategory = (
+  documentOrCategory: documentType | string
+) => {
+  const category =
+    typeof documentOrCategory === 'string'
+      ? documentOrCategory
+      : documentOrCategory.category;
+
+  if (category?.toLowerCase() === 'psr') return 'Report';
+  if (category?.toLowerCase() === 'transcript') return 'Transcript';
+  if (category?.toLowerCase() === 'rop') return 'ROP';
+  if (category?.toLowerCase() === 'litigant') return 'Litigant';
   return category;
 };
 

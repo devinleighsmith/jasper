@@ -6,4 +6,5 @@ export interface BinderDocument {
   documentType: DocumentRequestType;
   fileName: string;
   orderId?: string;
+  category: string;
 }

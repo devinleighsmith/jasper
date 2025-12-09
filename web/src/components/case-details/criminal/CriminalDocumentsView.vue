@@ -1,22 +1,6 @@
 <template>
   <v-row>
     <v-col cols="6" />
-    <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
-      <v-select
-        v-model="selectedCategory"
-        label="Documents"
-        placeholder="All documents"
-        hide-details
-        :items="documentCategories"
-      >
-        <template v-slot:item="{ props: itemProps, item }">
-          <v-list-item
-            v-bind="itemProps"
-            :title="item.raw + ' (' + categoryCount(item.raw) + ')'"
-          ></v-list-item>
-        </template>
-      </v-select>
-    </v-col>
     <v-col cols="3" class="ml-auto" v-if="participants.length > 1">
       <name-filter v-model="selectedAccused" :people="participants" />
     </v-col>
@@ -28,6 +12,24 @@
     }"
     :key="type"
   >
+    <v-row v-if="type === 'documents'">
+      <v-col cols="6" />
+      <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
+        <v-select
+          v-model="selectedCategory"
+          placeholder="All documents"
+          hide-details
+          :items="documentCategories"
+        >
+          <template v-slot:item="{ props: itemProps, item }">
+            <v-list-item
+              v-bind="itemProps"
+              :title="item.raw + ' (' + categoryCount(item.raw) + ')'"
+            ></v-list-item>
+          </template>
+        </v-select>
+      </v-col>
+    </v-row>
     <v-card
       class="my-6"
       color="var(--bg-gray-500)"
@@ -37,7 +39,11 @@
       <v-card-text>
         <v-row align="center" no-gutters>
           <v-col class="text-h5" cols="6">
-            {{ type === 'keyDocuments' ? 'Key Documents' : 'All Documents' }}
+            {{
+              type === 'keyDocuments'
+                ? 'Key Documents'
+                : getCategoryDisplayTitle()
+            }}
             ({{ documents.length }})
           </v-col>
         </v-row>
@@ -198,15 +204,19 @@
     unfilteredDocuments.value.filter(filterByCategory).filter(filterByAccused)
   );
   const keyDocuments = computed(() =>
-    unfilteredKeyDocuments.value
-      .filter(filterByCategory)
-      .filter(filterByAccused)
+    unfilteredKeyDocuments.value.filter(filterByAccused)
   );
 
   const categoryCount = (category: string): number => {
     return unfilteredDocuments.value.filter(
       (doc) => formatDocumentCategory(doc) === category
     ).length;
+  };
+
+  const getCategoryDisplayTitle = (): string => {
+    return selectedCategory.value
+      ? formatDocumentCategory(selectedCategory.value)
+      : 'All Documents';
   };
 
   const documentCategories = ref<string[]>([

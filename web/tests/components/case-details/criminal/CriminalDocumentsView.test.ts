@@ -156,6 +156,70 @@ describe('CriminalDocumentsView.vue', () => {
     expect(documents[0].category).toBe('bail');
   });
 
+  it('does not filter key documents by category', async () => {
+    const bailKeyDoc = { ...mockDocumentOne, category: 'bail' };
+    const otherKeyDoc = {
+      issueDate: '2023-03-01',
+      documentTypeDescription: 'Type C',
+      category: 'other',
+      documentPageCount: 2,
+      imageId: '789',
+    };
+    mockParticipants[0].keyDocuments = [bailKeyDoc, otherKeyDoc];
+
+    const wrapper = shallowMount(DocumentsView, {
+      props: {
+        participants: mockParticipants,
+      },
+    });
+
+    (wrapper.vm as any).selectedCategory = 'bail';
+    await nextTick();
+
+    const documents = (wrapper.vm as any).documents;
+    const keyDocuments = (wrapper.vm as any).keyDocuments;
+
+    expect(documents).toHaveLength(1);
+    expect(documents[0].category).toBe('bail');
+
+    expect(keyDocuments).toHaveLength(2);
+    expect(keyDocuments.some((doc: any) => doc.category === 'bail')).toBe(true);
+    expect(keyDocuments.some((doc: any) => doc.category === 'other')).toBe(
+      true
+    );
+  });
+
+  it('filters both documents and key documents by accused', async () => {
+    mockParticipants[0].keyDocuments = [mockDocumentOne];
+    mockParticipants[1].keyDocuments = [
+      {
+        issueDate: '2023-03-01',
+        documentTypeDescription: 'Type C',
+        category: 'other',
+        documentPageCount: 2,
+        imageId: '789',
+      },
+    ];
+
+    const wrapper = shallowMount(DocumentsView, {
+      props: {
+        participants: mockParticipants,
+      },
+    });
+
+    (wrapper.vm as any).selectedAccused = 'Doe, John';
+    await nextTick();
+
+    const documents = (wrapper.vm as any).documents;
+    const keyDocuments = (wrapper.vm as any).keyDocuments;
+
+    expect(documents).toHaveLength(1);
+    expect(documents[0].fullName).toBe('John Doe');
+
+    expect(keyDocuments).toHaveLength(1);
+    expect(keyDocuments[0].fullName).toBe('John Doe');
+  });
+
   it('renders action-bar when two or more documents with imageIds are selected', async () => {
     wrapper.vm.selectedItems = [
       mockParticipantOne.document[0],
@@ -481,6 +545,36 @@ describe('CriminalDocumentsView.vue', () => {
           }),
         ])
       );
+    });
+  });
+  describe('Category Display Title', () => {
+    it('displays "All Documents" when no category is selected', () => {
+      const sections = wrapper.findAll('v-card-text .text-h5');
+      expect(sections[1].text()).toBe('All Documents (2)');
+    });
+
+    it('displays formatted category name when category is selected', async () => {
+      wrapper.vm.selectedCategory = 'PSR';
+      await nextTick();
+
+      const sections = wrapper.findAll('v-card-text .text-h5');
+      expect(sections[1].text()).toBe('Report (0)');
+    });
+
+    it('displays "ROP" when rop category is selected', async () => {
+      wrapper.vm.selectedCategory = 'rop';
+      await nextTick();
+
+      const sections = wrapper.findAll('v-card-text .text-h5');
+      expect(sections[1].text()).toBe('ROP (0)');
+    });
+
+    it('displays original category name when no special formatting applies', async () => {
+      wrapper.vm.selectedCategory = 'bail';
+      await nextTick();
+
+      const sections = wrapper.findAll('v-card-text .text-h5');
+      expect(sections[1].text()).toBe('bail (1)');
     });
   });
 });

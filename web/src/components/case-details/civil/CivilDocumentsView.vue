@@ -1,26 +1,4 @@
 <template>
-  <v-row>
-    <v-col cols="6" />
-    <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
-      <v-select
-        v-model="selectedCategory"
-        label="Documents"
-        placeholder="All documents"
-        hide-details
-        :items="documentCategories"
-        item-title="title"
-        item-value="value"
-      >
-        <template v-slot:item="{ props: itemProps, item }">
-          <v-list-item
-            v-bind="itemProps"
-            :title="`${item.title} (${categoryCount(item.raw.value)})`"
-          ></v-list-item>
-        </template>
-      </v-select>
-    </v-col>
-  </v-row>
-
   <JudicialBinder
     v-model="selectedBinderItems"
     :courtClassCdStyle
@@ -36,6 +14,26 @@
     @update:reordered="(documentData) => handleReordering(documentData)"
   />
 
+  <v-row>
+    <v-col cols="6" />
+    <v-col cols="3" class="ml-auto" v-if="documentCategories.length > 1">
+      <v-select
+        v-model="selectedCategory"
+        placeholder="All documents"
+        hide-details
+        :items="documentCategories"
+        item-title="title"
+        item-value="value"
+      >
+        <template v-slot:item="{ props: itemProps, item }">
+          <v-list-item
+            v-bind="itemProps"
+            :title="`${item.title} (${categoryCount(item.raw.value)})`"
+          ></v-list-item>
+        </template>
+      </v-select>
+    </v-col>
+  </v-row>
   <AllDocuments
     :courtClassCdStyle
     :documents="filteredDocuments"
@@ -46,6 +44,8 @@
     :openIndividualDocument
     :selectedItems
     :binderDocumentIds="currentBinder?.documents.map((d) => d.documentId) ?? []"
+    :selectedCategory="selectedCategory"
+    :getCategoryDisplayTitle="getCategoryDisplayTitle"
     @update:selectedItems="(val) => (selectedItems = val)"
   />
 
@@ -148,6 +148,7 @@
   const CSR_CATEGORY = 'CSR';
   const CSR_CATEGORY_DESC = 'Court Summary';
   const AFF_FIN_STMT = 'Affidavits/Financial Stmts';
+  const LITIGANT = 'Litigant';
 
   const selectedItems = ref<civilDocumentType[]>([]);
   const selectedBinderItems = ref<civilDocumentType[]>([]);
@@ -158,8 +159,8 @@
   const scheduledDocuments = computed(() =>
     props.documents.filter((doc) => doc.nextAppearanceDt)
   );
-  const selectedCategory = ref<string>(
-    scheduledDocuments.value.length > 0 ? SCHEDULED_CATEGORY : ''
+  const selectedCategory = ref<string | undefined>(
+    scheduledDocuments.value.length > 0 ? SCHEDULED_CATEGORY : undefined
   );
   const isBinderLoading = ref(true);
   const rolesLoading = ref(false);
@@ -186,6 +187,7 @@
     const categoryMap: Record<string, string> = {
       Affidavits: AFF_FIN_STMT,
       CSR: CSR_CATEGORY_DESC,
+      LITIGANT: LITIGANT,
     };
     return categoryMap[category] || category;
   };
@@ -439,9 +441,11 @@
         documentId: d.civilDocumentId,
         order: currentBinder.value?.documents.length ?? 0,
         documentType:
-          d.category === 'Transcript'
-            ? DocumentRequestType.Transcript
-            : DocumentRequestType.File,
+          getCivilDocumentType(d) === CourtDocumentType.CSR
+          ? DocumentRequestType.CourtSummary
+            : getCivilDocumentType(d) === CourtDocumentType.Transcript
+              ? DocumentRequestType.Transcript
+              : DocumentRequestType.File,
         fileName: d.documentTypeDescription,
       };
 

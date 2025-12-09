@@ -1,7 +1,9 @@
 ﻿using System;
+using JCCommon.Clients.FileServices;
 using Mapster;
 using Scv.Api.Documents;
 using Scv.Api.Models;
+using Scv.Api.Models.Civil.Detail;
 using Scv.Api.Models.Criminal.Detail;
 using Scv.Db.Models;
 
@@ -33,6 +35,19 @@ public class BinderMapping : IRegister
             .Map(dest => dest.DocumentType, src =>
                 string.Equals(src.Category, DocumentCategory.ROP, StringComparison.OrdinalIgnoreCase)
                     ? DocumentType.ROP
-                    : DocumentType.File);
+                    : DocumentType.File)
+            .Map(dest => dest.Category, src => src.Category);
+
+        config.NewConfig<CvfcDocument, BinderDocumentDto>()
+            .Map(dest => dest.DocumentId, src =>
+                string.IsNullOrWhiteSpace(src.ImageId)
+                    ? null
+                    : src.DocumentId)
+            .Map(dest => dest.FileName, src => src.DocumentTypeDescription)
+            .Map(dest => dest.DocumentType, src =>
+                string.Equals(src.DocumentTypeCd, DocumentCategory.CSR, StringComparison.OrdinalIgnoreCase)
+                    ? DocumentType.CourtSummary
+                    : DocumentType.File)
+            .Map(dest => dest.Category, src => src.DocumentTypeCd);
     }
 }

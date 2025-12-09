@@ -41,7 +41,9 @@
 <style scoped>
   .action-bar {
     border-radius: 70px !important;
-    max-width: 50% !important;
+    min-width: 30% !important;
+    max-width: 90% !important;
+    width: fit-content !important;
     margin: 0 auto !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
