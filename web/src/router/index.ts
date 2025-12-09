@@ -57,18 +57,9 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
   {
-    path: '/civil-file-search',
-    name: 'CivilFileSearchResultsView',
-    component: () =>
-      import('@/components/civil/CivilFileSearchResultsView.vue'),
-    props: true,
-  },
-  {
-    path: '/criminal-file-search',
-    name: 'CriminalFileSearchResultsView',
-    component: import(
-      '@/components/criminal/CriminalFileSearchResultsView.vue'
-    ),
+    path: '/criminal-file/:fileNumber',
+    name: 'CriminalCaseDetails',
+    component: () => import('@/components/criminal/CriminalCaseDetails.vue'),
     props: true,
   },
   {

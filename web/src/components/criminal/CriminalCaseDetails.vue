@@ -117,7 +117,6 @@
     watch,
   } from 'vue';
   import { useRoute } from 'vue-router';
-  import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
 
   enum DecodeCourtLevel {
@@ -149,7 +148,6 @@
   export default defineComponent({
     components: {
       CourtFilesSelector,
-      CustomOverlay,
       CriminalSidePanel,
       CaseHeader,
     },

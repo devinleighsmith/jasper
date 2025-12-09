@@ -1,28 +1,20 @@
 <template>
-  <div class="m-2">
-    <br />
-    <div class="mx-auto bg-white">
-      <b-nav vertical>
-        <b-nav-item style="font-size: 10px; font-weight: bold" disabled
-          >ON THIS FILE</b-nav-item
-        >
-        <b-nav-item
-          v-for="(panelItem, index) in panelItems"
-          :key="index"
-          style="line-height: 1.25"
-          v-on:click="SelectPanelItem(panelItem)"
-        >
-          {{ panelItem }}
-        </b-nav-item>
-      </b-nav>
-    </div>
-    <!-- <div class="mt-4">
-            <b-button variant="outline-primary text-dark bg-warning" @click="navigateToHomePage()">
-                <b-icon-house-door class="mr-1 ml-0" variant="dark" scale="1" ></b-icon-house-door>
-                Return to Main Page
-            </b-button>
-        </div> -->
-  </div>
+  <v-card class="ma-2" elevation="0">
+    <v-list density="compact" bg-color="white">
+      <v-list-subheader class="text-caption font-weight-bold">
+        ON THIS FILE
+      </v-list-subheader>
+      <v-list-item
+        v-for="(panelItem, index) in panelItems"
+        :key="index"
+        @click="SelectPanelItem(panelItem)"
+        :active="isActive(panelItem)"
+        color="primary"
+      >
+        <v-list-item-title>{{ panelItem }}</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -52,9 +44,14 @@
         civilFileStore.updateShowSections(sections);
       };
 
+      const isActive = (panelItem: string) => {
+        return civilFileStore.showSections[panelItem] === true;
+      };
+
       return {
         panelItems,
         SelectPanelItem,
+        isActive,
       };
     },
   });

@@ -1,6 +1,5 @@
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import vue from '@vitejs/plugin-vue';
-import { BootstrapVueNextResolver } from 'bootstrap-vue-next';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
 import svgLoader from 'vite-svg-loader';
@@ -14,32 +13,7 @@ export default defineConfig({
   plugins: [
     vue(),
     svgLoader(),
-    Components({
-      resolvers: [
-        BootstrapVueNextResolver({
-          aliases: {
-            BInput: 'b-input',
-            BCard: 'b-card',
-            BCardTitle: 'b-card-title',
-            BRow: 'b-row',
-            BFormInput: 'b-form-input',
-            BCardText: 'b-card-text',
-            BFormSelect: 'b-form-select',
-            BButton: 'b-button',
-            BCol: 'b-col',
-            BModal: 'b-modal',
-            BOverlay: 'b-overlay',
-            BNavbarNav: 'b-navbar-nav',
-            BNavbar: 'b-navbar',
-            BFormGroup: 'b-form-group',
-            BInputGroup: 'b-input-group',
-            BNavText: 'b-nav-text',
-            BTableSimple: 'b-table-simple',
-            BTable: 'b-table',
-          },
-        }),
-      ],
-    }),
+    Components({}),
     basicSsl(),
   ],
   resolve: {
@@ -52,10 +26,6 @@ export default defineConfig({
       '@store': path.resolve(__dirname, vueSrc.concat('/store')),
       '@styles': path.resolve(__dirname, vueSrc.concat('/styles')),
       '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
-      '~bootstrap-vue-next': path.resolve(
-        __dirname,
-        'node_modules/bootstrap-vue-next'
-      ),
     },
     extensions: ['.ts', '.vue', '.json', '.scss', '.svg', '.png', '.jpg'],
   },
@@ -76,8 +46,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  optimizeDeps: {
-    exclude: ['bootstrap-vue-next'],
   },
 });

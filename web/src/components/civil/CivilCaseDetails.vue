@@ -1,38 +1,5 @@
 <template>
   <div class="main-container" style="overflow: hidden">
-    <b-card bg-variant="light" v-if="isMounted && !isDataReady">
-      <b-card style="min-height: 100px">
-        <span v-if="errorCode == 404"
-          >This
-          <b
-            >File-Number '{{
-              civilFileStore.civilFileInformation.fileNumber
-            }}'</b
-          >
-          doesn't exist in the <b>civil</b> records.</span
-        >
-        <span v-else-if="errorCode == 200 || errorCode == 204">
-          Bad Data in
-          <b
-            >File-Number '{{
-              civilFileStore.civilFileInformation.fileNumber
-            }}'</b
-          >.</span
-        >
-        <span v-else-if="errorCode == 403">
-          You are not authorized to access this file.
-        </span>
-        <span v-else>
-          Server is not responding. <b>({{ errorText }})</b>
-        </span>
-      </b-card>
-      <!-- <b-card>         
-            <b-button id="backToLandingPage" variant="outline-primary text-dark bg-warning" @click="navigateToLandingPage">
-                <b-icon-house-door class="mr-1 ml-0" variant="dark" scale="1" ></b-icon-house-door>
-                Return to Main Page
-            </b-button>
-        </b-card> -->
-    </b-card>
     <v-row>
       <v-col>
         <court-files-selector
@@ -130,14 +97,12 @@
     watch,
   } from 'vue';
   import { useRoute } from 'vue-router';
-  import CustomOverlay from '../CustomOverlay.vue';
   import shared from '../shared';
 
   export default defineComponent({
     components: {
       CourtFilesSelector,
       CivilSidePanel,
-      CustomOverlay,
       CaseHeader,
     },
     setup() {
