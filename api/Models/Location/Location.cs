@@ -26,6 +26,8 @@ public class Location
         LocationId = locationId;
         Active = active;
         CourtRooms = courtRooms;
+        // Set Name as ShortName by default
+        ShortName = name;
     }
 
     private Location(string name, string shortName, string code, string locationId, string agencyIdentifierCd, bool? active, ICollection<CourtRoom> courtRooms)
@@ -44,13 +46,13 @@ public class Location
     public static Location Create(Location jcLocation, Location pcssLocation)
     {
         return new Location(
-            jcLocation.Name,
+            jcLocation?.Name,
             pcssLocation?.Name,
-            jcLocation.LocationId,
+            jcLocation?.LocationId,
             pcssLocation?.LocationId,
-            jcLocation.Code,
-            pcssLocation != null ? pcssLocation.Active : jcLocation.Active,
-            pcssLocation != null ? pcssLocation.CourtRooms : jcLocation.CourtRooms);
+            jcLocation?.Code,
+            pcssLocation?.Active ?? jcLocation?.Active,
+            pcssLocation?.CourtRooms ?? jcLocation?.CourtRooms);
     }
 
     private static Uri ParseCourtLocationUrl(string locationName)

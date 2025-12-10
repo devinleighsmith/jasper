@@ -34,6 +34,7 @@
               :details="details"
               :activityClassCd="details.activityClassCd"
               :fileId="fileId"
+              :transcripts="transcripts"
             />
             <!-- Comment this out for now as we continue to deprecate it -->
             <!-- 
@@ -83,6 +84,7 @@
   import CourtFilesSelector from '@/components/case-details/common/CourtFilesSelector.vue';
   import CriminalSidePanel from '@/components/case-details/criminal/CriminalSidePanel.vue';
   import { beautifyDate } from '@/filters';
+  import { DarsService, TranscriptDocument } from '@/services/DarsService';
   import { HttpService } from '@/services/HttpService';
   import {
     useCommonStore,
@@ -158,9 +160,10 @@
       const route = useRoute();
       //      const router = useRouter();
       const httpService = inject<HttpService>('httpService');
+      const darsService = inject<DarsService>('darsService');
 
-      if (!httpService) {
-        throw new Error('HttpService is not available!');
+      if (!httpService || !darsService) {
+        throw new Error('Service is not available!');
       }
 
       const participantList = ref<participantListInfoType[]>([]);
@@ -179,6 +182,7 @@
       const loading = ref(false);
       const fileNumber = ref('');
       const fileId = ref('');
+      const transcripts = ref<TranscriptDocument[]>([]);
 
       watch(fileNumber, () => {
         reloadCaseDetails();
@@ -214,6 +218,98 @@
         { key: 'Interpreter Required', abbr: 'INT', code: 'interpreterYN' },
       ];
 
+      type AppearancePartIdPair = {
+        appearanceId: string;
+        partId: string;
+      };
+
+      const buildTranscriptToParticipantMappings = (
+        transcripts: TranscriptDocument[],
+        appearanceToPartId: Map<string, string>
+      ): Map<string, AppearancePartIdPair[]> => {
+        const transcriptToParticipants = new Map<
+          string,
+          AppearancePartIdPair[]
+        >();
+
+        transcripts.forEach((transcript) => {
+          const transcriptId = `${transcript.orderId}-${transcript.id}`;
+          const pairs: AppearancePartIdPair[] = [];
+
+          transcript.appearances.forEach((appearance) => {
+            const appearanceId = String(appearance.justinAppearanceId);
+            const partId = appearanceToPartId.get(appearanceId);
+            if (partId) {
+              pairs.push({ appearanceId, partId });
+            }
+          });
+
+          if (pairs.length > 0) {
+            transcriptToParticipants.set(transcriptId, pairs);
+          }
+        });
+
+        return transcriptToParticipants;
+      };
+
+      const addTranscriptsToParticipants = (
+        transcriptToParticipants: Map<string, AppearancePartIdPair[]>,
+        transcripts: TranscriptDocument[],
+        participantMap: Map<string, participantListInfoType>
+      ) => {
+        transcriptToParticipants.forEach((pairs, transcriptId) => {
+          const transcript = transcripts.find(
+            (t) => `${t.orderId}-${t.id}` === transcriptId
+          );
+
+          if (!transcript) return;
+
+          const processedParticipants = new Set<string>();
+
+          pairs.forEach(({ appearanceId, partId }) => {
+            if (processedParticipants.has(partId)) return;
+
+            const participant = participantMap.get(partId);
+            const matchedAppearance = transcript.appearances.find(
+              (a) => String(a.justinAppearanceId) === appearanceId
+            );
+
+            if (participant && matchedAppearance) {
+              const transcriptDoc = {
+                partId,
+                category: 'Transcript',
+                documentTypeDescription: `Transcript - ${transcript.description}`,
+                hasFutureAppearance: false,
+                docmClassification: 'Transcript',
+                docmId: transcript.id.toString(),
+                issueDate: matchedAppearance.appearanceDt.split('T')[0],
+                docmFormId: '',
+                docmFormDsc: `Transcript - ${transcript.description}`,
+                docmDispositionDsc: '',
+                docmDispositionDate: '',
+                imageId: transcript.id.toString(),
+                documentPageCount: String(transcript.pagesComplete),
+                additionalProperties: {},
+                additionalProp1: {},
+                additionalProp2: {},
+                additionalProp3: {},
+                transcriptOrderId: transcript.orderId.toString(),
+                transcriptDocumentId: transcript.id.toString(),
+                transcriptAppearanceId: appearanceId,
+              } as any;
+
+              const criminalParticipant = participantJson.value.find(
+                (p) => p.partId === partId
+              );
+              if (criminalParticipant) {
+                criminalParticipant.document.push(transcriptDoc);
+              }
+              processedParticipants.add(partId);
+            }
+          });
+        });
+      };
+
       onMounted(() => {
         loading.value = true;
         const routeFileNumber = getSingleValue(route.params.fileNumber);
@@ -227,7 +323,9 @@
 
       const getFileDetails = () => {
         errorCode.value = 0;
-        httpService
+
+        // Start loading file details
+        const fileDetailsPromise = httpService
           .get<criminalFileDetailsType>(
             'api/files/criminal/' +
               criminalFileStore.criminalFileInformation.fileNumber
@@ -243,35 +341,76 @@
               errorCode.value = err.status;
               errorText.value = err.statusText;
               console.log(err);
+              return null;
             }
-          )
-          .then((data) => {
-            if (data) {
-              criminalFileStore.criminalFileInformation.detailsData = data;
-              participantJson.value = data.participant;
-              adjudicatorRestrictionsJson.value = data.hearingRestriction;
-              const courtLevel = DecodeCourtLevel[data.courtLevelCd];
-              const courtClass = DecodeCourtClass[data.courtClassCd];
-              ExtractFileInfo();
-              //Allow blank participants, it's a real case file 1019 for example on dev.
-              criminalFileStore.criminalFileInformation.participantList =
-                participantList.value;
-              criminalFileStore.criminalFileInformation.adjudicatorRestrictionsInfo =
-                adjudicatorRestrictionsInfo.value;
-              criminalFileStore.criminalFileInformation.bans = bans.value;
-              criminalFileStore.criminalFileInformation.courtLevel = courtLevel;
-              criminalFileStore.criminalFileInformation.courtClass = courtClass;
-              criminalFileStore.updateCriminalFile(
-                criminalFileStore.criminalFileInformation
+          );
+
+        fileDetailsPromise.then(async (data) => {
+          if (data) {
+            // Start transcript loading early
+            const transcriptsPromise = darsService
+              .getTranscripts(undefined, data.justinNo)
+              .catch((error) => {
+                console.error('Error loading transcripts:', error);
+                return []; // Return empty array on error, don't fail the page load
+              });
+
+            criminalFileStore.criminalFileInformation.detailsData = data;
+            participantJson.value = data.participant;
+            adjudicatorRestrictionsJson.value = data.hearingRestriction;
+            const courtLevel = DecodeCourtLevel[data.courtLevelCd];
+            const courtClass = DecodeCourtClass[data.courtClassCd];
+            ExtractFileInfo();
+            //Allow blank participants, it's a real case file 1019 for example on dev.
+
+            const transcriptsData = await transcriptsPromise;
+            transcripts.value = transcriptsData;
+
+            // Map all transcripts to participants, match appearances on file to appearances on the transcript, and then use that file appearance to determine the participant.
+            // Step 1: Build appearance ID to participant ID mapping
+            const appearanceToPartId = new Map<string, string>();
+            data.appearances?.apprDetail?.forEach((appr) => {
+              appearanceToPartId.set(appr.appearanceId, appr.partId);
+            });
+
+            // Step 2: Build transcript to participant mappings with appearance details
+            const transcriptToParticipants =
+              buildTranscriptToParticipantMappings(
+                transcriptsData,
+                appearanceToPartId
               );
-              details.value = data;
-              fileId.value = data.justinNo;
-              isDataReady.value = true;
-              loading.value = false;
-            } else if (errorCode.value == 0) errorCode.value = 200;
+
+            // Step 3: Build participant lookup map
+            const participantMap = new Map(
+              participantList.value.map((p) => [p.partId, p])
+            );
+
+            // Step 4: Add transcripts to participants using matched appearance
+            addTranscriptsToParticipants(
+              transcriptToParticipants,
+              transcriptsData,
+              participantMap
+            );
+
+            criminalFileStore.criminalFileInformation.participantList =
+              participantList.value;
+            criminalFileStore.criminalFileInformation.adjudicatorRestrictionsInfo =
+              adjudicatorRestrictionsInfo.value;
+            criminalFileStore.criminalFileInformation.bans = bans.value;
+            criminalFileStore.criminalFileInformation.courtLevel = courtLevel;
+            criminalFileStore.criminalFileInformation.courtClass = courtClass;
+            criminalFileStore.updateCriminalFile(
+              criminalFileStore.criminalFileInformation
+            );
+            details.value = data;
+            details.value.participant = participantJson.value;
+            fileId.value = data.justinNo;
+            isDataReady.value = true;
             loading.value = false;
-            isMounted.value = true;
-          });
+          } else if (errorCode.value == 0) errorCode.value = 200;
+          loading.value = false;
+          isMounted.value = true;
+        });
       };
 
       const downloadDocuments = () => {
@@ -510,7 +649,6 @@
             bans.value.push(banInfo);
           }
 
-          participantInfo.documentsJson = jParticipant.document;
           participantInfo.countsJson = jParticipant.count;
 
           commonStore.updateDisplayName({
@@ -587,6 +725,7 @@
         loading,
         details,
         adjudicatorRestrictions: adjudicatorRestrictionsInfo,
+        transcripts,
       };
     },
   });

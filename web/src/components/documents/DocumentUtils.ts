@@ -6,16 +6,24 @@ import { CourtDocumentType, DocumentData } from '@/types/shared';
 
 const ROP = 'rop';
 const CSR = 'CSR';
+const TRANSCRIPT = 'transcript';
+
+export interface TranscriptDocumentType extends civilDocumentType {
+  transcriptOrderId: number;
+  documentId: number;
+}
 
 export const prepareCriminalDocumentData = (data) => {
   const criminalFileStore = useCriminalFileStore();
+  const isTranscript = data.category?.toLowerCase() === TRANSCRIPT;
+
   const documentData: DocumentData = {
     courtClass:
       criminalFileStore.criminalFileInformation.detailsData.courtClassCd,
     courtLevel:
       criminalFileStore.criminalFileInformation.detailsData.courtLevelCd,
     dateFiled: beautifyDate(data.date),
-    documentId: data.imageId,
+    documentId: isTranscript ? undefined : data.imageId,
     documentDescription:
       data.category?.toLowerCase() === ROP
         ? 'Record of Proceedings'
@@ -31,10 +39,19 @@ export const prepareCriminalDocumentData = (data) => {
     isCriminal: true,
     partyName: data.fullName,
   };
+
+  // Add transcript metadata if this is a transcript document
+  if (isTranscript) {
+    documentData.orderId = data.transcriptOrderId;
+    documentData.documentId = data.imageId;
+  }
+
   return documentData;
 };
 
 export const prepareCivilDocumentData = (data: civilDocumentType) => {
+  const isTranscript = data.category?.toLowerCase() === TRANSCRIPT;
+
   const civilFileStore = useCivilFileStore();
   const isLitigantDocument =
     data.category?.toLowerCase() === 'reference' ||
@@ -54,20 +71,35 @@ export const prepareCivilDocumentData = (data: civilDocumentType) => {
       civilFileStore.civilFileInformation?.detailsData?.homeLocationAgencyName,
     isCriminal: false,
   };
+
+  // Add transcript metadata if this is a transcript document
+  if (isTranscript) {
+    const transcriptData = data as TranscriptDocumentType;
+    documentData.orderId = transcriptData.transcriptOrderId?.toString();
+    documentData.documentId = transcriptData.documentId?.toString();
+  }
+
   return documentData;
 };
 
 export const getCriminalDocumentType = (
   data: documentType
 ): CourtDocumentType => {
-  return data.category?.toLowerCase() === ROP
-    ? CourtDocumentType.ROP
-    : CourtDocumentType.Criminal;
+  if (data.category?.toLowerCase() === ROP) {
+    return CourtDocumentType.ROP;
+  }
+  if (data.category?.toLowerCase() === TRANSCRIPT) {
+    return CourtDocumentType.Transcript;
+  }
+  return CourtDocumentType.Criminal;
 };
 
 export const getCivilDocumentType = (
   data: civilDocumentType
 ): CourtDocumentType => {
+  if (data.category?.toLowerCase() === TRANSCRIPT) {
+    return CourtDocumentType.Transcript;
+  }
   return data.documentTypeCd == CSR
     ? CourtDocumentType.CSR
     : CourtDocumentType.Civil;
@@ -82,8 +114,9 @@ export const formatDocumentCategory = (
       ? documentOrCategory
       : documentOrCategory.category;
 
-  if (category === 'PSR') return 'Report';
-  if (category === 'rop') return 'ROP';
+  if (category?.toLowerCase() === 'psr') return 'Report';
+  if (category?.toLowerCase() === 'transcript') return 'Transcript';
+  if (category?.toLowerCase() === 'rop') return 'ROP';
   if (category?.toLowerCase() === 'litigant') return 'Litigant';
   return category;
 };

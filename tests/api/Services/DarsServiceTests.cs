@@ -26,7 +26,7 @@ public class DarsServiceTests : ServiceTestBase
     {
         _faker = new Faker();
         _mockConfig = new Mock<IConfiguration>();
-        
+
         var mockDarsSection = new Mock<IConfigurationSection>();
         mockDarsSection.Setup(s => s.Value).Returns("https://logsheet.example.com");
         _mockConfig.Setup(c => c.GetSection("DARS:LogsheetUrl")).Returns(mockDarsSection.Object);
@@ -43,8 +43,9 @@ public class DarsServiceTests : ServiceTestBase
         _mapper = new Mapper(config);
     }
 
-    private (DarsService darsService,
-        Mock<LogNotesServicesClient> mockLogNotesClient
+    private (DarsService DarsService,
+        Mock<LogNotesServicesClient> MockLogNotesClient,
+        Mock<DARSCommon.Clients.TranscriptsServices.TranscriptsServicesClient> MockTranscriptsClient
     ) SetupDarsService(
         ICollection<Lognotes> darsResults)
     {
@@ -59,14 +60,16 @@ public class DarsServiceTests : ServiceTestBase
                 It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(new SwaggerResponse<ICollection<Lognotes>>(200, new Dictionary<string, IEnumerable<string>>(), darsResults));
 
+        var mockTranscriptsClient = new Mock<DARSCommon.Clients.TranscriptsServices.TranscriptsServicesClient>(MockBehavior.Strict, this.HttpClient);
 
         var darsService = new DarsService(
             _mockConfig.Object,
             _mockLogger.Object,
             mockLogNotesClient.Object,
+            mockTranscriptsClient.Object,
             _mapper);
 
-        return (darsService, mockLogNotesClient);
+        return (darsService, mockLogNotesClient, mockTranscriptsClient);
     }
 
     [Fact]
@@ -93,10 +96,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, mockLogNotesClient) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -109,7 +112,7 @@ public class DarsServiceTests : ServiceTestBase
         Assert.Equal(courtRoomCd, firstResult.CourtRoomCd);
 
         // Verify that DARS API was called with the agencyIdentifierCd (which is the same as agencyIdentifierCd in our test)
-        mockLogNotesClient.Verify(c => c.GetBaseAsync(
+        setup.MockLogNotesClient.Verify(c => c.GetBaseAsync(
             It.IsAny<string>(),
             agencyIdentifierCd,  // This is the agencyIdentifierCd converted to int
             courtRoomCd,
@@ -154,10 +157,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -204,10 +207,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -252,10 +255,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -289,10 +292,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -339,9 +342,9 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), null);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), null);
 
         // Assert
         Assert.NotNull(result);
@@ -375,10 +378,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -397,10 +400,10 @@ public class DarsServiceTests : ServiceTestBase
 
         var mockLognotes = new List<Lognotes>();
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -432,10 +435,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -470,10 +473,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -508,10 +511,10 @@ public class DarsServiceTests : ServiceTestBase
             }
         };
 
-        var (darsService, _) = SetupDarsService(mockLognotes);
+        var setup = SetupDarsService(mockLognotes);
 
         // Act
-        var result = await darsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
+        var result = await setup.DarsService.DarsApiSearch(date, agencyIdentifierCd.ToString(), courtRoomCd);
 
         // Assert
         Assert.NotNull(result);
@@ -525,4 +528,292 @@ public class DarsServiceTests : ServiceTestBase
         Assert.Contains("https://logsheet.example.com/path/to/logsheet.json", firstResult.Url);
         Assert.Equal(expectedLocationName, firstResult.LocationNm);
     }
+    #region GetCompletedDocuments Tests
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldReturnDocuments_WhenFound()
+    {
+        // Arrange
+        var physicalFileId = _faker.Random.AlphaNumeric(10);
+        var expectedDocuments = new List<DARSCommon.Clients.TranscriptsServices.Documents>
+        {
+            new DARSCommon.Clients.TranscriptsServices.Documents
+            {
+                Id = _faker.Random.Int(1, 1000),
+                OrderId = _faker.Random.Int(1, 1000),
+                Description = _faker.Lorem.Sentence(),
+                FileName = _faker.System.FileName("pdf"),
+                PagesComplete = _faker.Random.Int(1, 100),
+                StatusCodeId = 1
+            },
+            new DARSCommon.Clients.TranscriptsServices.Documents
+            {
+                Id = _faker.Random.Int(1, 1000),
+                OrderId = _faker.Random.Int(1, 1000),
+                Description = _faker.Lorem.Sentence(),
+                FileName = _faker.System.FileName("pdf"),
+                PagesComplete = _faker.Random.Int(1, 100),
+                StatusCodeId = 1
+            }
+        };
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                It.IsAny<string>(),  // mdocJustinNo
+                It.IsAny<string>(),  // physicalFileId
+                It.IsAny<bool?>(),   // returnchildrecords
+                It.IsAny<string>(),  // sortbyfield
+                It.IsAny<int?>(),    // pagenumber
+                It.IsAny<int?>(),    // pagesize
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                expectedDocuments));
+
+        // Act
+        var result = await setup.DarsService.GetCompletedDocuments(physicalFileId, null, true);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(2, result.Count());
+        setup.MockTranscriptsClient.Verify(c => c.GetCompletedDocumentsBaseAsync(
+            null,
+            physicalFileId,
+            true,
+            It.IsAny<string>(),
+            It.IsAny<int?>(),
+            It.IsAny<int?>(),
+            It.IsAny<System.Threading.CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldReturnEmptyList_WhenNoDocumentsFound()
+    {
+        // Arrange
+        var physicalFileId = _faker.Random.AlphaNumeric(10);
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                new List<DARSCommon.Clients.TranscriptsServices.Documents>()));
+
+        // Act
+        var result = await setup.DarsService.GetCompletedDocuments(physicalFileId, null, true);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldPassCorrectParameters_WithPhysicalFileId()
+    {
+        // Arrange
+        var physicalFileId = "12345";
+        var returnChildRecords = true;
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                null,
+                physicalFileId,
+                returnChildRecords,
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                new List<DARSCommon.Clients.TranscriptsServices.Documents>()));
+
+        // Act
+        await setup.DarsService.GetCompletedDocuments(physicalFileId, null, returnChildRecords);
+
+        // Assert
+        setup.MockTranscriptsClient.Verify(c => c.GetCompletedDocumentsBaseAsync(
+            null,
+            physicalFileId,
+            returnChildRecords,
+            It.IsAny<string>(),
+            It.IsAny<int?>(),
+            It.IsAny<int?>(),
+            It.IsAny<System.Threading.CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldPassCorrectParameters_WithMdocJustinNo()
+    {
+        // Arrange
+        var mdocJustinNo = "54321";
+        var returnChildRecords = false;
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                mdocJustinNo,
+                null,
+                returnChildRecords,
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                new List<DARSCommon.Clients.TranscriptsServices.Documents>()));
+
+        // Act
+        await setup.DarsService.GetCompletedDocuments(null, mdocJustinNo, returnChildRecords);
+
+        // Assert
+        setup.MockTranscriptsClient.Verify(c => c.GetCompletedDocumentsBaseAsync(
+            mdocJustinNo,
+            null,
+            returnChildRecords,
+            It.IsAny<string>(),
+            It.IsAny<int?>(),
+            It.IsAny<int?>(),
+            It.IsAny<System.Threading.CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldPassCorrectParameters_WithBothIds()
+    {
+        // Arrange
+        var physicalFileId = "12345";
+        var mdocJustinNo = "54321";
+        var returnChildRecords = true;
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                mdocJustinNo,
+                physicalFileId,
+                returnChildRecords,
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                new List<DARSCommon.Clients.TranscriptsServices.Documents>()));
+
+        // Act
+        await setup.DarsService.GetCompletedDocuments(physicalFileId, mdocJustinNo, returnChildRecords);
+
+        // Assert
+        setup.MockTranscriptsClient.Verify(c => c.GetCompletedDocumentsBaseAsync(
+            mdocJustinNo,
+            physicalFileId,
+            returnChildRecords,
+            It.IsAny<string>(),
+            It.IsAny<int?>(),
+            It.IsAny<int?>(),
+            It.IsAny<System.Threading.CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldReturnAllDocumentFields()
+    {
+        // Arrange
+        var physicalFileId = _faker.Random.AlphaNumeric(10);
+        var expectedId = _faker.Random.Int(1, 1000);
+        var expectedOrderId = _faker.Random.Int(1, 1000);
+        var expectedDescription = _faker.Lorem.Sentence();
+        var expectedFileName = _faker.System.FileName("pdf");
+        var expectedPages = _faker.Random.Int(1, 100);
+
+        var expectedDocuments = new List<DARSCommon.Clients.TranscriptsServices.Documents>
+        {
+            new DARSCommon.Clients.TranscriptsServices.Documents
+            {
+                Id = expectedId,
+                OrderId = expectedOrderId,
+                Description = expectedDescription,
+                FileName = expectedFileName,
+                PagesComplete = expectedPages,
+                StatusCodeId = 1
+            }
+        };
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                expectedDocuments));
+
+        // Act
+        var result = await setup.DarsService.GetCompletedDocuments(physicalFileId, null, true);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        var document = result.First();
+        Assert.Equal(expectedId, document.Id);
+        Assert.Equal(expectedOrderId, document.OrderId);
+        Assert.Equal(expectedDescription, document.Description);
+        Assert.Equal(expectedFileName, document.FileName);
+        Assert.Equal(expectedPages, document.PagesComplete);
+    }
+
+    [Fact]
+    public async Task GetCompletedDocuments_ShouldHandleNullResult()
+    {
+        // Arrange
+        var physicalFileId = _faker.Random.AlphaNumeric(10);
+
+        var setup = SetupDarsService(new List<Lognotes>());
+
+        setup.MockTranscriptsClient
+            .Setup(c => c.GetCompletedDocumentsBaseAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<bool?>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>(),
+                It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(new DARSCommon.Clients.TranscriptsServices.SwaggerResponse<System.Collections.Generic.ICollection<DARSCommon.Clients.TranscriptsServices.Documents>>(
+                200,
+                new Dictionary<string, IEnumerable<string>>(),
+                null));
+
+        // Act
+        var result = await setup.DarsService.GetCompletedDocuments(physicalFileId, null, true);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Empty(result);
+    }
 }
+
+    #endregion

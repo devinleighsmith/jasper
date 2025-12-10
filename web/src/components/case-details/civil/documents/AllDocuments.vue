@@ -95,10 +95,10 @@
     roles: LookupCode[];
     baseHeaders: DataTableHeader[];
     binderDocumentIds: string[];
+    addDocumentToBinder: (document: civilDocumentType) => void;
     selectedCategory?: string;
     sortBy?: [{ key: string; order: 'asc' | 'desc'; }];
     getCategoryDisplayTitle?: (category: string) => string;
-    addDocumentToBinder: (documentId: string) => void;
     openIndividualDocument: (data: civilDocumentType) => void;
   }>();
   const emit =
@@ -114,7 +114,7 @@
     return [
       {
         title: 'Add to binder',
-        action: () => props.addDocumentToBinder(item.civilDocumentId),
+        action: () => props.addDocumentToBinder(item),
         enable: !props.binderDocumentIds.find(
           (id) => id === item.civilDocumentId
         ),

@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GdPicture14;
+using Microsoft.Extensions.Logging;
 using Scv.Api.Models.Document;
 
 namespace Scv.Api.Documents;
 
 public class DocumentMerger(IDocumentRetriever documentRetriever) : IDocumentMerger
 {
+
     /// <summary>
     /// Merges multiple PDF documents into a single PDF document in base64 format.
     /// </summary>
@@ -17,17 +19,13 @@ public class DocumentMerger(IDocumentRetriever documentRetriever) : IDocumentMer
     /// <returns>The merge result</returns>
     public async Task<PdfDocumentResponse> MergeDocuments(PdfDocumentRequest[] documentRequests)
     {
-        List<Stream> streamsToMerge = [];
-
         using GdPictureDocumentConverter gdpictureConverter = new();
 
         // Retrieve all document streams to merge
         var retrieveTasks = documentRequests
             .Select(documentRetriever.Retrieve);
 
-        var documentStreams = await Task.WhenAll(retrieveTasks);
-
-        streamsToMerge.AddRange(documentStreams);
+        var streamsToMerge = await Task.WhenAll(retrieveTasks);
 
         MemoryStream outputStream = new();
 
