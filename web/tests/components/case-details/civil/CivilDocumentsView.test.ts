@@ -1,5 +1,6 @@
 import { BinderService } from '@/services';
 import { useCommonStore } from '@/stores';
+import { DocumentRequestType } from '@/types/shared';
 import { shallowMount } from '@vue/test-utils';
 import CivilDocumentsView from 'CMP/case-details/civil/CivilDocumentsView.vue';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
@@ -72,6 +73,17 @@ describe('CivilDocumentsView.vue', () => {
       filedBy: [{ roleTypeCode: 'Role4' }],
       issue: [{ issueTypeDesc: 'Issue4' }],
       documentSupport: [{ actCd: 'Act4' }],
+    },
+    {
+      civilDocumentId: '5',
+      category: 'Transcript',
+      documentTypeDescription: 'Transcript Document',
+      filedDt: '2023-05-01',
+      filedBy: [{ roleTypeCode: 'Role5' }],
+      issue: [{ issueTypeDesc: 'Issue5' }],
+      documentSupport: [{ actCd: 'Act5' }],
+      transcriptOrderId: 12345,
+      imageId: '456',
     },
   ];
   beforeEach(() => {
@@ -170,6 +182,137 @@ describe('CivilDocumentsView.vue', () => {
     });
   });
 
+  describe('addDocumentToBinder', () => {
+    beforeEach(() => {
+      wrapper.vm.currentBinder = {
+        id: 'binder-1',
+        labels: {},
+        documents: [],
+      };
+      (mockBinderService.updateBinder as Mock).mockImplementation((binder) => {
+        return Promise.resolve({
+          succeeded: true,
+          payload: binder,
+        });
+      });
+    });
+
+    it('should add a transcript document to binder with orderId', async () => {
+      await wrapper.vm.addDocumentToBinder(mockDocuments[4]);
+
+      expect(wrapper.vm.currentBinder.documents).toHaveLength(1);
+      expect(wrapper.vm.currentBinder.documents[0]).toEqual({
+        documentId: '5',
+        order: 0,
+        documentType: DocumentRequestType.Transcript,
+        fileName: 'Transcript Document',
+        orderId: '12345',
+      });
+    });
+
+    it('should add transcript without orderId if transcriptOrderId is missing', async () => {
+      const transcriptWithoutOrderId = {
+        ...mockDocuments[4],
+        transcriptOrderId: undefined,
+      };
+
+      await wrapper.vm.addDocumentToBinder(transcriptWithoutOrderId);
+
+      expect(wrapper.vm.currentBinder.documents).toHaveLength(1);
+      expect(wrapper.vm.currentBinder.documents[0]).toEqual({
+        documentId: '5',
+        order: 0,
+        documentType: DocumentRequestType.Transcript,
+        fileName: 'Transcript Document',
+      });
+    });
+
+    it('should set correct order for multiple documents', async () => {
+      await wrapper.vm.addDocumentToBinder(mockDocuments[0]);
+      await wrapper.vm.addDocumentToBinder(mockDocuments[1]);
+
+      expect(wrapper.vm.currentBinder.documents).toHaveLength(2);
+      expect(wrapper.vm.currentBinder.documents[0].order).toBe(0);
+      expect(wrapper.vm.currentBinder.documents[1].order).toBe(1);
+    });
+  });
+
+  describe('addSelectedItemsToBinder', () => {
+    beforeEach(() => {
+      wrapper.vm.currentBinder = {
+        id: 'binder-1',
+        labels: {},
+        documents: [],
+      };
+      (mockBinderService.updateBinder as Mock).mockImplementation((binder) => {
+        return Promise.resolve({
+          succeeded: true,
+          payload: binder,
+        });
+      });
+    });
+
+    it('should add multiple documents including transcripts with orderId', async () => {
+      wrapper.vm.selectedItems = [mockDocuments[0], mockDocuments[4]];
+      await wrapper.vm.addSelectedItemsToBinder();
+
+      expect(wrapper.vm.currentBinder.documents).toHaveLength(2);
+      expect(wrapper.vm.currentBinder.documents[0]).toEqual({
+        documentId: '1',
+        order: 0,
+        documentType: DocumentRequestType.File,
+        fileName: 'Civil Document 1',
+      });
+      expect(wrapper.vm.currentBinder.documents[1]).toEqual({
+        documentId: '5',
+        order: 1,
+        documentType: DocumentRequestType.Transcript,
+        fileName: 'Transcript Document',
+        orderId: '12345',
+      });
+    });
+
+    it('should skip documents already in binder', async () => {
+      wrapper.vm.currentBinder.documents = [
+        {
+          documentId: '1',
+          order: 0,
+          documentType: DocumentRequestType.File,
+          fileName: 'Civil Document 1',
+        },
+      ];
+      wrapper.vm.selectedItems = [mockDocuments[0], mockDocuments[1]];
+      await wrapper.vm.addSelectedItemsToBinder();
+
+      expect(wrapper.vm.currentBinder.documents).toHaveLength(2);
+      expect(wrapper.vm.currentBinder.documents[1].documentId).toBe('2');
+    });
+
+    it('should clear selectedItems after adding', async () => {
+      wrapper.vm.selectedItems = [mockDocuments[0]];
+      await wrapper.vm.addSelectedItemsToBinder();
+
+      expect(wrapper.vm.selectedItems).toEqual([]);
+    });
+
+    it('should not save if all selected items are already in binder', async () => {
+      wrapper.vm.currentBinder.documents = [
+        {
+          documentId: '1',
+          order: 0,
+          documentType: DocumentRequestType.File,
+          fileName: 'Civil Document 1',
+        },
+      ];
+      wrapper.vm.selectedItems = [mockDocuments[0]];
+
+      const updateBinderSpy = vi.spyOn(mockBinderService, 'updateBinder');
+      await wrapper.vm.addSelectedItemsToBinder();
+
+      expect(updateBinderSpy).not.toHaveBeenCalled();
+      expect(wrapper.vm.selectedItems).toEqual([]);
+    });
+  });
   describe('Category Filtering', () => {
     beforeEach(async () => {
       const mockBinders = [

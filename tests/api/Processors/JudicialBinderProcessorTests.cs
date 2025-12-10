@@ -11,6 +11,7 @@ using Moq;
 using Scv.Api.Helpers;
 using Scv.Api.Models;
 using Scv.Api.Processors;
+using Scv.Api.Services;
 using Scv.Db.Contants;
 using Scv.Db.Models;
 using Xunit;
@@ -20,6 +21,7 @@ namespace tests.api.Processors;
 public class JudicialBinderProcessorTests
 {
     private readonly Mock<FileServicesClient> _mockFilesClient;
+    private readonly Mock<IDarsService> _mockDarsService;
     private readonly Mock<IAppCache> _mockCache;
     private readonly Mock<IConfiguration> _mockConfiguration;
     private readonly Mock<IMapper> _mockMapper;
@@ -30,6 +32,7 @@ public class JudicialBinderProcessorTests
     {
         var httpClient = new System.Net.Http.HttpClient();
         _mockFilesClient = new Mock<FileServicesClient>(httpClient);
+        _mockDarsService = new Mock<IDarsService>();
         _mockCache = new Mock<IAppCache>();
         _mockConfiguration = new Mock<IConfiguration>();
         _mockMapper = new Mock<IMapper>();
@@ -83,8 +86,9 @@ public class JudicialBinderProcessorTests
             _mockValidator.Object,
             dto,
             _mockCache.Object,
+            _mockMapper.Object,
             _mockConfiguration.Object,
-            _mockMapper.Object);
+            _mockDarsService.Object);
 
         await processor.PreProcessAsync();
 
@@ -107,8 +111,9 @@ public class JudicialBinderProcessorTests
             _mockValidator.Object,
             dto,
             _mockCache.Object,
+            _mockMapper.Object,
             _mockConfiguration.Object,
-            _mockMapper.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ProcessAsync();
 
@@ -134,8 +139,9 @@ public class JudicialBinderProcessorTests
             _mockValidator.Object,
             dto,
             _mockCache.Object,
+            _mockMapper.Object,
             _mockConfiguration.Object,
-            _mockMapper.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ValidateAsync();
 
@@ -193,8 +199,9 @@ public class JudicialBinderProcessorTests
             _mockValidator.Object,
             dto,
             _mockCache.Object,
+            _mockMapper.Object,
             _mockConfiguration.Object,
-            _mockMapper.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ValidateAsync();
 
@@ -254,8 +261,9 @@ public class JudicialBinderProcessorTests
             _mockValidator.Object,
             dto,
             _mockCache.Object,
+            _mockMapper.Object,
             _mockConfiguration.Object,
-            _mockMapper.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ValidateAsync();
 

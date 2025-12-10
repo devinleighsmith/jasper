@@ -21,6 +21,7 @@ export interface DocumentData {
   reportType?: string;
   isCriminal?: boolean;
   additionsList?: string;
+  orderId?: string;
 }
 
 export enum CourtDocumentType {
@@ -32,6 +33,7 @@ export enum CourtDocumentType {
   CriminalZip,
   CivilZip,
   Report,
+  Transcript,
 }
 
 export enum DocumentRequestType {
@@ -39,6 +41,7 @@ export enum DocumentRequestType {
   ROP,
   Report,
   CourtSummary,
+  Transcript,
 }
 
 export interface FileDetailsType {
