@@ -146,6 +146,9 @@ namespace Scv.Api.Controllers
         {
             var validationResult = await transcriptSearchRequestValidator.ValidateAsync(request);
 
+            var sanitizedPhysicalFileId = request.PhysicalFileId?.Replace(Environment.NewLine, "").Trim();
+            var sanitizedMdocJustinNo = request.MdocJustinNo?.Replace(Environment.NewLine, "").Trim();
+
             if (!validationResult.IsValid)
             {
                 logger.LogWarning(
@@ -156,31 +159,31 @@ namespace Scv.Api.Controllers
 
             logger.LogInformation(
                 "Transcript search requested - PhysicalFileId: {PhysicalFileId}, MdocJustinNo: {MdocJustinNo}, ReturnChildRecords: {ReturnChildRecords}",
-                request.PhysicalFileId,
-                request.MdocJustinNo,
+                sanitizedPhysicalFileId,
+                sanitizedMdocJustinNo,
                 request.ReturnChildRecords);
 
             try
             {
                 var result = await darsService.GetCompletedDocuments(
-                    request.PhysicalFileId,
-                    request.MdocJustinNo,
+                    sanitizedPhysicalFileId,
+                    sanitizedMdocJustinNo,
                     request.ReturnChildRecords);
 
                 if (result == null || !result.Any())
                 {
                     logger.LogInformation(
                         "No transcripts found - PhysicalFileId: {PhysicalFileId}, MdocJustinNo: {MdocJustinNo}",
-                        request.PhysicalFileId,
-                        request.MdocJustinNo);
+                        sanitizedPhysicalFileId,
+                        sanitizedMdocJustinNo);
                     return NotFound();
                 }
 
                 logger.LogInformation(
                     "Found {Count} transcript(s) - PhysicalFileId: {PhysicalFileId}, MdocJustinNo: {MdocJustinNo}",
                     result.Count(),
-                    request.PhysicalFileId,
-                    request.MdocJustinNo);
+                    sanitizedPhysicalFileId,
+                    sanitizedMdocJustinNo);
 
                 return Ok(result);
             }
@@ -189,8 +192,8 @@ namespace Scv.Api.Controllers
                 logger.LogError(
                     ex,
                     "Transcripts API exception - PhysicalFileId: {PhysicalFileId}, MdocJustinNo: {MdocJustinNo}, Status: {StatusCode}",
-                    request.PhysicalFileId,
-                    request.MdocJustinNo,
+                    sanitizedPhysicalFileId,
+                    sanitizedMdocJustinNo,
                     ex.StatusCode);
 
                 if (ex.StatusCode == 404)
@@ -233,7 +236,7 @@ namespace Scv.Api.Controllers
                     Data = new Scv.Api.Models.Document.PdfDocumentRequestDetails
                     {
                         OrderId = orderId,
-                        TranscriptDocumentId = documentId
+                        DocumentId = documentId
                     }
                 };
 

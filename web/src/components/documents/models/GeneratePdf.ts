@@ -28,6 +28,5 @@ export type GeneratePdfRequest = {
     additionsList?: string;
     reportType?: string;
     orderId?: string;
-    transcriptDocumentId?: string;
   };
 };

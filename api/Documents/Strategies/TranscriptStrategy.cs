@@ -30,16 +30,16 @@ public class TranscriptStrategy : IDocumentStrategy
     public async Task<MemoryStream> Invoke(PdfDocumentRequestDetails documentRequest)
     {
         ArgumentNullException.ThrowIfNull(documentRequest.OrderId);
-        ArgumentNullException.ThrowIfNull(documentRequest.TranscriptDocumentId);
+        ArgumentNullException.ThrowIfNull(documentRequest.DocumentId);
 
         _logger.LogInformation(
             "Fetching transcript attachment - OrderId: {OrderId}, DocumentId: {DocumentId}",
             documentRequest.OrderId,
-            documentRequest.TranscriptDocumentId);
+            documentRequest.DocumentId);
 
         using var response = await _transcriptsClient.GetAttachmentBaseAsync(
             documentRequest.OrderId,
-            documentRequest.TranscriptDocumentId);
+            documentRequest.DocumentId);
 
         var documentStream = new MemoryStream();
         await response.Stream.CopyToAsync(documentStream);

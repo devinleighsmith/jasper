@@ -554,7 +554,6 @@ describe('AppearancesView.vue', () => {
         expect.objectContaining({
           documentId: '123',
           orderId: '100',
-          transcriptDocumentId: '123',
           documentDescription: 'Transcript - Morning Session',
           fileId: 'TEST-123',
           fileNumberText: 'TEST-123',
@@ -919,7 +918,6 @@ describe('AppearancesView.vue', () => {
         {
           documentId: '789',
           orderId: '300',
-          transcriptDocumentId: '789',
           documentDescription: 'Transcript - Full Day Hearing',
           fileId: 'TEST-123',
           fileNumberText: 'TEST-123',

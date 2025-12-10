@@ -119,7 +119,10 @@ export default {
 
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
-  openCourtListKeyDocuments(appearances: CourtListAppearance[], categories: string[]): void {
+  openCourtListKeyDocuments(
+    appearances: CourtListAppearance[],
+    categories: string[]
+  ): void {
     if (!appearances.length) return;
     const bundleStore = useBundleStore();
     const appearanceRequests = appearances.map((app) => ({
@@ -138,9 +141,8 @@ export default {
     bundleStore.request = bundleRequest;
     bundleStore.appearanceRequests = appearanceRequests;
 
-    const categoryParams = categories.length > 0 
-      ? '&category=' + categories.join(',')
-      : '';
+    const categoryParams =
+      categories.length > 0 ? '&category=' + categories.join(',') : '';
     const url = '/file-viewer?type=bundle' + categoryParams;
     const newWindow = window.open(url, '_blank');
     const caseNumbers = Array.from(
@@ -149,7 +151,10 @@ export default {
     this.replaceWindowTitle(newWindow, caseNumbers);
   },
 
-  openJudicialBinderDocuments(appearances: CourtListAppearance[], judgeId: string): void {
+  openJudicialBinderDocuments(
+    appearances: CourtListAppearance[],
+    judgeId: string
+  ): void {
     if (!appearances.length) return;
     const bundleStore = useBundleStore();
     const appearanceRequests = appearances.map((app) => ({
@@ -158,7 +163,7 @@ export default {
         appearanceId: app.appearanceId,
         participantId: app.profPartId,
         courtClassCd: app.courtClassCd,
-        judgeId
+        judgeId,
       } as AppearanceDocumentRequest,
       fileNumber: app.courtFileNumber,
       fullName: app.styleOfCause,
@@ -197,7 +202,9 @@ export default {
             courtClassCd: doc.documentData.courtClass || '',
             appearanceId: doc.documentData.appearanceId || '',
             documentId: doc.documentData.documentId
-              ? this.convertToBase64Url(doc.documentData.documentId)
+              ? doc.documentType === DocumentRequestType.Transcript
+                ? doc.documentData.documentId
+                : this.convertToBase64Url(doc.documentData.documentId)
               : doc.documentData.documentId || '',
             fileId: doc.documentData.fileId || '',
             isCriminal: doc.documentData.isCriminal || false,
@@ -209,7 +216,6 @@ export default {
             reportType: doc.documentData.reportType || '',
             additionsList: doc.documentData.additionsList || '',
             orderId: doc.documentData.orderId || '',
-            transcriptDocumentId: doc.documentData.transcriptDocumentId || '',
           },
         },
         groupKeyOne: doc.groupKeyOne,

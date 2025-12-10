@@ -21,7 +21,7 @@ namespace tests.api.Processors;
 public class JudicialBinderProcessorTests
 {
     private readonly Mock<FileServicesClient> _mockFilesClient;
-    private readonly Mock<DarsService> _darsService;
+    private readonly Mock<IDarsService> _mockDarsService;
     private readonly Mock<IAppCache> _mockCache;
     private readonly Mock<IConfiguration> _mockConfiguration;
     private readonly Mock<IMapper> _mockMapper;
@@ -32,7 +32,7 @@ public class JudicialBinderProcessorTests
     {
         var httpClient = new System.Net.Http.HttpClient();
         _mockFilesClient = new Mock<FileServicesClient>(httpClient);
-        _darsService = new Mock<DarsService>();
+        _mockDarsService = new Mock<IDarsService>();
         _mockCache = new Mock<IAppCache>();
         _mockConfiguration = new Mock<IConfiguration>();
         _mockMapper = new Mock<IMapper>();
@@ -88,7 +88,7 @@ public class JudicialBinderProcessorTests
             _mockCache.Object,
             _mockMapper.Object,
             _mockConfiguration.Object,
-            _darsService.Object);
+            _mockDarsService.Object);
 
         await processor.PreProcessAsync();
 
@@ -113,7 +113,7 @@ public class JudicialBinderProcessorTests
             _mockCache.Object,
             _mockMapper.Object,
             _mockConfiguration.Object,
-            _darsService.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ProcessAsync();
 
@@ -141,7 +141,7 @@ public class JudicialBinderProcessorTests
             _mockCache.Object,
             _mockMapper.Object,
             _mockConfiguration.Object,
-            _darsService.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ValidateAsync();
 
@@ -201,7 +201,7 @@ public class JudicialBinderProcessorTests
             _mockCache.Object,
             _mockMapper.Object,
             _mockConfiguration.Object,
-            _darsService.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ValidateAsync();
 
@@ -263,7 +263,7 @@ public class JudicialBinderProcessorTests
             _mockCache.Object,
             _mockMapper.Object,
             _mockConfiguration.Object,
-            _darsService.Object);
+            _mockDarsService.Object);
 
         var result = await processor.ValidateAsync();
 

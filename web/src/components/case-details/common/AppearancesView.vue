@@ -247,7 +247,6 @@
     shared.openDocumentsPdf(CourtDocumentType.Transcript, {
       documentId: transcript.id.toString(),
       orderId: transcript.orderId.toString(),
-      transcriptDocumentId: transcript.id.toString(),
       documentDescription: `Transcript - ${transcript.description}`,
       fileId: props.fileNumber,
       fileNumberText: props.details.fileNumberTxt,

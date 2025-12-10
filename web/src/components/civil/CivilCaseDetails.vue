@@ -725,7 +725,7 @@
             docInfo.sealed = false;
 
             docInfo.transcriptOrderId = transcript.orderId.toString();
-            docInfo.transcriptDocumentId = transcript.id.toString();
+            docInfo.documentId = transcript.id.toString();
 
             documentsInfo.value.push(docInfo);
 
@@ -758,7 +758,7 @@
               additionalProp3: {},
               ...({
                 transcriptOrderId: transcript.orderId,
-                transcriptDocumentId: transcript.id,
+                documentId: transcript.id,
               } as any),
             };
 

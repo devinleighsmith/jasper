@@ -10,7 +10,7 @@ const TRANSCRIPT = 'transcript';
 
 export interface TranscriptDocumentType extends civilDocumentType {
   transcriptOrderId: number;
-  transcriptDocumentId: number;
+  documentId: number;
 }
 
 export const prepareCriminalDocumentData = (data) => {
@@ -43,7 +43,7 @@ export const prepareCriminalDocumentData = (data) => {
   // Add transcript metadata if this is a transcript document
   if (isTranscript) {
     documentData.orderId = data.transcriptOrderId;
-    documentData.transcriptDocumentId = data.transcriptDocumentId;
+    documentData.documentId = data.imageId;
   }
 
   return documentData;
@@ -76,8 +76,7 @@ export const prepareCivilDocumentData = (data: civilDocumentType) => {
   if (isTranscript) {
     const transcriptData = data as TranscriptDocumentType;
     documentData.orderId = transcriptData.transcriptOrderId?.toString();
-    documentData.transcriptDocumentId =
-      transcriptData.transcriptDocumentId?.toString();
+    documentData.documentId = transcriptData.documentId?.toString();
   }
 
   return documentData;

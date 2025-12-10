@@ -42,13 +42,13 @@ public class TranscriptStrategyTest : ServiceTestBase
 
         var identity = new ClaimsIdentity(claims, "HELLO");
         _mockUser = new ClaimsPrincipal(identity);
-        
+
         _mockTranscriptsClient = new Mock<TranscriptsServicesClient>(MockBehavior.Strict, this.HttpClient);
         _mockConfiguration = new Mock<IConfiguration>();
         _mockLogger = new Mock<ILogger<TranscriptStrategy>>();
 
         var fakeStream = new MemoryStream(_fakeContentBytes);
-        
+
         _mockTranscriptsClient.Setup(c => c.GetAttachmentBaseAsync(
             It.IsAny<string>(),  // orderId
             It.IsAny<string>(),  // documentId
@@ -75,9 +75,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = fakeOrderId,
-            TranscriptDocumentId = fakeDocumentId
+            DocumentId = fakeDocumentId
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,
@@ -92,7 +92,7 @@ public class TranscriptStrategyTest : ServiceTestBase
         resultStream.Position = 0;
         var resultBytes = resultStream.ToArray();
         Assert.Equal(_fakeContentBytes, resultBytes);
-        
+
         _mockTranscriptsClient.Verify(c => c.GetAttachmentBaseAsync(
             fakeOrderId,
             fakeDocumentId,
@@ -123,9 +123,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = null,
-            TranscriptDocumentId = "456"
+            DocumentId = "456"
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,
@@ -144,9 +144,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = "123",
-            TranscriptDocumentId = null
+            DocumentId = null
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,
@@ -167,9 +167,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = expectedOrderId,
-            TranscriptDocumentId = expectedDocumentId
+            DocumentId = expectedDocumentId
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,
@@ -193,9 +193,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = "123",
-            TranscriptDocumentId = "456"
+            DocumentId = "456"
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,
@@ -218,9 +218,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = orderId,
-            TranscriptDocumentId = documentId
+            DocumentId = documentId
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,
@@ -256,7 +256,7 @@ public class TranscriptStrategyTest : ServiceTestBase
         // Arrange
         var largeFakeContent = new byte[1024 * 1024]; // 1 MB
         new Random().NextBytes(largeFakeContent);
-        
+
         _mockTranscriptsClient.Setup(c => c.GetAttachmentBaseAsync(
             It.IsAny<string>(),
             It.IsAny<string>(),
@@ -276,9 +276,9 @@ public class TranscriptStrategyTest : ServiceTestBase
         var documentRequest = new PdfDocumentRequestDetails
         {
             OrderId = "123",
-            TranscriptDocumentId = "456"
+            DocumentId = "456"
         };
-        
+
         var strategy = new TranscriptStrategy(
             _mockTranscriptsClient.Object,
             _mockUser,

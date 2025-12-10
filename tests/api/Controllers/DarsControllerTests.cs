@@ -312,12 +312,23 @@ namespace tests.api.Controllers
                 .ReturnsAsync(validationResult);
 
             // Act
-            var result = await _controller.GetTranscripts(physicalFileId);
+            var result = await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
             Assert.Contains("Invalid format", errors);
+            
+            _mockValidator.Verify(v => v.ValidateAsync(
+                It.Is<TranscriptSearchRequest>(r => 
+                    r.PhysicalFileId == physicalFileId && 
+                    r.MdocJustinNo == null && 
+                    r.ReturnChildRecords == true), 
+                default), Times.Once);
         }
 
         [Fact]
@@ -358,7 +369,11 @@ namespace tests.api.Controllers
                 .ReturnsAsync(transcripts);
 
             // Act
-            var result = await _controller.GetTranscripts(physicalFileId);
+            var result = await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -381,7 +396,11 @@ namespace tests.api.Controllers
                 .ReturnsAsync(new List<TranscriptDocument>());
 
             // Act
-            var result = await _controller.GetTranscripts(physicalFileId);
+            var result = await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -402,7 +421,11 @@ namespace tests.api.Controllers
                 .ReturnsAsync((IEnumerable<TranscriptDocument>)null);
 
             // Act
-            var result = await _controller.GetTranscripts(physicalFileId);
+            var result = await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -423,7 +446,11 @@ namespace tests.api.Controllers
                 .ThrowsAsync(new DARSCommon.Clients.TranscriptsServices.ApiException("Not found", 404, "response", null, null));
 
             // Act
-            var result = await _controller.GetTranscripts(physicalFileId);
+            var result = await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -444,7 +471,11 @@ namespace tests.api.Controllers
                 .ThrowsAsync(new DARSCommon.Clients.TranscriptsServices.ApiException("Server error", 500, "response", null, null));
 
             // Act
-            var result = await _controller.GetTranscripts(physicalFileId);
+            var result = await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             var statusCodeResult = Assert.IsType<ObjectResult>(result);
@@ -470,10 +501,20 @@ namespace tests.api.Controllers
                 });
 
             // Act
-            await _controller.GetTranscripts(physicalFileId);
+            await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                ReturnChildRecords = true
+            });
 
             // Assert
             _mockDarsService.Verify(s => s.GetCompletedDocuments(physicalFileId, null, true), Times.Once);
+            _mockValidator.Verify(v => v.ValidateAsync(
+                It.Is<TranscriptSearchRequest>(r => 
+                    r.PhysicalFileId == physicalFileId && 
+                    r.MdocJustinNo == null && 
+                    r.ReturnChildRecords == true), 
+                default), Times.Once);
         }
 
         [Fact]
@@ -494,10 +535,125 @@ namespace tests.api.Controllers
                 });
 
             // Act
-            await _controller.GetTranscripts(null, mdocJustinNo);
+            await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                MdocJustinNo = mdocJustinNo,
+                ReturnChildRecords = true
+            });
 
             // Assert
             _mockDarsService.Verify(s => s.GetCompletedDocuments(null, mdocJustinNo, true), Times.Once);
+            _mockValidator.Verify(v => v.ValidateAsync(
+                It.Is<TranscriptSearchRequest>(r => 
+                    r.PhysicalFileId == null && 
+                    r.MdocJustinNo == mdocJustinNo && 
+                    r.ReturnChildRecords == true), 
+                default), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_PassesCorrectParameters_WithBothParameters()
+        {
+            // Arrange
+            var physicalFileId = "12345";
+            var mdocJustinNo = "54321";
+            var returnChildRecords = false;
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, mdocJustinNo, returnChildRecords))
+                .ReturnsAsync(new List<TranscriptDocument>
+                {
+                    new TranscriptDocument { Id = 1, OrderId = 1, Description = "", FileName = "", PagesComplete = 0, StatusCodeId = 1, Appearances = new List<TranscriptAppearance>() }
+                });
+
+            // Act
+            await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                MdocJustinNo = mdocJustinNo,
+                ReturnChildRecords = returnChildRecords
+            });
+
+            // Assert
+            _mockDarsService.Verify(s => s.GetCompletedDocuments(physicalFileId, mdocJustinNo, returnChildRecords), Times.Once);
+            _mockValidator.Verify(v => v.ValidateAsync(
+                It.Is<TranscriptSearchRequest>(r => 
+                    r.PhysicalFileId == physicalFileId && 
+                    r.MdocJustinNo == mdocJustinNo && 
+                    r.ReturnChildRecords == returnChildRecords), 
+                default), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_TrimsWhitespace_FromParameters()
+        {
+            // Arrange
+            var physicalFileId = "  12345  ";
+            var mdocJustinNo = "  54321  ";
+            var expectedPhysicalFileId = "12345";
+            var expectedMdocJustinNo = "54321";
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(expectedPhysicalFileId, expectedMdocJustinNo, true))
+                .ReturnsAsync(new List<TranscriptDocument>
+                {
+                    new TranscriptDocument { Id = 1, OrderId = 1, Description = "", FileName = "", PagesComplete = 0, StatusCodeId = 1, Appearances = new List<TranscriptAppearance>() }
+                });
+
+            // Act
+            await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId,
+                MdocJustinNo = mdocJustinNo,
+                ReturnChildRecords = true
+            });
+
+            // Assert - Service should receive trimmed values
+            _mockDarsService.Verify(s => s.GetCompletedDocuments(expectedPhysicalFileId, expectedMdocJustinNo, true), Times.Once);
+            
+            // Assert - Validator should receive the original request with untrimmed values
+            _mockValidator.Verify(v => v.ValidateAsync(
+                It.Is<TranscriptSearchRequest>(r => 
+                    r.PhysicalFileId == physicalFileId && 
+                    r.MdocJustinNo == mdocJustinNo && 
+                    r.ReturnChildRecords == true), 
+                default), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetTranscripts_WithDefaultReturnChildRecords_UsesTrue()
+        {
+            // Arrange
+            var physicalFileId = "12345";
+
+            _mockValidator
+                .Setup(v => v.ValidateAsync(It.IsAny<TranscriptSearchRequest>(), default))
+                .ReturnsAsync(new ValidationResult());
+
+            _mockDarsService
+                .Setup(s => s.GetCompletedDocuments(physicalFileId, null, true))
+                .ReturnsAsync(new List<TranscriptDocument>
+                {
+                    new TranscriptDocument { Id = 1, OrderId = 1, Description = "", FileName = "", PagesComplete = 0, StatusCodeId = 1, Appearances = new List<TranscriptAppearance>() }
+                });
+
+            // Act - Using default value from TranscriptSearchRequest
+            await _controller.GetTranscripts(new TranscriptSearchRequest 
+            { 
+                PhysicalFileId = physicalFileId
+                // ReturnChildRecords will use default value of true from the model
+            });
+
+            // Assert
+            _mockDarsService.Verify(s => s.GetCompletedDocuments(physicalFileId, null, true), Times.Once);
         }
 
         #endregion
@@ -577,7 +733,7 @@ namespace tests.api.Controllers
                     reqs.Length == 1 &&
                     reqs[0].Type == Scv.Api.Documents.DocumentType.Transcript &&
                     reqs[0].Data.OrderId == orderId &&
-                    reqs[0].Data.TranscriptDocumentId == documentId)),
+                    reqs[0].Data.DocumentId == documentId)),
                 Times.Once);
         }
 

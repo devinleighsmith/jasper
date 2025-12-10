@@ -22,7 +22,6 @@ export interface DocumentData {
   isCriminal?: boolean;
   additionsList?: string;
   orderId?: string;
-  transcriptDocumentId?: string;
 }
 
 export enum CourtDocumentType {
