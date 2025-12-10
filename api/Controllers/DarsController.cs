@@ -218,15 +218,18 @@ namespace Scv.Api.Controllers
         [ProducesResponseType(500)]
         public async Task<IActionResult> GetTranscriptDocument(string orderId, string documentId)
         {
-            if (string.IsNullOrWhiteSpace(orderId) || string.IsNullOrWhiteSpace(documentId))
+            var sanitizedOrderId = orderId?.Replace(Environment.NewLine, "").Trim();
+            var sanitizedDocumentId = documentId?.Replace(Environment.NewLine, "").Trim();
+
+            if (string.IsNullOrWhiteSpace(sanitizedOrderId) || string.IsNullOrWhiteSpace(sanitizedDocumentId))
             {
                 return BadRequest("Order ID and Document ID are required.");
             }
 
             logger.LogInformation(
                 "Transcript document requested - OrderId: {OrderId}, DocumentId: {DocumentId}",
-                orderId,
-                documentId);
+                sanitizedOrderId,
+                sanitizedDocumentId);
 
             try
             {
@@ -235,8 +238,8 @@ namespace Scv.Api.Controllers
                     Type = Scv.Api.Documents.DocumentType.Transcript,
                     Data = new Scv.Api.Models.Document.PdfDocumentRequestDetails
                     {
-                        OrderId = orderId,
-                        DocumentId = documentId
+                        OrderId = sanitizedOrderId,
+                        DocumentId = sanitizedDocumentId
                     }
                 };
 
@@ -244,8 +247,8 @@ namespace Scv.Api.Controllers
 
                 logger.LogInformation(
                     "Transcript document retrieved successfully - OrderId: {OrderId}, DocumentId: {DocumentId}",
-                    orderId,
-                    documentId);
+                    sanitizedOrderId,
+                    sanitizedDocumentId);
 
                 return Ok(new { base64Pdf = result.Base64Pdf });
             }
@@ -254,8 +257,8 @@ namespace Scv.Api.Controllers
                 logger.LogError(
                     ex,
                     "Error retrieving transcript document - OrderId: {OrderId}, DocumentId: {DocumentId}",
-                    orderId,
-                    documentId);
+                    sanitizedOrderId,
+                    sanitizedDocumentId);
                 return StatusCode(500, "An error occurred while retrieving the transcript document.");
             }
         }
