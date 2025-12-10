@@ -45,6 +45,7 @@
     :selectedItems
     :binderDocumentIds="currentBinder?.documents.map((d) => d.documentId) ?? []"
     :selectedCategory="selectedCategory"
+    :sortBy
     :getCategoryDisplayTitle="getCategoryDisplayTitle"
     @update:selectedItems="(val) => (selectedItems = val)"
   />
@@ -167,6 +168,11 @@
   const roles = ref<LookupCode[]>();
   const currentBinder = ref<Binder>();
   const courtClassCdStyle = getCourtClassStyle(props.courtClassCd);
+  const sortBy = computed<[{ key: string; order: 'desc' | 'asc' }]>(() => {
+    return selectedCategory?.value === CSR_CATEGORY
+      ? [{ key: 'filedDt', order: 'desc' as const }]
+      : [{ key: 'fileSeqNo', order: 'desc' as const }];
+  });
 
   const headers: DataTableHeader[] = [
     ...shared.getBaseCivilDocumentTableHeaders(),

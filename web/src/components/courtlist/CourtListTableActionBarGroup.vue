@@ -57,7 +57,7 @@
                   class="mr-2 align-middle"
                 />
                 <span v-else-if="totalBinderCount > 0">
-                  ({{ totalBinderCount }} / {{ selected.length }})
+                  ({{ totalBinderCount }} / {{ getCivilFiles(selected).length }})
                 </span>
           </v-btn>
         </template>
