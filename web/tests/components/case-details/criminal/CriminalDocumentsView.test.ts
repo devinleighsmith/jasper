@@ -1,11 +1,11 @@
 import shared from '@/components/shared';
+import { useCriminalFileStore } from '@/stores';
 import { DocumentRequestType } from '@/types/shared';
 import { flushPromises, shallowMount } from '@vue/test-utils';
 import DocumentsView from 'CMP/case-details/criminal/CriminalDocumentsView.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import { useCriminalFileStore } from '@/stores';
 
 describe('CriminalDocumentsView.vue', () => {
   let wrapper: any;
@@ -575,6 +575,150 @@ describe('CriminalDocumentsView.vue', () => {
 
       const sections = wrapper.findAll('v-card-text .text-h5');
       expect(sections[1].text()).toBe('bail (1)');
+    });
+  });
+
+  describe('Unique Document Keys', () => {
+    it('generates unique keys for documents with same category and issue date', async () => {
+      const transcriptParticipant = {
+        fullName: 'Thomas Magnum',
+        profSeqNo: 113,
+        lastNm: 'Magnum',
+        givenNm: 'Thomas',
+        partId: '156343.0999',
+        document: [
+          {
+            partId: '156343.0999',
+            category: 'Transcript',
+            documentTypeDescription: 'Transcript - 1',
+            hasFutureAppearance: false,
+            docmClassification: 'Transcript',
+            docmId: '147',
+            issueDate: '2025-11-12',
+            docmFormId: '',
+            docmFormDsc: 'Transcript - 1',
+            imageId: '147',
+            documentPageCount: '1',
+            transcriptOrderId: '465',
+            transcriptDocumentId: '147',
+            transcriptAppearanceId: '500575.0877',
+          },
+          {
+            partId: '156343.0999',
+            category: 'Transcript',
+            documentTypeDescription: 'Transcript - 2',
+            hasFutureAppearance: false,
+            docmClassification: 'Transcript',
+            docmId: '148',
+            issueDate: '2025-11-12',
+            docmFormId: '',
+            docmFormDsc: 'Transcript - 2',
+            imageId: '148',
+            documentPageCount: '2',
+            transcriptOrderId: '466',
+            transcriptDocumentId: '148',
+            transcriptAppearanceId: '500575.0877',
+          },
+          {
+            partId: '156343.0999',
+            category: 'Transcript',
+            documentTypeDescription: 'Transcript - 1',
+            hasFutureAppearance: false,
+            docmClassification: 'Transcript',
+            docmId: '145',
+            issueDate: '2025-10-24',
+            docmFormId: '',
+            docmFormDsc: 'Transcript - 1',
+            imageId: '145',
+            documentPageCount: '1',
+            transcriptOrderId: '463',
+            transcriptDocumentId: '145',
+            transcriptAppearanceId: '500547.0877',
+          },
+        ],
+        keyDocuments: [],
+      };
+
+      const wrapper = shallowMount(DocumentsView, {
+        props: {
+          participants: [transcriptParticipant],
+        },
+      });
+
+      const unfilteredDocuments = wrapper.vm.unfilteredDocuments;
+
+      // Verify we have 3 documents
+      expect(unfilteredDocuments).toHaveLength(3);
+
+      // Extract all document IDs
+      const documentIds = unfilteredDocuments.map((doc: any) => doc.id);
+
+      // Verify all IDs are unique (no duplicates)
+      const uniqueIds = new Set(documentIds);
+      expect(uniqueIds.size).toBe(3);
+      expect(documentIds).toHaveLength(3);
+
+      // Verify the IDs contain the docmId to ensure uniqueness
+      expect(documentIds[0]).toContain('147');
+      expect(documentIds[1]).toContain('148');
+      expect(documentIds[2]).toContain('145');
+
+      // Filter to only show transcripts
+      wrapper.vm.selectedCategory = 'Transcript';
+      await nextTick();
+
+      const filteredDocuments = wrapper.vm.documents;
+
+      // Verify all 3 transcript documents are shown
+      expect(filteredDocuments).toHaveLength(3);
+
+      // Verify filtered documents also have unique IDs
+      const filteredIds = filteredDocuments.map((doc: any) => doc.id);
+      const uniqueFilteredIds = new Set(filteredIds);
+      expect(uniqueFilteredIds.size).toBe(3);
+    });
+
+    it('generates unique keys using imageId when docmId is missing', async () => {
+      const participantWithImageIds = {
+        fullName: 'Test User',
+        profSeqNo: 1,
+        lastNm: 'User',
+        givenNm: 'Test',
+        partId: '123.0001',
+        document: [
+          {
+            partId: '123.0001',
+            category: 'Transcript',
+            documentTypeDescription: 'Transcript - A',
+            issueDate: '2025-11-12',
+            imageId: 'IMG-001',
+            documentPageCount: '1',
+          },
+          {
+            partId: '123.0001',
+            category: 'Transcript',
+            documentTypeDescription: 'Transcript - B',
+            issueDate: '2025-11-12',
+            imageId: 'IMG-002',
+            documentPageCount: '1',
+          },
+        ],
+        keyDocuments: [],
+      };
+
+      const wrapper = shallowMount(DocumentsView, {
+        props: {
+          participants: [participantWithImageIds],
+        },
+      });
+
+      const unfilteredDocuments = wrapper.vm.unfilteredDocuments;
+      const documentIds = unfilteredDocuments.map((doc: any) => doc.id);
+
+      // Verify unique keys using imageId
+      expect(new Set(documentIds).size).toBe(2);
+      expect(documentIds[0]).toContain('IMG-001');
+      expect(documentIds[1]).toContain('IMG-002');
     });
   });
 });

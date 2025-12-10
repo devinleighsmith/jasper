@@ -6,7 +6,7 @@
     </v-col>
   </v-row>
   <div
-    v-for="(documents, type) in {
+    v-for="(documentList, type) in {
       keyDocuments: keyDocuments,
       documents: documents,
     }"
@@ -44,16 +44,16 @@
                 ? 'Key Documents'
                 : getCategoryDisplayTitle()
             }}
-            ({{ documents.length }})
+            ({{ documentList.length }})
           </v-col>
         </v-row>
       </v-card-text>
     </v-card>
     <v-data-table-virtual
-      v-if="documents?.length"
+      v-if="documentList?.length"
       v-model="selectedItems"
       :headers="type === 'documents' ? headers : keyDocumentHeaders"
-      :items="documents"
+      :items="documentList"
       :sort-by="type === 'documents' ? sortBy : keyDocumentsSortBy"
       :group-by
       show-select
@@ -79,10 +79,12 @@
           </td>
         </tr>
       </template>
-      <template v-slot:item.category="{ item }">
+      <template v-slot:item.category="{ item }: { item: documentType }">
         {{ formatDocumentCategory(item) }}
       </template>
-      <template v-slot:item.documentTypeDescription="{ item }">
+      <template
+        v-slot:item.documentTypeDescription="{ item }: { item: documentType }"
+      >
         <v-row>
           <v-col>
             <a
@@ -106,7 +108,8 @@
           no-gutters
         >
           <v-col>
-            {{ item.docmDispositionDsc }} <span class="pl-2" />
+            {{ item.docmDispositionDsc }}
+            <span class="pl-2" />
             {{ formatDateToDDMMMYYYY(item.issueDate) }}
           </v-col>
         </v-row>
@@ -150,6 +153,7 @@
   import { computed, ref } from 'vue';
 
   const props = defineProps<{ participants: criminalParticipantType[] }>();
+
   const selectedItems = ref<documentType[]>([]);
   const showActionbar = computed<boolean>(
     () => selectedItems.value.filter((item) => item.imageId).length > 1
@@ -179,7 +183,8 @@
             doc.issueDate +
             participant.fullName +
             doc.partId +
-            participant.profSeqNo,
+            participant.profSeqNo +
+            (doc.docmId || doc.imageId || ''),
         }))
       ) || []
   );
@@ -199,10 +204,10 @@
         }))
       ) || []
   );
-
   const documents = computed(() =>
     unfilteredDocuments.value.filter(filterByCategory).filter(filterByAccused)
   );
+
   const keyDocuments = computed(() =>
     unfilteredKeyDocuments.value.filter(filterByAccused)
   );
@@ -304,7 +309,7 @@
     }[] = [];
     selectedItems.value
       .filter((item) => item.imageId)
-      .forEach((item) => {
+      .forEach((item: documentType & { fullName?: string }) => {
         const criminalDocType = getCriminalDocumentType(item);
         let documentType: DocumentRequestType;
 

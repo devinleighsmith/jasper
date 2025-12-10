@@ -135,27 +135,15 @@ namespace Scv.Api.Controllers
         /// <summary>
         /// Get completed transcript documents by physical file ID or MDOC JUSTIN number.
         /// </summary>
-        /// <param name="physicalFileId">The physical file ID (numeric string)</param>
-        /// <param name="mdocJustinNo">The MDOC JUSTIN number (numeric string)</param>
-        /// <param name="returnChildRecords">Whether to return child records (default: true)</param>
+        /// <param name="request">The physical file ID (numeric string)</param>
         /// <returns>A collection of completed transcript documents</returns>
         [HttpGet("transcripts")]
         [ProducesResponseType(typeof(IEnumerable<TranscriptDocument>), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetTranscripts(
-            string physicalFileId = null,
-            string mdocJustinNo = null,
-            bool returnChildRecords = true)
+        public async Task<IActionResult> GetTranscripts([FromQuery] TranscriptSearchRequest request)
         {
-            var request = new TranscriptSearchRequest
-            {
-                PhysicalFileId = physicalFileId?.Trim(),
-                MdocJustinNo = mdocJustinNo?.Trim(),
-                ReturnChildRecords = returnChildRecords
-            };
-
             var validationResult = await transcriptSearchRequestValidator.ValidateAsync(request);
 
             if (!validationResult.IsValid)

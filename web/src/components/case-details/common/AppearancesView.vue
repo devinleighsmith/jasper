@@ -9,129 +9,113 @@
       />
     </v-col>
   </v-row>
-    <v-card
-      class="my-6"
-      color="var(--bg-gray-500)"
-      elevation="0"
+  <v-card class="my-6" color="var(--bg-gray-500)" elevation="0">
+    <v-card-text>
+      <v-row align="center" no-gutters>
+        <v-col class="text-h5" cols="6"> Appearances </v-col>
+      </v-row>
+    </v-card-text>
+  </v-card>
+  <v-data-table-virtual
+    v-if="appearances?.length"
+    :headers="headers"
+    :items="appearances"
+    :sort-by="sortBy"
+    :height="800"
+    item-value="appearanceId"
+    fixed-header
+    show-expand
+    variant="hover"
+  >
+    <template v-slot:header.appearanceTm> TIME<br />EST. /DURATION </template>
+    <template v-slot:header.courtLocation> LOCATION ROOM </template>
+    <template
+      v-slot:item.data-table-expand="{ internalItem, isExpanded, toggleExpand }"
     >
-      <v-card-text>
-        <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6">
-            Appearances
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-    <v-data-table-virtual
-      v-if="appearances?.length"
-      :headers="headers"
-      :items="appearances"
-      :sort-by="sortBy"
-      :height="800"
-      item-value="appearanceId"
-      fixed-header
-      show-expand
-      variant="hover"
-    >
-      <template v-slot:header.appearanceTm>
-        TIME<br />EST. /DURATION
-      </template>
-      <template v-slot:header.courtLocation>
-        LOCATION ROOM
-      </template>
-      <template
-        v-slot:item.data-table-expand="{
-          internalItem,
-          isExpanded,
-          toggleExpand,
-        }"
+      <v-icon
+        color="primary"
+        :icon="isExpanded(internalItem) ? mdiChevronUp : mdiChevronDown"
+        @click="toggleExpand(internalItem)"
+      />
+    </template>
+    <template v-slot:expanded-row="{ columns, item }">
+      <tr class="expanded">
+        <td :colspan="columns.length">
+          <CivilAppearanceDetails
+            v-if="!isCriminal"
+            :fileId="fileNumber"
+            :appearanceId="item.appearanceId"
+            :courtClassCd="courtClassCd"
+          />
+          <CriminalAppearanceDetails
+            v-else
+            :fileId="fileNumber"
+            :appearanceId="item.appearanceId"
+            :partId="(item as criminalApprDetailType).partId"
+          />
+        </td>
+      </tr>
+    </template>
+    <template v-slot:item.appearanceDt="{ value }">
+      <span> {{ value }} </span>
+    </template>
+    <template v-slot:item.transcripts="{ item }">
+      <v-icon
+        v-if="getAppearanceTranscripts(item.appearanceId).length > 0"
+        :icon="mdiFileDocumentOutline"
+        class="cursor-pointer"
+        :data-testid="`transcript-button-${item.appearanceId}`"
+        @click="handleTranscriptClick($event, item.appearanceId)"
+      />
+      <v-menu
+        v-if="getAppearanceTranscripts(item.appearanceId).length > 1"
+        v-model="transcriptMenus[item.appearanceId]"
+        :activator="`[data-testid='transcript-button-${item.appearanceId}']`"
+        location="bottom"
       >
-        <v-icon
-          color="primary"
-          :icon="isExpanded(internalItem) ? mdiChevronUp : mdiChevronDown"
-          @click="toggleExpand(internalItem)"
-        />
-      </template>
-      <template v-slot:expanded-row="{ columns, item }">
-        <tr class="expanded">
-          <td :colspan="columns.length">
-            <CivilAppearanceDetails
-              v-if="!isCriminal"
-              :fileId="fileNumber"
-              :appearanceId="item.appearanceId"
-              :courtClassCd="courtClassCd"
-            />
-            <CriminalAppearanceDetails
-              v-else
-              :fileId="fileNumber"
-              :appearanceId="item.appearanceId"
-              :partId="(item as criminalApprDetailType).partId"
-            />
-          </td>
-        </tr>
-      </template>
-      <template v-slot:item.appearanceDt="{ value }">
-        <span> {{ value }} </span>
-      </template>
-      <template v-slot:item.transcripts="{ item }">
-        <v-icon
-          v-if="getAppearanceTranscripts(item.appearanceId).length > 0"
-          :icon="mdiFileDocumentOutline"
-          class="cursor-pointer"
-          :data-testid="`transcript-button-${item.appearanceId}`"
-          @click="handleTranscriptClick($event, item.appearanceId)"
-        />
-        <v-menu
-          v-if="getAppearanceTranscripts(item.appearanceId).length > 1"
-          v-model="transcriptMenus[item.appearanceId]"
-          :activator="`[data-testid='transcript-button-${item.appearanceId}']`"
-          location="bottom"
-        >
-          <v-list>
-            <v-list-item
-              v-for="transcript in getAppearanceTranscripts(item.appearanceId)"
-              :key="`${transcript.orderId}-${transcript.id}`"
-              @click="openTranscript(transcript)"
-              class="cursor-pointer"
-            >
-              <v-list-item-title>
-                Transcript - {{ transcript.description }}
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </template>
-      <template v-slot:item.DARS="{ item }">
-        <v-icon
-          v-if="item.appearanceStatusCd === 'SCHD'"
-          :icon="mdiHeadphones"
-          class="cursor-pointer"
-          :data-testid="`dars-button-${item.appearanceId}`"
-          @click="openDarsModal(item)"
-        />
-      </template>
-      <template v-slot:item.appearanceReasonCd="{ value, item }">
-        <v-tooltip :text="item.appearanceReasonDsc" location="top">
-          <template v-slot:activator="{ props }">
-            <span v-bind="props" class="has-tooltip">{{ value }}</span>
-          </template>
-        </v-tooltip>
-      </template>
-      <template v-slot:item.appearanceTm="{ value, item }">
-        {{ value ? extractTime(value) : '' }} <br />
-        <span style="color: gray">
-          {{
-            hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin)
-          }}
-        </span>
-      </template>
-      <template v-slot:item.courtLocation="{ value, item }">
-        {{ value }} &nbsp; <span style="color: gray">{{ item.courtRoomCd }}</span>
-      </template>
-      <template v-slot:item.appearanceStatusCd="{ value }">
-        <AppearanceStatusChip :status="value" />
-      </template>
-    </v-data-table-virtual>
+        <v-list>
+          <v-list-item
+            v-for="transcript in getAppearanceTranscripts(item.appearanceId)"
+            :key="`${transcript.orderId}-${transcript.id}`"
+            @click="openTranscript(transcript)"
+            class="cursor-pointer"
+          >
+            <v-list-item-title>
+              Transcript - {{ transcript.description }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </template>
+    <template v-slot:item.DARS="{ item }">
+      <v-icon
+        v-if="item.appearanceStatusCd === 'SCHD'"
+        :icon="mdiHeadphones"
+        class="cursor-pointer"
+        :data-testid="`dars-button-${item.appearanceId}`"
+        @click="openDarsModal(item)"
+      />
+    </template>
+    <template v-slot:item.appearanceReasonCd="{ value, item }">
+      <v-tooltip :text="item.appearanceReasonDsc" location="top">
+        <template v-slot:activator="{ props }">
+          <span v-bind="props" class="has-tooltip">{{ value }}</span>
+        </template>
+      </v-tooltip>
+    </template>
+    <template v-slot:item.appearanceTm="{ value, item }">
+      {{ value ? extractTime(value) : '' }} <br />
+      <span style="color: gray">
+        {{ hoursMinsFormatter(item.estimatedTimeHour, item.estimatedTimeMin) }}
+      </span>
+    </template>
+    <template v-slot:item.courtLocation="{ value, item }">
+      {{ value }} &nbsp; <span style="color: gray">{{ item.courtRoomCd }}</span>
+    </template>
+    <template v-slot:item.appearanceStatusCd="{ value }">
+      <AppearanceStatusChip :status="value" />
+    </template>
+  </v-data-table-virtual>
   <div v-else>
     <v-card class="my-6" color="var(--bg-gray-500)" elevation="0">
       <v-card-text>
@@ -226,7 +210,6 @@
       : []),
     { title: 'STATUS', key: 'appearanceStatusCd' },
   ];
-    { title: '', key: 'transcripts', sortable: false, width: '1%' },
 
   const selectedAccused = ref<string>();
   const sortBy = ref([{ key: 'appearanceDt', order: 'desc' }] as const);
@@ -289,10 +272,9 @@
     formatToFullName(appearance.lastNm, appearance.givenNm) ===
       selectedAccused.value;
   const appearances = computed(() =>
-    props.appearances
-      .filter((app) =>
-        props.isCriminal ? filterByAccused(app as criminalApprDetailType) : true
-      )
+    props.appearances.filter((app) =>
+      props.isCriminal ? filterByAccused(app as criminalApprDetailType) : true
+    )
   );
 </script>
 
