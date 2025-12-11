@@ -35,7 +35,7 @@
     @update:model-value="handleSelectedItemsChange"
     :headers="baseHeaders"
     :items="documents"
-    :sort-by="sortBy"
+    :sortBy
     return-object
     item-value="civilDocumentId"
     show-select
@@ -86,9 +86,6 @@
   import { Anchor, LookupCode } from '@/types/common';
   import { DataTableHeader } from '@/types/shared';
   import { mdiNotebookOutline } from '@mdi/js';
-  import { ref } from 'vue';
-
-  const sortBy = ref([{ key: 'fileSeqNo', order: 'desc' }] as const);
 
   const props = defineProps<{
     selectedItems: civilDocumentType[];
@@ -100,6 +97,7 @@
     binderDocumentIds: string[];
     addDocumentToBinder: (document: civilDocumentType) => void;
     selectedCategory?: string;
+    sortBy?: [{ key: string; order: 'asc' | 'desc'; }];
     getCategoryDisplayTitle?: (category: string) => string;
     openIndividualDocument: (data: civilDocumentType) => void;
   }>();

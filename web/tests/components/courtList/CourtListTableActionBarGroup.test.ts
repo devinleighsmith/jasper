@@ -154,7 +154,7 @@ describe('CourtListTableActionBarGroup.vue', () => {
   it('displays binder count in judicial binder button', async () => {
     binderService.getBinders.mockResolvedValue({
       succeeded: true,
-      payload: [{ id: '1' }, { id: '2' }],
+      payload: [{ id: '1' }],
     });
 
     const civilAppearances = mockAppearances.filter(
@@ -168,7 +168,7 @@ describe('CourtListTableActionBarGroup.vue', () => {
     const judicialBinderButton = wrapper.find(
       '[data-testid="view-judicial-binders"]'
     );
-    expect(judicialBinderButton.text()).toContain('2');
+    expect(judicialBinderButton.text()).toContain('1 / 1');
   });
 
   it('disables judicial binder button when count is 0', async () => {
@@ -239,6 +239,7 @@ describe('CourtListTableActionBarGroup.vue', () => {
     expect(wrapper.emitted('view-key-documents')![0][0]).toEqual(
       criminalAppearances
     );
+    expect(wrapper.emitted('view-key-documents')![0][1]).toEqual([]);
   });
 
   it('emits view-informations event when button is clicked', async () => {
@@ -264,6 +265,7 @@ describe('CourtListTableActionBarGroup.vue', () => {
     expect(wrapper.emitted('view-informations')![0][0]).toEqual(
       criminalAppearances
     );
+    expect(wrapper.emitted('view-informations')![0][1]).toEqual(['INITIATING']);
   });
 
   it('emits unique-civil-file-selected when a new civil file is selected', async () => {
