@@ -105,22 +105,6 @@ export const getCivilDocumentType = (
     : CourtDocumentType.Civil;
 };
 
-// Move this mapping to the BE
-export const formatDocumentCategory = (
-  documentOrCategory: documentType | string
-) => {
-  const category =
-    typeof documentOrCategory === 'string'
-      ? documentOrCategory
-      : documentOrCategory.category;
-
-  if (category?.toLowerCase() === 'psr') return 'Report';
-  if (category?.toLowerCase() === 'transcript') return 'Transcript';
-  if (category?.toLowerCase() === 'rop') return 'ROP';
-  if (category?.toLowerCase() === 'litigant') return 'Litigant';
-  return category;
-};
-
 export const formatDocumentType = (document: documentType) =>
   document.category === 'rop'
     ? 'Record of Proceedings'

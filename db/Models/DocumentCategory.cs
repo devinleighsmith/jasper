@@ -14,6 +14,7 @@ public class DocumentCategory : EntityBase
     public const string ORDERS = "ORDERS";
     public const string PLEADINGS = "PLEADINGS";
     public const string PSR = "PSR";
+    public const string REPORT = "REPORT";
     public const string ROP = "ROP";
     public const string CSR = "CSR";
     public const string LITIGANT = "LITIGANT";
@@ -33,12 +34,13 @@ public class DocumentCategory : EntityBase
     public static readonly List<string> KEY_DOCUMENT_CATEGORIES = [
         INITIATING,
         ROP,
-        PSR
+        PSR,
+        REPORT
     ];
 
     /// <summary>
-    /// Gets the display name for a category.
-    /// Maps PCSS values (like PSR) to JASPER-friendly display names (like Report).
+    /// Formats categories into JASPER relevant categories.
+    /// Maps PCSS values (like PSR) to JASPER-friendly categories (like Report).
     /// Acronyms like ROP are kept as-is, while other categories are title-cased.
     /// </summary>
     public static string Format(string category)
