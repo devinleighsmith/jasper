@@ -10,6 +10,7 @@ using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Models.Timebank;
 using Scv.Api.Services;
+using Scv.Db.Models;
 
 namespace Scv.Api.Controllers;
 
@@ -88,6 +89,7 @@ public class TimebankController(
     /// <returns>Vacation payout details.</returns>
     [HttpGet]
     [Route("payout/{period}")]
+    [RequiresPermission(permissions: Permission.VIEW_VACATION_PAYOUT)]
     public async Task<ActionResult<VacationPayoutDto>> GetTimebankPayoutsForJudges(
         int period,
         [FromQuery] int? judgeId = null,

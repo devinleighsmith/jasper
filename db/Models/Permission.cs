@@ -12,6 +12,7 @@ namespace Scv.Db.Models
         public const string UPDATE_POSITIONS = "UPDATE_POSITIONS";
         public const string UPDATE_POSITIONS_PCSS_MAPPINGS = "UPDATE_POSITIONS_PCSS_MAPPINGS";
         public const string LOCK_UNLOCK_USERS = "LOCK_UNLOCK_USERS";
+        public const string VIEW_VACATION_PAYOUT = "VIEW_VACATION_PAYOUT";
 
         // Dashboard
         public const string VIEW_DASHBOARD = "VIEW_DASHBOARD";
@@ -86,6 +87,13 @@ namespace Scv.Db.Models
                 Code = LOCK_UNLOCK_USERS,
                 Name = "Lock/Unlock Users",
                 Description = "Permissions to lock or unlock users",
+                IsActive = true,
+            },
+            new Permission
+            {
+                Code = VIEW_VACATION_PAYOUT,
+                Name = "View Vacation Payout",
+                Description = "Permissions to view vacation payout calculations in the timebank",
                 IsActive = true,
             },
 

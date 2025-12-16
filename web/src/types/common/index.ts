@@ -88,6 +88,7 @@ export interface UserInfo {
   judgeHomeLocationId: number;
   email: string;
   userTitle: string;
+  permissions?: string[];
 }
 
 export interface LookupCode {

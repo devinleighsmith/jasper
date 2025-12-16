@@ -237,6 +237,11 @@ export const getRoles = async (): Promise<LookupCode[] | undefined> => {
   return roles;
 };
 
+export const hasPermission = (permission: string): boolean => {
+  const commonStore = useCommonStore();
+  return !!commonStore.userInfo?.permissions?.includes(permission);
+};
+
 /**
  * Retrieves the short description of a lookup code from a list of lookup codes.
  *
