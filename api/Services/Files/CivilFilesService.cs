@@ -526,7 +526,7 @@ namespace Scv.Api.Services.Files
                     Appearance = null,
                     CivilDocumentId = refDoc.ReferenceDocumentId,
                     DocumentTypeCd = refDoc.ReferenceDocumentTypeCd,
-                    DocumentTypeDescription = "Litigant Document", // TODO: temporary, requires future module to handle JASPER document category mapping.
+                    DocumentTypeDescription = "Reference", // TODO: temporary, requires future module to handle JASPER document category mapping.
                     Category = DocumentCategory.LITIGANT,
                     ImageId = refDoc.ObjectGuid,
                     FiledDt = refDoc.EnterDtm,

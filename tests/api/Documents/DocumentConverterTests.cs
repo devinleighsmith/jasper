@@ -93,7 +93,7 @@ public class DocumentConverterTests : ServiceTestBase
 
         Assert.Equal(3, result.Count);
         Assert.Equal(participantId, result.First().PartId);
-        Assert.Equal("rop", result.First().Category);
+        Assert.Equal("ROP", result.First().Category);
         Assert.Equal("Record of Proceedings", result.First().DocumentTypeDescription);
     }
 }

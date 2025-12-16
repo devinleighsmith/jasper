@@ -80,7 +80,7 @@
         </tr>
       </template>
       <template v-slot:item.category="{ item }: { item: documentType }">
-        {{ formatDocumentCategory(item) }}
+        {{ item.category }}
       </template>
       <template
         v-slot:item.documentTypeDescription="{ item }: { item: documentType }"
@@ -130,7 +130,6 @@
 </template>
 <script setup lang="ts">
   import {
-    formatDocumentCategory,
     formatDocumentType,
     getCriminalDocumentType,
     prepareCriminalDocumentData,
@@ -214,13 +213,13 @@
 
   const categoryCount = (category: string): number => {
     return unfilteredDocuments.value.filter(
-      (doc) => formatDocumentCategory(doc) === category
+      (doc) => doc.category === category
     ).length;
   };
 
   const getCategoryDisplayTitle = (): string => {
     return selectedCategory.value
-      ? formatDocumentCategory(selectedCategory.value)
+      ? selectedCategory.value
       : 'All Documents';
   };
 
@@ -228,7 +227,7 @@
     ...new Set(
       unfilteredDocuments.value
         ?.filter((doc) => doc.category)
-        .map((doc) => formatDocumentCategory(doc)) || []
+        .map((doc) => doc.category) || []
     ),
   ]);
 
