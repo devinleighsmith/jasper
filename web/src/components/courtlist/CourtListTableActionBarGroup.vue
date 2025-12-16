@@ -48,17 +48,17 @@
             @click="onViewJudicialBinders(group)"
           >
             View judicial binder(s)&nbsp;
-              <v-progress-circular
-                v-if="binderLoading"
-                  indeterminate
-                  size="18"
-                  width="2"
-                  color="primary"
-                  class="mr-2 align-middle"
-                />
-                <span v-else-if="totalBinderCount > 0">
-                  ({{ totalBinderCount }} / {{ getCivilFiles(selected).length }})
-                </span>
+            <v-progress-circular
+              v-if="binderLoading"
+              indeterminate
+              size="18"
+              width="2"
+              color="primary"
+              class="mr-2 align-middle"
+            />
+            <span v-else-if="totalBinderCount > 0">
+              ({{ totalBinderCount }} / {{ getCivilFiles(selected).length }})
+            </span>
           </v-btn>
         </template>
       </ActionBar>
