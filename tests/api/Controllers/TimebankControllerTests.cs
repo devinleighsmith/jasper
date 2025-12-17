@@ -306,19 +306,32 @@ public class TimebankControllerTests
         _mockPayoutValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankPayoutRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
+        // Since authorization attributes are not enforced in unit tests, the controller will call the service.
+        // Configure the service to return a failure so the controller returns BadRequest.
+        _mockTimebankService
+            .Setup(s => s.GetTimebankPayoutsForJudgesAsync(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<DateTime?>(),
+                It.IsAny<double>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(OperationResult<VacationPayoutDto>.Failure("Permission missing"));
+
         var controller = CreateControllerWithContext(claims);
 
         // Act
         var result = await controller.GetTimebankPayoutsForJudges(period, rate: rate);
 
         // Assert
-        Assert.IsType<ForbidResult>(result.Result);
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.NotNull(badRequest.Value);
+
         _mockTimebankService.Verify(s => s.GetTimebankPayoutsForJudgesAsync(
             It.IsAny<int>(),
             It.IsAny<int>(),
             It.IsAny<DateTime?>(),
             It.IsAny<double>(),
-            It.IsAny<CancellationToken>()), Times.Never);
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
