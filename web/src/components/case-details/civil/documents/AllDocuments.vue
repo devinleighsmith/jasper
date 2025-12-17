@@ -97,7 +97,7 @@
     binderDocumentIds: string[];
     addDocumentToBinder: (document: civilDocumentType) => void;
     selectedCategory?: string;
-    sortBy?: [{ key: string; order: 'asc' | 'desc'; }];
+    sortBy?: [{ key: string; order: 'asc' | 'desc' }];
     getCategoryDisplayTitle?: (category: string) => string;
     openIndividualDocument: (data: civilDocumentType) => void;
   }>();
