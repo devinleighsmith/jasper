@@ -212,15 +212,12 @@
   );
 
   const categoryCount = (category: string): number => {
-    return unfilteredDocuments.value.filter(
-      (doc) => doc.category === category
-    ).length;
+    return unfilteredDocuments.value.filter((doc) => doc.category === category)
+      .length;
   };
 
   const getCategoryDisplayTitle = (): string => {
-    return selectedCategory.value
-      ? selectedCategory.value
-      : 'All Documents';
+    return selectedCategory.value ? selectedCategory.value : 'All Documents';
   };
 
   const documentCategories = ref<string[]>([
