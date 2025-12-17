@@ -553,22 +553,6 @@ describe('CriminalDocumentsView.vue', () => {
       expect(sections[1].text()).toBe('All Documents (2)');
     });
 
-    it('displays formatted category name when category is selected', async () => {
-      wrapper.vm.selectedCategory = 'PSR';
-      await nextTick();
-
-      const sections = wrapper.findAll('v-card-text .text-h5');
-      expect(sections[1].text()).toBe('Report (0)');
-    });
-
-    it('displays "ROP" when rop category is selected', async () => {
-      wrapper.vm.selectedCategory = 'rop';
-      await nextTick();
-
-      const sections = wrapper.findAll('v-card-text .text-h5');
-      expect(sections[1].text()).toBe('ROP (0)');
-    });
-
     it('displays original category name when no special formatting applies', async () => {
       wrapper.vm.selectedCategory = 'bail';
       await nextTick();

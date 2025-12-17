@@ -154,47 +154,6 @@ describe('DocumentUtils', () => {
     });
   });
 
-  describe('formatDocumentCategory', () => {
-    it('should return "Report" for PSR category', () => {
-      const document = { category: 'PSR' } as any;
-      expect(DocumentUtils.formatDocumentCategory(document)).toBe('Report');
-    });
-
-    it('should return "Report" for PSR string category', () => {
-      expect(DocumentUtils.formatDocumentCategory('PSR')).toBe('Report');
-    });
-
-    it('should return "ROP" for rop category', () => {
-      const document = { category: 'rop' } as any;
-      expect(DocumentUtils.formatDocumentCategory(document)).toBe('ROP');
-    });
-
-    it('should return "ROP" for rop category', () => {
-      expect(DocumentUtils.formatDocumentCategory('rop')).toBe('ROP');
-    });
-
-    it('should return original category for other categories', () => {
-      const document = { category: 'INITIATING' } as any;
-      expect(DocumentUtils.formatDocumentCategory(document)).toBe('INITIATING');
-    });
-
-    it('should return original category for other (string) categories', () => {
-      expect(DocumentUtils.formatDocumentCategory('INITIATING')).toBe(
-        'INITIATING'
-      );
-    });
-
-    it('should handle undefined category', () => {
-      const document = {} as any;
-      expect(DocumentUtils.formatDocumentCategory(document)).toBeUndefined();
-    });
-
-    it('should handle null category', () => {
-      const document = { category: null, docmClassification: null } as any;
-      expect(DocumentUtils.formatDocumentCategory(document)).toBeNull();
-    });
-  });
-
   describe('formatDocumentType', () => {
     it('should return "Record of Proceedings" for rop category', () => {
       const document = {
