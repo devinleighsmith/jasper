@@ -39,9 +39,8 @@ public class DocumentCategory : EntityBase
     ];
 
     /// <summary>
-    /// Formats categories into JASPER relevant categories.
-    /// Maps PCSS values (like PSR) to JASPER-friendly categories (like Report).
-    /// Acronyms like ROP are kept as-is, while other categories are title-cased.
+    /// Formats PCSS values (like 'PSR') to JASPER-friendly categories (like 'Report').
+    /// Acronyms like 'ROP' are kept as-is, while other categories are title-cased.
     /// </summary>
     public static string Format(string category)
     {
@@ -55,6 +54,7 @@ public class DocumentCategory : EntityBase
         // Special mappings for display
         if (upperCategory == PSR) return "Report";
         if (upperCategory == ROP) return "ROP";
+        if (upperCategory == CSR) return "CSR";
         
         // Default: Title case (first letter uppercase, rest lowercase)
         return char.ToUpper(category[0]) + category[1..].ToLower();
