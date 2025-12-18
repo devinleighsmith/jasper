@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,7 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
 
         this.Logger.LogInformation("\tUpdating roles...");
 
+
         foreach (var role in roles)
         {
             var r = await context.Roles.AsQueryable().FirstOrDefaultAsync(r => r.Name == role.Name);
@@ -57,6 +59,7 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
             {
                 this.Logger.LogInformation("\tUpdating fields for {name}...", role.Name);
                 r.Description = role.Description;
+                r.PermissionIds = role.PermissionIds;
             }
         }
 
@@ -109,7 +112,8 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
             Permission.ACCESS_DARS,
             Permission.VIEW_QUICK_LINKS,
             Permission.SET_DEFAULT_HOME_SCREEN,
-            Permission.ADD_EDIT_OWN_NOTES_ONLY
+            Permission.ADD_EDIT_OWN_NOTES_ONLY,
+            Permission.VIEW_VACATION_PAYOUT,
         ];
     }
 
@@ -193,7 +197,8 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
             Permission.VIEW_SIDE_BY_SIDE_DOCUMENTS,
 
             Permission.ACCESS_DARS,
-            Permission.VIEW_QUICK_LINKS
+            Permission.VIEW_QUICK_LINKS,
+            Permission.VIEW_VACATION_PAYOUT,
         ];
     }
 
@@ -239,7 +244,8 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
             Permission.ACCESS_DARS,
             Permission.VIEW_QUICK_LINKS,
             Permission.SET_DEFAULT_HOME_SCREEN,
-            Permission.ADD_EDIT_OWN_NOTES_ONLY
+            Permission.ADD_EDIT_OWN_NOTES_ONLY,
+            Permission.VIEW_VACATION_PAYOUT,
         ];
     }
     #endregion Training and Administration Group Permissions

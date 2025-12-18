@@ -41,43 +41,45 @@
                   />
                 </v-col>
 
-                <v-spacer />
+                <template v-if="canViewVacationPayout">
+                  <v-spacer />
 
-                <v-col cols="2">
-                  <v-text-field
-                    v-model.number="payoutRate"
-                    label="Rate (Day)"
-                    density="compact"
-                    :rules="[rateRequired]"
-                    prefix="$"
-                    variant="outlined"
-                    rounded
-                    hide-details
-                  />
-                </v-col>
-                <v-col cols="3">
-                  <v-date-input
-                    v-model="payoutExpiryDate"
-                    label="Expiry Date"
-                    density="compact"
-                    :rules="[dateRequired]"
-                    prepend-icon=""
-                    prepend-inner-icon="$calendar"
-                    hide-details
-                  />
-                </v-col>
-                <v-col cols="2">
-                  <v-btn
-                    color="primary"
-                    :loading="payoutLoading"
-                    :disabled="!isCalculateEnabled"
-                    @click="calculatePayout"
-                    size="large"
-                    block
-                  >
-                    Calculate
-                  </v-btn>
-                </v-col>
+                  <v-col cols="2">
+                    <v-text-field
+                      v-model.number="payoutRate"
+                      label="Rate (Day)"
+                      density="compact"
+                      :rules="[rateRequired]"
+                      prefix="$"
+                      variant="outlined"
+                      rounded
+                      hide-details
+                    />
+                  </v-col>
+                  <v-col cols="3">
+                    <v-date-input
+                      v-model="payoutExpiryDate"
+                      label="Expiry Date"
+                      density="compact"
+                      :rules="[dateRequired]"
+                      prepend-icon=""
+                      prepend-inner-icon="$calendar"
+                      hide-details
+                    />
+                  </v-col>
+                  <v-col cols="2">
+                    <v-btn
+                      color="primary"
+                      :loading="payoutLoading"
+                      :disabled="!isCalculateEnabled"
+                      @click="calculatePayout"
+                      size="large"
+                      block
+                    >
+                      Calculate
+                    </v-btn>
+                  </v-col>
+                </template>
               </v-row>
             </v-form>
           </v-container>
@@ -98,6 +100,7 @@
           />
 
           <TimebankPayoutComponent
+            v-if="canViewVacationPayout"
             :payout-loading="payoutLoading"
             :payout-error="payoutError"
             :payout-data="payoutData"
@@ -126,11 +129,12 @@
     VacationPayout,
     VacationSummaryItem,
   } from '@/types/timebank';
+  import { hasPermission } from '@/utils/utils';
   import { mdiClose, mdiRefresh } from '@mdi/js';
   import { computed, inject, onMounted, ref, watch } from 'vue';
   import {
-    TimebankSummary as TimebankSummaryComponent,
     TimebankPayout as TimebankPayoutComponent,
+    TimebankSummary as TimebankSummaryComponent,
   } from './timebank';
 
   interface Props {
@@ -142,6 +146,11 @@
 
   const timebankService = inject<TimebankService>('timebankService');
   const commonStore = useCommonStore();
+
+  const VIEW_VACATION_PAYOUT = 'VIEW_VACATION_PAYOUT';
+  const canViewVacationPayout = computed(() =>
+    hasPermission(VIEW_VACATION_PAYOUT)
+  );
 
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -252,6 +261,10 @@
 
   // Calculate button should be enabled when form is valid and has no errors
   const isCalculateEnabled = computed(() => {
+    if (!canViewVacationPayout.value) {
+      return false;
+    }
+
     return (
       isPayoutFormValid.value && !hasFormErrors.value && !payoutLoading.value
     );
@@ -439,6 +452,10 @@
   };
 
   const calculatePayout = async () => {
+    if (!canViewVacationPayout.value) {
+      return;
+    }
+
     if (!timebankService) {
       payoutError.value = 'Timebank service not available';
       return;
@@ -479,6 +496,14 @@
       payoutLoading.value = false;
     }
   };
+
+  watch(canViewVacationPayout, (allowed) => {
+    if (!allowed) {
+      payoutData.value = null;
+      payoutError.value = null;
+      payoutRate.value = null;
+    }
+  });
 
   watch(show, (newValue) => {
     if (newValue) {

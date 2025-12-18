@@ -129,6 +129,9 @@ describe('TimebankModal.vue', () => {
 
     mockCommonStore = {
       courtRoomsAndLocations: mockLocations,
+      userInfo: {
+        permissions: ['VIEW_VACATION_PAYOUT'],
+      },
     };
 
     (useCommonStore as any).mockReturnValue(mockCommonStore);
@@ -315,6 +318,58 @@ describe('TimebankModal.vue', () => {
 
       vm.selectedPeriod = new Date().getFullYear() + 3;
       expect(vm.isPeriodValid).toBe(false);
+    });
+  });
+
+  describe('Permission gating', () => {
+    it('hides payout controls when user lacks permission', async () => {
+      mockCommonStore.userInfo.permissions = [];
+
+      const wrapperNoPermission = mount(TimebankModal, {
+        props: {
+          judgeId: mockTimebankData.judiciaryPersonId,
+          modelValue: true,
+        },
+        global: {
+          plugins: [vuetify, pinia],
+          provide: {
+            timebankService: mockTimebankService,
+          },
+        },
+      });
+
+      await nextTick();
+
+      expect(wrapperNoPermission.text()).not.toContain('Rate (Day)');
+      expect(wrapperNoPermission.text()).not.toContain('Expiry Date');
+      expect(wrapperNoPermission.text()).not.toContain('Vacation Payout');
+      expect(wrapperNoPermission.find('v-btn[color="primary"]').exists()).toBe(
+        false
+      );
+    });
+
+    it('does not calculate payout when permission is missing', async () => {
+      mockCommonStore.userInfo.permissions = [];
+
+      const wrapperNoPermission = mount(TimebankModal, {
+        props: {
+          judgeId: mockTimebankData.judiciaryPersonId,
+          modelValue: true,
+        },
+        global: {
+          plugins: [vuetify, pinia],
+          provide: {
+            timebankService: mockTimebankService,
+          },
+        },
+      });
+
+      const vm = wrapperNoPermission.vm as any;
+      await vm.calculatePayout();
+
+      expect(
+        mockTimebankService.getTimebankPayoutForJudge
+      ).not.toHaveBeenCalled();
     });
   });
 
