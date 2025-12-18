@@ -88,9 +88,9 @@ public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<Docume
         finally
         {
             // Ensure all streams are disposed
-            foreach (var stream in streamsToMerge)
+            foreach (var stream in streamsToMerge.Where(x => x is not null))
             {
-                stream?.Dispose();
+                await stream.DisposeAsync();
             }
         }
     }
