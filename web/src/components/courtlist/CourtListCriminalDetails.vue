@@ -25,7 +25,7 @@
         class="p-2"
       >
         <template v-slot:item.docmClassification="{ item }">
-          {{ formatDocumentCategory(item) }}
+          {{ item.category }}
         </template>
         <template v-slot:item.docmFormDsc="{ item }">
           <a
@@ -107,10 +107,7 @@
     documentType,
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
-  import {
-    formatDocumentCategory,
-    formatDocumentType,
-  } from '@/components/documents/DocumentUtils';
+  import { formatDocumentType } from '@/components/documents/DocumentUtils';
   import { inject, onMounted, ref } from 'vue';
 
   const props = defineProps<{

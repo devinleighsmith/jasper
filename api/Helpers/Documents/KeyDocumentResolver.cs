@@ -29,9 +29,9 @@ public static class KeyDocumentResolver
             return [];
         }
 
-        // Get most recent PSR document
-        var psrDoc = documents
-            .Where(d => (d.Category?.ToUpper()) == DocumentCategory.PSR)
+        // Get most recent Report document
+        var reportDoc = documents
+            .Where(d => (d.Category?.ToUpper()) == DocumentCategory.REPORT)
             .OrderByDescendingIssueDate()
             .FirstOrDefault();
 
@@ -39,7 +39,7 @@ public static class KeyDocumentResolver
         var otherKeyDocs = documents
             .Where(d =>
             DocumentCategory.KEY_DOCUMENT_CATEGORIES.Contains(d.Category?.ToUpper()) &&
-            (d.Category?.ToUpper()) != DocumentCategory.PSR);
+            (d.Category?.ToUpper()) != DocumentCategory.REPORT);
 
         // Get most recent uncancelled bail document
         var bailDoc = documents
@@ -49,7 +49,7 @@ public static class KeyDocumentResolver
             .OrderByDescendingIssueDate()
             .FirstOrDefault();
 
-        return new[] { psrDoc }
+        return new[] { reportDoc }
             .Where(d => d != null)
             .Concat(otherKeyDocs)
             .Concat(bailDoc != null ? [bailDoc] : Array.Empty<CriminalDocument>());
