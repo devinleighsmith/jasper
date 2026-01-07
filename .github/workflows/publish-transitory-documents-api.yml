@@ -103,8 +103,14 @@ jobs:
         with:
           valueFile: tenant-gitops-e4161f/${{ env.GITOPS_FILE_PATH }}
           changes: |
-            transitory-documents-api.image.repository=${{ env.GITHUB_IMAGE_REPO }}/${{ env.IMAGE_NAME }}
-            transitory-documents-api.image.tag=${{ steps.short_sha.outputs.SHORT_SHA }}
+            {
+              "transitory-documents-api": {
+                "image": {
+                  "repository": "${{ env.GITHUB_IMAGE_REPO }}/${{ env.IMAGE_NAME }}",
+                  "tag": "${{ steps.short_sha.outputs.SHORT_SHA }}"
+                }
+              }
+            }
           commitChange: false
 
       - name: Load SSH deploy key
