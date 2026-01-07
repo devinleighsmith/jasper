@@ -98,15 +98,12 @@ jobs:
           ref: ${{ env.GITOPS_BRANCH }}
           path: tenant-gitops-e4161f
 
-      - name: check path
-        id: check_path
-        run: |
-          ls -l tenant-gitops-e4161f/${{ env.GITOPS_FILE_PATH }}
-
       - name: Update transitory-documents-api dev image reference
         uses: fjogeleit/yaml-update-action@v0.15.0
         with:
-          valueFile: tenant-gitops-e4161f/${{ env.GITOPS_FILE_PATH }}
+          workDir: tenant-gitops-e4161f
+          repository: ${{ env.GITOPS_REPOSITORY }}
+          valueFile: ${{ env.GITOPS_FILE_PATH }}
           changes: |
             {
               "transitory-documents-api": {
