@@ -410,79 +410,92 @@
         );
       };
 
+      const getDisplayName = (lastName: string, givenName: string) => {
+        commonStore.updateDisplayName({
+          lastName,
+          givenName,
+        });
+        return commonStore.displayName;
+      };
+
+      const formatParticipantDob = (birthDate: string) =>
+        birthDate
+          ? new Date(birthDate.split(' ')[0]).toUTCString().substr(4, 12)
+          : '';
+
+      const mapParticipantCharges = (
+        participant: criminalParticipantType
+      ): chargesInfoType[] =>
+        (participant.charge ?? []).map((charge) => ({
+          description: charge.sectionDscTxt,
+          code: charge.sectionTxt,
+        }));
+
+      const mapParticipantStatus = (participant: criminalParticipantType) =>
+        statusFields.filter((status) => participant[status.code] == 'Y');
+
+      const appendParticipantBans = (
+        participantName: string,
+        participant: criminalParticipantType
+      ) => {
+        for (const ban of participant.ban ?? []) {
+          bans.value.push({
+            banParticipant: participantName,
+            banType: ban.banTypeDescription,
+            orderDate: ban.banOrderedDate,
+            act: ban.banTypeAct,
+            sect: ban.banTypeSection,
+            sub: ban.banTypeSubSection,
+            description: ban.banStatuteId,
+            comment: ban.banCommentText,
+          } as bansInfoType);
+        }
+      };
+
+      const buildParticipantListItem = (
+        partIndex: string,
+        participant: criminalParticipantType
+      ): participantListInfoType => {
+        const firstName = participant.givenNm.trim().length > 0
+          ? participant.givenNm
+          : '';
+        const lastName = participant.lastNm ? participant.lastNm : participant.orgNm;
+        const name = getDisplayName(lastName, firstName);
+
+        const counselName = getDisplayName(
+          participant.counselLastNm ? participant.counselLastNm : '',
+          participant.counselGivenNm ? participant.counselGivenNm : ''
+        );
+
+        return {
+          index: partIndex,
+          firstName,
+          lastName,
+          name,
+          dob: formatParticipantDob(participant.birthDt),
+          partId: participant.partId,
+          profSeqNo: participant.profSeqNo,
+          documentsJson: participant.document ?? [],
+          charges: mapParticipantCharges(participant),
+          status: mapParticipantStatus(participant),
+          countsJson: participant.count,
+          counsel: counselName.trim.length ? 'JUSTIN: ' + counselName : '',
+          counselDesignationFiled: participant.designatedCounselYN,
+        } as participantListInfoType;
+      };
+
       const buildParticipantInfo = () => {
-        participantList.value = [];
         bans.value = [];
 
-        for (const partIndex in participantJson.value) {
-          const participantInfo = {} as participantListInfoType;
-          const jParticipant = participantJson.value[partIndex];
-          participantInfo.index = partIndex;
-          participantInfo.firstName =
-            jParticipant.givenNm.trim().length > 0 ? jParticipant.givenNm : '';
-          participantInfo.lastName = jParticipant.lastNm
-            ? jParticipant.lastNm
-            : jParticipant.orgNm;
-          commonStore.updateDisplayName({
-            lastName: participantInfo.lastName,
-            givenName: participantInfo.firstName,
-          });
-          participantInfo.name = commonStore.displayName;
+        participantList.value = participantJson.value.map((participant, index) => {
+          const participantInfo = buildParticipantListItem(
+            String(index),
+            participant
+          );
 
-          participantInfo.dob = jParticipant.birthDt
-            ? new Date(jParticipant.birthDt.split(' ')[0])
-                .toUTCString()
-                .substr(4, 12)
-            : '';
-          participantInfo.partId = jParticipant.partId;
-          participantInfo.profSeqNo = jParticipant.profSeqNo;
-          participantInfo.documentsJson = jParticipant.document ?? [];
-          participantInfo.charges = [];
-          const charges: chargesInfoType[] = [];
-          for (const charge of jParticipant.charge) {
-            const chargeInfo = {} as chargesInfoType;
-            chargeInfo.description = charge.sectionDscTxt;
-            chargeInfo.code = charge.sectionTxt;
-            charges.push(chargeInfo);
-          }
-          participantInfo.charges = charges;
-
-          participantInfo.status = [];
-          for (const status of statusFields) {
-            if (jParticipant[status.code] == 'Y')
-              participantInfo.status.push(status);
-          }
-
-          for (const ban of jParticipant.ban) {
-            const banInfo = {} as bansInfoType;
-            banInfo.banParticipant = participantInfo.name;
-            banInfo.banType = ban.banTypeDescription;
-            banInfo.orderDate = ban.banOrderedDate;
-            banInfo.act = ban.banTypeAct;
-            banInfo.sect = ban.banTypeSection;
-            banInfo.sub = ban.banTypeSubSection;
-            banInfo.description = ban.banStatuteId;
-            banInfo.comment = ban.banCommentText;
-            bans.value.push(banInfo);
-          }
-
-          participantInfo.countsJson = jParticipant.count;
-
-          commonStore.updateDisplayName({
-            lastName: jParticipant.counselLastNm
-              ? jParticipant.counselLastNm
-              : '',
-            givenName: jParticipant.counselGivenNm
-              ? jParticipant.counselGivenNm
-              : '',
-          });
-          participantInfo.counsel = commonStore.displayName.trim.length
-            ? 'JUSTIN: ' + commonStore.displayName
-            : '';
-          participantInfo.counselDesignationFiled =
-            jParticipant.designatedCounselYN;
-          participantList.value.push(participantInfo);
-        }
+          appendParticipantBans(participantInfo.name, participant);
+          return participantInfo;
+        });
       };
 
       const buildAdjudicatorRestrictions = () => {
