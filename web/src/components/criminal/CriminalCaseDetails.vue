@@ -456,10 +456,11 @@
         partIndex: string,
         participant: criminalParticipantType
       ): participantListInfoType => {
-        const firstName = participant.givenNm.trim().length > 0
-          ? participant.givenNm
-          : '';
-        const lastName = participant.lastNm ? participant.lastNm : participant.orgNm;
+        const firstName =
+          participant.givenNm.trim().length > 0 ? participant.givenNm : '';
+        const lastName = participant.lastNm
+          ? participant.lastNm
+          : participant.orgNm;
         const name = getDisplayName(lastName, firstName);
 
         const counselName = getDisplayName(
@@ -487,15 +488,17 @@
       const buildParticipantInfo = () => {
         bans.value = [];
 
-        participantList.value = participantJson.value.map((participant, index) => {
-          const participantInfo = buildParticipantListItem(
-            String(index),
-            participant
-          );
+        participantList.value = participantJson.value.map(
+          (participant, index) => {
+            const participantInfo = buildParticipantListItem(
+              String(index),
+              participant
+            );
 
-          appendParticipantBans(participantInfo.name, participant);
-          return participantInfo;
-        });
+            appendParticipantBans(participantInfo.name, participant);
+            return participantInfo;
+          }
+        );
       };
 
       const buildAdjudicatorRestrictions = () => {
