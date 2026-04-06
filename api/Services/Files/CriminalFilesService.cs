@@ -129,17 +129,23 @@ namespace Scv.Api.Services.Files
             var fileContentTask = GetFileContentAsync(fileId);
             var appearancesTask = GetFileAppearancesAsync(fileId);
 
-            var fileDetail = await fileDetailTask;
-            var fileContent = await fileContentTask;
-            var appearances = await appearancesTask;
-            var criminalCourtLists = await GetCourtListsAsync(fileDetail, appearances);
+            await Task.WhenAll(fileDetailTask, fileContentTask, appearancesTask);
+            var fileDetail = fileDetailTask.Result;
+            var fileContent = fileContentTask.Result;
+            var appearances = appearancesTask.Result;
 
             //CriminalFileContent can return null when an invalid fileId is inserted.
             if (fileDetail == null || fileContent == null)
                 return null;
 
-            var detail = MapDetail(fileDetail);
-            var documents = await PopulateDetailDocuments(fileContent);
+            var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
+            var documentsTask = PopulateDetailDocuments(fileContent);
+            var criminalCourtListsTask = GetCourtListsAsync(fileDetail, appearances);
+
+            await Task.WhenAll(documentsTask, criminalCourtListsTask);
+
+            var documents = documentsTask.Result;
+            var criminalCourtLists = criminalCourtListsTask.Result;
             detail = await PopulateBaseDetail(detail);
             detail.Appearances = appearances;
             detail.Witness = await PopulateDetailWitnesses(detail);
@@ -156,7 +162,7 @@ namespace Scv.Api.Services.Files
             if (fileDetail == null)
                 return null;
 
-            var detail = MapDetail(fileDetail);
+            var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
             detail = await PopulateBaseDetail(detail);
             detail.Crown = PopulateDetailCrown(detail);
             detail.Witness = [];
@@ -183,16 +189,22 @@ namespace Scv.Api.Services.Files
             var fileContentTask = GetFileContentAsync(fileId);
             var appearancesTask = GetFileAppearancesAsync(fileId);
 
-            var fileDetail = await fileDetailTask;
-            var fileContent = await fileContentTask;
-            var appearances = await appearancesTask;
+            await Task.WhenAll(fileDetailTask, fileContentTask, appearancesTask);
+            var fileDetail = fileDetailTask.Result;
+            var fileContent = fileContentTask.Result;
+            var appearances = appearancesTask.Result;
 
             if (fileDetail == null || fileContent == null)
                 return null;
 
-            var detail = MapDetail(fileDetail);
-            var documents = await PopulateDetailDocuments(fileContent);
-            var criminalCourtLists = await GetCourtListsAsync(fileDetail, appearances);
+            var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
+            var documentsTask = PopulateDetailDocuments(fileContent);
+            var criminalCourtListsTask = GetCourtListsAsync(fileDetail, appearances);
+
+            await Task.WhenAll(documentsTask, criminalCourtListsTask);
+
+            var documents = documentsTask.Result;
+            var criminalCourtLists = criminalCourtListsTask.Result;
             detail.Participant = await PopulateDetailParticipants(detail, documents, fileContent.AccusedFile, criminalCourtLists);
 
             return detail.Participant;
@@ -205,7 +217,7 @@ namespace Scv.Api.Services.Files
             if (fileDetail == null)
                 return null;
 
-            var detail = MapDetail(fileDetail);
+            var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
             return await PopulateDetailHearingRestrictions(detail);
         }
 
@@ -510,16 +522,6 @@ namespace Scv.Api.Services.Files
             async Task<CourtList> CourtList() => await _filesClient.FilesCourtlistAsync(_requestAgencyIdentifierId, _requestPartId, _applicationCode, agencyId, latestAppearance.CourtRoomCd, latestAppearance.AppearanceDt, "CR", fileDetail.FileNumberTxt);
             var courtList = await _cache.GetOrAddAsync($"CriminalCourtList-{agencyId}-{latestAppearance.CourtRoomCd}-{latestAppearance.AppearanceDt}-{fileDetail.FileNumberTxt}-{_requestAgencyIdentifierId}", CourtList);
             return courtList?.CriminalCourtList;
-        }
-
-        private RedactedCriminalFileDetailResponse MapDetail(CriminalFileDetailResponse fileDetail)
-        {
-            var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
-            detail.Participant ??= [];
-            detail.Witness ??= [];
-            detail.HearingRestriction ??= [];
-            detail.Crown ??= [];
-            return detail;
         }
 
         #endregion Criminal Details
