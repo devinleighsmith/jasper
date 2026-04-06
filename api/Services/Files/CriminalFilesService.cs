@@ -399,19 +399,48 @@ namespace Scv.Api.Services.Files
 
         private async Task<RedactedCriminalFileDetailResponse> PopulateBaseDetail(RedactedCriminalFileDetailResponse detail)
         {
-            detail.HomeLocationAgencyName = await _locationService.GetLocationName(detail.HomeLocationAgenId);
-            detail.HomeLocationAgencyCode = await _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId);
-            detail.HomeLocationRegionName = await _locationService.GetRegionName(detail.HomeLocationAgencyCode);
-            detail.CourtClassDescription = await _lookupService.GetCourtClassDescription(detail.CourtClassCd.ToString());
-            detail.CourtLevelDescription = await _lookupService.GetCourtLevelDescription(detail.CourtLevelCd.ToString());
-            detail.ActivityClassCd = await _lookupService.GetActivityClassCdLong(detail.CourtClassCd.ToString());
-            detail.ActivityClassDesc = await _lookupService.GetActivityClassCdShort(detail.CourtClassCd.ToString());
+            var homeLocationAgencyNameTask = _locationService.GetLocationName(detail.HomeLocationAgenId);
+            var homeLocationAgencyCodeTask = _locationService.GetLocationAgencyIdentifier(detail.HomeLocationAgenId);
+            var homeLocationRegionNameTask = GetRegionNameAsync(homeLocationAgencyCodeTask);
+            var courtClassDescriptionTask = _lookupService.GetCourtClassDescription(detail.CourtClassCd.ToString());
+            var courtLevelDescriptionTask = _lookupService.GetCourtLevelDescription(detail.CourtLevelCd.ToString());
+            var activityClassCdTask = _lookupService.GetActivityClassCdLong(detail.CourtClassCd.ToString());
+            var activityClassDescTask = _lookupService.GetActivityClassCdShort(detail.CourtClassCd.ToString());
+            var crownEstimateLenDscTask = detail.CrownEstimateLenUnit.HasValue
+                ? _lookupService.GetAppearanceDuration(detail.CrownEstimateLenUnit.Value.ToString())
+                : Task.FromResult<string>(null);
+            var assignmentTypeDscTask = _lookupService.GetComplexityTypeDescription(detail.ComplexityTypeCd?.ToString());
+
+            await Task.WhenAll(
+                homeLocationAgencyNameTask,
+                homeLocationAgencyCodeTask,
+                homeLocationRegionNameTask,
+                courtClassDescriptionTask,
+                courtLevelDescriptionTask,
+                activityClassCdTask,
+                activityClassDescTask,
+                crownEstimateLenDscTask,
+                assignmentTypeDscTask);
+
+            detail.HomeLocationAgencyName = homeLocationAgencyNameTask.Result;
+            detail.HomeLocationAgencyCode = homeLocationAgencyCodeTask.Result;
+            detail.HomeLocationRegionName = homeLocationRegionNameTask.Result;
+            detail.CourtClassDescription = courtClassDescriptionTask.Result;
+            detail.CourtLevelDescription = courtLevelDescriptionTask.Result;
+            detail.ActivityClassCd = activityClassCdTask.Result;
+            detail.ActivityClassDesc = activityClassDescTask.Result;
             //Some lookups have LongDesc and ShortDesc the same. 
             if (detail.ActivityClassCd == detail.ActivityClassDesc)
                 detail.ActivityClassCd = detail.CourtClassCd.ToString();
-            detail.CrownEstimateLenDsc = detail.CrownEstimateLenUnit.HasValue ? await _lookupService.GetAppearanceDuration(detail.CrownEstimateLenUnit.Value.ToString()) : null;
-            detail.AssignmentTypeDsc = await _lookupService.GetComplexityTypeDescription(detail.ComplexityTypeCd?.ToString());
+            detail.CrownEstimateLenDsc = crownEstimateLenDscTask.Result;
+            detail.AssignmentTypeDsc = assignmentTypeDscTask.Result;
             return detail;
+
+            async Task<string> GetRegionNameAsync(Task<string> agencyCodeTask)
+            {
+                var agencyCode = await agencyCodeTask;
+                return await _locationService.GetRegionName(agencyCode);
+            }
         }
 
         private async Task<ICollection<CriminalHearingRestriction>> PopulateDetailHearingRestrictions(RedactedCriminalFileDetailResponse detail)
