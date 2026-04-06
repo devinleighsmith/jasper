@@ -125,27 +125,14 @@ namespace Scv.Api.Services.Files
 
         public async Task<RedactedCriminalFileDetailResponse> FileIdAsync(string fileId)
         {
-            var fileDetailTask = GetFileDetailsAsync(fileId);
-            var fileContentTask = GetFileContentAsync(fileId);
-            var appearancesTask = GetFileAppearancesAsync(fileId);
-
-            await Task.WhenAll(fileDetailTask, fileContentTask, appearancesTask);
-            var fileDetail = fileDetailTask.Result;
-            var fileContent = fileContentTask.Result;
-            var appearances = appearancesTask.Result;
+            var (fileDetail, fileContent, appearances) = await GetFileDetailContentAndAppearancesAsync(fileId);
 
             //CriminalFileContent can return null when an invalid fileId is inserted.
             if (fileDetail == null || fileContent == null)
                 return null;
 
             var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
-            var documentsTask = PopulateDetailDocuments(fileContent);
-            var criminalCourtListsTask = GetCourtListsAsync(fileDetail, appearances);
-
-            await Task.WhenAll(documentsTask, criminalCourtListsTask);
-
-            var documents = documentsTask.Result;
-            var criminalCourtLists = criminalCourtListsTask.Result;
+            var (documents, criminalCourtLists) = await GetDocumentsAndCourtListsAsync(fileDetail, fileContent, appearances);
             detail = await PopulateBaseDetail(detail);
             detail.Appearances = appearances;
             detail.Witness = await PopulateDetailWitnesses(detail);
@@ -185,26 +172,13 @@ namespace Scv.Api.Services.Files
 
         public async Task<ICollection<CriminalParticipant>> FileParticipantsAsync(string fileId)
         {
-            var fileDetailTask = GetFileDetailsAsync(fileId);
-            var fileContentTask = GetFileContentAsync(fileId);
-            var appearancesTask = GetFileAppearancesAsync(fileId);
-
-            await Task.WhenAll(fileDetailTask, fileContentTask, appearancesTask);
-            var fileDetail = fileDetailTask.Result;
-            var fileContent = fileContentTask.Result;
-            var appearances = appearancesTask.Result;
+            var (fileDetail, fileContent, appearances) = await GetFileDetailContentAndAppearancesAsync(fileId);
 
             if (fileDetail == null || fileContent == null)
                 return null;
 
             var detail = _mapper.Map<RedactedCriminalFileDetailResponse>(fileDetail);
-            var documentsTask = PopulateDetailDocuments(fileContent);
-            var criminalCourtListsTask = GetCourtListsAsync(fileDetail, appearances);
-
-            await Task.WhenAll(documentsTask, criminalCourtListsTask);
-
-            var documents = documentsTask.Result;
-            var criminalCourtLists = criminalCourtListsTask.Result;
+            var (documents, criminalCourtLists) = await GetDocumentsAndCourtListsAsync(fileDetail, fileContent, appearances);
             detail.Participant = await PopulateDetailParticipants(detail, documents, fileContent.AccusedFile, criminalCourtLists);
 
             return detail.Participant;
@@ -406,8 +380,6 @@ namespace Scv.Api.Services.Files
 
         private async Task<ICollection<CriminalParticipant>> PopulateDetailParticipants(RedactedCriminalFileDetailResponse detail, ICollection<CriminalDocument> documents, ICollection<CfcAccusedFile> accusedFiles, IEnumerable<ClCriminalCourtList> courtLists)
         {
-            detail.Participant ??= [];
-
             foreach (var participant in detail.Participant)
             {
                 participant.AgeNotice = courtLists?.Where(cl => cl.FileInformation.PartId == participant.PartId)
@@ -460,7 +432,6 @@ namespace Scv.Api.Services.Files
                 HearingRestriction2HearingRestrictionTypeCd.A,
                 HearingRestriction2HearingRestrictionTypeCd.D,
             };
-            detail.HearingRestriction ??= [];
 
             var restrictions = detail.HearingRestriction
                 .Where(r => includeAssigned
@@ -504,6 +475,30 @@ namespace Scv.Api.Services.Files
         {
             async Task<CriminalFileAppearances> FileAppearances() => await PopulateDetailsAppearancesAsync(fileId, FutureYN.Y, HistoryYN.Y);
             return _cache.GetOrAddAsync($"CriminalAppearancesFull-{fileId}-{_requestAgencyIdentifierId}", FileAppearances);
+        }
+
+        private async Task<(CriminalFileDetailResponse fileDetail, CriminalFileContent fileContent, CriminalFileAppearances appearances)> GetFileDetailContentAndAppearancesAsync(string fileId)
+        {
+            var fileDetailTask = GetFileDetailsAsync(fileId);
+            var fileContentTask = GetFileContentAsync(fileId);
+            var appearancesTask = GetFileAppearancesAsync(fileId);
+
+            await Task.WhenAll(fileDetailTask, fileContentTask, appearancesTask);
+
+            return (fileDetailTask.Result, fileContentTask.Result, appearancesTask.Result);
+        }
+
+        private async Task<(ICollection<CriminalDocument> documents, IEnumerable<ClCriminalCourtList> criminalCourtLists)> GetDocumentsAndCourtListsAsync(
+            CriminalFileDetailResponse fileDetail,
+            CriminalFileContent fileContent,
+            CriminalFileAppearances appearances)
+        {
+            var documentsTask = PopulateDetailDocuments(fileContent);
+            var criminalCourtListsTask = GetCourtListsAsync(fileDetail, appearances);
+
+            await Task.WhenAll(documentsTask, criminalCourtListsTask);
+
+            return (documentsTask.Result, criminalCourtListsTask.Result);
         }
 
         private async Task<IEnumerable<ClCriminalCourtList>> GetCourtListsAsync(CriminalFileDetailResponse fileDetail, CriminalFileAppearances appearances)
