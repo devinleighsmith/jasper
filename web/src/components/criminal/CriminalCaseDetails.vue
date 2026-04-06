@@ -175,67 +175,17 @@
         throw new Error('Service is not available!');
       }
 
-      const createEmptyAppearances = (): criminalAppearancesType => ({
-        responseCd: '',
-        responseMessageTxt: '',
-        futureRecCount: '',
-        historyRecCount: '',
-        apprDetail: [],
-        additionalProperties: {},
-        additionalProp1: {},
-        additionalProp2: {},
-        additionalProp3: {},
-      });
-
-      const createEmptyDetails = (): criminalFileDetailsType =>
-        ({
-          responseCd: '',
-          responseMessageTxt: '',
-          fileNumberTxt: '',
-          courtClassCd: '',
-          courtClassDescription: '',
-          courtLevelCd: '',
-          courtLevelDescription: '',
-          appearances: createEmptyAppearances(),
-          activityClassCd: '',
-          activityClassDesc: '',
-          homeLocationAgenId: '',
-          homeLocationAgencyName: '',
-          homeLocationAgencyCode: '',
-          homeLocationRegionName: '',
-          justinNo: '',
-          currentEstimateLenQty: '',
-          currentEstimateLenUnit: '',
-          initialEstimateLenQty: '',
-          initialEstimateLenUnit: '',
-          trialStartDt: '',
-          mdocSubCategoryDsc: '',
-          mdocCcn: '',
-          assignedPartNm: '',
-          approvedByAgencyCd: '',
-          approvedByPartNm: '',
-          approvalCrownAgencyTypeCd: '',
-          crownEstimateLenQty: 0,
-          crownEstimateLenDsc: '',
-          crownEstimateLenUnit: '',
-          caseAgeDays: '',
-          indictableYN: '',
-          complexityTypeCd: '',
-          assignmentTypeDsc: '',
-          trialRemark: [],
-          participant: [],
-          witness: [],
-          crown: [],
-          hearingRestriction: [],
-        }) as criminalFileDetailsType;
-
       const participantList = ref<participantListInfoType[]>([]);
       const adjudicatorRestrictionsInfo = ref<
         AdjudicatorRestrictionsInfoType[]
       >([]);
       const bans = ref<bansInfoType[]>([]);
-      const details = ref<criminalFileDetailsType>(createEmptyDetails());
-      const summaryDetails = ref<criminalFileDetailsType>(createEmptyDetails());
+      const details = ref<criminalFileDetailsType>(
+        {} as criminalFileDetailsType
+      );
+      const summaryDetails = ref<criminalFileDetailsType>(
+        {} as criminalFileDetailsType
+      );
       const isDataReady = ref(false);
       const isMounted = ref(false);
       const downloadCompleted = ref(true);
@@ -585,9 +535,7 @@
           }
 
           details.value = {
-            ...createEmptyDetails(),
             ...overview,
-            appearances: createEmptyAppearances(),
             participant: overview.participant ?? [],
             crown: overview.crown ?? [],
             witness: overview.witness ?? [],
@@ -640,7 +588,7 @@
             return;
           }
 
-          details.value.appearances = appearances ?? createEmptyAppearances();
+          details.value.appearances = appearances ?? [];
           syncTranscriptsToParticipants();
           updateCriminalFileStore();
         } catch (err) {
@@ -737,7 +685,6 @@
         errorCode.value = 0;
         const loadId = ++activeLoadId.value;
 
-        details.value = createEmptyDetails();
         participantJson.value = [];
         adjudicatorRestrictionsJson.value = [];
         participantList.value = [];
@@ -745,7 +692,6 @@
         adjudicatorRestrictionsInfo.value = [];
         transcripts.value = [];
         fileId.value = '';
-        summaryDetails.value = createEmptyDetails();
         isMounted.value = false;
         isDataReady.value = false;
 
