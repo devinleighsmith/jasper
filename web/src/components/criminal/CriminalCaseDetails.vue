@@ -110,7 +110,6 @@
     ropRequestsInfoType,
   } from '@/types/criminal';
   import {
-    criminalAppearancesType,
     criminalFileDetailsType,
     criminalHearingRestrictionType,
     criminalParticipantType,
