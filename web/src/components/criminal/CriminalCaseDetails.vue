@@ -115,6 +115,7 @@
     criminalParticipantType,
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { getSingleValue } from '@/utils/utils';
   import base64url from 'base64url';
   import {
@@ -367,11 +368,6 @@
         return commonStore.displayName;
       };
 
-      const formatParticipantDob = (birthDate: string) =>
-        birthDate
-          ? new Date(birthDate.split(' ')[0]).toUTCString().substr(4, 12)
-          : '';
-
       const mapParticipantCharges = (
         participant: criminalParticipantType
       ): chargesInfoType[] =>
@@ -422,7 +418,7 @@
           firstName,
           lastName,
           name,
-          dob: formatParticipantDob(participant.birthDt),
+          dob: formatDateToDDMMMYYYY(participant.birthDt, false),
           partId: participant.partId,
           profSeqNo: participant.profSeqNo,
           documentsJson: participant.document ?? [],
