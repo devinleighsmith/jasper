@@ -5,7 +5,10 @@
  * @param includeDashes - Optional boolean to determine if dashes should be included in the output. Defaults to true.
  * @returns {string} A formatted date string in "DD-MMM-YYYY" format (e.g., "01-Jan-2023").
  */
-export const formatDateToDDMMMYYYY = (dateString: string, includeDashes: boolean = true): string => {
+export const formatDateToDDMMMYYYY = (
+  dateString: string,
+  includeDashes: boolean = true
+): string => {
   if (!dateString) {
     return '';
   }
