@@ -12,6 +12,7 @@ namespace Scv.Api.Documents;
 
 public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<DocumentMerger> logger) : IDocumentMerger
 {
+    private const int RetrieveBatchSize = 10;
 
     /// <summary>
     /// Merges multiple PDF documents into a single PDF document in base64 format.
@@ -22,11 +23,7 @@ public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<Docume
     {
         using GdPictureDocumentConverter gdpictureConverter = new();
 
-        // Retrieve all document streams to merge
-        var retrieveTasks = documentRequests
-            .Select(documentRetriever.Retrieve);
-
-        var streamsToMerge = await Task.WhenAll(retrieveTasks);
+        var streamsToMerge = await RetrieveStreamsInBatches(documentRequests);
 
         try
         {
@@ -107,5 +104,39 @@ public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<Docume
 
             await Task.WhenAll(disposeTasks);
         }
+    }
+
+    private async Task<MemoryStream[]> RetrieveStreamsInBatches(PdfDocumentRequest[] documentRequests)
+    {
+        var streams = new MemoryStream[documentRequests.Length];
+
+        for (var batchStart = 0; batchStart < documentRequests.Length; batchStart += RetrieveBatchSize)
+        {
+            var batchCount = Math.Min(RetrieveBatchSize, documentRequests.Length - batchStart);
+
+            logger.LogInformation(
+                "Retrieving document batch starting at index {BatchStart} with {BatchCount} documents.",
+                batchStart,
+                batchCount);
+
+            var retrieveTasks = Enumerable
+                .Range(batchStart, batchCount)
+                .Select(index => RetrieveStream(index, documentRequests[index]));
+
+            var batchResults = await Task.WhenAll(retrieveTasks);
+
+            foreach (var (index, stream) in batchResults)
+            {
+                streams[index] = stream;
+            }
+        }
+
+        return streams;
+    }
+
+    private async Task<(int Index, MemoryStream Stream)> RetrieveStream(int index, PdfDocumentRequest documentRequest)
+    {
+        var stream = await documentRetriever.Retrieve(documentRequest);
+        return (index, stream);
     }
 }
