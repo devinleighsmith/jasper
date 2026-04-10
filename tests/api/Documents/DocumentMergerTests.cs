@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Scv.Api.Documents;
 using Scv.Api.Models.Document;
@@ -21,7 +22,8 @@ public class DocumentMergerTest : ServiceTestBase
     {
         var retrieverMock = new Mock<IDocumentRetriever>();
         var loggerMock = new Mock<ILogger<DocumentMerger>>();
-        var merger = new DocumentMerger(retrieverMock.Object, loggerMock.Object);
+        var configuration = new ConfigurationBuilder().Build();
+        var merger = new DocumentMerger(retrieverMock.Object, loggerMock.Object, configuration);
 
         var activeRequests = 0;
         var maxConcurrentRequests = 0;
@@ -62,7 +64,8 @@ public class DocumentMergerTest : ServiceTestBase
     {
         var retrieverMock = new Mock<IDocumentRetriever>();
         var loggerMock = new Mock<ILogger<DocumentMerger>>();
-        var merger = new DocumentMerger(retrieverMock.Object, loggerMock.Object);
+        var configuration = new ConfigurationBuilder().Build();
+        var merger = new DocumentMerger(retrieverMock.Object, loggerMock.Object, configuration);
         var docId = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes("doc1"));
         var request = new PdfDocumentRequest
         {

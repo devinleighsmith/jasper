@@ -51,6 +51,7 @@ services:
       - DataProtectionKeyEncryptionKey=${DataProtectionKeyEncryptionKey}
       - DEFAULT_QUICK_LINKS=${DEFAULT_QUICK_LINKS}
       - DEFAULT_USERS=${DEFAULT_USERS}
+      - DOCUMENT_RETRIEVAL_BATCH_SIZE=${DOCUMENT_RETRIEVAL_BATCH_SIZE}
       - FileServicesClient__Password=${FileServicesClientPassword}
       - FileServicesClient__Url=${FileServicesClientUrl}
       - FileServicesClient__Username=${FileServicesClientUsername}
