@@ -2,16 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using GdPicture14;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Scv.Api.Models.Document;
 
 namespace Scv.Api.Documents;
 
-public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<DocumentMerger> logger) : IDocumentMerger
+public class DocumentMerger(
+    IDocumentRetriever documentRetriever,
+    ILogger<DocumentMerger> logger,
+    IConfiguration configuration) : IDocumentMerger
 {
+    private const int DefaultRetrieveBatchSize = 10;
+    private const string RetrieveBatchSizeKey = "DOCUMENT_RETRIEVAL_BATCH_SIZE";
+
+    private readonly IDocumentRetriever documentRetriever = documentRetriever;
+    private readonly ILogger<DocumentMerger> logger = logger;
+    private readonly IConfiguration configuration = configuration;
 
     /// <summary>
     /// Merges multiple PDF documents into a single PDF document in base64 format.
@@ -22,11 +31,7 @@ public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<Docume
     {
         using GdPictureDocumentConverter gdpictureConverter = new();
 
-        // Retrieve all document streams to merge
-        var retrieveTasks = documentRequests
-            .Select(documentRetriever.Retrieve);
-
-        var streamsToMerge = await Task.WhenAll(retrieveTasks);
+        var streamsToMerge = await RetrieveStreamsInBatches(documentRequests);
 
         try
         {
@@ -107,5 +112,43 @@ public class DocumentMerger(IDocumentRetriever documentRetriever, ILogger<Docume
 
             await Task.WhenAll(disposeTasks);
         }
+    }
+
+    private async Task<MemoryStream[]> RetrieveStreamsInBatches(PdfDocumentRequest[] documentRequests)
+    {
+        var streams = new MemoryStream[documentRequests.Length];
+        var configuredValue = configuration.GetValue<string>(RetrieveBatchSizeKey);
+        var batchSize = int.TryParse(configuredValue, out var parsedBatchSize) && parsedBatchSize > 0
+            ? parsedBatchSize
+            : DefaultRetrieveBatchSize;
+        
+        for (var batchStart = 0; batchStart < documentRequests.Length; batchStart += batchSize)
+        {
+            var batchCount = Math.Min(batchSize, documentRequests.Length - batchStart);
+
+            logger.LogInformation(
+                "Retrieving document batch starting at index {BatchStart} with {BatchCount} documents.",
+                batchStart,
+                batchCount);
+
+            var retrieveTasks = Enumerable
+                .Range(batchStart, batchCount)
+                .Select(index => RetrieveStream(index, documentRequests[index]));
+
+            var batchResults = await Task.WhenAll(retrieveTasks);
+
+            foreach (var (index, stream) in batchResults)
+            {
+                streams[index] = stream;
+            }
+        }
+
+        return streams;
+    }
+
+    private async Task<(int Index, MemoryStream Stream)> RetrieveStream(int index, PdfDocumentRequest documentRequest)
+    {
+        var stream = await documentRetriever.Retrieve(documentRequest);
+        return (index, stream);
     }
 }
