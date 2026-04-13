@@ -66,7 +66,6 @@
     AdjudicatorRestrictionsInfoType,
     ArchiveInfoType,
     DocumentRequestsInfoType,
-    KeyValueInfo,
   } from '@/types/common';
   import {
     bansInfoType,
@@ -80,6 +79,7 @@
     criminalParticipantType,
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { syncSelectedFilesForCurrentCase } from '@/utils/courtFileSelection';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { getSingleValue } from '@/utils/utils';
   import base64url from 'base64url';
@@ -305,39 +305,6 @@
         fileNumber.value = routeFileNumber;
       });
 
-      const syncSelectedFilesForCurrentCase = (
-        currentFileNumber: string,
-        currentFileNumberText: string
-      ) => {
-        const currentFile: KeyValueInfo = {
-          key: currentFileNumber,
-          value: currentFileNumberText,
-        };
-
-        const existingFiles = [...courtFileSearchStore.selectedFiles];
-        const currentIndex = existingFiles.findIndex(
-          (f) => f.key === currentFileNumber
-        );
-
-        if (currentIndex < 0) {
-          courtFileSearchStore.addFilesForViewing({
-            searchCriteria: {},
-            searchResults: [],
-            files: [currentFile],
-          });
-          return;
-        }
-
-        if (existingFiles[currentIndex].value !== currentFileNumberText) {
-          existingFiles[currentIndex] = currentFile;
-          courtFileSearchStore.addFilesForViewing({
-            searchCriteria: courtFileSearchStore.currentSearchCriteria,
-            searchResults: courtFileSearchStore.currentSearchResults,
-            files: existingFiles,
-          });
-        }
-      };
-
       const updateCriminalFileStore = () => {
         criminalFileStore.criminalFileInformation.fileNumber = fileNumber.value;
         criminalFileStore.criminalFileInformation.detailsData = details.value;
@@ -551,6 +518,7 @@
           fileId.value = details.value.justinNo;
           updateCriminalFileStore();
           syncSelectedFilesForCurrentCase(
+            courtFileSearchStore,
             fileNumber.value,
             details.value.fileNumberTxt
           );

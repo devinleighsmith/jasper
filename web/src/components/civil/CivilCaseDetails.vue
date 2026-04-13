@@ -85,9 +85,9 @@
     AdjudicatorRestrictionsInfoType,
     ArchiveInfoType,
     DocumentRequestsInfoType,
-    KeyValueInfo,
   } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { syncSelectedFilesForCurrentCase } from '@/utils/courtFileSelection';
   import { getSingleValue } from '@/utils/utils';
   import base64url from 'base64url';
   import _ from 'underscore';
@@ -187,39 +187,6 @@
         }
       };
 
-      const syncSelectedFilesForCurrentCase = (
-        currentFileNumber: string,
-        currentFileNumberText: string
-      ) => {
-        const currentFile: KeyValueInfo = {
-          key: currentFileNumber,
-          value: currentFileNumberText,
-        };
-
-        const existingFiles = [...courtFileSearchStore.selectedFiles];
-        const currentIndex = existingFiles.findIndex(
-          (f) => f.key === currentFileNumber
-        );
-
-        if (currentIndex < 0) {
-          courtFileSearchStore.addFilesForViewing({
-            searchCriteria: {},
-            searchResults: [],
-            files: [currentFile],
-          });
-          return;
-        }
-
-        if (existingFiles[currentIndex].value !== currentFileNumberText) {
-          existingFiles[currentIndex] = currentFile;
-          courtFileSearchStore.addFilesForViewing({
-            searchCriteria: courtFileSearchStore.currentSearchCriteria,
-            searchResults: courtFileSearchStore.currentSearchResults,
-            files: existingFiles,
-          });
-        }
-      };
-
       const getFileDetails = () => {
         errorCode.value = 0;
         httpService
@@ -290,6 +257,7 @@
                 };
                 fileId.value = data.physicalFileId;
                 syncSelectedFilesForCurrentCase(
+                  courtFileSearchStore,
                   civilFileStore.civilFileInformation.fileNumber,
                   data.fileNumberTxt
                 );
