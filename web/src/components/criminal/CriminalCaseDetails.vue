@@ -42,42 +42,6 @@
                 appearances: sectionLoading.appearances,
               }"
             />
-            <!-- Comment this out for now as we continue to deprecate it -->
-            <!-- 
-            <b-row class="ml-0" v-if="showDocuments">
-              <h2 style="white-space: pre" v-if="isDataReady">
-                {{ selectedSideBar }}
-              </h2>
-              <custom-overlay
-                v-if="isDataReady"
-                :show="!downloadCompleted"
-                style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
-              >
-                <b-button
-                  v-if="enableArchive"
-                  @click="downloadDocuments()"
-                  size="md"
-                  variant="info"
-                  style="padding: 0 1rem; margin-left: auto; margin-right: 2rem"
-                >
-                  Download All Documents
-                </b-button>
-              </custom-overlay>
-            </b-row>
-
-            <h2 style="white-space: pre" v-if="!showDocuments && isDataReady">
-              {{ selectedSideBar }}
-            </h2>
-
-            <criminal-participants v-if="showCaseDetails" />
-            <criminal-crown-information v-if="showCaseDetails" />
-            <criminal-crown-notes v-if="showCaseDetails"/> Asked to be hidden by Kevin SCV-140.
-            <criminal-past-appearances v-if="showPastAppearances" />
-            <criminal-future-appearances v-if="showFutureAppearances" />
-            <criminal-documents-view v-if="showDocuments" />
-            <criminal-witnesses v-if="showWitnesses" />
-            <criminal-sentence v-if="showSentenceOrder" />
-            <b-card><br /></b-card> -->
           </v-col>
         </v-row>
       </v-skeleton-loader>
@@ -115,6 +79,7 @@
     criminalParticipantType,
   } from '@/types/criminal/jsonTypes';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
+  import { syncSelectedFilesForCurrentCase } from '@/utils/courtFileSelection';
   import { formatDateToDDMMMYYYY } from '@/utils/dateUtils';
   import { getSingleValue } from '@/utils/utils';
   import base64url from 'base64url';
@@ -203,6 +168,7 @@
       const fileNumber = ref('');
       const fileId = ref('');
       const transcripts = ref<TranscriptDocument[]>([]);
+      const selectedFiles = computed(() => courtFileSearchStore.selectedFiles);
 
       watch(fileNumber, () => {
         reloadCaseDetails();
@@ -551,6 +517,11 @@
 
           fileId.value = details.value.justinNo;
           updateCriminalFileStore();
+          syncSelectedFilesForCurrentCase(
+            courtFileSearchStore,
+            fileNumber.value,
+            details.value.fileNumberTxt
+          );
           isDataReady.value = true;
 
           return details.value;
@@ -903,7 +874,7 @@
         isDataReady,
         errorCode,
         errorText,
-        selectedFiles: courtFileSearchStore.selectedFiles,
+        selectedFiles,
         criminalFileInformation: criminalFileStore.criminalFileInformation,
         showDocuments,
         showCaseDetails,
