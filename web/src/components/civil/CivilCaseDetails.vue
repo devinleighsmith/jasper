@@ -85,6 +85,7 @@
     AdjudicatorRestrictionsInfoType,
     ArchiveInfoType,
     DocumentRequestsInfoType,
+    KeyValueInfo,
   } from '@/types/common';
   import { CourtDocumentType, DocumentData } from '@/types/shared';
   import { getSingleValue } from '@/utils/utils';
@@ -142,6 +143,7 @@
       const fileNumber = ref('');
       const fileId = ref('');
       const transcripts = ref<TranscriptDocument[]>([]);
+      const selectedFiles = computed(() => courtFileSearchStore.selectedFiles);
 
       const partiesJson = ref<partyType[]>([]);
       const adjudicatorRestrictionsJson = ref<civilHearingRestrictionType[]>(
@@ -182,6 +184,39 @@
             else sections[item] = false;
           }
           civilFileStore.updateShowSections(sections);
+        }
+      };
+
+      const syncSelectedFilesForCurrentCase = (
+        currentFileNumber: string,
+        currentFileNumberText: string
+      ) => {
+        const currentFile: KeyValueInfo = {
+          key: currentFileNumber,
+          value: currentFileNumberText,
+        };
+
+        const existingFiles = [...courtFileSearchStore.selectedFiles];
+        const currentIndex = existingFiles.findIndex(
+          (f) => f.key === currentFileNumber
+        );
+
+        if (currentIndex < 0) {
+          courtFileSearchStore.addFilesForViewing({
+            searchCriteria: {},
+            searchResults: [],
+            files: [currentFile],
+          });
+          return;
+        }
+
+        if (existingFiles[currentIndex].value !== currentFileNumberText) {
+          existingFiles[currentIndex] = currentFile;
+          courtFileSearchStore.addFilesForViewing({
+            searchCriteria: courtFileSearchStore.currentSearchCriteria,
+            searchResults: courtFileSearchStore.currentSearchResults,
+            files: existingFiles,
+          });
         }
       };
 
@@ -254,6 +289,10 @@
                   document: documentsDetailsJson,
                 };
                 fileId.value = data.physicalFileId;
+                syncSelectedFilesForCurrentCase(
+                  civilFileStore.civilFileInformation.fileNumber,
+                  data.fileNumberTxt
+                );
                 isDataReady.value = true;
               } else errorCode.value = 200;
             } else if (errorCode.value == 0) errorCode.value = 200;
@@ -778,7 +817,7 @@
         isDataReady,
         errorCode,
         errorText,
-        selectedFiles: courtFileSearchStore.selectedFiles,
+        selectedFiles,
         reloadCaseDetails,
         showAllDocuments,
         selectedSideBar,
