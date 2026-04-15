@@ -21,6 +21,7 @@ export const initializeSessionSettings = async (): Promise<boolean> => {
   const userService = inject<UserService>('userService');
 
   try {
+    commonStore.setIsInitialized(false);
     const userInfo = await authService?.getUserInfo();
     if (!userInfo) {
       console.error('User info not available.');
@@ -57,6 +58,8 @@ export const initializeSessionSettings = async (): Promise<boolean> => {
   } catch (error) {
     console.log(error);
     return false;
+  } finally {
+    commonStore.setIsInitialized(true);
   }
 };
 

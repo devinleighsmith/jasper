@@ -5,11 +5,9 @@ describe('main bootstrap', () => {
   const registerRouter = vi.fn();
   const registerPinia = vi.fn();
   const callRefreshLinkClickTracking = vi.fn();
-  const initializeSessionSettings = vi.fn();
-  const setIsInitializing = vi.fn();
+  const setIsInitialized = vi.fn();
 
   const use = vi.fn();
-  const runWithContext = vi.fn((cb: () => unknown) => cb());
   const mount = vi.fn();
 
   const observe = vi.fn();
@@ -19,7 +17,7 @@ describe('main bootstrap', () => {
 
   const loadMain = async (options?: {
     pathname?: string;
-    rejectSettings?: boolean;
+    throwOnMount?: boolean;
   }) => {
     vi.resetModules();
 
@@ -27,10 +25,8 @@ describe('main bootstrap', () => {
     registerRouter.mockClear();
     registerPinia.mockClear();
     callRefreshLinkClickTracking.mockClear();
-    initializeSessionSettings.mockClear();
-    setIsInitializing.mockClear();
+    setIsInitialized.mockClear();
     use.mockClear();
-    runWithContext.mockClear();
     mount.mockClear();
     observe.mockClear();
     pushStateSpy.mockClear();
@@ -46,22 +42,17 @@ describe('main bootstrap', () => {
 
     vi.stubGlobal('MutationObserver', MutationObserverMock);
 
-    if (options?.rejectSettings) {
-      initializeSessionSettings.mockRejectedValueOnce(
-        new Error('bootstrap failed')
-      );
-    } else {
-      initializeSessionSettings.mockResolvedValueOnce(true);
-    }
-
     vi.doMock('vue', async () => {
       const actual = await vi.importActual<typeof import('vue')>('vue');
       return {
         ...actual,
         createApp: vi.fn(() => ({
           use,
-          runWithContext,
-          mount,
+          mount: options?.throwOnMount
+            ? vi.fn().mockImplementation(() => {
+                throw new Error('bootstrap failed');
+              })
+            : mount,
         })),
       };
     });
@@ -78,10 +69,6 @@ describe('main bootstrap', () => {
       callRefreshLinkClickTracking,
     }));
 
-    vi.doMock('@/utils/utils', () => ({
-      initializeSessionSettings,
-    }));
-
     vi.doMock('@/router/index', () => ({
       default: router,
     }));
@@ -93,7 +80,7 @@ describe('main bootstrap', () => {
     vi.doMock('@/stores', () => ({
       registerPinia,
       useCommonStore: () => ({
-        setIsInitializing,
+        setIsInitialized,
       }),
     }));
 
@@ -117,13 +104,9 @@ describe('main bootstrap', () => {
     expect(registerRouter).toHaveBeenCalledTimes(1);
     expect(registerPlugins).toHaveBeenCalledTimes(1);
     expect(use).toHaveBeenCalledWith(router);
-    expect(runWithContext).toHaveBeenCalledTimes(1);
-    expect(initializeSessionSettings).toHaveBeenCalledTimes(1);
     expect(mount).toHaveBeenCalledWith('#app');
 
-    expect(setIsInitializing).toHaveBeenNthCalledWith(1, true);
-    expect(setIsInitializing).toHaveBeenLastCalledWith(false);
-
+    expect(setIsInitialized).toHaveBeenCalledWith(false);
     expect(callRefreshLinkClickTracking).toHaveBeenCalledTimes(1);
     expect(observe).toHaveBeenCalledWith(document.body, {
       childList: true,
@@ -137,11 +120,9 @@ describe('main bootstrap', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => undefined);
 
-    await loadMain({ pathname: '/dashboard', rejectSettings: true });
+    await loadMain({ pathname: '/dashboard', throwOnMount: true });
 
-    expect(initializeSessionSettings).toHaveBeenCalledTimes(1);
-    expect(setIsInitializing).toHaveBeenCalledWith(true);
-    expect(setIsInitializing).toHaveBeenCalledWith(false);
+    expect(setIsInitialized).toHaveBeenCalledWith(false);
     expect(callRefreshLinkClickTracking).not.toHaveBeenCalled();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Failed to bootstrap application.',
