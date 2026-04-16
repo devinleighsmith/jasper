@@ -38,10 +38,11 @@ public class CourtSummaryReportStrategy : IDocumentStrategy
             documentRequest.AppearanceId,
             JustinReportName.CEISR035);
 
-        if (!DocumentHelper.IsPdfOrWordDocumentBase64(documentResponse?.ReportContent))
+        var reportContent = documentResponse?.ReportContent;
+        if (!DocumentHelper.IsPdfOrWordDocumentBase64(reportContent))
             throw new InvalidOperationException(
                 $"CourtSummary report for AppearanceId '{documentRequest.AppearanceId}' did not return a valid document.");
 
-        return new MemoryStream(Convert.FromBase64String(documentResponse.ReportContent));
+        return new MemoryStream(Convert.FromBase64String(reportContent));
     }
 }
