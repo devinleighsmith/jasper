@@ -270,9 +270,7 @@
     );
     return binderDocumentIds
       .map((id) => documentsMaps.get(id))
-      .filter(
-        (item): item is civilDocumentType => item !== undefined
-      );
+      .filter((item): item is civilDocumentType => item !== undefined);
   });
 
   const categoryCount = (category: string): number => {
@@ -281,8 +279,9 @@
     }
 
     if (category.toLowerCase() === CSR_CATEGORY_DESC.toLowerCase()) {
-      return uniqueDocuments.value.filter((doc) => doc.category === CSR_CATEGORY)
-        .length;
+      return uniqueDocuments.value.filter(
+        (doc) => doc.category === CSR_CATEGORY
+      ).length;
     }
 
     return uniqueDocuments.value.filter(
