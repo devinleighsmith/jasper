@@ -41,7 +41,7 @@ public class DocumentMerger(
 
             try
             {
-                PopulateFlattenedStreamsAndPageRanges(streamsToMerge, documentRequests, streamsForMerge, pageRanges);
+                PopulateFlattenedStreams(streamsToMerge, documentRequests, streamsForMerge, pageRanges);
 
                 using var outputStream = MergeStreams(gdpictureConverter, streamsForMerge);
                 return CreateResponse(outputStream, pageRanges);
@@ -90,7 +90,7 @@ public class DocumentMerger(
         }
     }
 
-    private void PopulateFlattenedStreamsAndPageRanges(
+    private void PopulateFlattenedStreams(
         MemoryStream[] streamsToMerge,
         PdfDocumentRequest[] documentRequests,
         List<MemoryStream> streamsForMerge,
@@ -100,66 +100,99 @@ public class DocumentMerger(
 
         for (int i = 0; i < streamsToMerge.Length; i++)
         {
-            var docStream = streamsToMerge[i];
-            docStream.Position = 0;
-            using var pdf = new GdPicturePDF();
-
-            var loadStatus = pdf.LoadFromStream(docStream, true);
-            if (loadStatus != GdPictureStatus.OK)
+            var docStream = streamsToMerge[i] ?? throw new InvalidOperationException($"Document stream {i} is null");
+            try
             {
-                logger.LogError(
-                    "GdPicture failed to load stream {Index} (Type: {Type}) with status: {Status}",
-                    i, documentRequests[i].Type, loadStatus);
-                throw new InvalidOperationException(
-                    $"Failed to load document stream {i} (Type: {documentRequests[i].Type}): {loadStatus}");
-            }
+                docStream.Position = 0;
+                using var pdf = new GdPicturePDF();
 
-            int pageCount = pdf.GetPageCount();
-            if (pageCount <= 0)
+                LoadPdfFromStream(pdf, docStream, documentRequests[i], i);
+                var pageCount = ValidatePageCount(pdf, documentRequests[i], i);
+                pageRanges.Add(new PageRange { Start = currentPage, End = currentPage + pageCount });
+                currentPage += pageCount;
+
+                FlattenPdfContent(pdf, documentRequests[i], i);
+                streamsForMerge.Add(SaveFlattenedPdfToStream(pdf, documentRequests[i], i));
+            }
+            finally
             {
-                logger.LogError(
-                    "Stream {Index} (Type: {Type}) reported {PageCount} pages after loading",
-                    i, documentRequests[i].Type, pageCount);
-                throw new InvalidOperationException(
-                    $"Document stream {i} (Type: {documentRequests[i].Type}) contains no pages");
+                // Release original retrieved stream as soon as it is no longer needed.
+                docStream.Dispose();
+                streamsToMerge[i] = null!;
             }
-
-            pageRanges.Add(new PageRange { Start = currentPage, End = currentPage + pageCount });
-            currentPage += pageCount;
-
-            var flattenStatus = pdf.FlattenFormFields();
-            if (flattenStatus != GdPictureStatus.OK)
-            {
-                logger.LogWarning(
-                    "FlattenFormFields on stream {Index} (Type: {Type}) returned status: {Status} — continuing",
-                    i, documentRequests[i].Type, flattenStatus);
-            }
-
-            var flattenOcgStatus = pdf.FlattenVisibleOCGs();
-            if (flattenOcgStatus != GdPictureStatus.OK)
-            {
-                logger.LogWarning(
-                    "FlattenVisibleOCGs on stream {Index} (Type: {Type}) returned status: {Status} — continuing",
-                    i, documentRequests[i].Type, flattenOcgStatus);
-            }
-
-            var flattenedDocStream = new MemoryStream();
-            var saveStatus = pdf.SaveToStream(flattenedDocStream);
-            if (saveStatus != GdPictureStatus.OK)
-            {
-                flattenedDocStream.Dispose();
-                logger.LogError(
-                    "GdPicture failed to save flattened stream {Index} (Type: {Type}) with status: {Status}",
-                    i, documentRequests[i].Type, saveStatus);
-                throw new InvalidOperationException(
-                    $"Failed to save flattened document stream {i} (Type: {documentRequests[i].Type}): {saveStatus}");
-            }
-
-            flattenedDocStream.Position = 0;
-            streamsForMerge.Add(flattenedDocStream);
-
-            pdf.CloseDocument();
         }
+    }
+
+    private void LoadPdfFromStream(
+        GdPicturePDF pdf,
+        MemoryStream docStream,
+        PdfDocumentRequest documentRequest,
+        int index)
+    {
+        var loadStatus = pdf.LoadFromStream(docStream, true);
+        if (loadStatus != GdPictureStatus.OK)
+        {
+            logger.LogError(
+                "GdPicture failed to load stream {Index} (Type: {Type}) with status: {Status}",
+                index, documentRequest.Type, loadStatus);
+            throw new InvalidOperationException(
+                $"Failed to load document stream {index} (Type: {documentRequest.Type}): {loadStatus}");
+        }
+    }
+
+    private int ValidatePageCount(GdPicturePDF pdf, PdfDocumentRequest documentRequest, int index)
+    {
+        int pageCount = pdf.GetPageCount();
+        if (pageCount <= 0)
+        {
+            logger.LogError(
+                "Stream {Index} (Type: {Type}) reported {PageCount} pages after loading",
+                index, documentRequest.Type, pageCount);
+            throw new InvalidOperationException(
+                $"Document stream {index} (Type: {documentRequest.Type}) contains no pages");
+        }
+
+        return pageCount;
+    }
+
+    private void FlattenPdfContent(GdPicturePDF pdf, PdfDocumentRequest documentRequest, int index)
+    {
+        var flattenStatus = pdf.FlattenFormFields();
+        if (flattenStatus != GdPictureStatus.OK)
+        {
+            logger.LogWarning(
+                "FlattenFormFields on stream {Index} (Type: {Type}) returned status: {Status} — continuing",
+                index, documentRequest.Type, flattenStatus);
+        }
+
+        var flattenOcgStatus = pdf.FlattenVisibleOCGs();
+        if (flattenOcgStatus != GdPictureStatus.OK)
+        {
+            logger.LogWarning(
+                "FlattenVisibleOCGs on stream {Index} (Type: {Type}) returned status: {Status} — continuing",
+                index, documentRequest.Type, flattenOcgStatus);
+        }
+    }
+
+    private MemoryStream SaveFlattenedPdfToStream(
+        GdPicturePDF pdf,
+        PdfDocumentRequest documentRequest,
+        int index)
+    {
+        var flattenedDocStream = new MemoryStream();
+        var saveStatus = pdf.SaveToStream(flattenedDocStream);
+        if (saveStatus != GdPictureStatus.OK)
+        {
+            flattenedDocStream.Dispose();
+            logger.LogError(
+                "GdPicture failed to save flattened stream {Index} (Type: {Type}) with status: {Status}",
+                index, documentRequest.Type, saveStatus);
+            throw new InvalidOperationException(
+                $"Failed to save flattened document stream {index} (Type: {documentRequest.Type}): {saveStatus}");
+        }
+
+        flattenedDocStream.Position = 0;
+        return flattenedDocStream;
     }
 
     private MemoryStream MergeStreams(GdPictureDocumentConverter gdpictureConverter, List<MemoryStream> streamsForMerge)
@@ -179,43 +212,62 @@ public class DocumentMerger(
         return outputStream;
     }
 
-    private static PdfDocumentResponse CreateResponse(MemoryStream outputStream, List<PageRange> pageRanges) =>
-        new()
+    private static PdfDocumentResponse CreateResponse(MemoryStream outputStream, List<PageRange> pageRanges)
+    {
+        var outputLength = checked((int)outputStream.Length);
+        var base64Pdf = outputStream.TryGetBuffer(out var buffer)
+            ? Convert.ToBase64String(buffer.Array!, buffer.Offset, outputLength)
+            : Convert.ToBase64String(outputStream.ToArray());
+
+        return new PdfDocumentResponse
         {
-            Base64Pdf = Convert.ToBase64String(outputStream.ToArray()),
+            Base64Pdf = base64Pdf,
             PageRanges = pageRanges
         };
+    }
 
     private async Task<MemoryStream[]> RetrieveStreamsInBatches(PdfDocumentRequest[] documentRequests)
     {
         var streams = new MemoryStream[documentRequests.Length];
-        var configuredValue = configuration.GetValue<string>(RetrieveBatchSizeKey);
-        var batchSize = int.TryParse(configuredValue, out var parsedBatchSize) && parsedBatchSize > 0
-            ? parsedBatchSize
-            : DefaultRetrieveBatchSize;
-        
-        for (var batchStart = 0; batchStart < documentRequests.Length; batchStart += batchSize)
+        try
         {
-            var batchCount = Math.Min(batchSize, documentRequests.Length - batchStart);
-
-            logger.LogInformation(
-                "Retrieving document batch starting at index {BatchStart} with {BatchCount} documents.",
-                batchStart,
-                batchCount);
-
-            var retrieveTasks = Enumerable
-                .Range(batchStart, batchCount)
-                .Select(index => RetrieveStream(index, documentRequests[index]));
-
-            var batchResults = await Task.WhenAll(retrieveTasks);
-
-            foreach (var (index, stream) in batchResults)
+            var configuredValue = configuration.GetValue<string>(RetrieveBatchSizeKey);
+            var batchSize = int.TryParse(configuredValue, out var parsedBatchSize) && parsedBatchSize > 0
+                ? parsedBatchSize
+                : DefaultRetrieveBatchSize;
+            
+            for (var batchStart = 0; batchStart < documentRequests.Length; batchStart += batchSize)
             {
-                streams[index] = stream;
-            }
-        }
+                var batchCount = Math.Min(batchSize, documentRequests.Length - batchStart);
 
-        return streams;
+                logger.LogInformation(
+                    "Retrieving document batch starting at index {BatchStart} with {BatchCount} documents.",
+                    batchStart,
+                    batchCount);
+
+                var retrieveTasks = Enumerable
+                    .Range(batchStart, batchCount)
+                    .Select(index => RetrieveStream(index, documentRequests[index]));
+
+                var batchResults = await Task.WhenAll(retrieveTasks);
+
+                foreach (var (index, stream) in batchResults)
+                {
+                    streams[index] = stream;
+                }
+            }
+
+            return streams;
+        }
+        catch
+        {
+            var disposeTasks = streams
+                .Where(s => s is not null)
+                .Select(s => s.DisposeAsync().AsTask());
+
+            await Task.WhenAll(disposeTasks);
+            throw;
+        }
     }
 
     private async Task<(int Index, MemoryStream Stream)> RetrieveStream(int index, PdfDocumentRequest documentRequest)
