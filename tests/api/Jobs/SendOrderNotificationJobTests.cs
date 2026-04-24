@@ -5,10 +5,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Scv.Api.Jobs;
 using Scv.Api.Models;
-using Scv.Api.Models.AccessControlManagement;
-using Scv.Api.Models.Order;
 using Scv.Api.Services;
 using Scv.Api.SignalR;
+using Scv.Api.SignalR.Notifications;
+using Scv.Models;
+using Scv.Models.AccessControlManagement;
+using Scv.Models.Order;
 using Xunit;
 
 namespace tests.api.Jobs;
@@ -132,7 +134,7 @@ public class SendOrderNotificationJobTests
         var orderDto = CreateOrderDto(orderRequestDto);
 
         _mockJudgeService.Setup(s => s.GetJudge(judgeId))
-            .ReturnsAsync((Scv.Api.Models.Person)null);
+            .ReturnsAsync((Scv.Models.Person)null);
 
         await _job.Execute(orderDto);
 
@@ -324,17 +326,17 @@ public class SendOrderNotificationJobTests
 
         var orderDto = CreateOrderDto(orderRequestDto);
 
-        var judge = new Scv.Api.Models.Person
+        var judge = new Scv.Models.Person
         {
             Id = judgeId,
             Names =
-            [
-                new PersonName
+        [
+            new PersonName
                 {
                     FirstName = firstName,
                     LastName = lastName
                 }
-            ]
+        ]
         };
 
         var databaseUser = new UserDto
@@ -378,7 +380,7 @@ public class SendOrderNotificationJobTests
         var orderRequestDto = CreateValidOrderDto(judgeId);
         var orderDto = CreateOrderDto(orderRequestDto);
 
-        var judge = new Scv.Api.Models.Person
+        var judge = new Scv.Models.Person
         {
             Id = judgeId,
             Names = []
@@ -446,7 +448,7 @@ public class SendOrderNotificationJobTests
         var orderDto = CreateOrderDto(orderRequestDto);
 
         _mockJudgeService.Setup(s => s.GetJudge(judgeId))
-            .ReturnsAsync((Scv.Api.Models.Person)null);
+            .ReturnsAsync((Scv.Models.Person)null);
 
         await _job.Execute(orderDto);
 
@@ -534,9 +536,9 @@ public class SendOrderNotificationJobTests
         };
     }
 
-    private Scv.Api.Models.Person CreateActiveJudge(int judgeId)
+    private Scv.Models.Person CreateActiveJudge(int judgeId)
     {
-        return new Scv.Api.Models.Person
+        return new Scv.Models.Person
         {
             Id = judgeId,
             Names =
@@ -558,9 +560,9 @@ public class SendOrderNotificationJobTests
         };
     }
 
-    private Scv.Api.Models.Person CreateInactiveJudge(int judgeId)
+    private Scv.Models.Person CreateInactiveJudge(int judgeId)
     {
-        return new Scv.Api.Models.Person
+        return new Scv.Models.Person
         {
             Id = judgeId,
             Names =

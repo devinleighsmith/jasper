@@ -14,21 +14,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Scv.Api.Constants;
 using Scv.Api.Documents;
-using Scv.Api.Helpers;
-using Scv.Api.Helpers.Exceptions;
-using Scv.Api.Helpers.Extensions;
 using Scv.Api.Infrastructure.Authorization;
-using Scv.Api.Models.archive;
-using Scv.Api.Models.Civil.AppearanceDetail;
-using Scv.Api.Models.Civil.Detail;
 using Scv.Api.Models.Criminal.AppearanceDetail;
-using Scv.Api.Models.Criminal.Appearances;
-using Scv.Api.Models.Criminal.Detail;
-using Scv.Api.Models.Document;
-using Scv.Api.Models.Search;
 using Scv.Api.Services.Files;
-using CivilAppearanceDetail = Scv.Api.Models.Civil.AppearanceDetail.CivilAppearanceDetail;
-using CriminalAppearanceDetail = Scv.Api.Models.Criminal.AppearanceDetail.CriminalAppearanceDetail;
+using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Helpers.Extensions;
+using Scv.Models.Archive;
+using Scv.Models.Civil.AppearanceDetail;
+using Scv.Models.Civil.Detail;
+using Scv.Models.Criminal.Appearances;
+using Scv.Models.Criminal.Detail;
+using Scv.Models.Document;
+using Scv.Models.Search;
+using CivilAppearanceDetailModel = Scv.Models.Civil.AppearanceDetail.CivilAppearanceDetail;
+using CriminalAppearanceDetail = Scv.Models.Criminal.AppearanceDetail.CriminalAppearanceDetail;
 
 namespace Scv.Api.Controllers
 {
@@ -154,7 +153,7 @@ namespace Scv.Api.Controllers
         /// <returns>CivilAppearanceDetail</returns>
         [HttpGet]
         [Route("civil/{fileId}/appearance/{appearanceId}/methods")]
-        public async Task<ActionResult<CivilAppearanceDetail>> GetCivilAppearanceMethods(string fileId, string appearanceId)
+        public async Task<ActionResult<CivilAppearanceDetailModel>> GetCivilAppearanceMethods(string fileId, string appearanceId)
         {
             if (User.IsSupremeUser())
                 return Forbid();
@@ -302,7 +301,7 @@ namespace Scv.Api.Controllers
         /// <param name="fileId">Target file id.</param>
         [HttpGet]
         [Route("criminal/{fileId}/participants")]
-        public async Task<ActionResult<ICollection<Scv.Api.Models.Criminal.Detail.CriminalParticipant>>> GetCriminalFileParticipantsByFileId(string fileId)
+        public async Task<ActionResult<ICollection<Scv.Models.Criminal.Detail.CriminalParticipant>>> GetCriminalFileParticipantsByFileId(string fileId)
         {
             var criminalFileOverview = await _criminalFilesService.FileOverviewAsync(fileId);
             if (criminalFileOverview?.JustinNo == null)

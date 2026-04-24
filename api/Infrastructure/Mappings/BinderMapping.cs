@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using JCCommon.Clients.FileServices;
 using Mapster;
-using Scv.Api.Documents;
-using Scv.Api.Models;
-using Scv.Api.Models.Civil.Detail;
-using Scv.Api.Models.Criminal.Detail;
 using Scv.Db.Models;
+using Scv.Models;
+using Scv.Models.Civil.Detail;
+using Scv.Models.Criminal.Detail;
 
 namespace Scv.Api.Infrastructure.Mappings;
 
 public class BinderMapping : IRegister
 {
-    public void Register(TypeAdapterConfig config)
+    public static void Register(TypeAdapterConfig config)
     {
         config.NewConfig<BinderDto, Binder>()
             .Ignore(dest => dest.Id)
@@ -55,5 +54,10 @@ public class BinderMapping : IRegister
         config.NewConfig<CivilIssue, IssueDto>();
         config.NewConfig<ClFiledBy, FiledByDto>();
         config.NewConfig<CvfcDocumentSupport, DocumentSupportDto>();
+    }
+
+    void IRegister.Register(TypeAdapterConfig config)
+    {
+        Register(config);
     }
 }

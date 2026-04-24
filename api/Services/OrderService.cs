@@ -13,15 +13,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using Scv.Api.Helpers;
-using Scv.Api.Helpers.ContractResolver;
-using Scv.Api.Helpers.Extensions;
-using Scv.Api.Infrastructure;
 using Scv.Api.Jobs;
-using Scv.Api.Models;
-using Scv.Api.Models.Order;
+using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.Helpers.Extensions;
+using Scv.Core.Infrastructure;
 using Scv.Db.Models;
 using Scv.Db.Repositories;
-using Scv.Api.Repositories;
+using Scv.Models.Order;
+using Scv.Cso;
 
 namespace Scv.Api.Services;
 
@@ -362,7 +361,7 @@ public class OrderService : CrudServiceBase<IRepositoryBase<Order>, Order, Order
 
         var actionDto = Mapper.Map<OrderActionDto>(orderDto);
         actionDto.UserGuid = userGuid;
-        actionDto.OrderTerms ??= Array.Empty<OrderTerm>();
+        actionDto.OrderTerms ??= [];
         if (orderDto.Status == OrderStatus.Unapproved && orderDto.ProcessedDate.HasValue)
         {
             actionDto.RejectedDt = orderDto.ProcessedDate.Value.ToString(CultureInfo.InvariantCulture);

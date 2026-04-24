@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using LazyCache;
 using PCSSCommon.Clients.PersonServices;
 using PCSSCommon.Models;
-using Scv.Api.Helpers.Extensions;
-using Scv.Api.Models;
+using Scv.Core.Helpers.Extensions;
+using Scv.Core.Services;
+using Scv.Models;
 
 namespace Scv.Api.Services;
 

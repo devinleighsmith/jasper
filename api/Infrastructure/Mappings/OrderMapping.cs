@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Globalization;
 using Mapster;
-using Scv.Api.Models.Order;
 using Scv.Db.Models;
+using Scv.Models.Order;
 using PCSSCommonConstants = PCSSCommon.Common.Constants;
 
 namespace Scv.Api.Infrastructure.Mappings;
 
 public class OrderMapping : IRegister
 {
-    public void Register(TypeAdapterConfig config)
+    public static void Register(TypeAdapterConfig config)
     {
         config.NewConfig<Order, OrderDto>()
             .Map(dest => dest.CreatedDate, src => src.Ent_Dtm)
@@ -71,6 +71,11 @@ public class OrderMapping : IRegister
                     _ => null,
                 };
             });
+    }
+
+    void IRegister.Register(TypeAdapterConfig config)
+    {
+        Register(config);
     }
 
     private static string ToBase64OrNull(byte[] data) =>

@@ -1,23 +1,19 @@
-using System;
-using System.Net.Http;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Scv.Api.Infrastructure.Options;
-using Scv.Api.Models.Order;
+using Scv.Models.Order;
 
-namespace Scv.Api.Repositories;
+namespace Scv.Cso;
 
 public interface ICsoClient
 {
     Task<bool> SendOrderAsync(OrderActionDto order, CancellationToken cancellationToken = default);
 }
 
-public class CsoClient : ICsoClient
+public class CsoClient(HttpClient httpClient, IOptions<CsoOptions> options, ILogger<CsoClient> logger) : ICsoClient
 {
     private static readonly JsonSerializerSettings SnakeCaseSerializerSettings = new()
     {
@@ -28,16 +24,9 @@ public class CsoClient : ICsoClient
         NullValueHandling = NullValueHandling.Ignore
     };
 
-    private readonly HttpClient _httpClient;
-    private readonly CsoOptions _options;
-    private readonly ILogger<CsoClient> _logger;
-
-    public CsoClient(HttpClient httpClient, IOptions<CsoOptions> options, ILogger<CsoClient> logger)
-    {
-        _httpClient = httpClient;
-        _options = options.Value;
-        _logger = logger;
-    }
+    private readonly HttpClient _httpClient = httpClient;
+    private readonly CsoOptions _options = options.Value;
+    private readonly ILogger<CsoClient> _logger = logger;
 
     public async Task<bool> SendOrderAsync(OrderActionDto order, CancellationToken cancellationToken = default)
     {
@@ -57,11 +46,15 @@ public class CsoClient : ICsoClient
             var body = response.Content == null
                 ? null
                 : await response.Content.ReadAsStringAsync(cancellationToken);
+            var truncatedBody = body is { Length: > 500 }
+                ? body[..500]
+                : body;
 
             _logger.LogWarning(
-                "CSO order submit failed with status {StatusCode} {ReasonPhrase}.",
+                "CSO order submit failed with status {StatusCode} {ReasonPhrase} {body}.",
                 (int)response.StatusCode,
-                response.ReasonPhrase);
+                response.ReasonPhrase,
+                truncatedBody);
         }
 
         return response.IsSuccessStatusCode;

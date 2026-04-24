@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using Mapster;
 using PCSSCommon.Models;
-using Scv.Api.Models;
 using Scv.Db.Models;
+using Scv.Models;
 
 namespace Scv.Api.Infrastructure.Mappings;
 
@@ -16,7 +16,7 @@ public class DocumentCategoryMapping : IRegister
         DocumentCategory.PSR
     ], StringComparer.OrdinalIgnoreCase);
 
-    public void Register(TypeAdapterConfig config)
+    public static void Register(TypeAdapterConfig config)
     {
         config.NewConfig<PcssConfiguration, DocumentCategoryDto>()
             .Map(dest => dest.Name, src => TransformName(src.Key));
@@ -27,6 +27,11 @@ public class DocumentCategoryMapping : IRegister
 
         config.NewConfig<DocumentCategory, DocumentCategory>()
             .Ignore(dest => dest.Id);
+    }
+
+    void IRegister.Register(TypeAdapterConfig config)
+    {
+        Register(config);
     }
 
     /// <summary>

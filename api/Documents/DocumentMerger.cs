@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using GdPicture14;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Scv.Api.Models.Document;
+using Scv.Models.Document;
 
 namespace Scv.Api.Documents;
 
@@ -41,19 +41,19 @@ public class DocumentMerger(
                 var stream = streamsToMerge[i];
                 if (stream == null)
                 {
-                    logger.LogError("Stream {Index} is null for document type {Type}", 
+                    logger.LogError("Stream {Index} is null for document type {Type}",
                         i, documentRequests[i].Type);
                     throw new InvalidOperationException($"Document stream {i} is null");
                 }
 
                 if (stream.Length == 0)
                 {
-                    logger.LogError("Stream {Index} is empty for document type {Type}", 
+                    logger.LogError("Stream {Index} is empty for document type {Type}",
                         i, documentRequests[i].Type);
                     throw new InvalidOperationException($"Document stream {i} is empty");
                 }
 
-                logger.LogInformation("Stream {Index} validated - Type: {Type}, Size: {Size} bytes", 
+                logger.LogInformation("Stream {Index} validated - Type: {Type}, Size: {Size} bytes",
                     i, documentRequests[i].Type, stream.Length);
             }
 
@@ -86,7 +86,7 @@ public class DocumentMerger(
             var mergeResult = gdpictureConverter.CombineToPDF(streamsForMerge.ToArray(), outputStream, PdfConformance.PDF);
             if (mergeResult != GdPictureStatus.OK)
             {
-                logger.LogError("GdPicture merge failed with status: {Status}. Document count: {Count}", 
+                logger.LogError("GdPicture merge failed with status: {Status}. Document count: {Count}",
                     mergeResult, streamsForMerge.Count);
                 throw new InvalidOperationException($"Failed to merge documents: {mergeResult}");
             }
@@ -121,7 +121,7 @@ public class DocumentMerger(
         var batchSize = int.TryParse(configuredValue, out var parsedBatchSize) && parsedBatchSize > 0
             ? parsedBatchSize
             : DefaultRetrieveBatchSize;
-        
+
         for (var batchStart = 0; batchStart < documentRequests.Length; batchStart += batchSize)
         {
             var batchCount = Math.Min(batchSize, documentRequests.Length - batchStart);

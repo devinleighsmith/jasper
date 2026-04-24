@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using MongoDB.EntityFrameworkCore;
 using Scv.Db.Contants;
 
+#nullable enable
+
 namespace Scv.Db.Models
 {
     [Collection(CollectionNameConstants.USERS)]
@@ -20,17 +22,17 @@ namespace Scv.Db.Models
 
         public Guid? ADId { get; set; }
 
-        public string ADUsername { get; set; }
+        public string? ADUsername { get; set; }
 
         /// <summary>
         /// Guid from DIAM
         /// </summary>
-        public string UserGuid { get; set; }
+        public string? UserGuid { get; set; }
 
         /// <summary>
         /// Guid from ProvJud. This is going to be populated manually for now.
         /// </summary>
-        public string NativeGuid { get; set; }
+        public string? NativeGuid { get; set; }
 
         /// <summary>
         /// Id used as parameter for external systems backend APIs. This is going to be mapped manually for now.
