@@ -9,6 +9,9 @@ on:
       - master
     paths:
       - 'transitory-documents-api/**'
+      - 'transitory-documents-client/**'
+      - 'models/**'
+      - 'core/**'
 
   workflow_dispatch:
 

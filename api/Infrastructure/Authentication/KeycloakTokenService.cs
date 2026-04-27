@@ -149,19 +149,26 @@ namespace Scv.Api.Infrastructure.Authentication
             return duration > TimeSpan.Zero ? duration : TimeSpan.FromSeconds(1);
         }
 
-        private static DateTimeOffset ComputeExpiry(TokenResponse response)
+        private DateTimeOffset ComputeExpiry(TokenResponse response)
         {
             if (response.ExpiresIn > 0)
             {
                 return DateTimeOffset.UtcNow.AddSeconds(response.ExpiresIn);
             }
 
-            var handler = new JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(response.AccessToken);
-            var expClaim = jwt.Claims.FirstOrDefault(c => c.Type == "exp");
-            if (expClaim != null && long.TryParse(expClaim.Value, out var expUnix))
+            try
             {
-                return DateTimeOffset.FromUnixTimeSeconds(expUnix);
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(response.AccessToken);
+                var expClaim = jwt.Claims.FirstOrDefault(c => c.Type == "exp");
+                if (expClaim != null && long.TryParse(expClaim.Value, out var expUnix))
+                {
+                    return DateTimeOffset.FromUnixTimeSeconds(expUnix);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Unable to parse Keycloak access token as JWT for expiry fallback. Using default expiry of 300 seconds.");
             }
 
             return DateTimeOffset.UtcNow.AddSeconds(300);

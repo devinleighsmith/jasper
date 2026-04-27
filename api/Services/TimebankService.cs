@@ -7,6 +7,7 @@ using MapsterMapper;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using PCSSCommon.Clients.TimebankServices;
+using PCSSCommon.Models;
 using Scv.Core.Helpers.ContractResolver;
 using Scv.Core.Infrastructure;
 using Scv.Core.Services;

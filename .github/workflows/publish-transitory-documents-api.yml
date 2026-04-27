@@ -27,7 +27,7 @@ env:
   IMAGE_NAME: jasper-transitory-documents-api
   GITHUB_IMAGE_REPO: ghcr.io/${{ github.repository_owner }}/jasper
   GITOPS_REPOSITORY: bcgov-c/tenant-gitops-e4161f
-  GITOPS_BRANCH: ${{ github.event.inputs.gitops-branch || 'master' }}
+  GITOPS_BRANCH: ${{ github.event.inputs.gitops-branch || 'main' }}
   GITOPS_ENVIRONMENT: ${{ github.event.inputs.gitops-environment || 'dev' }}
   GITOPS_FILE_PATH: deploy/transitory-documents-api/${{ github.event.inputs.gitops-environment || 'dev' }}_values.yaml
 
@@ -86,7 +86,6 @@ jobs:
           file: ./docker/transitory-documents-api/Dockerfile.release
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          load: true
           build-args: |
             dotnet_version=${{ matrix.dotnet-major-version }}.${{ matrix.dotnet-minor-version }}
 

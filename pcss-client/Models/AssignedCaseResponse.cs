@@ -1,6 +1,4 @@
-﻿using PCSSCommon.Models;
-
-namespace Scv.Models;
+﻿namespace PCSSCommon.Models;
 
 public class AssignedCaseResponse
 {

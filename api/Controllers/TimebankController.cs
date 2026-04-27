@@ -6,6 +6,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PCSSCommon.Models;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Services;
 using Scv.Core.Helpers.Extensions;
@@ -38,7 +39,7 @@ public class TimebankController(
     /// <returns>Timebank summary record.</returns>
     [HttpGet]
     [Route("summary/{period}")]
-    public async Task<ActionResult<Scv.Models.Timebank.TimebankSummaryDto>> GetTimebankSummaryForJudge(
+    public async Task<ActionResult<TimebankSummaryDto>> GetTimebankSummaryForJudge(
         int period,
         [FromQuery] int? judgeId = null,
         [FromQuery] bool? includeLineItems = null,
@@ -92,7 +93,7 @@ public class TimebankController(
     /// <returns>Vacation payout details.</returns>
     [HttpGet]
     [Route("payout/{period}")]
-    [RequiresPermission(permissions: Permission.VIEW_VACATION_PAYOUT)]
+    [RequiresPermission(permissions: Db.Models.Permission.VIEW_VACATION_PAYOUT)]
     public async Task<ActionResult<VacationPayoutDto>> GetTimebankPayoutsForJudges(
         int period,
         [FromQuery] int? judgeId = null,

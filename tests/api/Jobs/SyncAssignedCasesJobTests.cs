@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using PCSSCommon.Clients.JudicialCalendarServices;
 using PCSSCommon.Clients.LookupServices;
+using PCSSCommon.Models;
 using Scv.Api.Documents.Parsers;
 using Scv.Api.Documents.Parsers.Models;
 using Scv.Api.Infrastructure.Mappings;

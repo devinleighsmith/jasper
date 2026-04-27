@@ -46,9 +46,13 @@ namespace Scv.TdApi.Services
                 request.RegionCode, request.AgencyIdentifierCd, request.RoomCd, request.Date);
 
             // Apply correction mappings: use regionCode/agencyIdentifierCd as target, get replacement folder name
-            var regionFolderName = _correctionMappingOptions.RegionMappings
-                .FirstOrDefault(m => string.Equals(request.RegionCode, m.Target, StringComparison.OrdinalIgnoreCase))
-                ?.Replacement ?? request.RegionName;
+            var regionMapping = _correctionMappingOptions.RegionMappings
+                .FirstOrDefault(m => string.Equals(request.RegionCode, m.Target, StringComparison.OrdinalIgnoreCase));
+            var regionFolderName = regionMapping?.Replacement ?? request.RegionName;
+            if (regionMapping is null)
+            {
+                SmbPathUtility.ValidatePathSegment(regionFolderName, nameof(request.RegionName));
+            }
 
             CorrectionMapping? locationMapping;
             var effectiveRoomCd = request.RoomCd;
@@ -64,9 +68,19 @@ namespace Scv.TdApi.Services
                     .FirstOrDefault(m => string.Equals(request.AgencyIdentifierCd, m.Target, StringComparison.OrdinalIgnoreCase));
             }
             string locationFolderName = locationMapping?.Replacement ?? request.LocationShortName;
+            if (locationMapping is null)
+            {
+                SmbPathUtility.ValidatePathSegment(locationFolderName, nameof(request.LocationShortName));
+            }
+
             if (locationMapping?.IgnoreRoom == true)
             {
                 effectiveRoomCd = null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(effectiveRoomCd))
+            {
+                SmbPathUtility.ValidatePathSegment(effectiveRoomCd, nameof(request.RoomCd));
             }
 
             _logger.LogDebug(

@@ -1,6 +1,6 @@
 using PCSSCommon.Clients.TimebankServices;
 
-namespace Scv.Models.Timebank;
+namespace PCSSCommon.Models;
 
 public class TimebankSummaryDto
 {

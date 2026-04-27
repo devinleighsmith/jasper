@@ -98,6 +98,29 @@ namespace Scv.TdApi.Infrastructure.FileSystem
         }
 
         /// <summary>
+        /// Validates that a value represents a single folder segment and not a path.
+        /// </summary>
+        public static void ValidatePathSegment(string value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new BadRequestException($"{fieldName} is required.");
+            }
+
+            var normalized = value.Trim().Replace('/', '\\');
+
+            if (normalized.Contains('\\') || normalized == "." || normalized == "..")
+            {
+                throw new BadRequestException($"{fieldName} must be a folder name, not a path.");
+            }
+
+            if (Path.IsPathRooted(normalized) || normalized.Contains(':'))
+            {
+                throw new BadRequestException($"{fieldName} must be a folder name, not a rooted path.");
+            }
+        }
+
+        /// <summary>
         /// Normalizes a path by converting slashes and removing share prefixes.
         /// Example input: "/Criminal Share/Fraser+Vancouver Coastal/222 main/2025/10 October/October 1 (Wed)/101/File.pdf"
         /// Example output: "Fraser+Vancouver Coastal\222 main\2025\10 October\October 1 (Wed)\101\File.pdf"

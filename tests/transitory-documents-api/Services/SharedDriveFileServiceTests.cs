@@ -522,6 +522,103 @@ public class SharedDriveFileServiceTests
             Times.AtLeastOnce);
     }
 
+    [Theory]
+    [InlineData("..\\OtherRegion")]
+    [InlineData("Some/Other")]
+    [InlineData("C:\\Temp")]
+    public async Task FindFilesAsync_ThrowsBadRequestException_WhenRegionNameIsPathLike_AndNoRegionMapping(string regionName)
+    {
+        // Arrange
+        var service = CreateService();
+        var request = CreateValidRequest();
+        request.RegionName = regionName;
+
+        // Act
+        Func<Task> act = () => service.FindFilesAsync(request);
+
+        // Assert
+        await act.Should().ThrowAsync<BadRequestException>();
+        _mockFileSystemClient.Verify(
+            c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Theory]
+    [InlineData("..\\OtherLocation")]
+    [InlineData("Some/Other")]
+    [InlineData("D:\\Data")]
+    public async Task FindFilesAsync_ThrowsBadRequestException_WhenLocationShortNameIsPathLike_AndNoLocationMapping(string locationShortName)
+    {
+        // Arrange
+        var service = CreateService();
+        var request = CreateValidRequest();
+        request.LocationShortName = locationShortName;
+
+        // Act
+        Func<Task> act = () => service.FindFilesAsync(request);
+
+        // Assert
+        await act.Should().ThrowAsync<BadRequestException>();
+        _mockFileSystemClient.Verify(
+            c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Theory]
+    [InlineData("..\\CTR001")]
+    [InlineData("CTR/001")]
+    [InlineData("C:\\CTR001")]
+    public async Task FindFilesAsync_ThrowsBadRequestException_WhenRoomCdIsPathLike(string roomCd)
+    {
+        // Arrange
+        var service = CreateService();
+        var request = CreateValidRequest();
+        request.RoomCd = roomCd;
+
+        // Act
+        Func<Task> act = () => service.FindFilesAsync(request);
+
+        // Assert
+        await act.Should().ThrowAsync<BadRequestException>();
+        _mockFileSystemClient.Verify(
+            c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task FindFilesAsync_AllowsPathLikeConfiguredMappings_WithoutValidatingRequestFallbacks()
+    {
+        // Arrange
+        _defaultCorrectionMappingOptions.RegionMappings = new List<CorrectionMapping>
+        {
+            new() { Target = "VAN", Replacement = "Mapped/Region" }
+        };
+        _defaultCorrectionMappingOptions.LocationMappings = new List<CorrectionMapping>
+        {
+            new() { Target = "4801", Replacement = "Mapped/Location" }
+        };
+
+        var service = CreateService();
+        var request = CreateValidRequest();
+        request.RegionName = "../UntrustedRegion";
+        request.LocationShortName = "../UntrustedLocation";
+
+        _mockFileSystemClient
+            .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<SmbFileInfo>());
+
+        // Act
+        await service.FindFilesAsync(request);
+
+        // Assert
+        _mockFileSystemClient.Verify(
+            c => c.ListFilesAsync(
+                It.Is<string>(path => path.Contains("Mapped/Region") && path.Contains("Mapped/Location")),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+    }
+
     [Fact]
     public async Task FindFilesAsync_CreatesCorrectFileMetadata()
     {

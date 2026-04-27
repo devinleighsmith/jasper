@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using PCSSCommon.Models;
 using Scv.Api.Controllers;
 using Scv.Api.Services;
 using Scv.Core.Helpers;
@@ -71,7 +72,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         // Setup validator to fail for period = 0
@@ -99,7 +100,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedSummary = new TimebankSummaryDto
@@ -142,7 +143,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         _mockSummaryValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankSummaryRequest>(), It.IsAny<CancellationToken>()))
@@ -177,7 +178,7 @@ public class TimebankControllerTests
         {
             new(CustomClaimTypes.JudgeId, loggedInJudgeId.ToString()),
             new(CustomClaimTypes.Groups, "jasper-view-others-schedule"),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedSummary = new TimebankSummaryDto
@@ -224,7 +225,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedSummary = new TimebankSummaryDto
@@ -272,7 +273,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         // Setup validator to fail for period <= 1900
@@ -343,7 +344,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         // Setup validator to fail for rate = 0
@@ -372,7 +373,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedPayout = new VacationPayoutDto
@@ -418,7 +419,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         _mockPayoutValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankPayoutRequest>(), It.IsAny<CancellationToken>()))
@@ -453,7 +454,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         _mockPayoutValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankPayoutRequest>(), It.IsAny<CancellationToken>()))
@@ -490,7 +491,7 @@ public class TimebankControllerTests
         {
             new(CustomClaimTypes.JudgeId, loggedInJudgeId.ToString()),
             new(CustomClaimTypes.Groups, "jasper-view-others-schedule"),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedPayout = new VacationPayoutDto
@@ -541,7 +542,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedPayout = new VacationPayoutDto
@@ -589,7 +590,7 @@ public class TimebankControllerTests
         var claims = new List<Claim>
         {
             new(CustomClaimTypes.JudgeId, judgeId.ToString()),
-            new(CustomClaimTypes.Permission, Permission.VIEW_VACATION_PAYOUT)
+            new(CustomClaimTypes.Permission, Scv.Db.Models.Permission.VIEW_VACATION_PAYOUT)
         };
 
         var expectedPayout = new VacationPayoutDto
