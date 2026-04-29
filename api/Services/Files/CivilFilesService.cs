@@ -9,16 +9,16 @@ using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using Scv.Core.Helpers;
 using Scv.Core.ContractResolver;
+using Scv.Core.Helpers;
 using Scv.Core.Helpers.Extensions;
 using Scv.Db.Models;
 using Scv.Models.Civil.AppearanceDetail;
 using Scv.Models.Civil.Appearances;
 using Scv.Models.Civil.Detail;
+using Scv.Models.Document;
 using Scv.Models.Search;
 using CivilAppearanceMethod = Scv.Models.Civil.AppearanceDetail.CivilAppearanceMethod;
-using Scv.Models.Document;
 
 namespace Scv.Api.Services.Files
 {

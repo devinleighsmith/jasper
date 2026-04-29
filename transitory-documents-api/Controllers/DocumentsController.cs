@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Scv.Core.Helpers;
+using Scv.Models.Document;
 using Scv.Models.TransitoryDocuments;
 using Scv.TdApi.Infrastructure.Authorization;
-using Scv.Models.Document;
 using Scv.TdApi.Services;
 
 namespace Scv.TdApi.Controllers

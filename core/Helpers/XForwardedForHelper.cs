@@ -25,8 +25,7 @@
 
             if (!string.IsNullOrEmpty(portComponent))
             {
-                int port;
-                int.TryParse(forwardedPort, out port);
+                int.TryParse(forwardedPort, out int port);
                 uriBuilder.Port = port;
             }
 

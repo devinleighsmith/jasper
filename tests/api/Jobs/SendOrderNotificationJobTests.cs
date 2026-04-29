@@ -4,7 +4,6 @@ using Bogus;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Scv.Api.Jobs;
-using Scv.Api.Models;
 using Scv.Api.Services;
 using Scv.Api.SignalR.Notifications;
 using Scv.Models;

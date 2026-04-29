@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Scv.Core.Helpers;
 using Scv.Api.Services;
 using Scv.Api.SignalR.Notifications;
+using Scv.Core.Helpers;
 using Scv.Models;
 using Scv.Models.Order;
 

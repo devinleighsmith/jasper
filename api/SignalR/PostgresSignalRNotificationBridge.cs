@@ -8,9 +8,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PostgreSQL.ListenNotify;
 using Scv.Api.Hubs;
-using Scv.Models;
 using Scv.Core.Helpers.Extensions;
 using Scv.Db.Repositories;
+using Scv.Models;
 
 namespace Scv.Api.SignalR;
 

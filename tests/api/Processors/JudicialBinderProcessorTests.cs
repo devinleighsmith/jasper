@@ -12,7 +12,6 @@ using Scv.Api.Processors;
 using Scv.Api.Services;
 using Scv.Core.Helpers;
 using Scv.Db.Contants;
-using Scv.Db.Models;
 using Scv.Models;
 using Scv.Models.Civil.Detail;
 using Scv.Models.Document;

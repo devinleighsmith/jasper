@@ -82,8 +82,8 @@ namespace Scv.Api.Services.Files
         {
             var fileDetails = new List<RedactedCriminalFileDetailResponse>();
 
-            var fileNumberText = fileNumber.Contains("-") ? fileNumber.Split("-")[0] : fileNumber;
-            var mdocSequenceNumber = fileNumber.Contains("-") ? fileNumber.Split("-")[1] : null;
+            var fileNumberText = fileNumber.Contains('-') ? fileNumber.Split("-")[0] : fileNumber;
+            var mdocSequenceNumber = fileNumber.Contains('-') ? fileNumber.Split("-")[1] : null;
             var fileSearchResponse = await SearchAsync(new FilesCriminalQuery
             {
                 FileHomeAgencyId = location,
@@ -551,49 +551,6 @@ namespace Scv.Api.Services.Files
         #endregion Criminal Details
 
         #region Criminal Appearance Details
-
-
-        private async Task<CriminalAdjudicator> PopulateAppearanceDetailAdjudicator(CfcAppearance appearanceFromAccused, ICollection<ClAttendanceMethod> attendanceMethods, ICollection<JCCommon.Clients.FileServices.CriminalAppearanceMethod> appearanceMethods)
-        {
-            var partyAppearanceMethod = appearanceFromAccused?.PartyAppearanceMethod.FirstOrDefault(pam => pam.PartyRole == "ADJ");
-            var attendanceMethod = attendanceMethods?.FirstOrDefault(am => am.RoleType == "ADJ");
-            var appearanceMethod = appearanceMethods?.FirstOrDefault(am => am.RoleTypeCd == "ADJ");
-            if (partyAppearanceMethod == null || (partyAppearanceMethod.PartyName == null && partyAppearanceMethod.PartId == null && appearanceMethod?.AppearanceMethodCd == null))
-                return null;
-
-            return new CriminalAdjudicator
-            {
-                FullName = partyAppearanceMethod.PartyName.ConvertNameLastCommaFirstToFirstLast(),
-                PartId = partyAppearanceMethod.PartId,
-                PartyAppearanceMethod = partyAppearanceMethod.PartyAppearanceMethod,
-                PartyAppearanceMethodDesc = await _lookupService.GetCriminalAdjudicatorAttend(partyAppearanceMethod?.PartyAppearanceMethod),
-                AttendanceMethodCd = attendanceMethod?.AttendanceMethodCd,
-                AttendanceMethodDesc = await _lookupService.GetCriminalAssetsDescriptions(attendanceMethod?.AttendanceMethodCd),
-                AppearanceMethodCd = appearanceMethod?.AppearanceMethodCd,
-                AppearanceMethodDesc = await _lookupService.GetCriminalAssetsDescriptions(appearanceMethod?.AppearanceMethodCd)
-            };
-        }
-
-        private async Task<Prosecutor> PopulateAppearanceDetailProsecutor(CfcAppearance appearanceFromAccused, ICollection<ClAttendanceMethod> attendanceMethods, ICollection<JCCommon.Clients.FileServices.CriminalAppearanceMethod> appearanceMethods)
-        {
-            var partyAppearanceMethod = appearanceFromAccused?.PartyAppearanceMethod.FirstOrDefault(pam => pam.PartyRole == "PRO");
-            var attendanceMethod = attendanceMethods?.FirstOrDefault(am => am.RoleType == "PRO");
-            var appearanceMethod = appearanceMethods?.FirstOrDefault(am => am.RoleTypeCd == "PRO");
-            if (partyAppearanceMethod == null || (partyAppearanceMethod.PartyName == null && partyAppearanceMethod.PartId == null && appearanceMethod?.AppearanceMethodCd == null))
-                return null;
-
-            return new Prosecutor
-            {
-                FullName = partyAppearanceMethod.PartyName.ConvertNameLastCommaFirstToFirstLast(),
-                PartId = partyAppearanceMethod.PartId,
-                PartyAppearanceMethod = partyAppearanceMethod.PartyAppearanceMethod,
-                PartyAppearanceMethodDesc = await _lookupService.GetCriminalCrownAttendanceType(partyAppearanceMethod?.PartyAppearanceMethod),
-                AttendanceMethodCd = attendanceMethod?.AttendanceMethodCd,
-                AttendanceMethodDesc = await _lookupService.GetCriminalAssetsDescriptions(attendanceMethod?.AttendanceMethodCd),
-                AppearanceMethodCd = appearanceMethod?.AppearanceMethodCd,
-                AppearanceMethodDesc = await _lookupService.GetCriminalAssetsDescriptions(appearanceMethod?.AppearanceMethodCd)
-            };
-        }
 
         private async Task<JustinCounsel> PopulateAppearanceDetailJustinCounsel(CriminalParticipant criminalParticipant, ICollection<ClAttendanceMethod> attendanceMethods, ICollection<JCCommon.Clients.FileServices.CriminalAppearanceMethod> appearanceMethods)
         {
