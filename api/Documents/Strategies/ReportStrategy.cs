@@ -1,7 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using PCSSCommon.Clients.ReportServices;
-using Scv.Models;
 using Scv.Models.Document;
 
 namespace Scv.Api.Documents.Strategies;

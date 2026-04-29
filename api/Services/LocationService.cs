@@ -7,7 +7,7 @@ using LazyCache;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using Scv.Models.Location;
 using PCSSLocationServices = PCSSCommon.Clients.LocationServices;

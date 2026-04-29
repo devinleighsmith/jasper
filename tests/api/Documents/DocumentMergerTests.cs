@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Scv.Api.Documents;
-using Scv.Models;
 using Scv.Models.Document;
 using tests.api.Services;
 using Xunit;

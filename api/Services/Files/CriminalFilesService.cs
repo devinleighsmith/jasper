@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 using Scv.Api.Documents;
 using Scv.Api.Models.Criminal.AppearanceDetail;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using Scv.Db.Models;
 using Scv.Models.Criminal.AppearanceDetail;
@@ -100,7 +100,7 @@ namespace Scv.Api.Services.Files
 
             //Return the basic entry without doing a lookup.
             if (fileIdAndAppearanceDate.Count == 1)
-                return new List<RedactedCriminalFileDetailResponse> { new RedactedCriminalFileDetailResponse { JustinNo = fileIdAndAppearanceDate.First().MdocJustinNo } };
+                return [new RedactedCriminalFileDetailResponse { JustinNo = fileIdAndAppearanceDate.First().MdocJustinNo }];
 
             //It seems the fileSearch and the FileDetails/FileContent bring up two different participant lists
             //The fileSearch seems to include have extra participants.
@@ -342,7 +342,7 @@ namespace Scv.Api.Services.Files
                 {
                     count.PartId = GetParticipantIdFromDetail(accusedFile.PartId, detail);
                     count.AppearanceDate = appearance.AppearanceDate;
-                    count.Sentence = count.Sentence.Where(s => s != null).ToList();
+                    count.Sentence = [.. count.Sentence.Where(s => s != null)];
                     foreach (var criminalSentence in count.Sentence)
                     {
                         criminalSentence.JudgesRecommendation = appearance.JudgesRecommendation;
@@ -385,7 +385,7 @@ namespace Scv.Api.Services.Files
                 participant.AgeNotice = courtLists?.Where(cl => cl.FileInformation.PartId == participant.PartId)
                     .SelectMany(cl => cl.AgeNotice)
                     .ToList();
-                participant.Document = (documents ?? []).Where(doc => doc.PartId == participant.PartId).ToList();
+                participant.Document = [.. (documents ?? []).Where(doc => doc.PartId == participant.PartId)];
                 participant.HideJustinCounsel = false;   //TODO tie this to a permission. View Witness List permission
                 //TODO COUNSEL? This would have to come from law society data, which is stored in a CSV file. 
                 foreach (var accusedFile in (accusedFiles ?? []).Where(af => af?.PartId == participant.PartId))
@@ -558,7 +558,7 @@ namespace Scv.Api.Services.Files
             var partyAppearanceMethod = appearanceFromAccused?.PartyAppearanceMethod.FirstOrDefault(pam => pam.PartyRole == "ADJ");
             var attendanceMethod = attendanceMethods?.FirstOrDefault(am => am.RoleType == "ADJ");
             var appearanceMethod = appearanceMethods?.FirstOrDefault(am => am.RoleTypeCd == "ADJ");
-            if (partyAppearanceMethod == null || partyAppearanceMethod.PartyName == null && partyAppearanceMethod.PartId == null && appearanceMethod?.AppearanceMethodCd == null)
+            if (partyAppearanceMethod == null || (partyAppearanceMethod.PartyName == null && partyAppearanceMethod.PartId == null && appearanceMethod?.AppearanceMethodCd == null))
                 return null;
 
             return new CriminalAdjudicator
@@ -579,7 +579,7 @@ namespace Scv.Api.Services.Files
             var partyAppearanceMethod = appearanceFromAccused?.PartyAppearanceMethod.FirstOrDefault(pam => pam.PartyRole == "PRO");
             var attendanceMethod = attendanceMethods?.FirstOrDefault(am => am.RoleType == "PRO");
             var appearanceMethod = appearanceMethods?.FirstOrDefault(am => am.RoleTypeCd == "PRO");
-            if (partyAppearanceMethod == null || partyAppearanceMethod.PartyName == null && partyAppearanceMethod.PartId == null && appearanceMethod?.AppearanceMethodCd == null)
+            if (partyAppearanceMethod == null || (partyAppearanceMethod.PartyName == null && partyAppearanceMethod.PartId == null && appearanceMethod?.AppearanceMethodCd == null))
                 return null;
 
             return new Prosecutor

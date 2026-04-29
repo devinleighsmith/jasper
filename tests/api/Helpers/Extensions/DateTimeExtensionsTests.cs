@@ -28,7 +28,7 @@ public class DateTimeExtensionsTests
         return mockHttpContext;
     }
 
-    private static IServiceProvider CreateMockServiceProvider(HttpContext httpContext = null)
+    private static ServiceProvider CreateMockServiceProvider(HttpContext httpContext = null)
     {
         var services = new ServiceCollection();
 

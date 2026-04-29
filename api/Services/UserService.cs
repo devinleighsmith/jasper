@@ -277,17 +277,14 @@ public class UserService(
             return homeLocations;
         }
 
-        return locations
+        return [.. locations
             .Where(loc => !string.IsNullOrWhiteSpace(loc.RegionCd) &&
-                string.Equals(loc.RegionCd, regionCd, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+                string.Equals(loc.RegionCd, regionCd, StringComparison.OrdinalIgnoreCase))];
     }
 
     private static List<Location> GetUserHomeLocations(string homeLocationIdValue, List<Location> locations)
     {
-        return locations
-            .Where(loc => loc.LocationId == homeLocationIdValue)
-            .ToList();
+        return [.. locations.Where(loc => loc.LocationId == homeLocationIdValue)];
     }
 
     private static bool TryGetHomeLocationIdValue(ClaimsPrincipal user, out string homeLocationIdValue)

@@ -15,11 +15,11 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Polly;
 using Polly.Retry;
+using Scv.Core.ContractResolver;
+using Scv.Core.Handler;
 using Scv.Core.Helpers;
-using Scv.Core.Helpers.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using Scv.Core.Infrastructure.Authorization;
-using Scv.Core.Infrastructure.Handler;
 using Scv.Models;
 using Scv.TdApi.Infrastructure;
 using Scv.TdApi.Infrastructure.Authorization;
@@ -29,14 +29,9 @@ using Scv.TdApi.Infrastructure.Options;
 
 namespace Scv.TdApi
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        private IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; } = configuration;
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -237,22 +232,21 @@ namespace Scv.TdApi
             services.AddScoped<IAuthorizationHandler, TdRoleAuthorizationHandler>();
 
             // Configure authorization policies
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(TdPolicies.RequireQueryRole, policy =>
+            services.AddAuthorizationBuilder()
+                // Configure authorization policies
+                .AddPolicy(TdPolicies.RequireQueryRole, policy =>
                 {
                     policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
                     policy.RequireAuthenticatedUser();
                     policy.Requirements.Add(new TdRoleRequirement(TdRoles.Query));
-                });
-
-                options.AddPolicy(TdPolicies.RequireReadRole, policy =>
+                })
+                // Configure authorization policies
+                .AddPolicy(TdPolicies.RequireReadRole, policy =>
                 {
                     policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
                     policy.RequireAuthenticatedUser();
                     policy.Requirements.Add(new TdRoleRequirement(TdRoles.Read));
                 });
-            });
 
             services.AddTransient<TimingHandler>();
 
@@ -368,7 +362,7 @@ namespace Scv.TdApi
                     var baseUrl = context.Request.Headers["X-Base-Href"].ToString();
                     if (!string.IsNullOrEmpty(baseUrl) && baseUrl.Length > 0)
                     {
-                        context.Request.PathBase = new PathString(baseUrl.Remove(baseUrl.Length - 1));
+                        context.Request.PathBase = new PathString(baseUrl[..^1]);
                     }
                 }
                 return next();
@@ -382,17 +376,17 @@ namespace Scv.TdApi
                 options.RouteTemplate = "api/swagger/{documentname}/swagger.json";
                 options.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
                 {
-                    if (!httpReq.Headers.ContainsKey("X-Forwarded-Host"))
+                    if (!httpReq.Headers.TryGetValue("X-Forwarded-Host", out Microsoft.Extensions.Primitives.StringValues value))
                         return;
 
-                    var forwardedHost = httpReq.Headers["X-Forwarded-Host"].ToString();
+                    var forwardedHost = value.ToString();
                     var forwardedPort = httpReq.Headers["X-Forwarded-Port"].ToString();
                     var baseUrl = httpReq.Headers["X-Base-Href"].ToString();
 
-                    swaggerDoc.Servers = new List<OpenApiServer>
-                    {
-                        new OpenApiServer { Url = XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUrl) }
-                    };
+                    swaggerDoc.Servers =
+                    [
+                        new() { Url = XForwardedForHelper.BuildUrlString(forwardedHost, forwardedPort, baseUrl) }
+                    ];
                 });
             });
 
@@ -402,7 +396,7 @@ namespace Scv.TdApi
                 options.RoutePrefix = "api";
             });
 
-            app.UseMiddleware(typeof(TdErrorHandlingMiddleware));
+            app.UseMiddleware<TdErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 

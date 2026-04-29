@@ -1,5 +1,5 @@
 using Mapster;
-using ScvFileMetadataDto = Scv.TdApi.Models.FileMetadataDto;
+using ScvFileMetadataDto = Scv.Models.Document.FileMetadataDto;
 using TdFileMetadataDto = TDCommon.Clients.DocumentsServices.FileMetadataDto;
 
 namespace Scv.Api.Infrastructure.Mappings;

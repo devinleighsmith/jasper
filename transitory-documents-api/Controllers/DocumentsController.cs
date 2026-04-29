@@ -3,25 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 using Scv.Core.Helpers;
 using Scv.Models.TransitoryDocuments;
 using Scv.TdApi.Infrastructure.Authorization;
-using Scv.TdApi.Models;
+using Scv.Models.Document;
 using Scv.TdApi.Services;
 
 namespace Scv.TdApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DocumentsController : ControllerBase
+    public class DocumentsController(
+        ISharedDriveFileService files,
+        ILogger<DocumentsController> logger) : ControllerBase
     {
-        private readonly ISharedDriveFileService _sharedDriveFileService;
-        private readonly ILogger<DocumentsController> _logger;
-
-        public DocumentsController(
-            ISharedDriveFileService files,
-            ILogger<DocumentsController> logger)
-        {
-            _sharedDriveFileService = files;
-            _logger = logger;
-        }
+        private readonly ISharedDriveFileService _sharedDriveFileService = files;
+        private readonly ILogger<DocumentsController> _logger = logger;
 
         /// <summary>
         /// Lists files for a region, location and date. Also scans any subfolders whose name matches the provided roomCode.

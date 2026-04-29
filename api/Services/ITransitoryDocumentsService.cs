@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Scv.Models;
 using TDCommon.Clients.DocumentsServices;
-using FileMetadataDto = Scv.TdApi.Models.FileMetadataDto;
 
 namespace Scv.Api.Services
 {
@@ -21,7 +20,7 @@ namespace Scv.Api.Services
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>The collection of file metadata from the API.</returns>
         /// <exception cref="ApiException">A server-side error occurred.</exception>
-        Task<IEnumerable<FileMetadataDto>> ListSharedDocuments(
+        Task<IEnumerable<Scv.Models.Document.FileMetadataDto>> ListSharedDocuments(
             string locationId,
             string roomCode,
             string date,

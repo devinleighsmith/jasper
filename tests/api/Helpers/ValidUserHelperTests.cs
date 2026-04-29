@@ -1,5 +1,5 @@
 using System;
-using Scv.Api.Helpers;
+using Scv.Core.Helpers;
 using Scv.Models;
 using Xunit;
 

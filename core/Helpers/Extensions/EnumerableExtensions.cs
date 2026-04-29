@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using PCSSCommonConstants = PCSSCommon.Common.Constants;
+﻿using System.Globalization;
 
-namespace Scv.Api.Helpers.Extensions
+namespace Scv.Core.Helpers.Extensions
 {
 
     public static class EnumerableExtensions
@@ -41,7 +37,7 @@ namespace Scv.Api.Helpers.Extensions
             // Try the usual date format first (dd-MMM-yyyy, e.g., "24-Oct-2025")
             if (DateTime.TryParseExact(
                 dateString,
-                PCSSCommonConstants.DATE_FORMAT,
+                "dd-MMM-yyyy",
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out DateTime date))

@@ -18,7 +18,7 @@ public class CasesControllerTests
     private readonly CasesController _controller;
     private readonly Mock<ICaseService> _mockCaseService;
 
-    private int judgeId = 1;
+    private readonly int judgeId = 1;
 
     public CasesControllerTests()
     {
@@ -51,7 +51,6 @@ public class CasesControllerTests
 
         var result = await _controller.GetAssignedCases();
 
-        var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.IsType<OkObjectResult>(result);
         _mockCaseService.Verify(s => s.GetAssignedCasesAsync(judgeId), Times.Once());
     }

@@ -15,7 +15,7 @@ public static class LocationServiceBuilder
     {
         fixture.MockLocationService
             .Setup(s => s.GetLocations(It.IsAny<bool>()))
-            .ReturnsAsync(locations ?? new List<Location>());
+            .ReturnsAsync(locations ?? []);
 
         return fixture;
     }

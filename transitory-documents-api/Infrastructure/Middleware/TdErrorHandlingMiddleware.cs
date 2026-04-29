@@ -4,41 +4,31 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Scv.Core.Helpers.Exceptions;
-using Scv.Models;
+using Scv.Core.Exceptions;
 
 namespace Scv.TdApi.Infrastructure.Middleware
 {
     /// <summary>
     /// ErrorHandlingMiddleware class, provides a way to catch and handle unhandled errors in a generic way.
     /// </summary>
-    public class TdErrorHandlingMiddleware
+    /// <remarks>
+    /// Creates a new instance of an ErrorHandlingMiddleware class, and initializes it with the specified arguments.
+    /// </remarks>
+    /// <param name="next"></param>
+    /// <param name="env"></param>
+    /// <param name="logger"></param>
+    /// <param name="options"></param>
+    public class TdErrorHandlingMiddleware(RequestDelegate next, IWebHostEnvironment env, ILogger<TdErrorHandlingMiddleware> logger, IOptions<JsonOptions> options)
     {
         #region Variables
 
-        private readonly RequestDelegate _next;
-        private readonly IWebHostEnvironment _env;
-        private readonly ILogger<TdErrorHandlingMiddleware> _logger;
-        private readonly JsonOptions _options;
+        private readonly RequestDelegate _next = next;
+        private readonly IWebHostEnvironment _env = env;
+        private readonly ILogger<TdErrorHandlingMiddleware> _logger = logger;
+        private readonly JsonOptions _options = options.Value;
 
         #endregion Variables
-
         #region Constructors
-
-        /// <summary>
-        /// Creates a new instance of an ErrorHandlingMiddleware class, and initializes it with the specified arguments.
-        /// </summary>
-        /// <param name="next"></param>
-        /// <param name="env"></param>
-        /// <param name="logger"></param>
-        /// <param name="options"></param>
-        public TdErrorHandlingMiddleware(RequestDelegate next, IWebHostEnvironment env, ILogger<TdErrorHandlingMiddleware> logger, IOptions<JsonOptions> options)
-        {
-            _next = next;
-            _env = env;
-            _logger = logger;
-            _options = options.Value;
-        }
 
         #endregion Constructors
 
@@ -88,13 +78,13 @@ namespace Scv.TdApi.Infrastructure.Middleware
                 case NotAuthorizedException _:
                     code = HttpStatusCode.Forbidden;
                     message = "User is not authorized to perform this action.";
-                    _logger.LogWarning(ex, ex.Message);
+                    _logger.LogWarning(ex, "User is not authorized to perform this action: {Message}", ex.Message);
                     break;
 
                 case ConfigurationException _:
                     code = HttpStatusCode.InternalServerError;
                     message = "Application configuration details invalid or missing.";
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError(ex, "Application configuration error: {Message}", ex.Message);
                     break;
 
                 case NotFoundException _:

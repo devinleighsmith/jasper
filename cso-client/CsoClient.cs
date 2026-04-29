@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Scv.Api.Infrastructure.Options;
+using Scv.Cso.Infrastructure.Options;
 using Scv.Models.Order;
 
 namespace Scv.Cso;

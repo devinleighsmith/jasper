@@ -1,7 +1,7 @@
 namespace Scv.TdApi.Infrastructure.FileSystem
 {
     using System.IO;
-    using Scv.Core.Helpers.Exceptions;
+    using Scv.Core.Exceptions;
 
     /// <summary>
     /// Utility class for SMB path normalization and manipulation.
@@ -73,7 +73,7 @@ namespace Scv.TdApi.Infrastructure.FileSystem
 
             var normalized = relativePath.Replace("/", "\\");
 
-            if (normalized.StartsWith("\\\\", StringComparison.Ordinal) || normalized.StartsWith("\\", StringComparison.Ordinal))
+            if (normalized.StartsWith("\\\\", StringComparison.Ordinal) || normalized.StartsWith('\\'))
             {
                 throw new BadRequestException("path must be a relative path.");
             }

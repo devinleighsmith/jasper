@@ -192,7 +192,7 @@ public class UserServiceTests : ServiceTestBase
             .Setup(r => r.GetAllAsync())
             .ReturnsAsync([
                 new Group {
-                    Id = dto.GroupIds.First(),
+                    Id = dto.GroupIds[0],
                     Name = _faker.Lorem.Word(),
                     Description = _faker.Lorem.Paragraph()
                 }
@@ -238,7 +238,7 @@ public class UserServiceTests : ServiceTestBase
         Assert.NotNull(result);
         Assert.False(result.Succeeded);
         Assert.Single(result.Errors);
-        Assert.Equal("Entity not found.", result.Errors.First());
+        Assert.Equal("Entity not found.", result.Errors[0]);
         _mockUserRepo.Verify(r => r.GetByIdAsync(fakeId), Times.Once);
         _mockUserRepo.Verify(r => r.DeleteAsync(It.IsAny<User>()), Times.Never);
     }
@@ -256,7 +256,7 @@ public class UserServiceTests : ServiceTestBase
         Assert.NotNull(result);
         Assert.False(result.Succeeded);
         Assert.Single(result.Errors);
-        Assert.Equal("Error when deleting data.", result.Errors.First());
+        Assert.Equal("Error when deleting data.", result.Errors[0]);
         _mockUserRepo.Verify(r => r.GetByIdAsync(fakeId), Times.Once);
         _mockUserRepo.Verify(r => r.DeleteAsync(It.IsAny<User>()), Times.Never);
     }

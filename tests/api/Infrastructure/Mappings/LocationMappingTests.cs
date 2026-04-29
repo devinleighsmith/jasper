@@ -11,7 +11,7 @@ namespace tests.api.Infrastructure.Mappings;
 
 public class LocationMappingTests
 {
-    private readonly IMapper _mapper;
+    private readonly Mapper _mapper;
 
     public LocationMappingTests()
     {

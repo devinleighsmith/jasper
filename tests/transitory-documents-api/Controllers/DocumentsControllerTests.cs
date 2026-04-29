@@ -9,9 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Scv.Models;
+using Scv.Models.Document;
 using Scv.Models.TransitoryDocuments;
 using Scv.TdApi.Controllers;
-using Scv.TdApi.Models;
 using Scv.TdApi.Services;
 using Xunit;
 
@@ -73,7 +73,7 @@ namespace tests.tdApi.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualFiles = Assert.IsAssignableFrom<IReadOnlyList<FileMetadataDto>>(okResult.Value);
+            var actualFiles = Assert.IsType<IReadOnlyList<FileMetadataDto>>(okResult.Value, exactMatch: false);
             Assert.Equal(expectedFiles.Count, actualFiles.Count);
             Assert.Equal(expectedFiles, actualFiles);
 
@@ -95,7 +95,7 @@ namespace tests.tdApi.Tests.Controllers
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualFiles = Assert.IsAssignableFrom<IReadOnlyList<FileMetadataDto>>(okResult.Value);
+            var actualFiles = Assert.IsType<IReadOnlyList<FileMetadataDto>>(okResult.Value, exactMatch: false);
             Assert.Empty(actualFiles);
 
             _mockService.Verify(s => s.FindFilesAsync(request, It.IsAny<CancellationToken>()), Times.Once);
@@ -116,13 +116,13 @@ namespace tests.tdApi.Tests.Controllers
             };
 
             _mockService.Setup(s => s.FindFilesAsync(request, It.IsAny<CancellationToken>()))
-                       .ReturnsAsync(new List<FileMetadataDto>());
+                       .ReturnsAsync([]);
 
             // Act
             var result = await _controller.Search(request);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<OkObjectResult>(result);
             _mockService.Verify(s => s.FindFilesAsync(request, It.IsAny<CancellationToken>()), Times.Once);
         }
 

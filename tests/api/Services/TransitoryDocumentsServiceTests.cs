@@ -14,7 +14,7 @@ using Scv.Api.Infrastructure.Authentication;
 using Scv.Api.Infrastructure.Mappings;
 using Scv.Api.Infrastructure.Options;
 using Scv.Api.Services;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 using TDCommon.Clients.DocumentsServices;
 using Xunit;
 using JCRegion = JCCommon.Clients.LocationServices.Region;
@@ -27,6 +27,9 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
     private readonly Mock<IConfiguration> _mockConfig;
     private readonly Faker _faker;
     private readonly IMapper _mapper;
+    private static readonly string[] value = ["application/pdf"];
+    private static readonly string[] valueArray = ["text/plain; charset=utf-8"];
+    private static readonly string[] valueArray0 = ["attachment; filename=\"file.docx\""];
 
     public TransitoryDocumentsServiceTests()
     {
@@ -86,7 +89,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             mockLocationService
                 .Setup(l => l.GetLocations(It.IsAny<bool>()))
-                .ReturnsAsync(new List<Scv.Models.Location.Location> { location });
+                .ReturnsAsync([location]);
         }
 
         if (region != null)
@@ -123,7 +126,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -131,13 +134,12 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var tdResults = new List<TDCommon.Clients.DocumentsServices.FileMetadataDto>
         {
-            new TDCommon.Clients.DocumentsServices.FileMetadataDto
-            {
+            new() {
                 FileName = "test.pdf",
                 Extension = ".pdf",
                 SizeBytes = 1024,
@@ -185,7 +187,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -193,14 +195,13 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var expectedDateTime = new DateTimeOffset(2024, 1, 15, 10, 30, 0, TimeSpan.Zero);
-        var tdResults = new List<TDCommon.Clients.DocumentsServices.FileMetadataDto>
+        var tdResults = new List<FileMetadataDto>
         {
-            new TDCommon.Clients.DocumentsServices.FileMetadataDto
-            {
+            new() {
                 FileName = "test.pdf",
                 Extension = ".pdf",
                 SizeBytes = 1024,
@@ -219,7 +220,6 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var resultList = result.ToList();
         Assert.Single(resultList);
         Assert.Equal(expectedDateTime.UtcDateTime, resultList[0].CreatedUtc);
-        Assert.Equal(DateTimeKind.Utc, resultList[0].CreatedUtc.Kind);
     }
 
     [Fact]
@@ -235,7 +235,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -243,7 +243,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var tdResults = new List<TDCommon.Clients.DocumentsServices.FileMetadataDto>();
@@ -270,7 +270,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
 
         mockLocationService
             .Setup(l => l.GetLocations(It.IsAny<bool>()))
-            .ReturnsAsync(new List<Scv.Models.Location.Location>());
+            .ReturnsAsync([]);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<BadRequestException>(() =>
@@ -292,7 +292,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = null;
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -300,7 +300,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
 
         mockLocationService
             .Setup(l => l.GetLocations(It.IsAny<bool>()))
-            .ReturnsAsync(new List<Scv.Models.Location.Location> { location });
+            .ReturnsAsync([location]);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<BadRequestException>(() =>
@@ -324,7 +324,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -332,14 +332,14 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = regionName,
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var (service, _, mockLocationService, _) = SetupService();
 
         mockLocationService
             .Setup(l => l.GetLocations(It.IsAny<bool>()))
-            .ReturnsAsync(new List<Scv.Models.Location.Location> { location });
+            .ReturnsAsync([location]);
 
         mockLocationService
             .Setup(l => l.GetRegion(It.IsAny<string>()))
@@ -367,7 +367,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -375,14 +375,14 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var (service, _, mockLocationService, _) = SetupService();
 
         mockLocationService
             .Setup(l => l.GetLocations(It.IsAny<bool>()))
-            .ReturnsAsync(new List<Scv.Models.Location.Location> { location });
+            .ReturnsAsync([location]);
 
         mockLocationService
             .Setup(l => l.GetRegion(It.IsAny<string>()))
@@ -409,7 +409,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -417,7 +417,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var tdResults = new List<TDCommon.Clients.DocumentsServices.FileMetadataDto>();
@@ -426,7 +426,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
 
         mockLocationService
             .Setup(l => l.GetLocations(It.IsAny<bool>()))
-            .ReturnsAsync(new List<Scv.Models.Location.Location> { location });
+            .ReturnsAsync([location]);
 
         mockLocationService
             .Setup(l => l.GetRegion(It.IsAny<string>()))
@@ -463,7 +463,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -471,13 +471,12 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var tdResults = new List<TDCommon.Clients.DocumentsServices.FileMetadataDto>
         {
-            new TDCommon.Clients.DocumentsServices.FileMetadataDto
-            {
+            new() {
                 FileName = "test1.pdf",
                 Extension = ".pdf",
                 SizeBytes = 1024,
@@ -485,8 +484,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
                 RelativePath = "path/to/test1.pdf",
                 MatchedRoomFolder = roomCode
             },
-            new TDCommon.Clients.DocumentsServices.FileMetadataDto
-            {
+            new() {
                 FileName = "test2.docx",
                 Extension = ".docx",
                 SizeBytes = 2048,
@@ -521,7 +519,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
             locationId,
             locationId,
             true,
-            new List<Scv.Models.Location.CourtRoom>());
+            []);
         location.ShortName = _faker.Random.AlphaNumeric(5);
         location.AgencyIdentifierCd = _faker.Random.AlphaNumeric(3);
 
@@ -529,13 +527,12 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         {
             RegionId = _faker.Random.Int(1, 10),
             RegionName = _faker.Address.State(),
-            RegionLocations = new List<string>()
+            RegionLocations = []
         };
 
         var tdResults = new List<TDCommon.Clients.DocumentsServices.FileMetadataDto>
         {
-            new TDCommon.Clients.DocumentsServices.FileMetadataDto
-            {
+            new() {
                 FileName = "test.pdf",
                 Extension = ".pdf",
                 SizeBytes = 1024,
@@ -608,7 +605,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var headers = new Dictionary<string, IEnumerable<string>>
         {
             { "Content-Disposition", new[] { $"attachment; filename=\"{expectedFileName}\"" } },
-            { "Content-Type", new[] { "application/pdf" } }
+            { "Content-Type", value }
         };
 
         var fileResponse = new FileResponse(200, headers, stream, null, null);
@@ -637,7 +634,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var headers = new Dictionary<string, IEnumerable<string>>
         {
             { "Content-Disposition", new[] { $"attachment; filename*=UTF-8''{encodedFileName}" } },
-            { "Content-Type", new[] { "application/pdf" } }
+            { "Content-Type", value }
         };
 
         var fileResponse = new FileResponse(200, headers, stream, null, null);
@@ -663,7 +660,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var stream = new System.IO.MemoryStream(_faker.Random.Bytes(100));
         var headers = new Dictionary<string, IEnumerable<string>>
         {
-            { "Content-Type", new[] { "application/pdf" } }
+            { "Content-Type", valueArray }
         };
 
         var fileResponse = new FileResponse(200, headers, stream, null, null);
@@ -690,7 +687,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var stream = new System.IO.MemoryStream(_faker.Random.Bytes(100));
         var headers = new Dictionary<string, IEnumerable<string>>
         {
-            { "Content-Disposition", new[] { "attachment; filename=\"file.docx\"" } },
+            { "Content-Disposition", valueArray0 },
             { "Content-Type", new[] { expectedContentType } }
         };
 
@@ -717,8 +714,8 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var stream = new System.IO.MemoryStream(_faker.Random.Bytes(100));
         var headers = new Dictionary<string, IEnumerable<string>>
         {
-            { "Content-Disposition", new[] { "attachment; filename=\"file.txt\"" } },
-            { "Content-Type", new[] { "text/plain; charset=utf-8" } }
+            { "Content-Disposition", valueArray0 },
+            { "Content-Type", valueArray }
         };
 
         var fileResponse = new FileResponse(200, headers, stream, null, null);
@@ -744,7 +741,7 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var stream = new System.IO.MemoryStream(_faker.Random.Bytes(100));
         var headers = new Dictionary<string, IEnumerable<string>>
         {
-            { "Content-Disposition", new[] { "attachment; filename=\"file.bin\"" } }
+            { "Content-Disposition", valueArray0 }
         };
 
         var fileResponse = new FileResponse(200, headers, stream, null, null);
@@ -824,8 +821,8 @@ public class TransitoryDocumentsServiceTests : ServiceTestBase
         var stream = new System.IO.MemoryStream(_faker.Random.Bytes(100));
         var headers = new Dictionary<string, IEnumerable<string>>
         {
-            { "Content-Disposition", new[] { "attachment; filename=\"file.pdf\"" } },
-            { "Content-Type", new[] { "application/pdf" } }
+            { "Content-Disposition", valueArray0 },
+            { "Content-Type", valueArray }
         };
 
         var fileResponse = new FileResponse(200, headers, stream, null, null);

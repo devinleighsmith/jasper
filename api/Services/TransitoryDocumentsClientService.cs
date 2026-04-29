@@ -9,14 +9,9 @@ namespace Scv.Api.Services;
 /// Wrapper implementation for TransitoryDocumentsClient that delegates calls to the underlying NSwag-generated client.
 /// This wrapper enables dependency injection and testing.
 /// </summary>
-public class TransitoryDocumentsClientService : ITransitoryDocumentsClientService
+public class TransitoryDocumentsClientService(TransitoryDocumentsClient client) : ITransitoryDocumentsClientService
 {
-    private readonly TransitoryDocumentsClient _client;
-
-    public TransitoryDocumentsClientService(TransitoryDocumentsClient client)
-    {
-        _client = client;
-    }
+    private readonly TransitoryDocumentsClient _client = client;
 
     /// <inheritdoc />
     public void SetBearerToken(string token)

@@ -1,7 +1,6 @@
-using System;
 using System.Text.Json.Serialization;
 
-namespace Scv.Api.Models;
+namespace Scv.Models;
 
 public enum NotificationType
 {

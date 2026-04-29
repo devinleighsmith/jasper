@@ -1,20 +1,15 @@
 ﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Scv.Core.Infrastructure.Handler
+namespace Scv.Core.Handler
 {
     /// <summary>
     /// This is created so we can measure the time between request and responses. There doesn't seem to be a very easy way of doing this in .NET Core. 
     /// I tried enabling scopes, but they seemed to print the same TraceId/SpanId/ConnectionId/RequestId. 
     /// </summary>
-    public class TimingHandler : DelegatingHandler
+    public class TimingHandler(ILogger<TimingHandler> logger) : DelegatingHandler
     {
-        private readonly ILogger<TimingHandler> _logger;
-
-        public TimingHandler(ILogger<TimingHandler> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<TimingHandler> _logger = logger;
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)

@@ -115,7 +115,7 @@ namespace Scv.Api.Services
                 return null;
             }
 
-            return groupResult.Payload.Select(g => g.Id).ToList();
+            return [.. groupResult.Payload.Select(g => g.Id)];
         }
 
         private async Task<int?> GetJudgeIdForUserAsync(int pcssUserId, string email)
@@ -168,7 +168,7 @@ namespace Scv.Api.Services
                 hasChanges = true;
             }
 
-            var currentGroupIds = userDto.GroupIds ?? new List<string>();
+            var currentGroupIds = userDto.GroupIds ?? [];
             if (!new HashSet<string>(currentGroupIds).SetEquals(groupIds))
             {
                 userDto.GroupIds = groupIds;

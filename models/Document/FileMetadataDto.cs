@@ -1,4 +1,4 @@
-namespace Scv.TdApi.Models;
+namespace Scv.Models.Document;
 
 public class FileMetadataDto
 {

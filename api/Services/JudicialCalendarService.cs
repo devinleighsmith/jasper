@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 using PCSSCommon.Clients.JudicialCalendarServices;
 using PCSSCommon.Models;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using PCSSConstants = PCSSCommon.Common.Constants;
 

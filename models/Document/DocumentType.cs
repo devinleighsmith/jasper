@@ -1,4 +1,4 @@
-namespace Scv.Models;
+namespace Scv.Models.Document;
 
 public enum DocumentType
 {

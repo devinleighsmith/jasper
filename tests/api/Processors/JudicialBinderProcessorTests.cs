@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Bogus;
 using FluentValidation;
 using JCCommon.Clients.FileServices;
-using LazyCache;
-using LazyCache.Mocks;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -17,6 +15,7 @@ using Scv.Db.Contants;
 using Scv.Db.Models;
 using Scv.Models;
 using Scv.Models.Civil.Detail;
+using Scv.Models.Document;
 using tests.api.Fixtures;
 using Xunit;
 
@@ -27,7 +26,6 @@ public class JudicialBinderProcessorTests
 {
     private readonly Mock<FileServicesClient> _mockFilesClient;
     private readonly Mock<IDarsService> _mockDarsService;
-    private readonly IAppCache _mockCache;
     private readonly Mock<IConfiguration> _mockConfiguration;
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IValidator<BinderDto>> _mockValidator;
@@ -40,7 +38,6 @@ public class JudicialBinderProcessorTests
         var httpClient = new System.Net.Http.HttpClient();
         _mockFilesClient = new Mock<FileServicesClient>(httpClient);
         _mockDarsService = new Mock<IDarsService>();
-        _mockCache = new MockCachingService();
         _mockConfiguration = new Mock<IConfiguration>();
         _mockMapper = new Mock<IMapper>();
         _mockValidator = new Mock<IValidator<BinderDto>>();
@@ -117,7 +114,7 @@ public class JudicialBinderProcessorTests
                 new CvfcDocument3
                 {
                     CivilDocumentId = "doc-1",
-                    DocumentTypeCd = DocumentCategory.BAIL,
+                    DocumentTypeCd = DocumentCategories.BAIL,
                     Issue = []
                 }
             ],
@@ -152,7 +149,7 @@ public class JudicialBinderProcessorTests
         };
 
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.BAIL);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.BAIL);
 
         _mockMapper
             .Setup(x => x.Map<RedactedCivilFileDetailResponse>(It.IsAny<CivilFileDetailResponse>()))
@@ -266,7 +263,7 @@ public class JudicialBinderProcessorTests
         };
 
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.BAIL);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.BAIL);
 
         _mockMapper
             .Setup(x => x.Map<RedactedCivilFileDetailResponse>(It.IsAny<CivilFileDetailResponse>()))
@@ -346,7 +343,7 @@ public class JudicialBinderProcessorTests
         var redactedDetail = new RedactedCivilFileDetailResponse { Document = [] };
 
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.BAIL);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.BAIL);
 
         _mockMapper
             .Setup(x => x.Map<RedactedCivilFileDetailResponse>(It.IsAny<CivilFileDetailResponse>()))
@@ -407,7 +404,7 @@ public class JudicialBinderProcessorTests
         var redactedDetail = new RedactedCivilFileDetailResponse { Document = [] };
 
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.CSR);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.CSR);
 
         _mockMapper
             .Setup(x => x.Map<RedactedCivilFileDetailResponse>(It.IsAny<CivilFileDetailResponse>()))
@@ -477,7 +474,7 @@ public class JudicialBinderProcessorTests
         var redactedDetail = new RedactedCivilFileDetailResponse { Document = [] };
 
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.LITIGANT);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.LITIGANT);
 
         _mockMapper
             .Setup(x => x.Map<RedactedCivilFileDetailResponse>(It.IsAny<CivilFileDetailResponse>()))
@@ -549,7 +546,7 @@ public class JudicialBinderProcessorTests
         var fileDetail = new CivilFileDetailResponse
         {
             Appearance = [],
-            Document = [new() { DocumentTypeCd = DocumentCategory.BAIL }],
+            Document = [new() { DocumentTypeCd = DocumentCategories.BAIL }],
             ReferenceDocument = []
         };
 
@@ -564,7 +561,7 @@ public class JudicialBinderProcessorTests
             ]
         };
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.BAIL);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.BAIL);
 
         _mockMapper
             .Setup(x => x.Map<List<BinderDocumentDto>>(It.IsAny<List<CivilDocument>>()))
@@ -602,7 +599,7 @@ public class JudicialBinderProcessorTests
                 new CvfcDocument3
                 {
                     CivilDocumentId = "doc-1", Issue = [],
-                    DocumentTypeCd = DocumentCategory.BAIL
+                    DocumentTypeCd = DocumentCategories.BAIL
                 }
             ],
             ReferenceDocument = [
@@ -639,7 +636,7 @@ public class JudicialBinderProcessorTests
         };
 
         SetupFileClientMocks(fileDetail, fileContent);
-        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategory.BAIL);
+        SetupFileServiceMocks(fileDetail, fileContent, DocumentCategories.BAIL);
 
         _mockMapper
             .Setup(x => x.Map<RedactedCivilFileDetailResponse>(It.IsAny<CivilFileDetailResponse>()))
@@ -800,7 +797,6 @@ public class JudicialBinderProcessorTests
             _mockUser,
             _mockValidator.Object,
             dto,
-            _mockCache,
             _mockMapper.Object,
             _mockConfiguration.Object,
             _mockDarsService.Object,

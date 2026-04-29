@@ -292,7 +292,7 @@ public class JudgeServiceTests : ServiceTestBase, IClassFixture<LocationServiceF
                 ""))
             .ReturnsAsync(judges);
 
-        var result = await _judgeService.GetJudges(new List<string>());
+        var result = await _judgeService.GetJudges([]);
 
         Assert.NotNull(result);
         Assert.Equal(3, result.Count());
@@ -326,7 +326,7 @@ public class JudgeServiceTests : ServiceTestBase, IClassFixture<LocationServiceF
                 ""))
             .ReturnsAsync(judges);
 
-        var result = await _judgeService.GetJudges(new List<string> { positionCode });
+        var result = await _judgeService.GetJudges([positionCode]);
 
         Assert.NotNull(result);
         Assert.Single(result);

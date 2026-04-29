@@ -39,7 +39,7 @@ public class JudicialCalendar
 
     public JudicialCalendar()
     {
-        this.Days = new List<JudicialCalendarDay>();
+        this.Days = [];
     }
 
     public List<JudicialCalendarDay> Days { get; set; }

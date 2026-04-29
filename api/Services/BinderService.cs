@@ -252,10 +252,10 @@ public class BinderService(
 
     private static int GetCategoryOrder(string category) => category?.ToUpper() switch
     {
-        DocumentCategory.INITIATING => 0,
-        DocumentCategory.ROP => 1,
-        DocumentCategory.BAIL => 2,
-        DocumentCategory.REPORT => 3,
+        DocumentCategories.INITIATING => 0,
+        DocumentCategories.ROP => 1,
+        DocumentCategories.BAIL => 2,
+        DocumentCategories.REPORT => 3,
         _ => 4
     };
 

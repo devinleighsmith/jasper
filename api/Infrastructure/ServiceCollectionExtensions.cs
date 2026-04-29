@@ -26,7 +26,6 @@ using Microsoft.Graph;
 using MongoDB.Driver;
 using nClam;
 using PostgreSQL.ListenNotify.DependencyInjection;
-using Scv.Api.Infrastructure.HealthChecks;
 using Scv.Api.Documents;
 using Scv.Api.Documents.Parsers;
 using Scv.Api.Documents.Strategies;
@@ -34,15 +33,19 @@ using Scv.Api.Infrastructure.Authentication;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Infrastructure.Encryption;
 using Scv.Api.Infrastructure.Hangfire;
+using Scv.Api.Infrastructure.HealthChecks;
 using Scv.Api.Infrastructure.Options;
 using Scv.Api.Jobs;
 using Scv.Api.Processors;
-using Scv.Api.SignalR;
 using Scv.Api.Services;
 using Scv.Api.Services.Files;
+using Scv.Api.SignalR;
+using Scv.Api.SignalR.Notifications;
+using Scv.Core.Exceptions;
+using Scv.Core.Handler;
 using Scv.Core.Helpers.Extensions;
-using Scv.Core.Infrastructure.Handler;
 using Scv.Cso;
+using Scv.Cso.Infrastructure.Options;
 using Scv.Db.Contexts;
 using Scv.Db.Repositories;
 using Scv.Db.Seeders;
@@ -64,8 +67,6 @@ using PCSSSearchDateServices = PCSSCommon.Clients.SearchDateServices;
 using PCSSTimebankServices = PCSSCommon.Clients.TimebankServices;
 using TdDocumentsServices = TDCommon.Clients.DocumentsServices;
 using TranscriptsServices = DARSCommon.Clients.TranscriptsServices;
-using Scv.Core.Helpers.Exceptions;
-using Scv.Api.SignalR.Notifications;
 
 namespace Scv.Api.Infrastructure
 {
@@ -354,7 +355,6 @@ namespace Scv.Api.Infrastructure
             services.AddTransient(s => s.GetService<IHttpContextAccessor>()?.HttpContext?.User);
             services.AddScoped<FilesService>();
             services.AddScoped<LookupService>();
-            services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<LocationService>();
             services.AddScoped<ILocationService>(serviceProvider => serviceProvider.GetRequiredService<LocationService>());
             services.AddScoped<IPcssAuthorizationService, PcssAuthorizationService>();
@@ -415,10 +415,10 @@ namespace Scv.Api.Infrastructure
                 return services;
             }
 
-            var submitOrderRetryCountRaw = configuration["JOBS:SubmitOrder:RetryCount"];
-            var submitOrderRetryCount = int.TryParse(submitOrderRetryCountRaw, out var submitOrderRetryCountParsed)
-                ? submitOrderRetryCountParsed
-                : new JobsSubmitOrderOptions().RetryCount;
+            var submitOrderRetryCount = configuration
+                .GetSection("JOBS:SubmitOrder")
+                .Get<JobsSubmitOrderOptions>()?.RetryCount
+                ?? new JobsSubmitOrderOptions().RetryCount;
 
             if (!JobFilterProviders.Providers.OfType<SubmitOrderJobRetryFilterProvider>().Any())
             {
@@ -451,7 +451,7 @@ namespace Scv.Api.Infrastructure
             services.AddSingleton<IClamClient>(sp =>
             {
                 var clamAvHost = configuration.GetNonEmptyValue("CLAM_AV:HOST");
-                if(!int.TryParse(configuration.GetNonEmptyValue("CLAM_AV:PORT"), out int clamAvPort))
+                if (!int.TryParse(configuration.GetNonEmptyValue("CLAM_AV:PORT"), out int clamAvPort))
                 {
                     throw new ConfigurationException("CLAM_AV:PORT must be a valid integer.");
                 }

@@ -45,10 +45,9 @@ namespace Scv.Db.Seeders
             {
                 if (groupRoles.TryGetValue(group.Name, out var roleNames))
                 {
-                    group.RoleIds = roles
+                    group.RoleIds = [.. roles
                         .Where(r => roleNames.Contains(r.Name))
-                        .Select(r => r.Id)
-                        .ToList();
+                        .Select(r => r.Id)];
                 }
                 else
                 {

@@ -5,13 +5,12 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentValidation;
 using JCCommon.Clients.FileServices;
-using LazyCache;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
 using Scv.Api.Services;
 using Scv.Api.Services.Files;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using Scv.Core.Infrastructure;
 using Scv.Db.Contants;
@@ -22,7 +21,6 @@ namespace Scv.Api.Processors;
 public class JudicialBinderProcessor : BinderProcessorBase
 {
     private readonly FileServicesClient _filesClient;
-    private readonly IAppCache _cache;
     private readonly IConfiguration _configuration;
     private readonly IDarsService _darsService;
     private readonly IMapper _mapper;
@@ -33,7 +31,6 @@ public class JudicialBinderProcessor : BinderProcessorBase
         ClaimsPrincipal currentUser,
         IValidator<BinderDto> basicValidator,
         BinderDto dto,
-        IAppCache cache,
         IMapper mapper,
         IConfiguration configuration,
         IDarsService darsService,
@@ -43,7 +40,6 @@ public class JudicialBinderProcessor : BinderProcessorBase
         _filesClient.JsonSerializerSettings.ContractResolver = new SafeContractResolver { NamingStrategy = new CamelCaseNamingStrategy() };
         _configuration = configuration;
         _darsService = darsService;
-        _cache = cache;
         _mapper = mapper;
         _civilFilesService = civilFilesService;
     }
@@ -128,7 +124,7 @@ public class JudicialBinderProcessor : BinderProcessorBase
         var referenceDocIds = fileDetail.ReferenceDocument.Select(r => r.ReferenceDocumentId);
 
         var transcriptDocs = this.Binder.Documents
-            .Where(d => d.DocumentType == DocumentType.Transcript)
+            .Where(d => d.DocumentType == Scv.Models.Document.DocumentType.Transcript)
             .ToList();
         if (transcriptDocs.Count > 0)
         {
@@ -185,7 +181,7 @@ public class JudicialBinderProcessor : BinderProcessorBase
 
         // Get non-transcript document IDs
         var nonTranscriptDocIds = this.Binder.Documents
-            .Where(d => d.DocumentType != DocumentType.Transcript)
+            .Where(d => d.DocumentType != Scv.Models.Document.DocumentType.Transcript)
             .Select(d => d.DocumentId);
 
         // Validate that all non-transcript document ids exist in Civil Case Detail documents or reference documents

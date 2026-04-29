@@ -11,7 +11,7 @@ namespace Scv.TdApi.Infrastructure.Options
 
         /// <summary>One or more folder-name formats for the day folder under {location}.</summary>
         [Required]
-        public List<string> DateFolderFormats { get; set; } = new() { };
+        public List<string> DateFolderFormats { get; set; } = [];
 
         /// <summary>The name of the Smb Server. Ex: alexandria.provjud.local.</summary>
         public string? SmbServer { get; set; }

@@ -43,7 +43,7 @@ public abstract class CrudServiceBase<TRepo, TEntity, TDto>(
             this.CacheName,
             async () =>
             {
-                var entities = (await this.Repo.GetAllAsync());
+                var entities = await this.Repo.GetAllAsync();
                 return this.Mapper.Map<List<TDto>>(entities);
             });
 

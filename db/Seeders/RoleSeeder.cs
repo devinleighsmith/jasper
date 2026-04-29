@@ -33,10 +33,9 @@ public class RoleSeeder(ILogger<RoleSeeder> logger) : SeederBase<JasperDbContext
         {
             if (rolePermissions.TryGetValue(role.Name, out var permissionCodes))
             {
-                role.PermissionIds = permissions
+                role.PermissionIds = [.. permissions
                     .Where(p => permissionCodes.Contains(p.Code))
-                    .Select(p => p.Id)
-                    .ToList();
+                    .Select(p => p.Id)];
             }
             else
             {

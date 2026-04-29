@@ -281,7 +281,7 @@ public class BinderServiceTests
                 null,
                 100,
                 null))
-            .ReturnsAsync(new List<Binder>());
+            .ReturnsAsync([]);
 
         var result = await _binderService.SearchBinders(criteria);
 
@@ -362,10 +362,10 @@ public class BinderServiceTests
                     { LabelConstants.PHYSICAL_FILE_ID, _faker.Random.AlphaNumeric(10) },
                     { LabelConstants.COURT_CLASS_CD, _faker.PickRandom("C", "F", "L", "M", "A", "Y", "T") }
                 },
-                Documents = new List<BinderDocument>
-                {
+                Documents =
+                [
                     new() { DocumentId = _faker.Random.AlphaNumeric(10), Order = 0 }
-                },
+                ],
                 Upd_Dtm = DateTime.UtcNow.AddDays(-_faker.Random.Int(1, 30))
             };
 

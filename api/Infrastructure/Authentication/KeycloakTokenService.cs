@@ -9,7 +9,7 @@ using IdentityModel.Client;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Scv.Api.Infrastructure.Options;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 
 namespace Scv.Api.Infrastructure.Authentication
 {
@@ -18,31 +18,21 @@ namespace Scv.Api.Infrastructure.Authentication
         Task<string> GetServiceAccountTokenAsync(KeycloakClientOptions options, CancellationToken cancellationToken = default);
     }
 
-    public sealed class KeycloakTokenService : IKeycloakTokenService
+    public sealed class KeycloakTokenService(
+        IMemoryCache cache,
+        IHttpClientFactory httpClientFactory,
+        ILogger<KeycloakTokenService> logger) : IKeycloakTokenService
     {
         public const string HttpClientName = "KeycloakTokenClient";
 
-        private readonly IMemoryCache _cache;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<KeycloakTokenService> _logger;
+        private readonly IMemoryCache _cache = cache;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+        private readonly ILogger<KeycloakTokenService> _logger = logger;
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
-
-        public KeycloakTokenService(
-            IMemoryCache cache,
-            IHttpClientFactory httpClientFactory,
-            ILogger<KeycloakTokenService> logger)
-        {
-            _cache = cache;
-            _httpClientFactory = httpClientFactory;
-            _logger = logger;
-        }
 
         public async Task<string> GetServiceAccountTokenAsync(KeycloakClientOptions options, CancellationToken cancellationToken = default)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            ArgumentNullException.ThrowIfNull(options);
 
             ValidateOptions(options);
             ValidateSecret(options);

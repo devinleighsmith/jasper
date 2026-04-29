@@ -17,7 +17,7 @@ using Scv.Api.Documents;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Models.Criminal.AppearanceDetail;
 using Scv.Api.Services.Files;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 using Scv.Core.Helpers.Extensions;
 using Scv.Models.Archive;
 using Scv.Models.Civil.AppearanceDetail;
@@ -456,13 +456,13 @@ namespace Scv.Api.Controllers
             }
 
             var start = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
-            _logger.LogInformation("Request Tracking - API request to Mule - CorrelationId: {0} Start time: {1}", correlationId, start);
+            _logger.LogInformation("Request Tracking - API request to Mule - CorrelationId: {CorrelationId} Start time: {Start}", correlationId, start);
 
             var documentResponse = await _filesService.DocumentAsync(documentId, isCriminal, fileId, correlationId);
 
             var end = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, pacificZone);
             var duration = end.Subtract(start).TotalSeconds;
-            _logger.LogInformation("Request Tracking - Mule response received - CorrelationId: {0} End time: {1} Duration: {2}s", correlationId, end, duration);
+            _logger.LogInformation("Request Tracking - Mule response received - CorrelationId: {CorrelationId} End time: {End} Duration: {Duration}s", correlationId, end, duration);
 
             return File(documentResponse.Stream, "application/pdf");
         }
@@ -500,7 +500,7 @@ namespace Scv.Api.Controllers
                 if (!await _vcCivilFileAccessHandler.HasCivilFileAccess(User, archiveRequest.VcCivilFileId))
                     return Forbid();
 
-                if (archiveRequest.RopRequests.Any() || archiveRequest.DocumentRequests.Any(dr => dr.IsCriminal))
+                if (archiveRequest.RopRequests.Count > 0 || archiveRequest.DocumentRequests.Any(dr => dr.IsCriminal))
                     return Forbid();
 
                 var civilFileDetailResponse = await _civilFilesService.FileIdAsync(archiveRequest.VcCivilFileId, User.IsVcUser(), User.IsStaff());
@@ -511,7 +511,7 @@ namespace Scv.Api.Controllers
                 var appearanceIds = archiveRequest.CsrRequests.SelectToList(csr => csr.AppearanceId);
 
                 //Disable Court Summary Reports.
-                if (appearanceIds.Any())
+                if (appearanceIds.Count > 0)
                     return Forbid();
 
                 if (civilFileDetailResponse.SealedYN != "N" || !documentIds.All(id => civilFileDetailResponse.Document.Any(d => d.CivilDocumentId == id))
@@ -575,7 +575,7 @@ namespace Scv.Api.Controllers
                     var documentName = document.FileName;
                     documentName = documentName.EndsWith(".pdf") ? documentName : $"{documentName}.pdf";
 
-                    await using var entryStream = archive.CreateEntry(documentName, CompressionLevel.Optimal).Open();
+                    await using var entryStream = await archive.CreateEntry(documentName, CompressionLevel.Optimal).OpenAsync();
                     await using var fileToCompressStream = new MemoryStream(documentContent);
                     fileToCompressStream.WriteTo(entryStream);
                 }

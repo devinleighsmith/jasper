@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Scv.Core.Helpers.ContractResolver
+namespace Scv.Core.ContractResolver
 {
     /// <summary>
     /// This is used so the Requried field doesn't always apply and look for a null value on properties of the generated classes.

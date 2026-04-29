@@ -20,7 +20,7 @@ public class CrownWitness
         if (assignedCrownName == null || LastNm == null || GivenNm == null)
             return false;
 
-        return (assignedCrownName.Trim() == $"{LastNm.Trim()}, {GivenNm.Trim()}");
+        return assignedCrownName.Trim() == $"{LastNm.Trim()}, {GivenNm.Trim()}";
     }
 }
 

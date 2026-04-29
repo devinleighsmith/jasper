@@ -31,6 +31,14 @@ namespace Scv.Api.Controllers
         private readonly IValidator<GetDocumentsRequest> _getDocumentsValidator = getDocumentsValidator;
         private readonly IValidator<DownloadFileRequest> _downloadFileValidator = downloadFileValidator;
         private readonly IValidator<MergePdfsRequest> _mergePdfsValidator = mergePdfsValidator;
+        private static readonly string[] error =
+                [
+                    "One or more requested files were not found in transitory document search results for the provided location, room, and date."
+                ];
+        private static readonly string[] errorArray =
+                [
+                    "One or more requested files have a size mismatch compared to transitory document search results."
+                ];
 
         /// <summary>
         /// Returns a list of transitory documents for a given location, room, and date. from the P (or Q) drive
@@ -203,10 +211,7 @@ namespace Scv.Api.Controllers
 
             if (missingFiles?.Count > 0)
             {
-                return BadRequest(new[]
-                {
-                    "One or more requested files were not found in transitory document search results for the provided location, room, and date."
-                });
+                return BadRequest(error);
             }
 
             var sizeMismatches = request?.Files
@@ -219,10 +224,7 @@ namespace Scv.Api.Controllers
 
             if (sizeMismatches?.Count > 0)
             {
-                return BadRequest(new[]
-                {
-                    "One or more requested files have a size mismatch compared to transitory document search results."
-                });
+                return BadRequest(errorArray);
             }
 
             var documentRequests = request?.Files.Select(f => f.RelativePath).Select(path => new PdfDocumentRequest

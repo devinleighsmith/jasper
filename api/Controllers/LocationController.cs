@@ -11,14 +11,9 @@ namespace Scv.Api.Controllers
     [Authorize(AuthenticationSchemes = "SiteMinder, OpenIdConnect", Policy = nameof(ProviderAuthorizationHandler))]
     [Route("api/[controller]")]
     [ApiController]
-    public class LocationController : ControllerBase
+    public class LocationController(LocationService locationService) : ControllerBase
     {
-        private readonly LocationService _locationService;
-
-        public LocationController(LocationService locationService)
-        {
-            _locationService = locationService;
-        }
+        private readonly LocationService _locationService = locationService;
 
         /// <summary>
         /// Provides Locations from all source systems (JC and PCSS)

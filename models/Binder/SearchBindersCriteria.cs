@@ -13,7 +13,7 @@ public class SearchBindersCriteria
     /// <summary>
     /// Label key-value pairs that must match exactly.
     /// </summary>
-    public Dictionary<string, string> LabelMatches { get; set; } = new();
+    public Dictionary<string, string> LabelMatches { get; set; } = [];
 
     /// <summary>
     /// Filter binders updated before this date/time.

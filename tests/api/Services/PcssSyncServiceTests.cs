@@ -34,7 +34,7 @@ namespace Scv.Api.Tests.Services
 
             _groupRepoMock
                 .Setup(x => x.FindAsync(It.IsAny<System.Linq.Expressions.Expression<Func<Group, bool>>>()))
-                .ReturnsAsync(new List<Group>());
+                .ReturnsAsync([]);
 
             _pcssSyncService = new PcssSyncService(
                 _authorizationServiceMock.Object,
@@ -68,13 +68,13 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -97,13 +97,13 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -175,7 +175,7 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Failure("error"));
@@ -197,20 +197,20 @@ namespace Scv.Api.Tests.Services
                 NativeGuid = "guid",
                 JudgeId = null,
                 IsActive = false,
-                GroupIds = new List<string>()
+                GroupIds = []
             };
             var pcssUser = new UserItem { GUID = "guid", UserId = 123, GivenName = "John", Surname = "Doe", Email = "test@test.com" };
             _authorizationServiceMock.Setup(x => x.GetUserByGuid("guid", false))
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -234,20 +234,20 @@ namespace Scv.Api.Tests.Services
                 NativeGuid = "guid",
                 JudgeId = null,
                 IsActive = false,
-                GroupIds = new List<string>()
+                GroupIds = []
             };
             var pcssUser = new UserItem { GUID = "guid", UserId = 123, GivenName = "John", Surname = "Doe", Email = "test@test.com" };
             _authorizationServiceMock.Setup(x => x.GetUserByGuid("guid", true))
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -272,7 +272,7 @@ namespace Scv.Api.Tests.Services
                 NativeGuid = "guid",
                 JudgeId = 456,
                 IsActive = true,
-                GroupIds = new List<string> { "group1" },
+                GroupIds = ["group1"],
                 FirstName = "John",
                 LastName = "Doe"
             };
@@ -281,13 +281,13 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -355,14 +355,14 @@ namespace Scv.Api.Tests.Services
                 NativeGuid = "guid",
                 JudgeId = 456,
                 IsActive = false,
-                GroupIds = new List<string>()
+                GroupIds = []
             };
             var pcssUser = new UserItem { GUID = "guid", UserId = 123, GivenName = "John", Surname = "Doe", Email = "test@test.com" };
             _authorizationServiceMock.Setup(x => x.GetUserByGuid("guid", false))
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
             var groups = new List<GroupDto>();
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
@@ -409,7 +409,7 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync((OperationResult<IEnumerable<GroupDto>>)null);
@@ -438,13 +438,13 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -467,20 +467,20 @@ namespace Scv.Api.Tests.Services
                 NativeGuid = "guid",
                 JudgeId = 456,
                 IsActive = true,
-                GroupIds = new List<string> { "group1" }
+                GroupIds = ["group1"]
             };
             var pcssUser = new UserItem { GUID = "guid", UserId = 123, GivenName = "John", Surname = "Doe", Email = "test@test.com" };
             _authorizationServiceMock.Setup(x => x.GetUserByGuid("guid", false))
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role1" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role1"]));
 
             var groups = new List<GroupDto>();
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -503,20 +503,20 @@ namespace Scv.Api.Tests.Services
                 NativeGuid = "guid",
                 JudgeId = 456,
                 IsActive = true,
-                GroupIds = new List<string> { "group1" }
+                GroupIds = ["group1"]
             };
             var pcssUser = new UserItem { GUID = "guid", UserId = 123, GivenName = "John", Surname = "Doe", Email = "test@test.com" };
             _authorizationServiceMock.Setup(x => x.GetUserByGuid("guid", false))
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role2" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role2"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group2" } };
+            var groups = new List<GroupDto> { new() { Id = "group2" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 456 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 456 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 
@@ -541,7 +541,7 @@ namespace Scv.Api.Tests.Services
                 LastName = "OldLastName",
                 JudgeId = null,
                 IsActive = false,
-                GroupIds = new List<string>()
+                GroupIds = []
             };
             var pcssUser = new UserItem
             {
@@ -555,13 +555,13 @@ namespace Scv.Api.Tests.Services
                 .ReturnsAsync(pcssUser);
 
             _authorizationServiceMock.Setup(x => x.GetPcssUserRoleNames(123))
-                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(new List<string> { "role" }));
+                .ReturnsAsync(OperationResult<IEnumerable<string>>.Success(["role"]));
 
-            var groups = new List<GroupDto> { new GroupDto { Id = "group1" } };
+            var groups = new List<GroupDto> { new() { Id = "group1" } };
             _groupServiceMock.Setup(x => x.GetGroupsByAliases(It.IsAny<IEnumerable<string>>()))
                 .ReturnsAsync(OperationResult<IEnumerable<GroupDto>>.Success(groups));
 
-            var judges = new List<PersonSearchItem> { new PersonSearchItem { UserId = 123, PersonId = 789 } };
+            var judges = new List<PersonSearchItem> { new() { UserId = 123, PersonId = 789 } };
             _judgeServiceMock.Setup(x => x.GetJudges(null, null))
                 .ReturnsAsync(judges);
 

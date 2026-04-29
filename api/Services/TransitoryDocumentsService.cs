@@ -15,46 +15,33 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Scv.Api.Infrastructure.Authentication;
 using Scv.Api.Infrastructure.Options;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 using Scv.Models;
 using TDCommon.Clients.DocumentsServices;
-using FileMetadataDto = Scv.TdApi.Models.FileMetadataDto;
 
 namespace Scv.Api.Services
 {
-    public partial class TransitoryDocumentsService : ITransitoryDocumentsService
+    public partial class TransitoryDocumentsService(
+        ILogger<TransitoryDocumentsService> logger,
+        ITransitoryDocumentsClientService transitoryDocumentsClientWrapper,
+        ILocationService locationService,
+        IKeycloakTokenService keycloakTokenService,
+        IOptions<TdKeycloakClientOptions> tdKeycloakOptions,
+        IConfiguration configuration,
+        IMapper mapper) : ITransitoryDocumentsService
     {
         private static readonly MemoryCache SearchResultsCache = new(new MemoryCacheOptions());
-        private readonly ITransitoryDocumentsClientService _tdClient;
-        private readonly ILocationService _locationService;
-        private readonly IKeycloakTokenService _keycloakTokenService;
-        private readonly IOptions<TdKeycloakClientOptions> _tdKeycloakOptions;
-        private readonly IMapper _mapper;
-        private readonly int _tdSearchExpiryMinutes;
-        private readonly Lazy<JsonSerializerOptions> _jsonSerializerOptions;
-        private readonly ILogger<TransitoryDocumentsService> _logger;
+        private readonly ITransitoryDocumentsClientService _tdClient = transitoryDocumentsClientWrapper;
+        private readonly ILocationService _locationService = locationService;
+        private readonly IKeycloakTokenService _keycloakTokenService = keycloakTokenService;
+        private readonly IOptions<TdKeycloakClientOptions> _tdKeycloakOptions = tdKeycloakOptions;
+        private readonly IMapper _mapper = mapper;
+        private readonly int _tdSearchExpiryMinutes = configuration.GetValue<int?>("Caching:TdSearchExpiryMinutes") ?? 480;
+        private readonly Lazy<JsonSerializerOptions> _jsonSerializerOptions = new(() => CreateJsonSerializerOptions());
+        private readonly ILogger<TransitoryDocumentsService> _logger = logger;
 
         [GeneratedRegex(@"filename\*?=[""']?(?:UTF-\d+'')?([^""';]+)", RegexOptions.IgnoreCase)]
         private static partial Regex FileNameRegex();
-
-        public TransitoryDocumentsService(
-            ILogger<TransitoryDocumentsService> logger,
-            ITransitoryDocumentsClientService transitoryDocumentsClientWrapper,
-            ILocationService locationService,
-            IKeycloakTokenService keycloakTokenService,
-            IOptions<TdKeycloakClientOptions> tdKeycloakOptions,
-            IConfiguration configuration,
-            IMapper mapper)
-        {
-            _jsonSerializerOptions = new Lazy<JsonSerializerOptions>(CreateJsonSerializerOptions);
-            _logger = logger;
-            _tdClient = transitoryDocumentsClientWrapper;
-            _locationService = locationService;
-            _keycloakTokenService = keycloakTokenService;
-            _tdKeycloakOptions = tdKeycloakOptions;
-            _tdSearchExpiryMinutes = configuration.GetValue<int?>("Caching:TdSearchExpiryMinutes") ?? 480;
-            _mapper = mapper;
-        }
 
         private static JsonSerializerOptions CreateJsonSerializerOptions()
         {
@@ -77,7 +64,7 @@ namespace Scv.Api.Services
         /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
         /// <returns>The collection of file metadata from the API.</returns>
         /// <exception cref="ApiException">A server-side error occurred.</exception>
-        public async Task<IEnumerable<FileMetadataDto>> ListSharedDocuments(
+        public async Task<IEnumerable<Scv.Models.Document.FileMetadataDto>> ListSharedDocuments(
             string locationId,
             string roomCode,
             string date,
@@ -138,7 +125,7 @@ namespace Scv.Api.Services
                             cancellationToken);
 
                         // Use Mapster to map generated client DTOs to shared model DTOs.
-                        return _mapper.Map<IEnumerable<FileMetadataDto>>(clientResult).ToList();
+                        return _mapper.Map<IEnumerable<Scv.Models.Document.FileMetadataDto>>(clientResult).ToList();
                     });
             }
             catch (ApiException<string> apiEx)
@@ -224,7 +211,7 @@ namespace Scv.Api.Services
                     // Remove any charset or other parameters
                     var semicolonIndex = contentType.IndexOf(';');
                     return semicolonIndex > 0
-                        ? contentType.Substring(0, semicolonIndex).Trim()
+                        ? contentType[..semicolonIndex].Trim()
                         : contentType.Trim();
                 }
             }

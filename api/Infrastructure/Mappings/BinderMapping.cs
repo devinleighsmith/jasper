@@ -6,6 +6,7 @@ using Scv.Db.Models;
 using Scv.Models;
 using Scv.Models.Civil.Detail;
 using Scv.Models.Criminal.Detail;
+using Scv.Models.Document;
 
 namespace Scv.Api.Infrastructure.Mappings;
 
@@ -33,7 +34,7 @@ public class BinderMapping : IRegister
                     : src.ImageId)
             .Map(dest => dest.FileName, src => src.DocumentTypeDescription)
             .Map(dest => dest.DocumentType, src =>
-                string.Equals(src.Category, DocumentCategory.ROP, StringComparison.OrdinalIgnoreCase)
+                string.Equals(src.Category, DocumentCategories.ROP, StringComparison.OrdinalIgnoreCase)
                     ? DocumentType.ROP
                     : DocumentType.File)
             .Map(dest => dest.Category, src => src.Category)
@@ -43,7 +44,7 @@ public class BinderMapping : IRegister
             .Map(dest => dest.DocumentId, src => src.CivilDocumentId)
             .Map(dest => dest.FileName, src => src.DocumentTypeDescription)
             .Map(dest => dest.DocumentType, src =>
-                string.Equals(src.DocumentTypeCd, DocumentCategory.CSR, StringComparison.OrdinalIgnoreCase)
+                string.Equals(src.DocumentTypeCd, DocumentCategories.CSR, StringComparison.OrdinalIgnoreCase)
                     ? DocumentType.CourtSummary
                     : DocumentType.File)
             .Map(dest => dest.Category, src => src.DocumentTypeCd)

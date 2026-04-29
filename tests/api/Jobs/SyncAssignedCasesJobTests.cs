@@ -52,8 +52,7 @@ public class SyncAssignedCasesJobTests
 
     public SyncAssignedCasesJobTests(
         CourtListServiceFixture courtListServiceFixture,
-        FilesServiceFixture filesServiceFixture,
-        LocationServiceFixture locationServiceFixture)
+        FilesServiceFixture filesServiceFixture)
     {
         _courtListServiceFixture = courtListServiceFixture;
         _filesServiceFixture = filesServiceFixture;

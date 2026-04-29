@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using Scv.Api.Documents.Strategies;
 using Scv.Core.Helpers;
-using Scv.Models;
 using Scv.Models.Document;
 using tests.api.Services;
 using Xunit;

@@ -133,7 +133,7 @@ namespace Scv.Api.Infrastructure.Authentication
                     OnTokenValidated = async context =>
 #pragma warning restore 1998
                     {
-                        if (!(context.Principal.Identity is ClaimsIdentity identity)) return;
+                        if (context.Principal.Identity is not ClaimsIdentity identity) return;
 
                         var loggerFactory = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>();
                         var logger = loggerFactory.CreateLogger("OnTokenValidated");
@@ -154,11 +154,11 @@ namespace Scv.Api.Infrastructure.Authentication
                         }
 
                         var claims = new List<Claim>();
-                        claims.AddRange(new[] {
+                        claims.AddRange([
                             new Claim(CustomClaimTypes.JcParticipantId, partId),
                             new Claim(CustomClaimTypes.JcAgencyCode, agencyId),
                             new Claim(CustomClaimTypes.IsSupremeUser, isSupremeUser.ToString()),
-                        });
+                        ]);
 
                         await OnPostAuthSuccess(configuration, context, logger, claims);
 

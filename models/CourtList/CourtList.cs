@@ -7,8 +7,8 @@ public class CourtList : JCCommon.Clients.FileServices.CourtList
 {
     public CourtList()
     {
-        CriminalCourtList = new List<CriminalCourtList>();
-        CivilCourtList = new List<CivilCourtList>();
+        CriminalCourtList = [];
+        CivilCourtList = [];
     }
     public new ICollection<CriminalCourtList> CriminalCourtList { get; set; }
     public new ICollection<CivilCourtList> CivilCourtList { get; set; }

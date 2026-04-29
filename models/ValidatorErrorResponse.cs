@@ -7,14 +7,14 @@ public class ValidatorErrorResponse
 {
     public string Message { get; set; } = string.Empty;
 
-    public IReadOnlyCollection<string> Errors { get; set; } = Array.Empty<string>();
+    public IReadOnlyCollection<string> Errors { get; set; } = [];
 
     public static ValidatorErrorResponse FromErrors(IEnumerable<string> errors, string? message = null)
     {
         var errorList = errors?
             .Where(e => !string.IsNullOrWhiteSpace(e))
             .Select(e => e.Trim())
-            .ToArray() ?? Array.Empty<string>();
+            .ToArray() ?? [];
 
         var finalMessage = string.IsNullOrWhiteSpace(message)
             ? string.Join(" ", errorList).Trim()

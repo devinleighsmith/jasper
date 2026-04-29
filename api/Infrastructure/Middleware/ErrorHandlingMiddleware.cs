@@ -11,10 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 using Scv.Core.Helpers.Extensions;
 using Scv.Db.Models;
-using Scv.Models;
 
 namespace Scv.Api.Infrastructure.Middleware
 {
@@ -145,14 +144,14 @@ namespace Scv.Api.Infrastructure.Middleware
                 case JCCommon.Clients.FileServices.ApiException exception:
                     code = HttpStatusCode.InternalServerError;
                     message = exception.Message;
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError(ex, "{Message}", ex.Message);
                     break;
 
                 case JCCommon.Clients.LocationServices.ApiException:
                 case JCCommon.Clients.LookupCodeServices.ApiException:
                     code = HttpStatusCode.InternalServerError;
                     message = ex.Message;
-                    _logger.LogError(ex, ex.Message);
+                    _logger.LogError(ex, "{Message}", ex.Message);
                     break;
 
                 default:

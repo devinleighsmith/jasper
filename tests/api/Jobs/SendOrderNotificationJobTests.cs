@@ -6,7 +6,6 @@ using Moq;
 using Scv.Api.Jobs;
 using Scv.Api.Models;
 using Scv.Api.Services;
-using Scv.Api.SignalR;
 using Scv.Api.SignalR.Notifications;
 using Scv.Models;
 using Scv.Models.AccessControlManagement;

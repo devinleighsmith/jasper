@@ -1,5 +1,5 @@
 ﻿using Scv.Models.TransitoryDocuments;
-using Scv.TdApi.Models;
+using Scv.Models.Document;
 
 namespace Scv.TdApi.Services
 {

@@ -1,5 +1,5 @@
 using JCCommon.Clients.FileServices;
-using Scv.Models.Helpers;
+using Scv.Models.Helpers.Extensions;
 
 namespace Scv.Models.Criminal.Detail;
 /// <summary>

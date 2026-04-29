@@ -8,7 +8,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 using Scv.Models;
 using Scv.Models.TransitoryDocuments;
 using Scv.TdApi.Infrastructure.FileSystem;
@@ -41,13 +41,13 @@ public class SharedDriveFileServiceTests
 
         _defaultSharedDriveOptions = new SharedDriveOptions
         {
-            DateFolderFormats = new List<string> { "yyyy/MM/dd", "yyyy-MM-dd" }
+            DateFolderFormats = ["yyyy/MM/dd", "yyyy-MM-dd"]
         };
 
         _defaultCorrectionMappingOptions = new CorrectionMappingOptions
         {
-            RegionMappings = new List<CorrectionMapping>(),
-            LocationMappings = new List<CorrectionMapping>()
+            RegionMappings = [],
+            LocationMappings = []
         };
 
         _defaultTdApiOptions = new TdApiOptions
@@ -196,7 +196,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         var result = await service.FindFilesAsync(request);
@@ -237,17 +237,17 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_AppliesRegionMapping_WhenMappingExists()
     {
         // Arrange
-        _defaultCorrectionMappingOptions.RegionMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.RegionMappings =
+        [
             new() { Target = "VAN", Replacement = "VancouverMapped" }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -265,17 +265,17 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_AppliesLocationMapping_WhenMappingExists()
     {
         // Arrange
-        _defaultCorrectionMappingOptions.LocationMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.LocationMappings =
+        [
             new() { Target = "4801", Replacement = "KelownaMapped" }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -298,7 +298,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -316,10 +316,10 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_IsCaseInsensitive_ForRegionMapping()
     {
         // Arrange
-        _defaultCorrectionMappingOptions.RegionMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.RegionMappings =
+        [
             new() { Target = "van", Replacement = "VancouverMapped" }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
@@ -327,7 +327,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -345,10 +345,10 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_IsCaseInsensitive_ForLocationMapping()
     {
         // Arrange
-        _defaultCorrectionMappingOptions.LocationMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.LocationMappings =
+        [
             new() { Target = "KELOWNA", Replacement = "KelownaMapped" }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
@@ -356,7 +356,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -438,7 +438,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo> { duplicateFile });
+            .ReturnsAsync([duplicateFile]);
 
         // Act
         var result = await service.FindFilesAsync(request);
@@ -451,19 +451,19 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_SearchesMultipleDateFormats()
     {
         // Arrange
-        _defaultSharedDriveOptions.DateFolderFormats = new List<string>
-        {
+        _defaultSharedDriveOptions.DateFolderFormats =
+        [
             "yyyy-MM-dd",
             "yyyyMMdd",
             "yyyy/MM/dd"
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -478,18 +478,18 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_RemovesDuplicateDatePaths()
     {
         // Arrange
-        _defaultSharedDriveOptions.DateFolderFormats = new List<string>
-        {
+        _defaultSharedDriveOptions.DateFolderFormats =
+        [
             "yyyy-MM-dd",
             "yyyy-MM-dd" // Duplicate format
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -511,7 +511,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), roomCd, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -589,14 +589,14 @@ public class SharedDriveFileServiceTests
     public async Task FindFilesAsync_AllowsPathLikeConfiguredMappings_WithoutValidatingRequestFallbacks()
     {
         // Arrange
-        _defaultCorrectionMappingOptions.RegionMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.RegionMappings =
+        [
             new() { Target = "VAN", Replacement = "Mapped/Region" }
-        };
-        _defaultCorrectionMappingOptions.LocationMappings = new List<CorrectionMapping>
-        {
+        ];
+        _defaultCorrectionMappingOptions.LocationMappings =
+        [
             new() { Target = "4801", Replacement = "Mapped/Location" }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
@@ -605,7 +605,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -639,7 +639,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo> { smbFile });
+            .ReturnsAsync([smbFile]);
 
         // Act
         var result = await service.FindFilesAsync(request);
@@ -674,7 +674,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo> { smbFile });
+            .ReturnsAsync([smbFile]);
 
         // Act
         var result = await service.FindFilesAsync(request);
@@ -693,7 +693,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -714,10 +714,10 @@ public class SharedDriveFileServiceTests
         const string roomCode = "CTR-VB";
         const string virtualBailFolder = "VirtualBailMapped";
 
-        _defaultCorrectionMappingOptions.VirtualBailMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.VirtualBailMappings =
+        [
             new() { Target = roomCode, Replacement = virtualBailFolder }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
@@ -725,7 +725,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);
@@ -746,10 +746,10 @@ public class SharedDriveFileServiceTests
         const string roomCode = "CTR-VB";
         const string virtualBailFolder = "VirtualBailMapped";
 
-        _defaultCorrectionMappingOptions.VirtualBailMappings = new List<CorrectionMapping>
-        {
+        _defaultCorrectionMappingOptions.VirtualBailMappings =
+        [
             new() { Target = roomCode, Replacement = virtualBailFolder, IgnoreRoom = true }
-        };
+        ];
 
         var service = CreateService();
         var request = CreateValidRequest();
@@ -757,7 +757,7 @@ public class SharedDriveFileServiceTests
 
         _mockFileSystemClient
             .Setup(c => c.ListFilesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<SmbFileInfo>());
+            .ReturnsAsync([]);
 
         // Act
         await service.FindFilesAsync(request);

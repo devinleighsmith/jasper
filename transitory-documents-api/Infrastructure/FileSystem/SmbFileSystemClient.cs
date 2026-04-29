@@ -119,17 +119,11 @@ namespace Scv.TdApi.Infrastructure.FileSystem
                         throw new IOException($"Failed to query directory '{directoryPath}': {status}");
                     }
 
-                    var fileInfo = fileList?
+                    var fileInfo = (fileList?
                         .OfType<FileDirectoryInformation>()
                         .FirstOrDefault(f =>
                             string.Equals(f.FileName, fileName, StringComparison.OrdinalIgnoreCase) &&
-                            (f.FileAttributes & SMBLibrary.FileAttributes.Directory) == 0);
-
-                    if (fileInfo == null)
-                    {
-                        throw new FileNotFoundException($"File not found: {smbPath}");
-                    }
-
+                            (f.FileAttributes & SMBLibrary.FileAttributes.Directory) == 0)) ?? throw new FileNotFoundException($"File not found: {smbPath}");
                     return CreateSmbFileInfo(fileInfo, directoryPath, smbPath);
                 }
                 finally
@@ -151,7 +145,7 @@ namespace Scv.TdApi.Infrastructure.FileSystem
         {
             if (!TryParseWildcardPath(wildcardPath, out var parentDirectory, out var prefix))
             {
-                return Array.Empty<SmbFileInfo>();
+                return [];
             }
 
             _logger.LogDebug("Searching for directories in '{Parent}' starting with '{Prefix}'",
@@ -169,7 +163,7 @@ namespace Scv.TdApi.Infrastructure.FileSystem
                     "No directories under '{Parent}' matched prefix '{Prefix}'",
                     parentDirectory,
                     prefix);
-                return Array.Empty<SmbFileInfo>();
+                return [];
             }
 
             var files = await FetchFilesFromDirectoriesAsync(
@@ -466,16 +460,16 @@ namespace Scv.TdApi.Infrastructure.FileSystem
 
             var matches = DigitsPattern().Matches(folderName);
 
-            foreach (Match match in matches)
+            foreach (var match in matches.Select(m => m.Value))
             {
-                var normalizedFolderNumber = match.Value.TrimStart('0');
+                var normalizedFolderNumber = match.TrimStart('0');
                 if (string.IsNullOrEmpty(normalizedFolderNumber))
                     normalizedFolderNumber = "0";
 
                 if (normalizedFolderNumber.Equals(normalizedRoomCode, StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogDebug("Room match found: folder '{Folder}' contains number '{Number}' matching '{Target}'",
-                        folderName, match.Value, normalizedRoomCode);
+                        folderName, match, normalizedRoomCode);
                     return true;
                 }
             }
@@ -729,7 +723,7 @@ namespace Scv.TdApi.Infrastructure.FileSystem
 
             await Task.WhenAll(tasks);
 
-            return allFiles.ToList();
+            return [.. allFiles];
         }
 
         /// <summary>
@@ -852,7 +846,7 @@ namespace Scv.TdApi.Infrastructure.FileSystem
 
         private SmbFileInfo CreateSmbFileInfo(FileDirectoryInformation fileInfo, string rootPath, string itemPath)
         {
-            var relativePath = itemPath.Substring(rootPath.Length).Replace('\\', Path.DirectorySeparatorChar);
+            var relativePath = itemPath[rootPath.Length..].Replace('\\', Path.DirectorySeparatorChar);
             var relativeDir = Path.GetDirectoryName(relativePath);
 
             _logger.LogDebug("Found file: {Path} rootPath: {RootPath}, relativePath: {RelativePath}, relativeDir: {RelativeDir} ", itemPath, rootPath, relativePath, relativeDir);
@@ -870,10 +864,7 @@ namespace Scv.TdApi.Infrastructure.FileSystem
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(nameof(SmbFileSystemClient));
-            }
+            ObjectDisposedException.ThrowIf(_disposed, nameof(SmbFileSystemClient));
         }
     }
 }

@@ -1,38 +1,29 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
-using Scv.Core.Helpers.Exceptions;
+using Scv.Core.Exceptions;
 using Scv.Models;
+using Scv.Models.Document;
 using Scv.Models.TransitoryDocuments;
 using Scv.TdApi.Infrastructure.FileSystem;
 using Scv.TdApi.Infrastructure.Options;
-using Scv.TdApi.Models;
 
 namespace Scv.TdApi.Services
 {
-    public sealed class SharedDriveFileService : ISharedDriveFileService
+    public sealed class SharedDriveFileService(
+        ISmbFileSystemClient fileSystemClient,
+        ILogger<SharedDriveFileService> logger,
+        IOptions<SharedDriveOptions> options,
+        IOptions<CorrectionMappingOptions> correctionMappingOptions,
+        IOptions<TdApiOptions> tdApiOptions) : ISharedDriveFileService
     {
         private static readonly SemaphoreSlim OpenFileConcurrencySemaphore = new(4, 4);
-        private readonly ISmbFileSystemClient _fileSystemClient;
-        private readonly ILogger<SharedDriveFileService> _logger;
+        private readonly ISmbFileSystemClient _fileSystemClient = fileSystemClient ?? throw new ArgumentNullException(nameof(fileSystemClient));
+        private readonly ILogger<SharedDriveFileService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
-        private readonly SharedDriveOptions _options;
-        private readonly CorrectionMappingOptions _correctionMappingOptions;
-        private readonly TdApiOptions _tdApiOptions;
-
-        public SharedDriveFileService(
-            ISmbFileSystemClient fileSystemClient,
-            ILogger<SharedDriveFileService> logger,
-            IOptions<SharedDriveOptions> options,
-            IOptions<CorrectionMappingOptions> correctionMappingOptions,
-            IOptions<TdApiOptions> tdApiOptions)
-        {
-            _fileSystemClient = fileSystemClient ?? throw new ArgumentNullException(nameof(fileSystemClient));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            _correctionMappingOptions = correctionMappingOptions?.Value ?? throw new ArgumentNullException(nameof(correctionMappingOptions));
-            _tdApiOptions = tdApiOptions?.Value ?? throw new ArgumentNullException(nameof(tdApiOptions));
-        }
+        private readonly SharedDriveOptions _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        private readonly CorrectionMappingOptions _correctionMappingOptions = correctionMappingOptions?.Value ?? throw new ArgumentNullException(nameof(correctionMappingOptions));
+        private readonly TdApiOptions _tdApiOptions = tdApiOptions?.Value ?? throw new ArgumentNullException(nameof(tdApiOptions));
 
         public async Task<IReadOnlyList<FileMetadataDto>> FindFilesAsync(
             TransitoryDocumentSearchRequest request,
@@ -172,7 +163,7 @@ namespace Scv.TdApi.Services
 
             if (normalizedFullPath.StartsWith(normalizedBasePath, StringComparison.OrdinalIgnoreCase))
             {
-                var pathWithoutBase = normalizedFullPath.Substring(normalizedBasePath.Length).TrimStart('\\');
+                var pathWithoutBase = normalizedFullPath[normalizedBasePath.Length..].TrimStart('\\');
                 _logger.LogDebug("Removed base path '{Base}' from '{Full}', result: '{Result}'",
                     normalizedBasePath, normalizedFullPath, pathWithoutBase);
                 return pathWithoutBase;
@@ -245,17 +236,16 @@ namespace Scv.TdApi.Services
                 paths.Add(exactPath);
             }
 
-            return paths.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            return [.. paths.Distinct(StringComparer.OrdinalIgnoreCase)];
         }
 
-        private static IReadOnlyList<FileMetadataDto> OrderResults(IEnumerable<FileMetadataDto> results)
+        private static List<FileMetadataDto> OrderResults(IEnumerable<FileMetadataDto> results)
         {
-            return results
+            return [.. results
                 .OrderByDescending(f => !string.IsNullOrEmpty(f.MatchedRoomFolder)) // Files with rooms first
                 .ThenBy(f => f.MatchedRoomFolder ?? string.Empty, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(f => f.FileName, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(f => f.RelativePath, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+                .ThenBy(f => f.RelativePath, StringComparer.OrdinalIgnoreCase)];
         }
 
         private static string CreateFileIdentityKey(string relativePath, string fileName)

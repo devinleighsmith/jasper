@@ -10,7 +10,6 @@ using PCSSCommon.Models;
 using Scv.Api.Infrastructure.Authorization;
 using Scv.Api.Services;
 using Scv.Core.Helpers.Extensions;
-using Scv.Db.Models;
 using Scv.Models.Timebank;
 
 namespace Scv.Api.Controllers;

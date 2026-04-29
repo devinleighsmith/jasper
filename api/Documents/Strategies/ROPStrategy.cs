@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using JCCommon.Clients.FileServices;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Serialization;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
-using Scv.Models;
 using Scv.Models.Document;
 
 namespace Scv.Api.Documents.Strategies;

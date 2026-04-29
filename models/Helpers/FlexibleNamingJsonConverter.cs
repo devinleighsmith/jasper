@@ -135,7 +135,7 @@ public class FlexibleNamingJsonConverter<T> : JsonConverter where T : new()
         };
     }
 
-    private static JToken NormalizeArray(JArray array, Type targetPropertyType)
+    private static JArray NormalizeArray(JArray array, Type targetPropertyType)
     {
         var elementType = GetElementType(targetPropertyType);
         if (elementType == null || !elementType.IsClass || elementType == typeof(string))
@@ -169,6 +169,6 @@ public class FlexibleNamingJsonConverter<T> : JsonConverter where T : new()
     private static string ToCamelCase(string input)
     {
         if (string.IsNullOrEmpty(input)) return input;
-        return char.ToLowerInvariant(input[0]) + input.Substring(1);
+        return char.ToLowerInvariant(input[0]) + input[1..];
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using PCSSCommon.Clients.ReportServices;
 using PCSSCommon.Clients.SearchDateServices;
-using Scv.Api.Helpers;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.Helpers;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using Scv.Core.Infrastructure;
 using Scv.Models.Civil.CourtList;
@@ -376,7 +376,7 @@ namespace Scv.Api.Services
         }
 
 
-        private ICollection<CivilCourtList> PopulateCivilCourtListFromCourtCalendarDetails(ICollection<CivilCourtList> courtList,
+        private static ICollection<CivilCourtList> PopulateCivilCourtListFromCourtCalendarDetails(ICollection<CivilCourtList> courtList,
             ICollection<CourtCalendarDetailAppearance> courtCalendarDetailAppearances)
         {
             foreach (var courtListFile in courtList)
@@ -460,7 +460,7 @@ namespace Scv.Api.Services
             return crown;
         }
 
-        private ICollection<CriminalCourtList> PopulateCriminalCourtListFromCourtCalendarDetails(ICollection<CriminalCourtList> courtList,
+        private static ICollection<CriminalCourtList> PopulateCriminalCourtListFromCourtCalendarDetails(ICollection<CriminalCourtList> courtList,
             ICollection<CourtCalendarDetailAppearance> courtCalendarDetailAppearances)
         {
             foreach (var courtListFile in courtList)

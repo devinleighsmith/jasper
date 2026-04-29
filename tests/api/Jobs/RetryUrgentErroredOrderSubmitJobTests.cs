@@ -89,7 +89,7 @@ public class RetryUrgentErroredOrderSubmitJobTests
             _mockLogger.Object);
 
         _mockRepo.Setup(r => r.FindAsync(It.IsAny<Expression<Func<Order, bool>>>()))
-            .ReturnsAsync(new List<Order>());
+            .ReturnsAsync([]);
 
         await job.Execute();
 

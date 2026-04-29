@@ -1,8 +1,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Scv.Core.Exceptions;
 using Scv.Db.Models;
-using Scv.Core.Helpers.Exceptions;
 
 namespace Scv.Db.DesignTime
 {

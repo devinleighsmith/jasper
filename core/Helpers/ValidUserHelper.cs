@@ -1,9 +1,7 @@
-﻿using System;
-using System.Linq;
-using Scv.Core.Helpers.Exceptions;
+﻿using Scv.Core.Exceptions;
 using Scv.Models;
 
-namespace Scv.Api.Helpers
+namespace Scv.Core.Helpers
 {
     public static class ValidUserHelper
     {

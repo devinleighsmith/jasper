@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Scv.Api.Models;
+using Scv.Models;
 using Scv.Api.Services;
 using Scv.Models.Order;
 

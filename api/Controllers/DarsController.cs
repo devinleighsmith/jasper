@@ -235,7 +235,7 @@ namespace Scv.Api.Controllers
             {
                 var documentRequest = new Scv.Models.Document.PdfDocumentRequest
                 {
-                    Type = Scv.Models.DocumentType.Transcript,
+                    Type = Scv.Models.Document.DocumentType.Transcript,
                     Data = new Scv.Models.Document.PdfDocumentRequestDetails
                     {
                         OrderId = sanitizedOrderId,

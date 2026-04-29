@@ -8,7 +8,7 @@ namespace tests.Api.Helpers;
 
 public class FlexibleNamingJsonConverterTests
 {
-    private JsonSerializerSettings SettingsWithConverter()
+    private static JsonSerializerSettings SettingsWithConverter()
     {
         return new JsonSerializerSettings
         {

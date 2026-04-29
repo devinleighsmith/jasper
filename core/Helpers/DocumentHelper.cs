@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
-
-namespace Scv.Api.Helpers;
+namespace Scv.Core.Helpers;
 
 public static class DocumentHelper
 {

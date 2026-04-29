@@ -19,7 +19,7 @@ using Scv.Models.Document;
 using Scv.Models.TransitoryDocuments;
 using Xunit;
 using FileMetadata = Scv.Models.TransitoryDocuments.TransitoryDocumentFileMetadata;
-using SearchFileMetadata = Scv.TdApi.Models.FileMetadataDto;
+using SearchFileMetadata = Scv.Models.Document.FileMetadataDto;
 
 namespace tests.api.Controllers;
 
@@ -74,14 +74,14 @@ public class TransitoryDocumentsControllerTests
         _mockGetDocumentsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<GetDocumentsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("LocationId", "locationId is required and must be non-empty.") }));
+                [new FluentValidation.Results.ValidationFailure("LocationId", "locationId is required and must be non-empty.")]));
 
         // Act
         var result = await _controller.DocumentGet(locationId, roomCd, date);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("locationId is required and must be non-empty.", errors);
 
         _mockTransitoryDocumentsService.Verify(
@@ -102,14 +102,14 @@ public class TransitoryDocumentsControllerTests
         _mockGetDocumentsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<GetDocumentsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("RoomCd", "roomCd is required and must be non-empty.") }));
+                [new FluentValidation.Results.ValidationFailure("RoomCd", "roomCd is required and must be non-empty.")]));
 
         // Act
         var result = await _controller.DocumentGet(locationId, roomCd, date);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("roomCd is required and must be non-empty.", errors);
 
         _mockTransitoryDocumentsService.Verify(
@@ -143,7 +143,7 @@ public class TransitoryDocumentsControllerTests
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var actualDocuments = Assert.IsAssignableFrom<IEnumerable<SearchFileMetadata>>(okResult.Value);
+        var actualDocuments = Assert.IsType<IEnumerable<SearchFileMetadata>>(okResult.Value, false);
         Assert.Equal(expectedDocuments.Count, actualDocuments.Count());
 
         _mockTransitoryDocumentsService.Verify(
@@ -165,14 +165,14 @@ public class TransitoryDocumentsControllerTests
 
         _mockTransitoryDocumentsService
             .Setup(s => s.ListSharedDocuments(locationId, roomCd, It.IsAny<string>()))
-            .ReturnsAsync(new List<SearchFileMetadata>());
+            .ReturnsAsync([]);
 
         // Act
         var result = await _controller.DocumentGet(locationId, roomCd, date);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var actualDocuments = Assert.IsAssignableFrom<IEnumerable<SearchFileMetadata>>(okResult.Value);
+        var actualDocuments = Assert.IsType<IEnumerable<SearchFileMetadata>>(okResult.Value, false);
         Assert.Empty(actualDocuments);
     }
 
@@ -190,7 +190,7 @@ public class TransitoryDocumentsControllerTests
 
         _mockTransitoryDocumentsService
             .Setup(s => s.ListSharedDocuments(locationId, roomCd, "2025-10-31"))
-            .ReturnsAsync(new List<SearchFileMetadata>());
+            .ReturnsAsync([]);
 
         // Act
         await _controller.DocumentGet(locationId, roomCd, date);
@@ -212,7 +212,7 @@ public class TransitoryDocumentsControllerTests
         _mockDownloadFileValidator
             .Setup(v => v.ValidateAsync(It.IsAny<DownloadFileRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("FileMetadata", "fileMetadata is required.") }));
+                [new FluentValidation.Results.ValidationFailure("FileMetadata", "fileMetadata is required.")]));
 
         // Act
         var result = await _controller.DocumentDownload(null);
@@ -246,7 +246,7 @@ public class TransitoryDocumentsControllerTests
         _mockDownloadFileValidator
             .Setup(v => v.ValidateAsync(It.IsAny<DownloadFileRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("FileMetadata.RelativePath", "RelativePath is required and must be non-empty.") }));
+                [new FluentValidation.Results.ValidationFailure("FileMetadata.RelativePath", "RelativePath is required and must be non-empty.")]));
 
         // Act
         var result = await _controller.DocumentDownload(fileMetadata);
@@ -277,7 +277,7 @@ public class TransitoryDocumentsControllerTests
         _mockDownloadFileValidator
             .Setup(v => v.ValidateAsync(It.IsAny<DownloadFileRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("FileMetadata.SizeBytes", "SizeBytes must be greater than or equal to 0.") }));
+                [new FluentValidation.Results.ValidationFailure("FileMetadata.SizeBytes", "SizeBytes must be greater than or equal to 0.")]));
 
         // Act
         var result = await _controller.DocumentDownload(fileMetadata);
@@ -310,7 +310,7 @@ public class TransitoryDocumentsControllerTests
         _mockDownloadFileValidator
             .Setup(v => v.ValidateAsync(It.IsAny<DownloadFileRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("FileMetadata.SizeBytes", $"File size exceeds maximum allowed size of {maxSizeMB:F2} MB.") }));
+                [new FluentValidation.Results.ValidationFailure("FileMetadata.SizeBytes", $"File size exceeds maximum allowed size of {maxSizeMB:F2} MB.")]));
 
         // Act
         var result = await _controller.DocumentDownload(fileMetadata);
@@ -447,14 +447,14 @@ public class TransitoryDocumentsControllerTests
         _mockMergePdfsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<MergePdfsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("Files", "files are required and must contain at least one file.") }));
+                [new FluentValidation.Results.ValidationFailure("Files", "files are required and must contain at least one file.")]));
 
         // Act
         var result = await _controller.DocumentMerge(null);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("files are required and must contain at least one file.", errors);
 
         _mockDocumentMerger.Verify(
@@ -477,14 +477,14 @@ public class TransitoryDocumentsControllerTests
         _mockMergePdfsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<MergePdfsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("Files", "files are required and must contain at least one file.") }));
+                [new FluentValidation.Results.ValidationFailure("Files", "files are required and must contain at least one file.")]));
 
         // Act
         var result = await _controller.DocumentMerge(request);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("files are required and must contain at least one file.", errors);
 
         _mockDocumentMerger.Verify(
@@ -501,20 +501,20 @@ public class TransitoryDocumentsControllerTests
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = Array.Empty<FileMetadata>()
+            Files = []
         };
 
         _mockMergePdfsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<MergePdfsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("Files", "files are required and must contain at least one file.") }));
+                [new FluentValidation.Results.ValidationFailure("Files", "files are required and must contain at least one file.")]));
 
         // Act
         var result = await _controller.DocumentMerge(request);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("files are required and must contain at least one file.", errors);
 
         _mockDocumentMerger.Verify(
@@ -534,24 +534,24 @@ public class TransitoryDocumentsControllerTests
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = invalidPath, SizeBytes = 2048, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         _mockMergePdfsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<MergePdfsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("Files", "All files must have a valid RelativePath.") }));
+                [new FluentValidation.Results.ValidationFailure("Files", "All files must have a valid RelativePath.")]));
 
         // Act
         var result = await _controller.DocumentMerge(request);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("All files must have a valid RelativePath.", errors);
 
         _mockDocumentMerger.Verify(
@@ -568,24 +568,24 @@ public class TransitoryDocumentsControllerTests
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = -1, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         _mockMergePdfsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<MergePdfsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("Files", "All files must have SizeBytes greater than or equal to 0.") }));
+                [new FluentValidation.Results.ValidationFailure("Files", "All files must have SizeBytes greater than or equal to 0.")]));
 
         // Act
         var result = await _controller.DocumentMerge(request);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         Assert.Contains("All files must have SizeBytes greater than or equal to 0.", errors);
 
         _mockDocumentMerger.Verify(
@@ -598,17 +598,17 @@ public class TransitoryDocumentsControllerTests
     {
         // Arrange
         var maxFileSize = 10 * 1024 * 1024;
-        var halfMax = maxFileSize / 2 + 1;
+        var halfMax = (maxFileSize / 2) + 1;
         var request = new MergePdfsRequest
         {
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = halfMax, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = halfMax, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         var maxSizeMB = maxFileSize / 1024.0 / 1024.0;
@@ -618,14 +618,14 @@ public class TransitoryDocumentsControllerTests
         _mockMergePdfsValidator
             .Setup(v => v.ValidateAsync(It.IsAny<MergePdfsRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(
-                new[] { new FluentValidation.Results.ValidationFailure("Files", $"Total file size ({totalSizeMB:F2} MB) exceeds maximum allowed size of {maxSizeMB:F2} MB.") }));
+                [new FluentValidation.Results.ValidationFailure("Files", $"Total file size ({totalSizeMB:F2} MB) exceeds maximum allowed size of {maxSizeMB:F2} MB.")]));
 
         // Act
         var result = await _controller.DocumentMerge(request);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        var errors = Assert.IsAssignableFrom<IEnumerable<string>>(badRequestResult.Value);
+        var errors = Assert.IsType<IEnumerable<string>>(badRequestResult.Value, false);
         errors.Should().Contain(e => e.Contains("exceeds maximum allowed size"));
 
         _mockDocumentMerger.Verify(
@@ -637,18 +637,17 @@ public class TransitoryDocumentsControllerTests
     public async Task MergePdfs_ReturnsOk_WithMergedDocument()
     {
         // Arrange
-        var bearerToken = _faker.Random.AlphaNumeric(50);
         var mergedContent = _faker.Random.AlphaNumeric(1000);
         var request = new MergePdfsRequest
         {
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 2048, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         var expectedResponse = new PdfDocumentResponse
@@ -683,16 +682,15 @@ public class TransitoryDocumentsControllerTests
     public async Task MergePdfs_PassesCorrectDocumentTypeToMerger()
     {
         // Arrange
-        var bearerToken = _faker.Random.AlphaNumeric(50);
         var request = new MergePdfsRequest
         {
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         PdfDocumentRequest[] capturedRequests = null;
@@ -724,18 +722,17 @@ public class TransitoryDocumentsControllerTests
     public async Task MergePdfs_PassesBearerTokenToAllDocumentRequests()
     {
         // Arrange
-        var bearerToken = _faker.Random.AlphaNumeric(50);
         var request = new MergePdfsRequest
         {
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 2048, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 4096, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         PdfDocumentRequest[] capturedRequests = null;
@@ -769,16 +766,15 @@ public class TransitoryDocumentsControllerTests
     public async Task MergePdfs_AcceptsSingleFile()
     {
         // Arrange
-        var bearerToken = _faker.Random.AlphaNumeric(50);
         var request = new MergePdfsRequest
         {
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         _mockMergePdfsValidator
@@ -805,19 +801,18 @@ public class TransitoryDocumentsControllerTests
     public async Task MergePdfs_AcceptsMultipleFiles()
     {
         // Arrange
-        var bearerToken = _faker.Random.AlphaNumeric(50);
         var request = new MergePdfsRequest
         {
             LocationId = _faker.Random.AlphaNumeric(10),
             RoomCd = _faker.Random.AlphaNumeric(5),
             Date = DateOnly.FromDateTime(_faker.Date.Recent()),
-            Files = new[]
-            {
+            Files =
+            [
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 1024, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 2048, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 4096, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() },
                 new FileMetadata { RelativePath = _faker.System.FilePath(), SizeBytes = 8192, Extension = _faker.System.FileExt(), FileName = _faker.System.FileName() }
-            }
+            ]
         };
 
         _mockMergePdfsValidator

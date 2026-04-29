@@ -71,7 +71,7 @@ public class RoleService(
             var groupsWithRef = await _groupRepo.FindAsync(g => g.RoleIds.Contains(id));
             var updateTasks = groupsWithRef.Select(g =>
             {
-                g.RoleIds = g.RoleIds.Where(roleId => roleId != id).ToList();
+                g.RoleIds = [.. g.RoleIds.Where(roleId => roleId != id)];
                 return _groupRepo.UpdateAsync(g);
             });
 

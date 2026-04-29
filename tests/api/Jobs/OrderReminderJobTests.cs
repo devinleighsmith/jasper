@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Bogus;
@@ -330,7 +329,7 @@ public class OrderReminderJobTests : ServiceTestBase
             .Setup(r => r.FindAsync(It.IsAny<Expression<Func<Order, bool>>>()))
             .ReturnsAsync([order]);
 
-        await Assert.ThrowsAsync<Scv.Core.Helpers.Exceptions.ConfigurationException>(async () =>
+        await Assert.ThrowsAsync<Scv.Core.Exceptions.ConfigurationException>(async () =>
         {
             await _job.Execute();
         });
@@ -465,7 +464,7 @@ public class OrderReminderJobTests : ServiceTestBase
         order.OrderRequest.CourtFile.CourtLocationDesc = expectedLocation;
 
         var judge = CreateTestJudge(judgeId);
-        var expectedJudgeName = $"{judge.Names.First().FirstName} {judge.Names.First().LastName}".Trim();
+        var expectedJudgeName = $"{judge.Names[0].FirstName} {judge.Names[0].LastName}".Trim();
         var user = CreateTestUser(judgeId, "judge@example.com");
 
         _mockOrderRepo

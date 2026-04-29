@@ -1,5 +1,4 @@
 using System;
-using Bogus;
 using Hangfire;
 using LazyCache;
 using LazyCache.Providers;
@@ -16,7 +15,6 @@ namespace tests.api.Jobs;
 
 public class PrimePcssUserCacheJobTests
 {
-    private readonly Faker _faker;
     private readonly Mock<IAuthorizationServicesClient> _mockPcssAuthorizationServiceClient;
     private readonly Mock<ILogger<PrimePcssUserCacheJob>> _mockLogger;
     private readonly IAppCache _cache;
@@ -24,8 +22,6 @@ public class PrimePcssUserCacheJobTests
 
     public PrimePcssUserCacheJobTests()
     {
-        _faker = new Faker();
-
         _mockPcssAuthorizationServiceClient = new Mock<IAuthorizationServicesClient>();
         _mockLogger = new Mock<ILogger<PrimePcssUserCacheJob>>();
         _mapper = new Mock<IMapper>();
@@ -34,7 +30,7 @@ public class PrimePcssUserCacheJobTests
             new MemoryCacheProvider(new MemoryCache(new MemoryCacheOptions()))));
     }
 
-    private Mock<IConfiguration> SetupMockConfiguration(string expiryMinutes = "60")
+    private static Mock<IConfiguration> SetupMockConfiguration(string expiryMinutes = "60")
     {
         var mockConfig = new Mock<IConfiguration>();
 

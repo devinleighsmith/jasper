@@ -1,3 +1,5 @@
+using Scv.Models.Document;
+
 namespace Scv.Models;
 
 public class BinderDocumentDto

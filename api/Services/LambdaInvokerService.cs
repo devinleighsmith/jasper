@@ -6,7 +6,7 @@ using Amazon.Lambda;
 using Amazon.Lambda.Model;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 
 namespace Scv.Api.Services;
 

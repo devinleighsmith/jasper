@@ -7,6 +7,7 @@ using Scv.Db.Models;
 using Scv.Models;
 using Scv.Models.Civil.Detail;
 using Scv.Models.Criminal.Detail;
+using Scv.Models.Document;
 using Xunit;
 
 namespace tests.api.Infrastructure.Mappings;
@@ -226,7 +227,7 @@ public class BinderMappingTests
             DocmId = "crim-doc-123",
             ImageId = "image-456",
             DocumentTypeDescription = "ROP Document",
-            Category = DocumentCategory.ROP
+            Category = DocumentCategories.ROP
         };
 
         var result = criminalDoc.Adapt<BinderDocumentDto>(_config);
@@ -305,7 +306,7 @@ public class BinderMappingTests
         var civilDoc = new CivilDocument
         {
             CivilDocumentId = "civil-doc-123",
-            DocumentTypeCd = DocumentCategory.CSR,
+            DocumentTypeCd = DocumentCategories.CSR,
             DocumentTypeDescription = "Court Summary Report"
         };
 
@@ -505,7 +506,7 @@ public class BinderMappingTests
             new()
             {
                 CivilDocumentId = "doc-1",
-                DocumentTypeCd = DocumentCategory.CSR,
+                DocumentTypeCd = DocumentCategories.CSR,
                 ImageId = "image-1",
                 DocumentTypeDescription = "Court Summary Report",
                 FileSeqNo = "1",
@@ -539,7 +540,7 @@ public class BinderMappingTests
 
         // First document assertions
         Assert.Equal("doc-1", result[0].DocumentId);
-        Assert.Equal(DocumentCategory.CSR, result[0].Category);
+        Assert.Equal(DocumentCategories.CSR, result[0].Category);
         Assert.Equal("image-1", result[0].ImageId);
         Assert.Equal("Court Summary Report", result[0].FileName);
         Assert.Equal(DocumentType.CourtSummary, result[0].DocumentType);
@@ -569,7 +570,7 @@ public class BinderMappingTests
     {
         var criminalDocs = new List<CriminalDocument>
         {
-            new() { DocmId = "doc-1", Category = DocumentCategory.ROP },
+            new() { DocmId = "doc-1", Category = DocumentCategories.ROP },
             new() { DocmId = "doc-2", Category = "OTHER" }
         };
 

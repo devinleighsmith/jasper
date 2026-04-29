@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Scv.Models.Location;
 using Xunit;
 using LocationModel = Scv.Models.Location.Location;
 using LocationsModel = Scv.Models.Location.Locations;
@@ -22,7 +21,7 @@ public class LocationsTest
     [Fact]
     public void Remove_Location_ShouldDecreaseCount()
     {
-        var location = LocationModel.Create("TestName", "TestCode", "TestLocationId", true, new List<CourtRoom>());
+        var location = LocationModel.Create("TestName", "TestCode", "TestLocationId", true, []);
         var locations = new LocationsModel([location]);
 
         var result = locations.Remove(location);

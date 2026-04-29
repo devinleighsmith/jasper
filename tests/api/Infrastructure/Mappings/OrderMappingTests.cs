@@ -120,7 +120,7 @@ public class OrderMappingTests
 
         var result = orderDto.Adapt<Order>(_config);
 
-        Assert.Equal(default(DateTime), result.Ent_Dtm);
+        Assert.Equal(default, result.Ent_Dtm);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class OrderMappingTests
 
         var result = orderDto.Adapt<Order>(_config);
 
-        Assert.Equal(default(DateTime), result.Upd_Dtm);
+        Assert.Equal(default, result.Upd_Dtm);
     }
 
     [Fact]

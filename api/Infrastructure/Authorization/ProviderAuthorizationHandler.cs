@@ -13,18 +13,13 @@ using static Scv.Api.Infrastructure.Authorization.ProviderAuthorizationHandler;
 
 namespace Scv.Api.Infrastructure.Authorization
 {
-    public class ProviderAuthorizationHandler : AuthorizationHandler<ProviderRequirement>, IAuthorizationRequirement
+    public class ProviderAuthorizationHandler(IUserService userService) : AuthorizationHandler<ProviderRequirement>, IAuthorizationRequirement
     {
-        private readonly IUserService _userService;
+        private readonly IUserService _userService = userService;
 
         public sealed class ProviderRequirement : IAuthorizationRequirement
         {
             public ProviderRequirement() { }
-        }
-
-        public ProviderAuthorizationHandler(IUserService userService)
-        {
-            _userService = userService;
         }
 
         /// <summary>

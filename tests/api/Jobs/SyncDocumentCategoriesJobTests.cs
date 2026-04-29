@@ -17,6 +17,7 @@ using Scv.Api.Infrastructure.Mappings;
 using Scv.Api.Jobs;
 using Scv.Db.Models;
 using Scv.Db.Repositories;
+using Scv.Models.Document;
 using tests.api.Services;
 using Xunit;
 
@@ -39,13 +40,13 @@ public class SyncDocumentCategoriesJobTests : ServiceTestBase
         [
             new()
             {
-                Key = DocumentCategory.PSR,
+                Key = DocumentCategories.PSR,
                 Value = _faker.Lorem.Paragraph(),
                 PcssConfigurationId = _faker.Random.Int()
             },
             new()
             {
-                Key = DocumentCategory.PLEADINGS,
+                Key = DocumentCategories.PLEADINGS,
                 Value = _faker.Lorem.Paragraph(),
                 PcssConfigurationId = _faker.Random.Int()
             }
@@ -158,7 +159,7 @@ public class SyncDocumentCategoriesJobTests : ServiceTestBase
         var mockConfig = new Mock<IConfiguration>();
         mockConfig.Setup(c => c.GetSection(CONFIG_KEY)).Returns(mockSection.Object);
 
-        var key = DocumentCategory.PSR;
+        var key = DocumentCategories.PSR;
         var value = _faker.Lorem.Paragraph();
         var configId = _faker.Random.Int();
 
@@ -206,7 +207,7 @@ public class SyncDocumentCategoriesJobTests : ServiceTestBase
         var mockConfig = new Mock<IConfiguration>();
         mockConfig.Setup(c => c.GetSection(CONFIG_KEY)).Returns(mockSection.Object);
 
-        var key = DocumentCategory.PSR;
+        var key = DocumentCategories.PSR;
         var value = _faker.Lorem.Paragraph();
         var configId = _faker.Random.Int();
 

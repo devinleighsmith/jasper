@@ -4,7 +4,7 @@ using JCCommon.Clients.UserService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
-using Scv.Core.Helpers.ContractResolver;
+using Scv.Core.ContractResolver;
 using Scv.Core.Helpers.Extensions;
 using Scv.Models.JCUserService;
 
@@ -51,7 +51,7 @@ namespace Scv.Api.Services
             }
             catch (Exception e)
             {
-                Logger.LogError(e, e.Message);
+                Logger.LogError(e, "{Message}", e.Message);
                 return null;
             }
         }

@@ -53,7 +53,7 @@ public class GroupService(
             var groupIds = groupAliases.Select(ga => ga.GroupId).Distinct().Where(g => g != null).ToArray();
             var groups = await this.Repo.FindAsync(g => groupIds.Contains(g.Id));
 
-            if (groupIds.Count() != groups.Count())
+            if (groupIds.Length != groups.Count())
             {
                 Logger.LogError("One or more group aliases do not have a corresponding group.");
                 // this is a non-fatal error, but indicates an issue with one or more aliases.
@@ -99,7 +99,7 @@ public class GroupService(
             var usersWithRef = await _userRepo.FindAsync(g => g.GroupIds.Contains(id));
             var updateTasks = usersWithRef.Select(u =>
             {
-                u.GroupIds = u.GroupIds.Where(roleId => roleId != id).ToList();
+                u.GroupIds = [.. u.GroupIds.Where(roleId => roleId != id)];
                 return _userRepo.UpdateAsync(u);
             });
 

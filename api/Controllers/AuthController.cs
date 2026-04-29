@@ -46,8 +46,8 @@ namespace Scv.Api.Controllers
 
             var logoutUrl = $"{Configuration.GetNonEmptyValue("Keycloak:Authority")}/protocol/openid-connect/logout";
 
-            var forwardedHost = HttpContext.Request.Headers.ContainsKey("X-Forwarded-Host")
-                ? HttpContext.Request.Headers["X-Forwarded-Host"].ToString()
+            var forwardedHost = HttpContext.Request.Headers.TryGetValue("X-Forwarded-Host", out Microsoft.Extensions.Primitives.StringValues value)
+                ? value.ToString()
                 : Request.Host.ToString();
             var forwardedPort = HttpContext.Request.Headers["X-Forwarded-Port"];
 

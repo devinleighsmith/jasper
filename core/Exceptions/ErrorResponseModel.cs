@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Hosting;
 using Scv.Core.Helpers.Extensions;
 
-namespace Scv.Models
+namespace Scv.Core.Exceptions
 {
     /// <summary>
     /// ErrorResponseModel class, provides a standardized error message for unhandled exceptions.

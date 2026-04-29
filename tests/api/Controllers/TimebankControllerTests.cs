@@ -14,7 +14,6 @@ using Scv.Api.Controllers;
 using Scv.Api.Services;
 using Scv.Core.Helpers;
 using Scv.Core.Infrastructure;
-using Scv.Db.Models;
 using Scv.Models.Timebank;
 using Xunit;
 
@@ -77,7 +76,7 @@ public class TimebankControllerTests
 
         // Setup validator to fail for period = 0
         var validationFailure = new FluentValidation.Results.ValidationFailure("Period", "Period must be a positive integer.");
-        var validationResult = new FluentValidation.Results.ValidationResult(new[] { validationFailure });
+        var validationResult = new FluentValidation.Results.ValidationResult([validationFailure]);
         _mockSummaryValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankSummaryRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(validationResult);
 
@@ -278,7 +277,7 @@ public class TimebankControllerTests
 
         // Setup validator to fail for period <= 1900
         var validationFailure = new FluentValidation.Results.ValidationFailure("Period", "Period must be a valid year.");
-        var validationResult = new FluentValidation.Results.ValidationResult(new[] { validationFailure });
+        var validationResult = new FluentValidation.Results.ValidationResult([validationFailure]);
         _mockPayoutValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankPayoutRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(validationResult);
 
@@ -349,7 +348,7 @@ public class TimebankControllerTests
 
         // Setup validator to fail for rate = 0
         var validationFailure = new FluentValidation.Results.ValidationFailure("Rate", "Rate must be a positive number.");
-        var validationResult = new FluentValidation.Results.ValidationResult(new[] { validationFailure });
+        var validationResult = new FluentValidation.Results.ValidationResult([validationFailure]);
         _mockPayoutValidator.Setup(v => v.ValidateAsync(It.IsAny<TimebankPayoutRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(validationResult);
 

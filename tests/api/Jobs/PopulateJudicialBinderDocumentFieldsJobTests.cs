@@ -16,10 +16,10 @@ using Scv.Api.Jobs;
 using Scv.Api.Services;
 using Scv.Core.Infrastructure;
 using Scv.Db.Contants;
-using Scv.Db.Models;
 using Scv.Models;
 using Scv.Models.Binder;
 using Scv.Models.Civil.Detail;
+using Scv.Models.Document;
 using tests.api.Fixtures;
 using Xunit;
 
@@ -383,13 +383,13 @@ public class PopulateJudicialBinderDocumentFieldsJobTests
                 new CvfcDocument3
                 {
                     CivilDocumentId = documentId1,
-                    DocumentTypeCd = DocumentCategory.BAIL,
+                    DocumentTypeCd = DocumentCategories.BAIL,
                     Issue = []
                 },
                 new CvfcDocument3
                 {
                     CivilDocumentId = documentId2,
-                    DocumentTypeCd = DocumentCategory.BAIL,
+                    DocumentTypeCd = DocumentCategories.BAIL,
                     Issue = []
                 }
             ],
@@ -457,7 +457,7 @@ public class PopulateJudicialBinderDocumentFieldsJobTests
                 new CvfcDocument3
                 {
                     CivilDocumentId = documentId,
-                    DocumentTypeCd = DocumentCategory.BAIL,
+                    DocumentTypeCd = DocumentCategories.BAIL,
                     Issue = []
                 }
             ],
@@ -513,7 +513,7 @@ public class PopulateJudicialBinderDocumentFieldsJobTests
                 new CvfcDocument3
                 {
                     CivilDocumentId = "doc-1",
-                    DocumentTypeCd = DocumentCategory.BAIL,
+                    DocumentTypeCd = DocumentCategories.BAIL,
                     Issue = []
                 }
             ],
@@ -531,7 +531,7 @@ public class PopulateJudicialBinderDocumentFieldsJobTests
             ]
         };
 
-        documentCategory ??= DocumentCategory.BAIL;
+        documentCategory ??= DocumentCategories.BAIL;
 
         _filesServiceFixture.MockFileServicesClient
             .Setup(s => s.FilesCivilGetAsync(
@@ -574,23 +574,23 @@ public class PopulateJudicialBinderDocumentFieldsJobTests
                 { LabelConstants.JUDGE_ID, _faker.Random.AlphaNumeric(10) },
                 { LabelConstants.PHYSICAL_FILE_ID, fileId }
             },
-            Documents = documentIds.Select(id => new BinderDocumentDto
+            Documents = [.. documentIds.Select(id => new BinderDocumentDto
             {
                 DocumentId = id,
                 Order = 0
-            }).ToList()
+            })]
         };
     }
 
     private List<CivilDocument> CreateTestCivilDocuments(List<string> documentIds)
     {
-        return documentIds.Select(id => new CivilDocument
+        return [.. documentIds.Select(id => new CivilDocument
         {
             CivilDocumentId = id,
             ImageId = _faker.Random.AlphaNumeric(10),
             DocumentTypeDescription = _faker.Lorem.Sentence(),
             DocumentTypeCd = "LITIGANT"
-        }).ToList();
+        })];
     }
 
     #endregion
