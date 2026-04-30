@@ -30,7 +30,7 @@
     "@microsoft/signalr": "10.0.0",
     "@types/luxon": "^3.7.1",
     "@types/underscore": "^1.13.0",
-    "@vitejs/plugin-basic-ssl": "^2.2.0",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
     "axios": "^1.15.0",
     "base64url": "^3.0.1",
     "bootstrap": "^4.3.1",
