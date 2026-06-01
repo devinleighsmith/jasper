@@ -38,7 +38,7 @@
     >
       <v-card-text>
         <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6">
+          <v-col class="text-headline-small" cols="6">
             {{
               type === 'keyDocuments'
                 ? 'Key Documents'

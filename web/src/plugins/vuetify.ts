@@ -32,18 +32,18 @@ export default createVuetify({
       fluid: true,
     },
     VBtn: {
-      rounded: true,
+      rounded: 'pill',
       variant: 'flat',
       class: 'text-none',
     },
     VBtnSecondary: {
-      rounded: true,
+      rounded: 'pill',
       variant: 'outlined',
       class: 'text-none',
     },
     VBtnTertiary: {
-      rounded: true,
-      class: 'text-none',
+      rounded: 'pill',
+      class: 'text-none text-white',
       baseColor: '#183a4a',
     },
     VSelect: {
@@ -74,5 +74,10 @@ export default createVuetify({
     VDataTableVirtual: {
       hover: true,
     },
+    VTab: {
+      color: '#000',
+      rounded: false,
+    },
+    VChip: {},
   },
 });

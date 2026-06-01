@@ -93,12 +93,13 @@
         <v-btn-secondary
           text="Today"
           size="large"
+          rounded="pill"
           class="mr-3"
           data-testid="today-button"
           @click="today"
           density="comfortable"
           :disabled="isCalendarLoading"
-        ></v-btn-secondary>
+        />
         <!-- Calendar View Picker for Court Calendar -->
         <v-menu
           v-if="isCourtCalendar"
