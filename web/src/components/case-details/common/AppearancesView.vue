@@ -12,7 +12,7 @@
   <v-card class="my-6" color="var(--bg-gray-500)" elevation="0">
     <v-card-text>
       <v-row align="center" no-gutters>
-        <v-col class="text-h5" cols="6"> Appearances </v-col>
+        <v-col class="text-headline-small" cols="6"> Appearances </v-col>
       </v-row>
     </v-card-text>
   </v-card>

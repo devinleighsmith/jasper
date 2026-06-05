@@ -39,7 +39,7 @@ describe('AllDocuments.vue', () => {
     });
 
     const mainEl = wrapper.find('[data-testid="all-documents-container"]');
-    const header = wrapper.find('.text-h5');
+    const header = wrapper.find('.text-headline-small');
     const alertEl = wrapper.find('v-alert');
     const tableEl = wrapper.find('v-data-table-virtual');
 
@@ -75,7 +75,7 @@ describe('AllDocuments.vue', () => {
       },
     });
 
-    const header = wrapper.find('.text-h5');
+    const header = wrapper.find('.text-headline-small');
     expect(header.text()).toContain('All Documents (1)');
   });
 
@@ -90,7 +90,7 @@ describe('AllDocuments.vue', () => {
       },
     });
 
-    const header = wrapper.find('.text-h5');
+    const header = wrapper.find('.text-headline-small');
     expect(getCategoryDisplayTitle).toHaveBeenCalledWith('ORDER');
     expect(header.text()).toContain('Orders (1)');
   });
@@ -105,7 +105,7 @@ describe('AllDocuments.vue', () => {
       },
     });
 
-    const header = wrapper.find('.text-h5');
+    const header = wrapper.find('.text-headline-small');
     expect(header.text()).toContain('All Documents (1)');
   });
 

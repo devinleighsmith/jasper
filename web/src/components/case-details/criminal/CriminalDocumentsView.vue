@@ -21,7 +21,7 @@
           hide-details
           :items="documentCategories"
         >
-          <template v-slot:[`item`]="{ props: itemProps, item }">
+          <template v-slot:[`item`]="{ props: itemProps, internalItem: item }">
             <v-list-item
               v-bind="itemProps"
               :title="item.raw + ' (' + categoryCount(item.raw) + ')'"

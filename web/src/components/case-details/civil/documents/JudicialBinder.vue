@@ -13,7 +13,7 @@
     <v-card class="my-3" color="var(--bg-gray-500)" elevation="0">
       <v-card-text>
         <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6">Judicial binder</v-col>
+          <v-col class="text-headline-small" cols="6">Judicial binder</v-col>
         </v-row>
       </v-card-text>
     </v-card>
