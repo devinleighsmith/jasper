@@ -1,6 +1,8 @@
 <template>
   <v-card color="var(--bg-gray-500)" elevation="0">
-    <v-card-text class="text-h5"> Sentence/Order Details </v-card-text>
+    <v-card-text class="text-headline-small">
+      Sentence/Order Details
+    </v-card-text>
   </v-card>
   <h5 class="my-3 font-weight-bold">Counts ({{ count }})</h5>
   <div class="d-flex align-center justify-space-between mb-3">

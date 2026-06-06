@@ -158,7 +158,7 @@ describe('TimebankModal.vue', () => {
     it('displays judge name and location when data is loaded', async () => {
       await wrapper.vm.$nextTick();
 
-      const title = wrapper.find('.text-h5');
+      const title = wrapper.find('.text-headline-small');
       expect(title.text()).toContain(mockTimebankData.firstNm);
       expect(title.text()).toContain(mockTimebankData.surnameNm);
       expect(title.text()).toContain('Vancouver Provincial Court');
@@ -168,7 +168,7 @@ describe('TimebankModal.vue', () => {
       mockCommonStore.courtRoomsAndLocations = [];
       await wrapper.vm.$nextTick();
 
-      const title = wrapper.find('.text-h5');
+      const title = wrapper.find('.text-headline-small');
       expect(title.text()).toContain(mockTimebankData.firstNm);
       expect(title.text()).toContain(mockTimebankData.surnameNm);
       expect(title.text()).not.toContain(

@@ -11,16 +11,17 @@
         />
       </router-link>
     </v-app-bar-title>
-    <v-tabs align-tabs="start" v-model="selectedTab">
+    <v-tabs align-tabs="start" v-model="selectedTab" text-color="#000">
       <v-tab value="dashboard" to="/dashboard">Dashboard</v-tab>
       <v-tab value="court-list" to="/court-list">Court list</v-tab>
-      <v-tab value="court-file-search" to="/court-file-search"
-        >Court file search</v-tab
-      >
+      <v-tab value="court-file-search" to="/court-file-search">
+        Court file search
+      </v-tab>
       <v-btn
         class="v-tab underline-on-hover"
         value="dars"
         @click="darsStore.openModal()"
+        :rounded="false"
         >DARS</v-btn
       >
       <v-tab value="orders" to="/orders" v-if="showOrders">
@@ -225,6 +226,14 @@
 </script>
 
 <style scoped>
+  :deep(.v-tab) {
+    color: #000 !important;
+  }
+
+  :deep(.v-tab--selected) {
+    color: #000 !important;
+  }
+
   .logo {
     transition:
       transform 0.3s ease,

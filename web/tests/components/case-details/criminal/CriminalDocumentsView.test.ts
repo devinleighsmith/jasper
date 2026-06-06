@@ -75,7 +75,7 @@ describe('CriminalDocumentsView.vue', () => {
   });
 
   it('renders only all documents table when no key documents', () => {
-    const sections = wrapper.findAll('v-card-text .text-h5');
+    const sections = wrapper.findAll('v-card-text .text-headline-small');
     const tables = wrapper.findAll('v-data-table-virtual');
 
     expect(tables).toHaveLength(1);
@@ -92,7 +92,7 @@ describe('CriminalDocumentsView.vue', () => {
       },
     });
 
-    const sections = wrapper.findAll('v-card-text .text-h5');
+    const sections = wrapper.findAll('v-card-text .text-headline-small');
     const tables = wrapper.findAll('v-data-table-virtual');
 
     expect(tables).toHaveLength(2);
@@ -108,7 +108,7 @@ describe('CriminalDocumentsView.vue', () => {
         participants: mockParticipants,
       },
     });
-    const sections = wrapper.findAll('v-card-text .text-h5');
+    const sections = wrapper.findAll('v-card-text .text-headline-small');
     expect(sections).toHaveLength(2);
     expect(sections[1].text()).toBe('All Documents (3)');
   });
@@ -120,7 +120,7 @@ describe('CriminalDocumentsView.vue', () => {
         participants: mockParticipants,
       },
     });
-    const sections = wrapper.findAll('v-card-text .text-h5');
+    const sections = wrapper.findAll('v-card-text .text-headline-small');
     expect(sections).toHaveLength(2);
     expect(sections[0].text()).toBe('Key Documents (1)');
   });
@@ -135,7 +135,7 @@ describe('CriminalDocumentsView.vue', () => {
         participants: mockParticipants,
       },
     });
-    const sections = wrapper.findAll('v-card-text .text-h5');
+    const sections = wrapper.findAll('v-card-text .text-headline-small');
     const tables = wrapper.findAll('v-data-table-virtual');
     expect(tables).toHaveLength(0);
     expect(sections).toHaveLength(0);
@@ -549,7 +549,7 @@ describe('CriminalDocumentsView.vue', () => {
   });
   describe('Category Display Title', () => {
     it('displays "All Documents" when no category is selected', () => {
-      const sections = wrapper.findAll('v-card-text .text-h5');
+      const sections = wrapper.findAll('v-card-text .text-headline-small');
       expect(sections[1].text()).toBe('All Documents (2)');
     });
 
@@ -557,7 +557,7 @@ describe('CriminalDocumentsView.vue', () => {
       wrapper.vm.selectedCategory = 'bail';
       await nextTick();
 
-      const sections = wrapper.findAll('v-card-text .text-h5');
+      const sections = wrapper.findAll('v-card-text .text-headline-small');
       expect(sections[1].text()).toBe('bail (1)');
     });
   });

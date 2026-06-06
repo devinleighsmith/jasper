@@ -1,6 +1,6 @@
 <template>
   <v-chip
-    :class="['text-uppercase', 'mr-2', getBadgeStyle]"
+    :class="['text-uppercase', 'mr-2', 'text-white', getBadgeStyle]"
     variant="flat"
     size="small"
   >

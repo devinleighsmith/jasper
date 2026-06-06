@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title class="pa-4 pb-2">
         <div class="d-flex justify-space-between align-center w-100">
-          <span class="text-h5">
+          <span class="text-headline-small">
             {{ fullName }}
             <span v-if="locationName" class="text-body-2 text-grey">
               ({{ locationName }})

@@ -21,7 +21,7 @@
           hide-details
           :items="documentCategories"
         >
-          <template v-slot:[`item`]="{ props: itemProps, item }">
+          <template v-slot:[`item`]="{ props: itemProps, internalItem: item }">
             <v-list-item
               v-bind="itemProps"
               :title="item.raw + ' (' + categoryCount(item.raw) + ')'"
@@ -38,7 +38,7 @@
     >
       <v-card-text>
         <v-row align="center" no-gutters>
-          <v-col class="text-h5" cols="6">
+          <v-col class="text-headline-small" cols="6">
             {{
               type === 'keyDocuments'
                 ? 'Key Documents'

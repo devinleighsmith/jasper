@@ -11,9 +11,10 @@
     <template v-slot:activator="{ props }">
       <v-btn
         v-bind="props"
-        size="small"
-        class="ma-2"
+        size="x-small"
+        class="ma-0 pl-2"
         :icon="mdiContentCopy"
+        style="font-size: 12px"
         @click="copyToClipBoard(text)"
       >
       </v-btn>
