@@ -12,8 +12,9 @@
       <v-btn
         v-bind="props"
         size="x-small"
-        class="ma-2"
+        class="ma-0 pl-2"
         :icon="mdiContentCopy"
+        style="font-size: 12px"
         @click="copyToClipBoard(text)"
       >
       </v-btn>
