@@ -1,8 +1,9 @@
-import { useCommonStore, useDarsStore } from '@/stores';
+import { useCommonStore, useDarsStore, useOrdersStore } from '@/stores';
 import { ApplicationConfigurationKey } from '@/stores/CommonStore';
 import { PersonSearchItem } from '@/types';
 import {
   ApplicationInfo,
+  OrderPriorityEnum,
   OrderReviewStatus,
   RolesEnum,
   UserInfo,
@@ -12,6 +13,7 @@ import { flushPromises, mount } from '@vue/test-utils';
 import AppBar from 'CMP/shared/AppBar.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 // Mock the JudgeSelector component
@@ -62,15 +64,20 @@ const generateUserInfo = (overrides: Partial<UserInfo> = {}): UserInfo => ({
   ...overrides,
 });
 
-const generateOrder = (status: OrderReviewStatus) => ({
+const generateOrder = (
+  status: OrderReviewStatus,
+  priorityType: string = 'NONPRIORITY'
+) => ({
   id: faker.string.uuid(),
   status,
+  priorityType,
   packageId: faker.number.int({ min: 1000, max: 99999 }),
   packageDocumentId: faker.string.uuid(),
   packageName: faker.lorem.word(),
   receivedDate: faker.date.past().toISOString().split('T')[0],
   processedDate: faker.date.past().toISOString().split('T')[0],
   courtClass: faker.helpers.arrayElement(['CC', 'CV']),
+  courtListType: faker.helpers.arrayElement(['Daily', 'Weekly']),
   courtFileNumber: faker.string.alphanumeric({ length: 10 }).toUpperCase(),
   styleOfCause: `${faker.person.lastName()} v ${faker.person.lastName()}`,
   physicalFileId: faker.number.int().toString(),
@@ -299,7 +306,37 @@ describe('AppBar.vue', () => {
       expect((wrapper.vm as any).showOrders).toBe(true);
     });
 
-    it('should display pending orders badge when there are pending orders', async () => {
+    it('should display priority pending orders badge when there are priority pending orders', async () => {
+      const commonStore = useCommonStore();
+      commonStore.userInfo = generateUserInfo({ roles: [RolesEnum.Admin] });
+
+      const mockOrders = [
+        generateOrder(
+          OrderReviewStatus.Pending,
+          OrderPriorityEnum.ProtectionOrders
+        ),
+        generateOrder(
+          OrderReviewStatus.Pending,
+          OrderPriorityEnum.CourtDirected
+        ),
+        generateOrder(OrderReviewStatus.Approved),
+      ];
+
+      mockOrderService.getOrders.mockResolvedValue(mockOrders);
+      const orderStore = useOrdersStore();
+      orderStore.orders = mockOrders;
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const badge = wrapper.find('[data-testid="priority-badge"]');
+
+      expect(badge.exists()).toBe(true);
+      expect(badge.attributes('content')).toBe('2');
+      expect((wrapper.vm as any).priorityPendingOrdersCount).toBe(2);
+    });
+
+    it('should display regular pending orders badge when there are non-priority pending orders', async () => {
       const commonStore = useCommonStore();
       commonStore.userInfo = generateUserInfo({ roles: [RolesEnum.Admin] });
 
@@ -310,14 +347,17 @@ describe('AppBar.vue', () => {
       ];
 
       mockOrderService.getOrders.mockResolvedValue(mockOrders);
+      const orderStore = useOrdersStore();
+      orderStore.orders = mockOrders;
 
       const wrapper = createWrapper();
       await flushPromises();
 
-      const badge = wrapper.find('[data-testid="order-badge"]');
+      const badge = wrapper.find('[data-testid="regular-badge"]');
 
       expect(badge.exists()).toBe(true);
       expect(badge.attributes('content')).toBe('2');
+      expect((wrapper.vm as any).regularPendingOrdersCount).toBe(2);
     });
 
     it('should not display badge when there are no pending orders', async () => {
@@ -331,7 +371,37 @@ describe('AppBar.vue', () => {
       const wrapper = createWrapper();
       await flushPromises();
 
-      expect((wrapper.vm as any).pendingOrdersCount).toBe(0);
+      expect((wrapper.vm as any).regularPendingOrdersCount).toBe(0);
+      expect((wrapper.vm as any).priorityPendingOrdersCount).toBe(0);
+      expect(wrapper.find('[data-testid="order-badge"]').exists()).toBe(false);
+    });
+
+    it('should show order-combo-badge element when there are both priority and regular pending orders', async () => {
+      const commonStore = useCommonStore();
+      commonStore.userInfo = generateUserInfo({ roles: [RolesEnum.Admin] });
+
+      const mockOrders = [
+        generateOrder(
+          OrderReviewStatus.Pending,
+          OrderPriorityEnum.ProtectionOrders
+        ),
+        generateOrder(
+          OrderReviewStatus.Pending,
+          OrderPriorityEnum.CourtDirected
+        ),
+        generateOrder(OrderReviewStatus.Pending),
+      ];
+
+      mockOrderService.getOrders.mockResolvedValue(mockOrders);
+
+      const orderStore = useOrdersStore();
+      orderStore.orders = mockOrders;
+
+      const wrapper = createWrapper();
+      await flushPromises();
+
+      const comboBadge = wrapper.find('[data-testid="order-combo-badge"]');
+      expect(comboBadge.exists()).toBe(true);
     });
   });
 
