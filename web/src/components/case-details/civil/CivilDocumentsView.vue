@@ -24,7 +24,7 @@
         item-title="title"
         item-value="value"
       >
-        <template v-slot:item="{ props: itemProps, internalItem: item }">
+        <template v-slot:item="{ props: itemProps, item }">
           <v-list-item
             v-bind="itemProps"
             :title="`${item.title} (${categoryCount(item.raw.value)})`"
