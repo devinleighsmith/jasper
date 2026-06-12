@@ -382,7 +382,7 @@ namespace Scv.Api.Services.Files
 
             var binderDocuments = await PopulateDetailDocuments([.. csrDocs.Concat(otherDocs)], detail, fileContentCivilFile, false, false);
 
-            return binderDocuments;
+            return [.. binderDocuments.Where(bd => documentIds.Contains(bd.CivilDocumentId))]; // Must re-apply document id filter to avoid reference documents being re-added by PopulateDetailDocuments.
         }
 
         #endregion Methods
