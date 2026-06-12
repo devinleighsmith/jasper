@@ -20,7 +20,7 @@
     "@typescript-eslint/parser": "^8.56.1",
     "@vitest/coverage-v8": "^4.1.8",
     "dotenv": "^17.3.1",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.28.1",
     "eslint": "^10.0.2",
     "eslint-define-config": "^2.1.0",
     "vitest": "^4.1.8"
