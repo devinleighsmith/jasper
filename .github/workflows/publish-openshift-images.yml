@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "docker/openshift/**"
-      - "openshift/**"
+      - 'docker/openshift/**'
+      - 'openshift/**'
 
 env:
-  GITHUB_IMAGE_REPO: ghcr.io/bcgov/jasper
+  GITHUB_IMAGE_REPO: ghcr.io/devinleighsmith/jasper
   SRC_PATH: ../../docker/openshift
 
 permissions:
