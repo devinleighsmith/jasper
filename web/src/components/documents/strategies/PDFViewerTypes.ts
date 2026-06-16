@@ -1,4 +1,5 @@
 import { OrderReview } from '@/types';
+import { ToolbarItem } from '@nutrient-sdk/viewer';
 
 export interface PDFViewerStrategy<
   TRawData = any,
@@ -17,6 +18,7 @@ export interface PDFViewerStrategy<
   cleanup(): void;
   showOrderReviewOptions?: boolean;
   reviewOrder?(orderReview: OrderReview): Promise<void>;
+  setToolbarItems?(items: ToolbarItem[]): ToolbarItem[];
 }
 
 export interface OutlineItem {

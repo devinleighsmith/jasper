@@ -2,6 +2,7 @@ import { OrderService } from '@/services/OrderService';
 import { useCommonStore, useSnackbarStore } from '@/stores';
 import { OrderReviewStatus } from '@/types/common';
 import { OrderReview } from '@/types/OrderReview';
+import { ToolbarItem } from '@nutrient-sdk/viewer';
 import { inject } from 'vue';
 import { BasePDFStrategy } from './BasePDFStrategy';
 
@@ -60,5 +61,29 @@ export class OrderPDFStrategy extends BasePDFStrategy {
         );
         break;
     }
+  }
+
+  setToolbarItems(items: ToolbarItem[]): ToolbarItem[] {
+    const toRemove = new Set(['note', 'print', 'callout', 'image']);
+    const toMove = new Set(['open-information', 'open-document-review']);
+    const base = items.filter(
+      (item) =>
+        !toRemove.has(item.type) && (item.id ? !toMove.has(item.id) : true)
+    );
+
+    // Icons rendered after the linearized-download-indicator or at the end
+    const extras = [
+      { type: 'spacer' },
+      items.find((item) => item.id === 'open-information'),
+      items.find((item) => item.type === 'image'),
+      items.find((item) => item.id === 'open-document-review'),
+    ].filter(Boolean) as ToolbarItem[];
+
+    const anchor = base.findIndex(
+      (item) => item.type === 'linearized-download-indicator'
+    );
+    const insertAt = anchor === -1 ? base.length : anchor + 1;
+
+    return [...base.slice(0, insertAt), ...extras, ...base.slice(insertAt)];
   }
 }
