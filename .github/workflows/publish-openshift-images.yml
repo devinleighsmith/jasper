@@ -26,6 +26,7 @@ jobs:
       matrix:
         dockerfile-image:
           - Dockerfile=./docker/openshift/Dockerfile.sync-secrets,image=sync-secrets
+          - Dockerfile=./docker/openshift/Dockerfile.generate-mongo-tls,image=generate-mongo-tls
           - Dockerfile=./docker/openshift/Dockerfile.update-aws-creds,image=update-aws-creds
 
     steps:
