@@ -8,7 +8,7 @@ on:
       - 'openshift/**'
 
 env:
-  GITHUB_IMAGE_REPO: ghcr.io/devinleighsmith/jasper
+  GITHUB_IMAGE_REPO: ghcr.io/bcgov/jasper
   SRC_PATH: ../../docker/openshift
 
 permissions:
