@@ -488,9 +488,8 @@ resource "aws_secretsmanager_secret" "mongo_tls_secret" {
 resource "aws_secretsmanager_secret_version" "mongo_tls_secret_value" {
   secret_id = aws_secretsmanager_secret.mongo_tls_secret.id
   secret_string = jsonencode({
-    cert = "",
-    key  = "",
-    ca   = ""
+    ca  = "",
+    pem = ""
   })
   lifecycle {
     ignore_changes = [secret_string]
