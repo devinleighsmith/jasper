@@ -200,12 +200,14 @@ authorityKeyIdentifier = keyid,issuer
 EOF
 
 log "Signing MongoDB server certificate with mounted private CA."
+SERIAL_HEX="$(openssl rand -hex 16)"
+
 openssl x509 \
   -req \
   -in "$SERVER_CSR" \
   -CA "$CA_CERT_PATH" \
   -CAkey "$CA_KEY_PATH" \
-  -CAcreateserial \
+  -set_serial "0x${SERIAL_HEX}" \
   -out "$SERVER_CRT" \
   -days "$CERT_DAYS" \
   -sha256 \
