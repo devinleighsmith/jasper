@@ -8,6 +8,7 @@ RUN apk add --no-cache \
     ca-certificates \
     jq \
     kubectl \
+    mongodb-tools \
     openssl
 
 WORKDIR ${APP_ROOT}

@@ -10,7 +10,6 @@ RUN apk add --no-cache \
     curl \
     tar \
     bash \
-    mongorestore \
     libc6-compat
 
 # Download and install the OpenShift CLI (oc)
