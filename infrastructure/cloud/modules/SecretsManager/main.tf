@@ -480,13 +480,24 @@ resource "aws_secretsmanager_secret_version" "smb_secret_value" {
   }
 }
 
+locals {
+  mongo_tls_secret_name = var.existing_mongo_tls_secret_name != "" ? var.existing_mongo_tls_secret_name : "external/${var.app_name}-mongo-tls-${var.environment}"
+}
+
+data "aws_secretsmanager_secret" "existing_mongo_tls_secret" {
+  count = var.use_existing_mongo_tls_secret ? 1 : 0
+  name  = local.mongo_tls_secret_name
+}
+
 resource "aws_secretsmanager_secret" "mongo_tls_secret" {
+  count      = var.use_existing_mongo_tls_secret ? 0 : 1
   name       = "external/${var.app_name}-mongo-tls-${var.environment}"
   kms_key_id = var.kms_key_arn
 }
 
 resource "aws_secretsmanager_secret_version" "mongo_tls_secret_value" {
-  secret_id = aws_secretsmanager_secret.mongo_tls_secret.id
+  count     = var.use_existing_mongo_tls_secret ? 0 : 1
+  secret_id = aws_secretsmanager_secret.mongo_tls_secret[0].id
   secret_string = jsonencode({
     ca  = "",
     pem = ""
