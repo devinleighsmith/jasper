@@ -20,7 +20,7 @@ required() {
   fi
 }
 
-required CERT_IP
+required CERT_SUBJECT_ALT_NAME
 required OPENSHIFT_SECRET_NAME
 required OPENSHIFT_SECRET_NAMESPACE
 required AWS_SECRET_ID
@@ -32,6 +32,9 @@ CERT_DAYS="${CERT_DAYS:-14}"
 KEY_SIZE="${KEY_SIZE:-4096}"
 CERT_COMMON_NAME="${CERT_COMMON_NAME:-cloudpirates-mongodb}"
 ROLLOUT_TIMEOUT="${ROLLOUT_TIMEOUT:-300s}"
+
+# CERT_SUBJECT_ALT_NAME must be a valid openssl subjectAltName value string.
+# e.g. "IP:10.99.10.9,DNS:my-host.svc.cluster.local,DNS:localhost"
 
 GENERATED_CERT_KEY="${GENERATED_CERT_KEY:-tls.crt}"
 GENERATED_PRIVATE_KEY_KEY="${GENERATED_PRIVATE_KEY_KEY:-tls.key}"
@@ -191,7 +194,7 @@ openssl req \
   -subj "/CN=${CERT_COMMON_NAME}"
 
 cat > "$SERVER_EXT" <<EOF
-subjectAltName = IP:${CERT_IP}
+subjectAltName = ${CERT_SUBJECT_ALT_NAME}
 basicConstraints = critical,CA:FALSE
 keyUsage = critical,digitalSignature,keyEncipherment
 extendedKeyUsage = serverAuth
